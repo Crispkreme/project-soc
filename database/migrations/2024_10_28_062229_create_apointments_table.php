@@ -11,21 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('apointments', function (Blueprint $table) {
+        Schema::create('appointments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('booking_id')->nullable(); 
-            $table->unsignedBigInteger('doctor_id')->nullable(); 
-            $table->enum('appointment_status', [
-                'Inprogress', 
-                'Pending', 
-                'Success', 
-                'Failed', 
-            ])
-            ->nullable()
-            ->default('Inprogress');
-
-            $table->foreign('doctor_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('cascade');
+            $table->foreignId('booking_id')->nullable()->constrained('bookings')->onDelete('cascade');
+            $table->foreignId('doctor_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->enum('appointment_status', ['Inprogress', 'Pending', 'Success', 'Failed'])->nullable()->default('Inprogress');
             $table->timestamps();
         });
     }
