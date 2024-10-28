@@ -13,13 +13,10 @@ return new class extends Migration
     {
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('medicine_id')->nullable();
-            $table->unsignedBigInteger('encode_by_id')->nullable();
+            $table->foreignId('medicine_id')->nullable()->constrained('medicines')->onDelete('cascade');
+            $table->foreignId('encode_by_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->text('usage');
             $table->integer('quantity');
-
-            $table->foreign('medicine_id')->references('id')->on('medicines')->onDelete('cascade');
-            $table->foreign('encode_by_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

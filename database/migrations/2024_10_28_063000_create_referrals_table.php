@@ -13,22 +13,11 @@ return new class extends Migration
     {
         Schema::create('referrals', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('doctor_id')->nullable();
-            $table->unsignedBigInteger('patient_id')->nullable();
-            $table->unsignedBigInteger('refer_to_id')->nullable();
+            $table->foreignId('doctor_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('patient_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('refer_to_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->text('reason');
-            $table->enum('referral_status', [
-                'Inprogress', 
-                'Pending', 
-                'Success', 
-                'Failed', 
-            ])
-            ->nullable()
-            ->default('Inprogress');
-
-            $table->foreign('doctor_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('patient_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('refer_to_id')->references('id')->on('users')->onDelete('cascade');
+            $table->enum('referral_status', ['Inprogress', 'Pending', 'Success', 'Failed'])->nullable()->default('Inprogress');
             $table->timestamps();
         });
     }
