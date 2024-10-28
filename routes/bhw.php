@@ -1,0 +1,13 @@
+<?php
+
+use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Route;
+
+
+// BHWS
+Route::middleware(['auth', 'verified', 'bhw'])
+->prefix('bhw')
+->as('bhw.')
+->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+});
