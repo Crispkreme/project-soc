@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Contracts\UserContract;
+use App\Contracts\UserDetailContract;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Exception;
@@ -21,11 +22,14 @@ use Inertia\Response;
 class RegisteredUserController extends Controller
 {
     protected $userContract;
+    protected $userDetailContract;
 
     public function __construct(
         UserContract $userContract,
+        UserDetailContract $userDetailContract,
     ) {
         $this->userContract = $userContract;
+        $this->userDetailContract = $userDetailContract;
     }
 
     /**
@@ -43,6 +47,7 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+
         $data = $request->validate([
             'username' => 'required|string|lowercase|max:255|unique:'.User::class,
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
@@ -52,11 +57,23 @@ class RegisteredUserController extends Controller
         $data['role'] = 'Patient';
 
         $user = $this->userContract->createOrUpdateUser($data);
+        
+        $userData = [
+            'user_id' => $user->id,
+            'firstname' => '',
+            'middlename' => null,
+            'lastname' => '',
+            'gender' => null,
+            'birthday' => null,
+            'civil_status' => null,
+            'religion' => '',
+            'profile' => '',
+        ];
 
-        event(new Registered($user));
-        
+        $this->userDetailContract->createOrUpdateUserDetail($userData);
+
         Auth::login($user);
-        
+
         Session::flash('success', 'Account Successfully Created!');
         
         if($user->role === 'Practitioner') {
