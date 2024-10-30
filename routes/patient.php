@@ -15,5 +15,6 @@ Route::middleware(['auth', 'verified', 'patient'])
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');
     Route::patch('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/view/password/{id}', [UserDetailController::class, 'viewPassword'])->name('view.password');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

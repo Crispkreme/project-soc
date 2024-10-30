@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
 use Exception;
 use Illuminate\Http\Request;
@@ -13,11 +14,14 @@ use Inertia\Inertia;
 class UserDetailController extends Controller
 {
     protected $userDetailContract;
+    protected $userContract;
 
     public function __construct(
         UserDetailContract $userDetailContract,
+        UserContract $userContract,
     ) {
         $this->userDetailContract = $userDetailContract;
+        $this->userContract = $userContract;
     }
 
     public function viewProfile($id)
@@ -71,5 +75,14 @@ class UserDetailController extends Controller
             Session::flash('error', 'An error occurred during registration.');
             return redirect()->back();
         }
+    }
+
+    public function viewPassword($id)
+    {
+        $user = $this->userContract->getUserById($id);
+
+        return Inertia::render('Patients/Profiles/Password', [
+            'user' => $user,
+        ]);
     }
 }

@@ -67,6 +67,11 @@ export default function AuthenticatedLayout({ header, children }) {
                                             Profile
                                         </Dropdown.Link>
                                         <Dropdown.Link
+                                            href={route('patient.view.password', user.id)}
+                                        >
+                                            Change Password
+                                        </Dropdown.Link>
+                                        <Dropdown.Link
                                             href={route('logout')}
                                             method="post"
                                             as="button"
@@ -149,6 +154,9 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="mt-3 space-y-1">
                             <ResponsiveNavLink href={route('patient.view.profile', user.id)}>
                                 Profile
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('patient.view.password', user.id)}>
+                                Change Password
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"
