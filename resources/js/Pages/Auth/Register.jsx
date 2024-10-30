@@ -2,13 +2,12 @@ import InputError from '@/Components/Inputs/InputError';
 import InputLabel from '@/Components/Inputs/InputLabel';
 import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/Inputs/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import HomeLayout from '../../Layouts/HomeLayout';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
+        username: '',
         email: '',
         password: '',
         password_confirmation: '',
@@ -17,8 +16,17 @@ export default function Register() {
     const submit = (e) => {
         e.preventDefault();
 
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+        // post(route('register'), {
+        //     onFinish: () => reset('password', 'password_confirmation'),
+        // });
+
+        post(route('register.store'), {
+            onSuccess: () => {
+                reset('password', 'password_confirmation');
+            },
+            onError: (errors) => {
+                console.error(errors);
+            }
         });
     };
 

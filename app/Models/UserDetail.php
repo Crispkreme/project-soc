@@ -9,7 +9,17 @@ class UserDetail extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'firstname', 'lastname', 'gender', 'birthday', 'civil_status', 'religion', 'profile'];
+    protected $fillable = [
+        'user_id', 
+        'firstname', 
+        'middlename',
+        'lastname', 
+        'gender', 
+        'birthday', 
+        'civil_status', 
+        'religion', 
+        'profile'
+    ];
 
     public function user() {
         return $this->belongsTo(User::class);

@@ -1,3 +1,4 @@
+import React from 'react';
 import InputError from '@/Components/Inputs/InputError';
 import InputLabel from '@/Components/Inputs/InputLabel';
 import PrimaryButton from '@/Components/Buttons/PrimaryButton';
@@ -6,7 +7,7 @@ import { Transition } from '@headlessui/react';
 import { useForm } from '@inertiajs/react';
 import { useRef } from 'react';
 
-export default function UpdatePasswordForm({ className = '' }) {
+const UpdatePassword = ({ user, className = ''}) => {
     const passwordInput = useRef();
     const currentPasswordInput = useRef();
 
@@ -140,3 +141,5 @@ export default function UpdatePasswordForm({ className = '' }) {
         </section>
     );
 }
+
+export default UpdatePassword
