@@ -38,25 +38,21 @@ export default function Register() {
                         <Head title="Register" />
                         <form onSubmit={submit}>
                             <div>
-                                <InputLabel htmlFor="name" value="Name" />
-
+                                <InputLabel htmlFor="username" value="Username" />
                                 <TextInput
-                                    id="name"
-                                    name="name"
-                                    value={data.name}
+                                    id="username"
+                                    name="username"
+                                    value={data.username}
                                     className="mt-1 block w-full"
-                                    autoComplete="name"
+                                    autoComplete="username"
                                     isFocused={true}
-                                    onChange={(e) => setData('name', e.target.value)}
+                                    onChange={(e) => setData('username', e.target.value)}
                                     required
                                 />
-
-                                <InputError message={errors.name} className="mt-2" />
+                                <InputError message={errors.username} className="mt-2" />
                             </div>
-
                             <div className="mt-4">
                                 <InputLabel htmlFor="email" value="Email" />
-
                                 <TextInput
                                     id="email"
                                     type="email"
@@ -67,13 +63,10 @@ export default function Register() {
                                     onChange={(e) => setData('email', e.target.value)}
                                     required
                                 />
-
                                 <InputError message={errors.email} className="mt-2" />
                             </div>
-
                             <div className="mt-4">
                                 <InputLabel htmlFor="password" value="Password" />
-
                                 <TextInput
                                     id="password"
                                     type="password"
@@ -84,16 +77,13 @@ export default function Register() {
                                     onChange={(e) => setData('password', e.target.value)}
                                     required
                                 />
-
                                 <InputError message={errors.password} className="mt-2" />
                             </div>
-
                             <div className="mt-4">
                                 <InputLabel
                                     htmlFor="password_confirmation"
                                     value="Confirm Password"
                                 />
-
                                 <TextInput
                                     id="password_confirmation"
                                     type="password"
@@ -106,13 +96,11 @@ export default function Register() {
                                     }
                                     required
                                 />
-
                                 <InputError
                                     message={errors.password_confirmation}
                                     className="mt-2"
                                 />
                             </div>
-
                             <div className="mt-4 flex items-center justify-end">
                                 <Link
                                     href={route('login')}
@@ -120,7 +108,6 @@ export default function Register() {
                                 >
                                     Already registered?
                                 </Link>
-
                                 <PrimaryButton className="ms-4" disabled={processing}>
                                     Register
                                 </PrimaryButton>

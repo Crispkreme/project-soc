@@ -1,11 +1,11 @@
-import Checkbox from '@/Components/Inputs/Checkbox';
+import React from "react";
 import InputError from '@/Components/Inputs/InputError';
 import InputLabel from '@/Components/Inputs/InputLabel';
 import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/Inputs/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
-const HomeLayout = React.lazy(() => import("../../Layouts/HomeLayout"));
 import logo from '../../../../public/assets/svg/logo.svg';
+const HomeLayout = React.lazy(() => import("../../Layouts/HomeLayout"));
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
