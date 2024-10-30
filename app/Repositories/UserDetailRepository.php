@@ -19,10 +19,10 @@ class UserDetailRepository implements UserDetailContract
     {   
         return $this->model->updateOrCreate(
             [
-                'id' => $data['id'] ?? null,
+                'user_id' => $data['user_id'],
             ],
             [
-                'user_id' => $data['user_id'],
+                
                 'firstname' => $data['firstname'],
                 'middlename' => $data['middlename'],
                 'lastname' => $data['lastname'],

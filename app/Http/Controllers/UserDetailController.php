@@ -55,16 +55,17 @@ class UserDetailController extends Controller
             
             if ($id) {
                 $data['id'] = $id; 
-                $users = $this->userDetailContract->createOrUpdateUserDetail($data);
+                $this->userDetailContract->createOrUpdateUserDetail($data);
             } else {
-                $users = $this->userDetailContract->createOrUpdateUserDetail($data);
+                $this->userDetailContract->createOrUpdateUserDetail($data);
             }
-            dd($users);
+
             DB::commit();
             
             Session::flash('success', 'Pet saved successfully!');
 
         } catch (Exception $e) {
+
             Log::error('Error during petStore: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
