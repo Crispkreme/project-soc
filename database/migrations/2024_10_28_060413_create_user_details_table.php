@@ -25,7 +25,7 @@ return new class extends Migration
             $table->date('birthday')->nullable();
             $table->enum('civil_status', ['Single', 'Married', 'Divorce', 'Separated'])->nullable();
             $table->string('religion');
-            $table->string('profile');
+            $table->string('profile')->nullable();
             $table->timestamps();
         });
     }
