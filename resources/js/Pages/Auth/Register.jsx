@@ -16,8 +16,17 @@ export default function Register() {
     const submit = (e) => {
         e.preventDefault();
 
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+        // post(route('register'), {
+        //     onFinish: () => reset('password', 'password_confirmation'),
+        // });
+
+        post(route('register.store'), {
+            onSuccess: () => {
+                reset('password', 'password_confirmation');
+            },
+            onError: (errors) => {
+                console.error(errors);
+            }
         });
     };
 
@@ -28,7 +37,6 @@ export default function Register() {
             <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="username" value="Username" />
-
                     <TextInput
                         id="username"
                         name="username"
@@ -39,13 +47,10 @@ export default function Register() {
                         onChange={(e) => setData('username', e.target.value)}
                         required
                     />
-
                     <InputError message={errors.username} className="mt-2" />
                 </div>
-
                 <div className="mt-4">
                     <InputLabel htmlFor="email" value="Email" />
-
                     <TextInput
                         id="email"
                         type="email"
@@ -56,13 +61,10 @@ export default function Register() {
                         onChange={(e) => setData('email', e.target.value)}
                         required
                     />
-
                     <InputError message={errors.email} className="mt-2" />
                 </div>
-
                 <div className="mt-4">
                     <InputLabel htmlFor="password" value="Password" />
-
                     <TextInput
                         id="password"
                         type="password"
@@ -73,16 +75,13 @@ export default function Register() {
                         onChange={(e) => setData('password', e.target.value)}
                         required
                     />
-
                     <InputError message={errors.password} className="mt-2" />
                 </div>
-
                 <div className="mt-4">
                     <InputLabel
                         htmlFor="password_confirmation"
                         value="Confirm Password"
                     />
-
                     <TextInput
                         id="password_confirmation"
                         type="password"
@@ -95,13 +94,11 @@ export default function Register() {
                         }
                         required
                     />
-
                     <InputError
                         message={errors.password_confirmation}
                         className="mt-2"
                     />
                 </div>
-
                 <div className="mt-4 flex items-center justify-end">
                     <Link
                         href={route('login')}
@@ -109,7 +106,6 @@ export default function Register() {
                     >
                         Already registered?
                     </Link>
-
                     <PrimaryButton className="ms-4" disabled={processing}>
                         Register
                     </PrimaryButton>
