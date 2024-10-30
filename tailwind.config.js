@@ -14,6 +14,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                lily: ['Lily Script One', ...defaultTheme.fontFamily.sans]
             },
         },
     },
