@@ -20,6 +20,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';
 require __DIR__.'/practitioner.php';
 require __DIR__.'/bhw.php';
 require __DIR__.'/patient.php';
