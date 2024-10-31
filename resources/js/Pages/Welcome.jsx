@@ -1,6 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
 
-import HomeLayout from '../Layouts/HomeLayout';
+import LoginLayout from '../Layouts/LoginLayout';
 import logo from '../../../public/assets/svg/logo.svg';
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
@@ -17,35 +16,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
     return (
         <>
-            {/* <Head title="Welcome" />
-            
-            <div>
-                {auth.user ? (
-                    <Link
-                        href={route('dashboard')}
-                        className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                    >
-                        Dashboard
-                    </Link>
-                ) : (
-                    <>
-                        <Link
-                            href={route('login')}
-                            className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                        >
-                            Log in
-                        </Link>
-                        <Link
-                            href={route('register')}
-                            className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                        >
-                            Register
-                        </Link>
-                    </>
-                )}
-            </div> */}
-            <HomeLayout>
-                <div className='flex flex-col h-full justify-between p-8 h-full'>
+            <LoginLayout>
+                <div className='flex flex-col justify-between p-8 h-full'>
                     <div>
                         <img src={logo} width={150}/>
                     </div>
@@ -60,7 +32,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         </h1>
                     </div>
                 </div>
-            </HomeLayout>
+            </LoginLayout>
         </>
     );
 }
