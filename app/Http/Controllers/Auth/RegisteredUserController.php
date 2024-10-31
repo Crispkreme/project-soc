@@ -76,7 +76,9 @@ class RegisteredUserController extends Controller
 
         Session::flash('success', 'Account Successfully Created!');
         
-        if($user->role === 'Practitioner') {
+        if($user->role === 'Administration') {
+            return redirect()->intended(route('admin.dashboard', absolute: false));
+        } else if($user->role === 'Practitioner') {
             return redirect()->intended(route('practitioner.dashboard', absolute: false));
         } else if($user->role === 'Bhw') {
             return redirect()->intended(route('bhw.dashboard', absolute: false));
