@@ -17,6 +17,7 @@ class UserDetail extends Model
         'gender', 
         'birthday', 
         'civil_status', 
+        'status',
         'religion', 
         'profile'
     ];
