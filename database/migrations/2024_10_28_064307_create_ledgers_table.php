@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('ledgers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('medicine_id')->nullable()->constrained('medicines')->onDelete('cascade');
-            $table->integer('sold');
+            $table->integer('sold')->default(0);
             $table->integer('in_stock');
             $table->timestamps();
         });
