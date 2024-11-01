@@ -73,7 +73,7 @@ const Medicine = ({ medicines }) => {
                 <div className='grid grid-cols-1 gap-6 mb-6'>
                     <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
                         <div className="flex justify-between mb-4 items-start">
-                            <div className="font-medium">Manage Accounts</div>
+                            <div className="font-medium">Manage Medicine</div>
                         </div>
                         <div className="flex items-center mb-4 order-tab justify-between">
                             <div className="flex">
