@@ -66,9 +66,29 @@ class MedicineController extends Controller
         }
     }
 
-    public function getMedicineById($id)
+    public function deleteMedicine($id)
     {
-        $medicine = $this->medicineContract->getMedicineById($id);
-        dd($medicine);
+        DB::beginTransaction();
+        
+        try {
+            
+            $this->medicineContract->deleteMedicine($id);
+
+            DB::commit();
+            
+            Session::flash('success', 'Medicine deleted successfully!');
+
+        } catch (Exception $e) {
+
+            Log::error('Error during deleteMedicine: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            Session::flash('error', 'An error occurred during deleteMedicine.');
+            return redirect()->back();
+        }
     }
 }

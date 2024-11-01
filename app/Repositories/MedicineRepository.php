@@ -40,4 +40,13 @@ class MedicineRepository implements MedicineContract
             ->where('id', $id)
             ->first();
     }
+
+    public function deleteMedicine($id)
+    {
+        $data = $this->model->findOrFail($id);
+        if ($data) {
+            $data->delete();
+        }
+        return $data;
+    }
 }

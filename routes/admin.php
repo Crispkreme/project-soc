@@ -25,7 +25,7 @@ Route::middleware(['auth', 'verified', 'admin'])
 
     // MEDICINE
     Route::get('/medicines', [MedicineController::class, 'getAllMedicine'])->name('medicines');
-    Route::get('/view/medicines/{id}', [MedicineController::class, 'getMedicineById'])->name('view.medicines');
+    Route::delete('/delete/medicines/{id}', [MedicineController::class, 'deleteMedicine'])->name('delete.medicines');
     Route::post('/store/medicines', [MedicineController::class, 'updateOrCreateMedicine'])->name('store.medicines');
     Route::post('/update/medicines/{id}', [MedicineController::class, 'updateOrCreateMedicine'])->name('update.medicines');
 });

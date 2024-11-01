@@ -68,11 +68,11 @@ const MedicineModal = ({ showModal, toggleModal, selectedMedicine, isEditing, is
   return (
     <Modal show={showModal} onClose={toggleModal}>
       <div className="p-6">
-        
+
         <Title>
           {isViewing ? (
             "View Medicine"
-          ) : isUpdating ? (
+          ) : isEditing ? (
             "Update Medicine"
           ) : (
             "Add New Medicine"
@@ -115,7 +115,7 @@ const MedicineModal = ({ showModal, toggleModal, selectedMedicine, isEditing, is
               <PrimaryButton className="ms-4" onClick={handleClose}>
                 <CgClose className="mr-1" /> Close
               </PrimaryButton>
-            ) : isUpdating ? (
+            ) : isEditing ? (
               <PrimaryButton className="ms-4" disabled={processing}>
                 <LuClipboardEdit className="mr-1" /> Update
               </PrimaryButton>

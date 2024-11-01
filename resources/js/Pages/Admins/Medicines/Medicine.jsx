@@ -1,5 +1,6 @@
 import React, { useState, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
+import { Inertia } from '@inertiajs/inertia';
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { LuClipboardEdit } from "react-icons/lu";
 import { RiDeleteBin5Line } from "react-icons/ri";
@@ -7,7 +8,9 @@ import { SlEyeglass } from "react-icons/sl";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const MedicineModal = React.lazy(() => import("./MedicineModal"));
+const ConfirmDeleteModal = React.lazy(() => import("@/Components/Modals/ConfirmDeleteModal"));
 const SecondaryButton = React.lazy(() => import("@/Components/Buttons/SecondaryButton"));
+const SuccessButton = React.lazy(() => import("@/Components/Buttons/SuccessButton"));
 const DangerButton = React.lazy(() => import("@/Components/Buttons/DangerButton"));
 const WarningButton = React.lazy(() => import("@/Components/Buttons/WarningButton"));
 
@@ -17,6 +20,8 @@ const Medicine = ({ medicines }) => {
     const [selectedMedicine, setSelectedMedicine] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isViewing, setIsViewing] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [medicineToDelete, setMedicineToDelete] = useState(null);
 
     const toggleModal = () => {
         setShowModal(!showModal);
@@ -26,14 +31,37 @@ const Medicine = ({ medicines }) => {
         setShowModal(false); 
     };
 
-    const openViewModal = (medicine) => {        
-        if (medicine.id !== undefined) {
-            console.log(`Medicine ID is defined: ${medicine.id}`);
-        }
+    const openViewModal = (medicine) => {
         setSelectedMedicine(medicine); 
         setIsEditing(false); 
         setIsViewing(true); 
         setShowModal(true); 
+    };
+
+    const openEditModal = (medicine) => {
+        setSelectedMedicine(medicine); 
+        setIsEditing(true); 
+        setIsViewing(false); 
+        setShowModal(true);  
+    };
+
+    const handleDelete = (medicine) => {
+        setMedicineToDelete(medicine);
+        setConfirmDelete(true);
+    };
+
+    const confirmDeleteHandler = () => {
+        if (medicineToDelete) {
+            Inertia.delete(route('admin.delete.medicines', medicineToDelete.id), {
+                onSuccess: () => {
+                    setConfirmDelete(false);
+                    setMedicineToDelete(null);
+                },
+                onError: () => {
+                    console.error("Error deleting medicine");
+                },
+            });
+        }
     };
 
     return (
@@ -49,22 +77,17 @@ const Medicine = ({ medicines }) => {
                         </div>
                         <div className="flex items-center mb-4 order-tab justify-between">
                             <div className="flex">
-                                <button type="button" data-tab="order" data-tab-page="active" className="bg-gray-50 text-sm font-medium text-gray-400 py-2 px-4 rounded-tl-md rounded-bl-md hover:text-gray-600 active">
+                                <button type="button" className="bg-gray-50 text-sm font-medium text-gray-400 py-2 px-4 rounded-tl-md rounded-bl-md hover:text-gray-600 active">
                                     Out of Stock
                                 </button>
-                                <button type="button" data-tab="order" data-tab-page="deactive" className="bg-gray-50 text-sm font-medium text-gray-400 py-2 px-4 hover:text-gray-600">
+                                <button type="button" className="bg-gray-50 text-sm font-medium text-gray-400 py-2 px-4 hover:text-gray-600">
                                     On Hand
                                 </button>
                             </div>
 
-                            <button 
-                                type="button" 
-                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
-                                onClick={() => { toggleModal(); }}
-                            >
+                            <SuccessButton onClick={toggleModal}>
                                 <HiOutlinePlusSm className="mr-1" /> Medicine
-                            </button>
-
+                            </SuccessButton>
                         </div>
 
                         <div className="overflow-x-auto">
@@ -72,13 +95,13 @@ const Medicine = ({ medicines }) => {
                                 <thead>
                                     <tr>
                                         <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Medicine Name</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tr-md rounded-br-md">Medicine Description</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tr-md rounded-br-md">Action</th>
+                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Medicine Description</th>
+                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 {medicines.length > 0 ? medicines.map((medicine) => (
-                                    <tr key={`${medicine.id}-${medicine.medicine_name}`}>
+                                    <tr key={medicine.id}>
                                         <td className="py-2 px-4 border-b border-b-gray-50">
                                             <span className="text-[13px] font-medium text-gray-400">{medicine.medicine_name}</span>
                                         </td>
@@ -90,10 +113,10 @@ const Medicine = ({ medicines }) => {
                                                 <WarningButton onClick={() => openViewModal(medicine)} >
                                                     <SlEyeglass />
                                                 </WarningButton>
-                                                <SecondaryButton>
+                                                <SecondaryButton onClick={() => openEditModal(medicine)}>
                                                     <LuClipboardEdit />
                                                 </SecondaryButton>
-                                                <DangerButton>
+                                                <DangerButton onClick={() => handleDelete(medicine)}>
                                                     <RiDeleteBin5Line />
                                                 </DangerButton>
                                             </div>
@@ -101,7 +124,7 @@ const Medicine = ({ medicines }) => {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan={3} className="text-center py-4 text-gray-500">{t('No Medicine Available')}.</td>
+                                        <td colSpan={3} className="text-center py-4 text-gray-500">No Medicine Available.</td>
                                     </tr>
                                 )}      
                                 </tbody>
@@ -120,9 +143,17 @@ const Medicine = ({ medicines }) => {
                     />
                 )}
 
+                <ConfirmDeleteModal
+                    isOpen={confirmDelete}
+                    onClose={() => setConfirmDelete(false)}
+                    onConfirm={confirmDeleteHandler}
+                    title="Confirm Deletion"
+                    message={`Are you sure you want to delete "${medicineToDelete?.medicine_name}"?`}
+                />
+
             </AdminLayout>
         </Suspense>
-    )
+    );
 }
 
-export default Medicine
+export default Medicine;
