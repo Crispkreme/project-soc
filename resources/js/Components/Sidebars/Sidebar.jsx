@@ -27,7 +27,7 @@ const Sidebar = () => {
                         { label: 'Canceled order', link: '#' },
                         ]}
                     /> */}
-                    <SidebarItem
+                    {/* <SidebarItem
                         icon={TbReportMedical}
                         label="Medical"
                         dropdownItems={[
@@ -35,7 +35,8 @@ const Sidebar = () => {
                         { label: 'Completed order', link: '#' },
                         { label: 'Canceled order', link: '#' },
                         ]}
-                    />
+                    /> */}
+                    <SidebarItem icon={TbReportMedical} label="Medicines" link={route('admin.medicines')} />
                     <SidebarItem icon={MdOutlineInventory2} label="Inventories" link="#" />
                     <SidebarItem icon={RiCalendarTodoLine} label="Scheduling" link="#" />
                     <SidebarItem icon={TbTools} label="Activities" link="#" />

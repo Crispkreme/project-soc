@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Models\Medicine;
+use App\Contracts\MedicineContract;
+
+class MedicineRepository implements MedicineContract
+{
+
+    protected $model;
+
+    public function __construct(Medicine $model)
+    {
+        $this->model = $model;
+    }
+
+    public function getAllMedicine()
+    {
+        return $this->model->get();
+    }
+
+    public function createOrUpdateMedicine($data)
+    {
+        return $this->model->updateOrCreate(
+            [
+                'id' => $data['id'] ?? null,
+            ],
+            [
+                'medicine_name' => $data['medicine_name'],
+                'description' => $data['description'],
+            ]
+        );
+
+    }
+
+    public function getMedicineById($id)
+    {
+        return $this->model
+            ->where('id', $id)
+            ->first();
+    }
+}

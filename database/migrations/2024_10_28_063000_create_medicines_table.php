@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('medicines', function (Blueprint $table) {
             $table->id();
-            $table->string('medicine_name');
-            $table->text('description');
+            $table->string('medicine_name')->unique();
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

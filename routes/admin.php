@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -20,4 +22,10 @@ Route::middleware(['auth', 'verified', 'admin'])
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/accounts', [AccountController::class, 'getAccount'])->name('accounts');
+
+    // MEDICINE
+    Route::get('/medicines', [MedicineController::class, 'getAllMedicine'])->name('medicines');
+    Route::get('/view/medicines/{id}', [MedicineController::class, 'getMedicineById'])->name('view.medicines');
+    Route::post('/store/medicines', [MedicineController::class, 'updateOrCreateMedicine'])->name('store.medicines');
+    Route::post('/update/medicines/{id}', [MedicineController::class, 'updateOrCreateMedicine'])->name('update.medicines');
 });
