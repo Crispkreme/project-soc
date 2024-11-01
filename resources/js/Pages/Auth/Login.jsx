@@ -5,7 +5,7 @@ import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/Inputs/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import logo from '../../../../public/assets/svg/logo.svg';
-const HomeLayout = React.lazy(() => import("../../Layouts/HomeLayout"));
+const LoginLayout = React.lazy(() => import("../../Layouts/LoginLayout"));
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -23,7 +23,7 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <HomeLayout>
+        <LoginLayout>
             <div className='h-full w-full flex flex-col justify-center'>
                 <div className='flex flex-col justify-center items-center'>
                     <div className='mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md sm:max-w-md sm:rounded-lg z-50'>
@@ -95,6 +95,6 @@ export default function Login({ status, canResetPassword }) {
                 </div>
                 <span className='flex self-center mt-4 text-sm'>Ai-Timan: Streamlining Outpatient Care</span>
             </div>
-        </HomeLayout>
+        </LoginLayout>
     );
 }

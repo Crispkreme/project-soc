@@ -17,7 +17,8 @@ const Sidebar = () => {
                 </a>
                 <ul className="mt-4">
                     <SidebarItem icon={RiHome2Line} label="Dashboard" link="#" />
-                    <SidebarItem
+                    <SidebarItem icon={AiOutlineSkin} label="Accounts" link={route('admin.accounts')} />
+                    {/* <SidebarItem
                         icon={AiOutlineSkin}
                         label="Accounts"
                         dropdownItems={[
@@ -25,7 +26,7 @@ const Sidebar = () => {
                         { label: 'Completed order', link: '#' },
                         { label: 'Canceled order', link: '#' },
                         ]}
-                    />
+                    /> */}
                     <SidebarItem
                         icon={TbReportMedical}
                         label="Medical"

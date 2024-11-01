@@ -41,4 +41,15 @@ class UserDetailRepository implements UserDetailContract
             ->where('user_id', $id)
             ->first();
     }
+
+    public function getAllUserDetails()
+    {
+        return $this->model
+            ->join('users', 'user_details.user_id', '=', 'users.id')
+            ->select(
+                'user_details.*',
+                'users.role'
+            )
+            ->get();
+    }
 }
