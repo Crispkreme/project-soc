@@ -49,4 +49,11 @@ class MedicineRepository implements MedicineContract
         }
         return $data;
     }
+
+    public function getAllMedicineName()
+    {
+        return $this->model
+            ->select('id', 'medicine_name AS name')
+            ->get();
+    }
 }

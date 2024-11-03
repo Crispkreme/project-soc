@@ -37,7 +37,7 @@ const Sidebar = () => {
                         ]}
                     /> */}
                     <SidebarItem icon={TbReportMedical} label="Medicines" link={route('admin.medicines')} />
-                    <SidebarItem icon={MdOutlineInventory2} label="Inventories" link="#" />
+                    <SidebarItem icon={MdOutlineInventory2} label="Inventories" link={route('admin.inventories')} />
                     <SidebarItem icon={RiCalendarTodoLine} label="Scheduling" link="#" />
                     <SidebarItem icon={TbTools} label="Activities" link="#" />
                     <SidebarItem icon={VscGraph} label="Data" link="#" />
