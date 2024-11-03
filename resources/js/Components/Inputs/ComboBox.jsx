@@ -18,12 +18,16 @@ function ComboBox({ medicine, onChange, placeholder = '' }) {
 
   return (
 
-    <Combobox value={selectedMedicine} onChange={(med) => { setSelectedMedicine(med); onChange(med); }} onClose={() => setQuery('')}>
+    <Combobox 
+      value={selectedMedicine} 
+      onChange={(med) => { setSelectedMedicine(med); onChange(med); }} 
+      onClose={() => setQuery('')}
+    >
 
       <div className="relative">
         <ComboboxInput
           className={clsx(
-            'w-full rounded-lg border-none bg-white/5 py-1.5 pr-8 pl-3 text-sm/6 text-black',
+            'w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ',
             'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25'
           )}
           aria-label="Select Medicine"
