@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('approve_by_id')->nullable()->constrained('users')->onDelete('cascade');
-            $table->foreignId('patient_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('approve_by_id')->nullable()->constrained('user_details')->onDelete('cascade');
+            $table->foreignId('patient_id')->nullable()->constrained('user_details')->onDelete('cascade');
             $table->string('title');
             $table->text('notes')->nullable();
             $table->date('appointment_date')->nullable();

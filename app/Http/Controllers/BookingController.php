@@ -26,7 +26,7 @@ class BookingController extends Controller
         }
         
         $bookings = $this->bookingContract->getAllBooking();
-
+        
         return Inertia::render('Admins/Appointments/Appointment', [
             'bookings' => $bookings,
         ]);
