@@ -1,16 +1,13 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
-
-
-
-
 
 // ADMIN
 Route::middleware(['auth', 'verified', 'admin'])
@@ -34,4 +31,7 @@ Route::middleware(['auth', 'verified', 'admin'])
     // INVENTORY
     Route::get('/inventories', [InventoryController::class, 'getAllInventory'])->name('inventories');
     Route::post('/store/inventory', [InventoryController::class, 'updateOrCreateInventory'])->name('store.inventory');
+
+    // APPOINTMENTS
+    Route::get('/appointments', [BookingController::class, 'getAppointments'])->name('appointments');
 });
