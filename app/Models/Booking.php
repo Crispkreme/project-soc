@@ -12,10 +12,10 @@ class Booking extends Model
     protected $fillable = ['approve_by_id', 'patient_id', 'title', 'notes', 'appointment_date', 'appointment_start', 'appointment_end', 'approved_date', 'booking_status'];
 
     public function approver() {
-        return $this->belongsTo(User::class, 'approve_by_id');
+        return $this->belongsTo(UserDetail::class, 'approve_by_id');
     }
 
     public function patient() {
-        return $this->belongsTo(User::class, 'patient_id');
+        return $this->belongsTo(UserDetail::class, 'patient_id');
     }
 }

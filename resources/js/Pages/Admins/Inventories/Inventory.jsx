@@ -44,7 +44,7 @@ const Medicine = ({ inventories, medicines }) => {
     return (
         <Suspense fallback={<div>Loading...</div>}>
             <AdminLayout>
-                <Head title="Accounts" />
+                <Head title="Inventory" />
                 <div className='grid grid-cols-1 gap-6 mb-6'>
                     <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
                         <div className="flex justify-between mb-4 items-start">

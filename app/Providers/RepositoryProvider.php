@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Contracts\BookingContract;
 use App\Contracts\InventoryContract;
 use App\Contracts\LedgerContract;
 use App\Contracts\MedicineContract;
 use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
+use App\Repositories\BookingRepository;
 use App\Repositories\InventoryRepository;
 use App\Repositories\LedgerRepository;
 use App\Repositories\MedicineRepository;
@@ -22,6 +24,7 @@ class RepositoryProvider extends ServiceProvider
         MedicineContract::class => MedicineRepository::class,
         InventoryContract::class => InventoryRepository::class,
         LedgerContract::class => LedgerRepository::class,
+        BookingContract::class => BookingRepository::class,
     ];
 
     /**
