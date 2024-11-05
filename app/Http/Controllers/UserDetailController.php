@@ -6,6 +6,7 @@ use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -26,6 +27,12 @@ class UserDetailController extends Controller
 
     public function viewProfile($id)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+        
         $userDetail = $this->userDetailContract->getUserDetailById($id);
 
         return Inertia::render('Patients/Profiles/Profile', [
@@ -35,6 +42,11 @@ class UserDetailController extends Controller
 
     public function updateProfile(Request $request, $id = null)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
         
         DB::beginTransaction();
 
@@ -80,6 +92,12 @@ class UserDetailController extends Controller
 
     public function viewPassword($id)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         $user = $this->userContract->getUserById($id);
 
         return Inertia::render('Patients/Profiles/Password', [

@@ -16,11 +16,11 @@ return new class extends Migration
             $table->foreignId('approve_by_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('patient_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('title');
-            $table->text('notes');
-            $table->date('appointment_date');
-            $table->time('appointment_start');
-            $table->time('appointment_end');
-            $table->dateTime('approved_date');
+            $table->text('notes')->nullable();
+            $table->date('appointment_date')->nullable();
+            $table->time('appointment_start')->nullable();
+            $table->time('appointment_end')->nullable();
+            $table->dateTime('approved_date')->nullable();
             $table->enum('booking_status', ['Inprogress', 'Pending', 'Success', 'Failed'])->nullable()->default('Inprogress');
             $table->timestamps();
         });

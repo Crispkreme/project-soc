@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class AccountController extends Controller
@@ -22,6 +23,12 @@ class AccountController extends Controller
     
     public function getAccount()
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+        
         $userDetails = $this->userDetailContract->getAllUserDetails();
 
         return Inertia::render('Admins/Accounts/Account', [
