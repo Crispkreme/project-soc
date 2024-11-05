@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             MedicineSeeder::class,
             InventorySeeder::class,
             LedgerSeeder::class,
+            BookingSeeder::class,
         ]);
     }
 }

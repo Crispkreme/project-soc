@@ -17,11 +17,15 @@ class LedgerRepository implements LedgerContract
 
     public function createOrUpdateLedger($data)
     {
+        $ledger = $this->model->where('medicine_id', $data['medicine_id'])->first();
+        $id = $ledger->id;
+        
         return $this->model->updateOrCreate(
             [
-                'medicine_id' => $data['medicine_id'],
+                'id' => $id ?? null,
             ],
             [
+                'medicine_id' => $data['medicine_id'],
                 'sold' => $data['sold'],
                 'in_stock' => $data['in_stock'],
             ]
@@ -32,6 +36,13 @@ class LedgerRepository implements LedgerContract
     {
         return $this->model
             ->where('id', $id)
+            ->first();
+    }
+
+    public function getLedgerByMedicineId($id)
+    {
+        return $this->model
+            ->where('medicine_id', $id)
             ->first();
     }
 
