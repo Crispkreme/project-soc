@@ -65,7 +65,6 @@ class InventoryController extends Controller
         ]);
 
         try {
-            DB::beginTransaction();
         
             if ($id) {
                 $data['id'] = $id; 
@@ -84,8 +83,10 @@ class InventoryController extends Controller
                 'sold' => $sold,
                 'in_stock' => $inStock,
             ];
-        
+            
+            // DB::enableQueryLog();
             $this->ledgerContract->createOrUpdateLedger($ledgerData);
+            // dd(DB::getQueryLog());
 
             DB::commit();
             

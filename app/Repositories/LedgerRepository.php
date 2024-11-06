@@ -22,10 +22,9 @@ class LedgerRepository implements LedgerContract
         
         return $this->model->updateOrCreate(
             [
-                'id' => $id ?? null,
+                'medicine_id' => $data['medicine_id'],
             ],
             [
-                'medicine_id' => $data['medicine_id'],
                 'sold' => $data['sold'],
                 'in_stock' => $data['in_stock'],
             ]
