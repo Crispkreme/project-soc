@@ -17,16 +17,16 @@ const Sidebar = () => {
                 </a>
                 <ul className="mt-4">
                     <SidebarItem icon={RiHome2Line} label="Dashboard" link="#" />
-                    <SidebarItem icon={AiOutlineSkin} label="Accounts" link={route('admin.accounts')} />
-                    {/* <SidebarItem
+                    <SidebarItem
                         icon={AiOutlineSkin}
                         label="Accounts"
                         dropdownItems={[
-                        { label: 'Active order', link: '#' },
-                        { label: 'Completed order', link: '#' },
-                        { label: 'Canceled order', link: '#' },
+                        { label: 'Administrations', link: route('admin.accounts.admin') },
+                        { label: 'Doctors', link: route('admin.accounts.doctor') },
+                        { label: 'Bhws', link: route('admin.accounts.bhw') },
+                        { label: 'Patients', link: route('admin.accounts.patient') },
                         ]}
-                    /> */}
+                    />
                     {/* <SidebarItem
                         icon={TbReportMedical}
                         label="Medical"
