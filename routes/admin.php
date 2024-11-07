@@ -20,7 +20,10 @@ Route::middleware(['auth', 'verified', 'admin'])
     // Route::get('/view/password/{id}', [UserDetailController::class, 'viewPassword'])->name('view.password');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/accounts', [AccountController::class, 'getAccount'])->name('accounts');
+    Route::get('/accounts/admin', [AccountController::class, 'getAccount'])->name('accounts.admin');
+    Route::get('/accounts/doctor', [AccountController::class, 'getAccount'])->name('accounts.doctor');
+    Route::get('/accounts/bhw', [AccountController::class, 'getAccount'])->name('accounts.bhw');
+    Route::get('/accounts/patient', [AccountController::class, 'getAccount'])->name('accounts.patient');
 
     // MEDICINE
     Route::get('/medicines', [MedicineController::class, 'getAllMedicine'])->name('medicines');

@@ -52,4 +52,17 @@ class UserDetailRepository implements UserDetailContract
             )
             ->get();
     }
+
+    public function getAllUserByRole($role, $status)
+    {
+        return $this->model
+            ->join('users', 'user_details.user_id', '=', 'users.id')
+            ->select(
+                'user_details.*',
+                'users.role'
+            )
+            ->where('users.role', '=', $role)
+            ->where('users.isActive', '=', $status)
+            ->get();
+    }
 }

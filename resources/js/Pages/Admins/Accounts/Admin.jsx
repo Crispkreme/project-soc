@@ -1,11 +1,12 @@
 import React, { useState, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 import { HiOutlinePlusSm } from "react-icons/hi";
+import { TbUserShield, TbUserExclamation } from "react-icons/tb";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const AccountModal = React.lazy(() => import("./AccountModal"));
 
-const Account = ({ userDetails }) => {
+const Admin = ({ userDetails }) => {
 
     const [showModal, setShowModal] = useState(false);
     const calculateAge = (birthday) => {
@@ -98,6 +99,25 @@ const Account = ({ userDetails }) => {
                                         <td className="py-2 px-4 border-b border-b-gray-50">
                                             <span className="inline-block p-1 rounded bg-emerald-500/10 text-emerald-500 font-medium text-[12px] leading-none">{userDetail.status}</span>
                                         </td>
+                                        <td className="py-2 px-4 border-b border-b-gray-50">
+                                            {userDetail.status ? (
+                                                <button 
+                                                    type="button" 
+                                                    className="bg-red-50 text-sm font-medium text-red-400 py-2 px-4 hover:text-red-600 flex items-center"
+                                                    onClick={() => { toggleModal(); }}
+                                                >
+                                                    <TbUserExclamation className="mr-1" /> Deactive
+                                                </button>
+                                            ) : (
+                                                <button 
+                                                    type="button" 
+                                                    className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                    onClick={() => { toggleModal(); }}
+                                                >
+                                                    <TbUserShield className="mr-1" /> Active
+                                                </button>
+                                            )}
+                                        </td>
                                     </tr>
                                 )) : (
                                     <tr>
@@ -122,4 +142,4 @@ const Account = ({ userDetails }) => {
     )
 }
 
-export default Account
+export default Admin
