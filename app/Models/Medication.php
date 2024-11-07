@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MedicalRecord extends Model
+class Medication extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['patient_id', 'medicine_id', 'diagnosis'];
+    protected $fillable = ['patient_id', 'medicine_id', 'dosage', 'reason'];
 
     public function patient()
     {

@@ -32,8 +32,8 @@ const Sidebar = () => {
                         icon={PiAddressBookBold}
                         label="Medical"
                         dropdownItems={[
-                            { label: 'History', link: '#' },
-                            { label: 'Records', link: 'admin.medical.records' },
+                            { label: 'History', link: route('admin.medical.records') },
+                            { label: 'Records', link: route('admin.medical.records') },
                         ]}
                     />
                     <SidebarItem icon={TbReportMedical} label="Medicines" link={route('admin.medicines')} />

@@ -42,4 +42,5 @@ Route::middleware(['auth', 'verified', 'admin'])
 
     // MEDICAL
     Route::get('/medical/records', [MedicalRecordController::class, 'getUserMedicalRecord'])->name('medical.records');
+    Route::get('/medical/patient/record/{id}', [MedicalRecordController::class, 'getPatientMedicalRecord'])->name('medical.patient.record');
 });

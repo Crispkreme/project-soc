@@ -8,4 +8,5 @@ interface UserDetailContract {
     public function getUserDetailById($id);
     public function getAllUserDetails();
     public function getAllUserByRole($role, $status);
+    public function getSpecificUserDetailsById($id, $role, $status);
 }
