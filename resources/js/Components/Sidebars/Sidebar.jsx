@@ -3,6 +3,7 @@ import { RiHome2Line, RiCalendarTodoLine } from "react-icons/ri";
 import { AiOutlineSkin } from "react-icons/ai";
 import { TbReportMedical, TbTools } from "react-icons/tb";
 import { MdOutlineInventory2 } from "react-icons/md";
+import { PiAddressBookBold } from "react-icons/pi";
 import { VscGraph } from "react-icons/vsc";
 import SidebarItem from './SidebarItem';
 
@@ -21,21 +22,20 @@ const Sidebar = () => {
                         icon={AiOutlineSkin}
                         label="Accounts"
                         dropdownItems={[
-                        { label: 'Administrations', link: route('admin.accounts.admin') },
-                        { label: 'Doctors', link: route('admin.accounts.doctor') },
-                        { label: 'Bhws', link: route('admin.accounts.bhw') },
-                        { label: 'Patients', link: route('admin.accounts.patient') },
+                            { label: 'Administrations', link: route('admin.accounts.admin') },
+                            { label: 'Doctors', link: route('admin.accounts.doctor') },
+                            { label: 'Bhws', link: route('admin.accounts.bhw') },
+                            { label: 'Patients', link: route('admin.accounts.patient') },
                         ]}
                     />
-                    {/* <SidebarItem
-                        icon={TbReportMedical}
+                    <SidebarItem
+                        icon={PiAddressBookBold}
                         label="Medical"
                         dropdownItems={[
-                        { label: 'Active order', link: '#' },
-                        { label: 'Completed order', link: '#' },
-                        { label: 'Canceled order', link: '#' },
+                            { label: 'History', link: '#' },
+                            { label: 'Records', link: 'admin.medical.records' },
                         ]}
-                    /> */}
+                    />
                     <SidebarItem icon={TbReportMedical} label="Medicines" link={route('admin.medicines')} />
                     <SidebarItem icon={MdOutlineInventory2} label="Inventories" link={route('admin.inventories')} />
                     <SidebarItem icon={RiCalendarTodoLine} label="Scheduling" link={route('admin.appointments')} />

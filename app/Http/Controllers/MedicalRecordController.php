@@ -6,5 +6,8 @@ use Illuminate\Http\Request;
 
 class MedicalRecordController extends Controller
 {
-    //
+    public function getUserMedicalRecord()
+    {
+        
+    }
 }
