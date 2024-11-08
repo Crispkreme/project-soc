@@ -43,4 +43,6 @@ Route::middleware(['auth', 'verified', 'admin'])
     // MEDICAL
     Route::get('/medical/records', [MedicalRecordController::class, 'getUserMedicalRecord'])->name('medical.records');
     Route::get('/medical/patient/record/{id}', [MedicalRecordController::class, 'getPatientMedicalRecord'])->name('medical.patient.record');
+    Route::get('/medical/history', [MedicalRecordController::class, 'getUserMedicalHistory'])->name('medical.history');
+    Route::get('/medical/patient/history/{id}', [MedicalRecordController::class, 'getPatientMedicalHistory'])->name('medical.patient.history');
 });

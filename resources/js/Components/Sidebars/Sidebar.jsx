@@ -32,7 +32,7 @@ const Sidebar = () => {
                         icon={PiAddressBookBold}
                         label="Medical"
                         dropdownItems={[
-                            { label: 'History', link: route('admin.medical.records') },
+                            { label: 'History', link: route('admin.medical.history') },
                             { label: 'Records', link: route('admin.medical.records') },
                         ]}
                     />

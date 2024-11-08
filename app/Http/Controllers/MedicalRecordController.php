@@ -64,7 +64,48 @@ class MedicalRecordController extends Controller
         ]);
     }
 
+    public function getUserMedicalHistory()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+        $accountType = 'Patient';
+        $userDetails = $this->userDetailContract->getAllUserByRole($accountType, true);
+
+        return Inertia::render('Admins/Medicals/History', [
+            'userDetails' => $userDetails,
+        ]);
+    }
+
     public function getPatientMedicalRecord($id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $role = 'Patient';
+        $status = 'Active';
+        $patient = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
+        $testResults = $this->testResultContract->getTestResultById($id);
+        $immunizations = $this->immunizationContract->getImmunizationById($id);
+        $hospitalizations = $this->hospitalizationContract->getHospitalizationById($id);
+        $medicalRecords = $this->medicalRecordContract->getMedicalRecordById($id);
+
+        return Inertia::render('Admins/Medicals/PatientRecord', [
+            'patient' => $patient,
+            'testResults' => $testResults,
+            'immunizations' => $immunizations,
+            'hospitalizations' => $hospitalizations,
+            'medicalRecords' => $medicalRecords,
+        ]);
+    }
+
+
+    public function getPatientMedicalHistory($id)
     {
         $user = Auth::user();
 
@@ -79,21 +120,13 @@ class MedicalRecordController extends Controller
         $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
         $medicationRecords = $this->medicationContract->getMedicationById($id);
         $familyMedicalRecords = $this->familyMedicalContract->getFamilyMedicalById($id);
-        $testResults = $this->testResultContract->getTestResultById($id);
-        $immunizations = $this->immunizationContract->getImmunizationById($id);
-        $hospitalizations = $this->hospitalizationContract->getHospitalizationById($id);
-        $medicalRecords = $this->medicalRecordContract->getMedicalRecordById($id);
-        // dd($medicalRecords);
-        return Inertia::render('Admins/Medicals/PatientRecord', [
+
+        return Inertia::render('Admins/Medicals/PatientHistory', [
             'patient' => $patient,
             'healthRecords' => $healthRecords,
             'surgicalRecords' => $surgicalRecords,
             'medicationRecords' => $medicationRecords,
             'familyMedicalRecords' => $familyMedicalRecords,
-            'testResults' => $testResults,
-            'immunizations' => $immunizations,
-            'hospitalizations' => $hospitalizations,
-            'medicalRecords' => $medicalRecords,
         ]);
     }
 }
