@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Contracts\FamilyMedicalContract;
 use App\Contracts\HealthContract;
+use App\Contracts\HospitalizationContract;
+use App\Contracts\ImmunizationContract;
+use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\SurgicalContract;
+use App\Contracts\TestResultContract;
 use App\Contracts\UserDetailContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +22,10 @@ class MedicalRecordController extends Controller
     protected $surgicalContract;
     protected $medicationContract;
     protected $familyMedicalContract;
+    protected $testResultContract;
+    protected $immunizationContract;
+    protected $hospitalizationContract;
+    protected $medicalRecordContract;
 
     public function __construct(
         UserDetailContract $userDetailContract,
@@ -25,12 +33,20 @@ class MedicalRecordController extends Controller
         SurgicalContract $surgicalContract,
         MedicationContract $medicationContract,
         FamilyMedicalContract $familyMedicalContract,
+        TestResultContract $testResultContract,
+        ImmunizationContract $immunizationContract,
+        HospitalizationContract $hospitalizationContract,
+        MedicalRecordContract $medicalRecordContract,
     ) {
         $this->userDetailContract = $userDetailContract;
         $this->healthContract = $healthContract;
         $this->surgicalContract = $surgicalContract;
         $this->medicationContract = $medicationContract;
         $this->familyMedicalContract = $familyMedicalContract;
+        $this->testResultContract = $testResultContract;
+        $this->hospitalizationContract = $hospitalizationContract;
+        $this->immunizationContract = $immunizationContract;
+        $this->medicalRecordContract = $medicalRecordContract;
     }
 
     public function getUserMedicalRecord()
@@ -63,13 +79,21 @@ class MedicalRecordController extends Controller
         $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
         $medicationRecords = $this->medicationContract->getMedicationById($id);
         $familyMedicalRecords = $this->familyMedicalContract->getFamilyMedicalById($id);
-
+        $testResults = $this->testResultContract->getTestResultById($id);
+        $immunizations = $this->immunizationContract->getImmunizationById($id);
+        $hospitalizations = $this->hospitalizationContract->getHospitalizationById($id);
+        $medicalRecords = $this->medicalRecordContract->getMedicalRecordById($id);
+        // dd($medicalRecords);
         return Inertia::render('Admins/Medicals/PatientRecord', [
             'patient' => $patient,
             'healthRecords' => $healthRecords,
             'surgicalRecords' => $surgicalRecords,
             'medicationRecords' => $medicationRecords,
             'familyMedicalRecords' => $familyMedicalRecords,
+            'testResults' => $testResults,
+            'immunizations' => $immunizations,
+            'hospitalizations' => $hospitalizations,
+            'medicalRecords' => $medicalRecords,
         ]);
     }
 }
