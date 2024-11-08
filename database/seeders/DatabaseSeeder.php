@@ -20,6 +20,15 @@ class DatabaseSeeder extends Seeder
             InventorySeeder::class,
             LedgerSeeder::class,
             BookingSeeder::class,
+            HospitalSeeder::class,
+            MedicalRecordSeeder::class,
+            HealthSeeder::class,
+            SurgicalSeeder::class,
+            MedicationSeeder::class,
+            FamilyMedicalSeeder::class,
+            TestResultSeeder::class,
+            ImmunizationSeeder::class,
+            HospitalizationSeeder::class,
         ]);
     }
 }

@@ -62,7 +62,21 @@ class UserDetailRepository implements UserDetailContract
                 'users.role'
             )
             ->where('users.role', '=', $role)
-            ->where('users.isActive', '=', $status)
+            ->where('user_details.status', '=', $status)
+            ->get();
+    }
+
+    public function getSpecificUserDetailsById($id, $role, $status)
+    {
+        return $this->model
+            ->join('users', 'user_details.user_id', '=', 'users.id')
+            ->select(
+                'user_details.*',
+                'users.role'
+            )
+            ->where('user_details.id', '=', $id)
+            ->where('users.role', '=', $role)
+            ->where('user_details.status', '=', 'Active')
             ->get();
     }
 }
