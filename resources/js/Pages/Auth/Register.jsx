@@ -3,7 +3,7 @@ import InputLabel from '@/Components/Inputs/InputLabel';
 import PrimaryButton from '@/Components/Buttons/PrimaryButton';
 import TextInput from '@/Components/Inputs/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
-import HomeLayout from '../../Layouts/HomeLayout';
+import LoginLayout from '../../Layouts/LoginLayout';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -31,7 +31,7 @@ export default function Register() {
     };
 
     return (
-        <HomeLayout>
+        <LoginLayout>
             <div className='h-full w-full flex flex-col justify-center'>
                 <div className='flex flex-col justify-center items-center'>
                     <div className='mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md sm:max-w-md sm:rounded-lg z-50'>
@@ -117,6 +117,6 @@ export default function Register() {
                 </div>
                 <span className='flex self-center mt-4 text-sm'>Ai-Timan: Streamlining Outpatient Care</span>
             </div>
-        </HomeLayout>
+        </LoginLayout>
     );
 }
