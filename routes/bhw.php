@@ -9,5 +9,9 @@ Route::middleware(['auth', 'verified', 'bhw'])
 ->prefix('bhw')
 ->as('bhw.')
 ->group(function () {
+
+    // DASHBOARD
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
+
+    
 });

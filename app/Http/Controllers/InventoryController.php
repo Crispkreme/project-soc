@@ -94,8 +94,6 @@ class InventoryController extends Controller
         
         } catch (Exception $e) {
 
-            dd($e);
-
             Log::error('Error during updateOrCreateInventory: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
