@@ -26,6 +26,7 @@ return new class extends Migration
             $table->enum('civil_status', ['Single', 'Married', 'Divorce', 'Separated'])->nullable();
             $table->string('religion');
             $table->enum('status', ['Active', 'Deactivate'])->default('Active');
+            $table->text('address')->nullable();
             $table->string('profile')->nullable();
             $table->timestamps();
         });

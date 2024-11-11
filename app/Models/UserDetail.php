@@ -19,6 +19,7 @@ class UserDetail extends Model
         'civil_status', 
         'status',
         'religion', 
+        'address',
         'profile'
     ];
 

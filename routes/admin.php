@@ -17,8 +17,8 @@ Route::middleware(['auth', 'verified', 'admin'])
 ->as('admin.')
 ->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-    // Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');
-    // Route::patch('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');
+    Route::post('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
     // Route::get('/view/password/{id}', [UserDetailController::class, 'viewPassword'])->name('view.password');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 

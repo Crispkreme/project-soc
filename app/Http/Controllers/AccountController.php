@@ -40,7 +40,7 @@ class AccountController extends Controller
         };
 
         if (!$accountType) {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('login');
         }
 
         $userDetails = $this->userDetailContract->getAllUserByRole($accountType, true);
