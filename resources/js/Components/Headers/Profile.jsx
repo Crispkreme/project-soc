@@ -10,8 +10,8 @@ const Profile = ({ userId }) => {
 
     const menuItems = [
         { label: 'Profile', link: route('admin.view.profile', userId) },
-        { label: 'Settings', link: '/settings' },
-        { label: 'Logout', link: '/logout' },
+        { label: 'Settings', link: route('admin.view.profile', userId) },
+        { label: 'Logout', link: route('logout') },
     ];
 
     return (
