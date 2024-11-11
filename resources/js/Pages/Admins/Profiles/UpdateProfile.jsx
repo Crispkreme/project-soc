@@ -1,5 +1,7 @@
-import React, { Suspense, useEffect, useRef } from 'react';
-import { Head, useForm } from '@inertiajs/react'; // Ensure to import useForm
+import React, { useState, Suspense, useEffect, useRef } from 'react';
+import { Head, useForm } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
+import { TbUserHexagon } from "react-icons/tb";
 import { IoCameraOutline } from "react-icons/io5";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
@@ -10,8 +12,13 @@ const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButton"));
+const ChangePasswordModal = React.lazy(() => import("./ChangePasswordModal"));
+const ChangeEmailModal = React.lazy(() => import("./ChangeEmailModal"));
+const DeactivateAccountModal = React.lazy(() => import("./DeactivateAccountModal"));
 
 const UpdateProfile = ({ userDetail }) => {
+    const user = usePage().props.auth.user;
+    const [activeModal, setActiveModal] = useState(null);
     const selectRef = useRef(null);
     const { data, setData, post, processing, errors, reset } = useForm({
         firstname: '',
@@ -58,6 +65,22 @@ const UpdateProfile = ({ userDetail }) => {
 
     const handleChange = (field, value) => {
         setData((prevData) => ({ ...prevData, [field]: value }));
+    };
+
+    const openChangePasswordModal = () => {
+        setActiveModal('changePassword');
+    };
+
+    const openChangeEmailModal = () => {
+        setActiveModal('changeEmail');
+    };
+
+    const openDeactivateAccountModal = () => {
+        setActiveModal('deactivateAccount');
+    };
+
+    const closeModal = () => {
+        setActiveModal(null);
     };
 
     const genderOptions = [
@@ -254,9 +277,54 @@ const UpdateProfile = ({ userDetail }) => {
                     </div>
 
                     <div className="bg-white p-8 m-4 rounded-lg shadow-md md:w-3/12">
-                        <h2 className="text-2xl font-semibold">Invoice</h2>
+                        <div className="px-4 pb-6">
+                            <div className="text-center my-4">
+                                <img className="h-32 w-32 rounded-full border-4 border-white dark:border-gray-800 mx-auto my-4" src="https://randomuser.me/api/portraits/women/21.jpg" alt="" />
+                                <div className="py-2">
+                                    <h3 className="font-bold text-2xl text-gray-800 dark:text-white mb-1">{data.firstname} {data.middlename} {data.lastname}</h3>
+                                    <div className="inline-flex text-gray-700 dark:text-gray-300 items-center">
+                                        <TbUserHexagon className='h-5 w-5 text-gray-400 dark:text-gray-600 mr-1'/>
+                                        {user.role}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2 px-2 h-full">
+                                <button
+                                    className="rounded-full bg-blue-600 dark:bg-blue-800 text-white dark:text-white antialiased font-bold hover:bg-blue-800 dark:hover:bg-blue-900 active:bg-blue-900 active:border-blue-500 active:text-white dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    Account Details
+                                </button>
+                                <button
+                                    onClick={openChangePasswordModal}
+                                    className="mt-auto rounded-full border-2 border-gray-400 dark:border-gray-700 font-semibold text-black dark:text-white hover:border-blue-600 hover:bg-blue-100 active:bg-blue-600 active:border-blue-600 active:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    Change Password
+                                </button>
+                                <button
+                                    onClick={openChangeEmailModal}
+                                    className="mt-auto rounded-full border-2 border-gray-400 dark:border-gray-700 font-semibold text-black dark:text-white hover:border-blue-600 hover:bg-blue-100 active:bg-blue-600 active:border-blue-600 active:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    Change Email
+                                </button>
+                                <button 
+                                    onClick={openDeactivateAccountModal}
+                                    className="mt-auto rounded-full border-2 border-gray-400 dark:border-gray-700 font-semibold text-black dark:text-white hover:border-blue-600 hover:bg-blue-100 active:bg-blue-600 active:border-blue-600 active:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    Deactivate Account
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                {activeModal === 'changePassword' && (
+                    <ChangePasswordModal showModal={true} toggleModal={closeModal} />
+                )}
+
+                {activeModal === 'changeEmail' && (
+                    <ChangeEmailModal showModal={true} toggleModal={closeModal} />
+                )}
+
+                {activeModal === 'deactivateAccount' && (
+                    <DeactivateAccountModal showModal={true} toggleModal={closeModal} />
+                )}
+
             </AdminLayout>
         </Suspense>
     );
