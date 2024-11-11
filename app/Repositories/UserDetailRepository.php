@@ -30,7 +30,8 @@ class UserDetailRepository implements UserDetailContract
                 'birthday' => $data['birthday'],
                 'civil_status' => $data['civil_status'],
                 'religion' => $data['religion'],
-                'profile' => $data['profile'],
+                'address' => $data['address'],
+                'profile' => $data['profile'] ?? null,
             ]
         );
     }

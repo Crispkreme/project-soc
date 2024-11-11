@@ -14,11 +14,11 @@ const Select = forwardRef(({ options, className = '', isFocused = false, ...prop
     }, [isFocused]);
 
     return (
-        <div>
+        <>
             <select
                 {...props}
                 className={
-                    'rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block w-full' + className
+                    'rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500' + className
                 }
                 ref={localRef}
                 defaultValue=""
@@ -29,7 +29,7 @@ const Select = forwardRef(({ options, className = '', isFocused = false, ...prop
                     </option>
                 ))}
             </select>
-        </div>
+        </>
     );
 });
 

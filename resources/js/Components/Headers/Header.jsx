@@ -1,8 +1,8 @@
 import React, { useState } from "react";
+import Profile from "./Profile";
 import Breadcrumb from "./Breadcrumb";
 import NotificationList from "./NotificationList";
 import MessageList from "./MessageList";
-import ProfileItem from "./ProfileItem";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { FaBars } from "react-icons/fa6";
 
@@ -36,8 +36,8 @@ const messagesData = [
     },
 ];
 
-const Header = () => {
-    
+const Header = ({ userId }) => {
+
     const [isHeaderNotificationsOpen, setIsHeaderNotificationsOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isMessagesOpen, setIsMessagesOpen] = useState(false);
@@ -99,7 +99,7 @@ const Header = () => {
                         </div>
                     </div>
                 </li>
-                <ProfileItem />
+                <Profile userId={userId} />
             </ul>
         </div>
     );

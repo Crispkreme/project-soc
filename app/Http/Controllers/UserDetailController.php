@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
@@ -32,39 +33,62 @@ class UserDetailController extends Controller
         if (!$user) {
             return redirect()->route('login');
         }
-        
-        $userDetail = $this->userDetailContract->getUserDetailById($id);
 
-        return Inertia::render('Patients/Profiles/Profile', [
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'admin.view.profile' => 'Administration',
+            // 'admin.accounts.doctor' => 'Practitioner',
+            // 'admin.accounts.bhw' => 'Bhw',
+            // 'admin.accounts.patient' => 'Patient',
+            default => 'login',
+        };
+
+        if (!$accountType) {
+            return redirect()->route('login');
+        }
+
+        $this->userDetailContract->getAllUserByRole($accountType, true);
+
+        $viewPath = match ($accountType) {
+            'Administration' => 'Admins/Profiles/UpdateProfile',
+            // 'Practitioner' => 'Admins/Accounts/Doctor',
+            // 'Bhw' => 'Admins/Accounts/Bhw',
+            // 'Patient' => 'Admins/Accounts/Patient',
+            default => 'login'
+        };
+
+        $userDetail = $this->userDetailContract->getUserDetailById($id);
+        
+        return Inertia::render($viewPath, [
             'userDetail' => $userDetail,
         ]);
     }
 
     public function updateProfile(Request $request, $id = null)
     {
+
         $user = Auth::user();
 
         if (!$user) {
             return redirect()->route('login');
         }
-        
-        DB::beginTransaction();
-
-        $data = $request->validate([
-            'user_id' => 'required|integer',
-            'firstname' => 'required|string',
-            'middlename' => 'nullable|string',
-            'lastname' => 'required|string',
-            'gender' => 'nullable|string|in:Male,Female',
-            'birthday' => 'nullable|date',
-            'civil_status' => 'nullable|string|in:Single,Married,Divorce,Separated',
-            'religion' => 'required|string',
-            'profile' => 'nullable|string',
-        ]);
-        $data['profile'] = null;
 
         try {
             
+            DB::beginTransaction();
+
+            $data = $request->validate([
+                'firstname' => 'required|string',
+                'middlename' => 'nullable|string',
+                'lastname' => 'required|string',
+                'gender' => 'nullable|string|in:Male,Female',
+                'birthday' => 'nullable|date',
+                'civil_status' => 'nullable|string|in:Single,Married,Divorce,Separated',
+                'religion' => 'required|string',
+                'address' => 'nullable|string',
+            ]);
+            $data['user_id'] = $user->id; 
+
             if ($id) {
                 $data['id'] = $id; 
                 $this->userDetailContract->createOrUpdateUserDetail($data);
@@ -74,18 +98,18 @@ class UserDetailController extends Controller
 
             DB::commit();
             
-            Session::flash('success', 'Pet saved successfully!');
+            Session::flash('success', 'Account updated successfully!');
 
         } catch (Exception $e) {
-
-            Log::error('Error during petStore: ' . $e->getMessage(), [
+            dd($e);
+            Log::error('Error during updateProfile: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);
 
             DB::rollback();
 
-            Session::flash('error', 'An error occurred during registration.');
+            Session::flash('error', 'An error occurred during updateProfile.');
             return redirect()->back();
         }
     }
