@@ -1,14 +1,14 @@
 import React from 'react'
 import PatientLayout from '@/Layouts/PatientLayout'
 
-const Community = () => {
+const Practitioner = () => {
   return (
     <PatientLayout>
       <div>
-        Patient Community
+        Practitioners Community
       </div>
     </PatientLayout>
   )
 }
 
-export default Community
+export default Practitioner

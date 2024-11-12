@@ -36,4 +36,60 @@ class UserController extends Controller
 
         return Inertia::render($viewPath);
     }
+
+    public function getAllPractitionerCommunity()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'practitioner.show.communities.practitioner' => 'Practitioner',
+            'patient.show.communities.practitioner' => 'Patient',
+            default => 'login',
+        };
+
+        if (!$accountType) {
+            return redirect()->route('login');
+        }
+
+        $viewPath = match ($accountType) {
+            'Practitioner' => 'Practitioners/Communities/Practitioner',
+            'Patient' => 'Patients/Communities/Practitioner',
+            default => 'login'
+        };
+
+        return Inertia::render($viewPath);
+    }
+
+    public function getAllBhwCommunity()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'practitioner.show.communities.bhw' => 'Practitioner',
+            'patient.show.communities.bhw' => 'Patient',
+            default => 'login',
+        };
+
+        if (!$accountType) {
+            return redirect()->route('login');
+        }
+
+        $viewPath = match ($accountType) {
+            'Practitioner' => 'Practitioners/Communities/Bhw',
+            'Patient' => 'Patients/Communities/Bhw',
+            default => 'login'
+        };
+
+        return Inertia::render($viewPath);
+    }
 }

@@ -27,7 +27,9 @@ Route::middleware(['auth', 'verified', 'patient'])
 
     // COMMUNITY
     Route::get('/show/communities', [UserController::class, 'getAllCommunity'])->name('show.communities');
-
+    Route::get('/show/communities/practitioner', [UserController::class, 'getAllPractitionerCommunity'])->name('show.communities.practitioner');
+    Route::get('/show/communities/bhw', [UserController::class, 'getAllBhwCommunity'])->name('show.communities.bhw');
+    
     // SERVICE
     Route::get('/show/service/availables', [ServiceController::class, 'getAllServiceAvailable'])->name('show.service.availables');
     Route::get('/show/schedule/consultations', [ServiceController::class, 'getAllScheduleConsultation'])->name('show.schedule.consultations');
