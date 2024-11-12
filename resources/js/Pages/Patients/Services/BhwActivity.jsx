@@ -1,6 +1,6 @@
 import React from 'react'
 
-const PatientActivity = () => {
+const BhwActivity = () => {
   return (
     <div>
       Patient/BHW Activity
@@ -8,4 +8,4 @@ const PatientActivity = () => {
   )
 }
 
-export default PatientActivity
+export default BhwActivity

@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified', 'patient'])
     Route::get('/show/schedule/consultations', [ServiceController::class, 'getAllScheduleConsultation'])->name('show.schedule.consultations');
     Route::get('/show/medicine/available', [ServiceController::class, 'getAllMedicineAvailable'])->name('show.medicine.available');
     Route::get('/show/data/analysis', [ServiceController::class, 'getAllDataAnalysis'])->name('show.data.analysis');
+    Route::get('/show/bhw/activities', [ServiceController::class, 'getAllBhwActivities'])->name('show.bhw.activities');
 
     // RECORDS
     Route::get('/show/record/medicals', [RecordController::class, 'getAllMedical'])->name('show.record.medicals');
