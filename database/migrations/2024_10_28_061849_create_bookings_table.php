@@ -13,15 +13,23 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('approve_by_id')->nullable()->constrained('user_details')->onDelete('cascade');
-            $table->foreignId('patient_id')->nullable()->constrained('user_details')->onDelete('cascade');
+            $table->foreignId('approve_by_id')
+                  ->nullable()
+                  ->constrained('user_details')
+                  ->onDelete('cascade');
+            $table->foreignId('patient_id')
+                  ->nullable()
+                  ->constrained('user_details')
+                  ->onDelete('cascade');
             $table->string('title');
             $table->text('notes')->nullable();
             $table->date('appointment_date')->nullable();
             $table->time('appointment_start')->nullable();
             $table->time('appointment_end')->nullable();
             $table->dateTime('approved_date')->nullable();
-            $table->enum('booking_status', ['Inprogress', 'Pending', 'Success', 'Failed'])->nullable()->default('Inprogress');
+            $table->enum('booking_status', ['Inprogress', 'Pending', 'Success', 'Failed'])
+                  ->nullable()
+                  ->default('Inprogress');
             $table->timestamps();
         });
     }
