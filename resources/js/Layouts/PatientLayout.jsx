@@ -72,20 +72,20 @@ export default function PatientLayout({children}) {
                             },
                             {icon: <RiCalendarTodoLine />,text: "Service Available", href: route('patient.show.service.availables'), route: '/patient/show/service/availables',
                                 sublinks: [
-                                    {text: "Schedule Consultations", href: route('patient.show.communities'), route: '/patient/show/communities'},
-                                    {text: "Medicine Available", href: route('patient.show.communities'), route: '/patient/show/communities'},
-                                    {text: "Data Analysis Reports", href: route('patient.show.communities'), route: '/patient/show/communities'},
+                                    {text: "Schedule Consultations", href: route('patient.show.schedule.consultations'), route: '/patient/show/schedule/consultations'},
+                                    {text: "Medicine Available", href: route('patient.show.medicine.available'), route: '/patient/show/medicine/available'},
+                                    {text: "Data Analysis Reports", href: route('patient.show.data.analysis'), route: '/patient/show/data/analysis'},
                                     {text: "BHW Activities", href: route('patient.show.communities'), route: '/patient/show/communities'},
                                 ]
                             },
                             {icon: <PiAddressBookBold />,text: "My Records", href: route('patient.show.record.medicals'), route: '/patient/show/record/medicals',
                                 sublinks: [
-                                    {text: "My Medical Records", href: route('patient.show.communities'), route: '/patient/show/communities'},
-                                    {text: "My Medical History", href: route('patient.show.communities'), route: '/patient/show/communities'},
+                                    {text: "My Medical Records", href: route('patient.show.record.medicals'), route: '/patient/show/record/medicals'},
+                                    {text: "My Medical History", href: route('patient.show.record.histories'), route: '/patient/show/record/histories'},
                                 ]
                             },
                         ].map( (link, idx) => {
-                            const active = url === link.route;
+                            const active = url === link.route | link.sublinks.filter( link => link.route === url).length > 0;
                             return (
                                 <>
                                 <Link key={idx} href={link.href} className={`flex items-center gap-4 px-4 py-2 ${url === link.route ? 'text-white' : 'hover:text-white'} transition`}>
@@ -97,7 +97,7 @@ export default function PatientLayout({children}) {
                                     link.sublinks.map( (sub, idx) => {
                                         return (
                                             <li key={idx}>
-                                                <Link key={idx} href={link.href} className={`flex items-center gap-4 px-8 py-2 ${url === sub.route ? 'text-white' : 'hover:text-white'} transition`}>
+                                                <Link key={idx} href={sub.href} className={`flex items-center gap-4 px-8 py-2 ${url === sub.route ? 'text-white' : 'hover:text-white'} transition`}>
                                                     <FaGripLines />
                                                     <span>{sub.text}</span>
                                                 </Link>
