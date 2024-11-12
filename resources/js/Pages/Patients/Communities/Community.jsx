@@ -1,10 +1,13 @@
 import React from 'react'
+import PatientLayout from '@/Layouts/PatientLayout'
 
 const Community = () => {
   return (
-    <div>
-      Patient Community
-    </div>
+    <PatientLayout>
+      <div>
+        Patient Community
+      </div>
+    </PatientLayout>
   )
 }
 

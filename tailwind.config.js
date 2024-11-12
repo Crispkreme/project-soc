@@ -12,6 +12,12 @@ export default {
 
     theme: {
         extend: {
+            colors: {
+                'primary-bg': '#226185',
+                'secondary-bg' : '#94d5ea',
+                'app-complete' : '#727171',
+                'app-coming': '#eb3710'
+            },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
                 lily: ['Lily Script One', ...defaultTheme.fontFamily.sans]
