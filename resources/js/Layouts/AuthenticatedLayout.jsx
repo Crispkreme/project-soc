@@ -1,15 +1,14 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
+// import ApplicationLogo from '@/Components/ApplicationLogo';
+import Dropdown from '@/Components/Inputs/Dropdown';
+import NavLink from '@/Components/Links/NavLink';
+import ResponsiveNavLink from '@/Components/Links/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
 
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
+    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -19,7 +18,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
+                                    {/* <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" /> */}
                                 </Link>
                             </div>
 
@@ -62,9 +61,14 @@ export default function AuthenticatedLayout({ header, children }) {
 
                                     <Dropdown.Content>
                                         <Dropdown.Link
-                                            href={route('profile.edit')}
+                                            href={route('patient.view.profile', user.id)}
                                         >
                                             Profile
+                                        </Dropdown.Link>
+                                        <Dropdown.Link
+                                            href={route('patient.view.password', user.id)}
+                                        >
+                                            Change Password
                                         </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route('logout')}
@@ -147,8 +151,11 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>
+                            <ResponsiveNavLink href={route('patient.view.profile', user.id)}>
                                 Profile
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('patient.view.password', user.id)}>
+                                Change Password
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"

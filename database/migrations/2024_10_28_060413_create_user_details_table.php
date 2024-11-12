@@ -13,30 +13,22 @@ return new class extends Migration
     {
         Schema::create('user_details', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable(); 
+            $table->foreignId('user_id')
+                  ->unique()
+                  ->nullable()
+                  ->constrained('users')
+                  ->onDelete('cascade');
             $table->string('firstname');
             $table->string('middlename')->nullable();
             $table->string('lastname');
-            $table->enum('gender', [
-                'Male', 
-                'Female', 
-            ])
-            ->nullable()
-            ->default('');
+            $table->enum('gender', ['Male', 'Female'])->nullable();
             $table->date('birthday')->nullable();
-            $table->enum('civil_status', [
-                'Single', 
-                'Married', 
-                'Divorce', 
-                'Separated', 
-            ])
-            ->nullable()
-            ->default('');
+            $table->enum('civil_status', ['Single', 'Married', 'Divorce', 'Separated'])->nullable();
             $table->string('religion');
-            $table->string('profile');
+            $table->enum('status', ['Active', 'Deactivate'])->default('Active');
+            $table->text('address')->nullable();
+            $table->string('profile')->nullable();
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

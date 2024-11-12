@@ -13,15 +13,11 @@ return new class extends Migration
     {
         Schema::create('prescriptions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('doctor_id')->nullable();
-            $table->unsignedBigInteger('patient_id')->nullable();
-            $table->unsignedBigInteger('medicine_id')->nullable();
+            $table->foreignId('doctor_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('patient_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('medicine_id')->nullable()->constrained('medicines')->onDelete('cascade');
             $table->text('instruction');
             $table->integer('quantity');
-
-            $table->foreign('doctor_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('patient_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('medicine_id')->references('id')->on('medicines')->onDelete('cascade');
             $table->timestamps();
         });
     }
