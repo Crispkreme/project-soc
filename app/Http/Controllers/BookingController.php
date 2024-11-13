@@ -48,8 +48,8 @@ class BookingController extends Controller
             return redirect()->route('login');
         }
         
-        $appointments = $this->appointmentContract->getAllAppointments();
-        dd($appointments);
+        $appointments = $this->bookingContract->getAllBooking();
+  
         return Inertia::render('Admins/Appointments/Appointment', [
             'appointments' => $appointments,
         ]);
@@ -102,5 +102,10 @@ class BookingController extends Controller
             Session::flash('error', 'An error occurred during createBooking.');
             return redirect()->back();
         }
+    }
+
+    public function approveAppointments($id = null)
+    {
+        dd($id);
     }
 }

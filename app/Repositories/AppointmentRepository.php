@@ -19,18 +19,12 @@ class AppointmentRepository implements AppointmentContract
     {
         return $this->model->updateOrCreate(
             [
-                'id' => $data['id'] ?? null,
+                'doctor_id' => $data['doctor_id'] ?? null,
             ],
             [
-                'approve_by_id' => $data['approve_by_id'] ?? null,
-                'patient_id' => $data['patient_id'],
-                'title' => $data['title'],
-                'notes' => $data['notes'],
-                'appointment_date' => $data['appointment_date'],
-                'appointment_start' => $data['appointment_start'],
-                'appointment_end' => $data['appointment_end'],
-                'approved_date' => $data['approved_date'] ?? null,
-                'booking_status' => $data['booking_status'] ?? 'Inprogress',
+                'booking_id' => $data['booking_id'] ?? null,
+                'slot' => $data['slot'],
+                'appointment_status' => $data['booking_status'] ?? 'Inprogress',
             ]
         );
     }
