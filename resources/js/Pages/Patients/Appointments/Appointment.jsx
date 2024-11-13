@@ -105,7 +105,7 @@ const Appointment = ({ barangayEvents, doctors }) => {
         <Head title="Scheduling" />
 
         <div className="grid grid-cols-12 h-screen">
-          <div className="col-span-7">
+          <div className="col-span-12 lg:col-span-7">
             <FullCalendar
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
               initialView="dayGridMonth"
@@ -147,7 +147,7 @@ const Appointment = ({ barangayEvents, doctors }) => {
               )
             } 
           </div>
-          <div className="col-span-5 flex flex-col gap-4 p-4">
+          <div className="col-span-12 lg:col-span-5 flex flex-col gap-4 p-4">
             {
               barangayEvents && (
                 <section className='p-8 '>
