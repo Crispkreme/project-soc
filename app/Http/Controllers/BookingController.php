@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\AppointmentContract;
 use App\Contracts\BookingContract;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,11 +15,29 @@ use Inertia\Inertia;
 class BookingController extends Controller
 {
     protected $bookingContract;
+    protected $appointmentContract;
 
     public function __construct(
         BookingContract $bookingContract,
+        AppointmentContract $appointmentContract,
     ) {
         $this->bookingContract = $bookingContract;
+        $this->appointmentContract = $appointmentContract;
+    }
+
+    public function getSchedules()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+        
+        $bookings = $this->bookingContract->getAllBooking();
+        
+        return Inertia::render('Admins/Appointments/Schedule', [
+            'bookings' => $bookings,
+        ]);
     }
 
     public function getAppointments()
@@ -29,10 +48,10 @@ class BookingController extends Controller
             return redirect()->route('login');
         }
         
-        $bookings = $this->bookingContract->getAllBooking();
-        
+        $appointments = $this->appointmentContract->getAllAppointments();
+        dd($appointments);
         return Inertia::render('Admins/Appointments/Appointment', [
-            'bookings' => $bookings,
+            'appointments' => $appointments,
         ]);
     }
 

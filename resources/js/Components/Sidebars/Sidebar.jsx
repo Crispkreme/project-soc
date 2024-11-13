@@ -38,7 +38,14 @@ const Sidebar = () => {
                     />
                     <SidebarItem icon={TbReportMedical} label="Medicines" link={route('admin.medicines')} />
                     <SidebarItem icon={MdOutlineInventory2} label="Inventories" link={route('admin.inventories')} />
-                    <SidebarItem icon={RiCalendarTodoLine} label="Scheduling" link={route('admin.appointments')} />
+                    <SidebarItem
+                        icon={RiCalendarTodoLine}
+                        label="Scheduling"
+                        dropdownItems={[
+                            { label: 'Calendar', link: route('admin.schedules') },
+                            { label: 'Appointment', link: route('admin.appointments') },
+                        ]}
+                    />
                     <SidebarItem icon={TbTools} label="Activities" link="#" />
                     <SidebarItem icon={VscGraph} label="Data" link="#" />
                 </ul>

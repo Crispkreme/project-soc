@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified', 'admin'])
     Route::post('/store/inventory', [InventoryController::class, 'updateOrCreateInventory'])->name('store.inventory');
 
     // APPOINTMENTS
+    Route::get('/schedules', [BookingController::class, 'getSchedules'])->name('schedules');
     Route::get('/appointments', [BookingController::class, 'getAppointments'])->name('appointments');
 
     // MEDICAL

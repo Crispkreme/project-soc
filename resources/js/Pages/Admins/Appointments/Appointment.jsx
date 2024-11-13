@@ -1,116 +1,108 @@
-import React, { Suspense, useState } from 'react';
+import React, { Suspense } from 'react';
 import { Head } from '@inertiajs/react';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import listPlugin from '@fullcalendar/list';
-import interactionPlugin from '@fullcalendar/interaction';
+import { HiOutlinePlusSm } from "react-icons/hi";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
-const AppointmentModal = React.lazy(() => import("./AppointmentModal"));
 
-const Appointment = ({ bookings }) => {
-
-    const [showModal, setShowModal] = useState(false);
-    const [selectedAppointment, setSelectedAppointment] = useState(null);
-
-    const formatTime = (isoString) => {
-        const date = new Date(isoString);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-    };
-    
-    const bookingSchedule = bookings.map(booking => {
-        const startTime = `${booking.appointment_date}T${booking.appointment_start}`;
-        const endTime = `${booking.appointment_date}T${booking.appointment_end}`;
-    
-        return {
-            title: booking.title,
-            start: startTime,
-            end: endTime,      
+const Appointment = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+        <AdminLayout>
             
-            extendedProps: {
-                date: booking.appointment_date,
-                status: booking.booking_status,
-                doctor_name: booking.doctor_name,
-                patient_name: booking.patient_name,
-                notes: booking.notes,
-                formattedStart: formatTime(startTime),
-                formattedEnd: formatTime(endTime)
-            }
-        };
-    });
+            <Head title="Appointments" />
+            
+            <div className='grid grid-cols-1 gap-6 mb-6'>
+                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                    <div className="flex justify-between mb-4 items-start">
+                        <div className="font-medium">Manage Appointment</div>
+                    </div>
+                    <div className="flex items-center mb-4 order-tab justify-between">
+                        <button 
+                            type="button" 
+                            className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                            onClick={() => { toggleModal(); }}
+                        >
+                            <HiOutlinePlusSm className="mr-1" /> Account
+                        </button>
 
-    const handleEventClick = (info) => {
-        const { date, status, doctor_name, patient_name, notes } = info.event.extendedProps;
-        setSelectedAppointment({
-            title: info.event.title,
-            start: info.event.start,
-            end: info.event.end,
-            date: date,
-            status: status,
-            doctor_name: doctor_name,
-            patient_name: patient_name,
-            notes: notes,
-        });
-        setShowModal(true);
-    };
-    
-
-    const closeModal = () => {
-        setShowModal(false);
-        setSelectedAppointment(null);
-    };
-
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <AdminLayout>
-                <Head title="Scheduling" />
-
-                <div className="grid grid-cols-12 h-screen">
-                    <div className="col-span-8">
-                        <FullCalendar
-                            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                            initialView="dayGridMonth"
-                            headerToolbar={{
-                                start: "today, prev, next",
-                                center: "title",
-                                end: ""
-                            }}
-                            events={bookingSchedule}
-                            selectable={true}
-                            height="100vh"
-                            buttonText={{
-                                today: 'Today',
-                                month: 'Month',
-                                week: 'Week',
-                                day: 'Day'
-                            }}
-                        />
                     </div>
 
-                    <div className="col-span-4 flex flex-col gap-4 p-4">
-                        <FullCalendar
-                            plugins={[listPlugin]}
-                            initialView="listWeek"
-                            events={bookingSchedule}
-                            selectable={true}
-                            eventClick={handleEventClick}
-                            headerToolbar={false}
-                            height="100vh"
-                        />            
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
+                            <thead>
+                                <tr>
+                                    <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tl-md rounded-bl-md">Name</th>
+                                    <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Gender</th>
+                                    <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Birthdate</th>
+                                    <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Age</th>
+                                    <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Role</th>
+                                    <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tr-md rounded-br-md">Status</th>
+                                    <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tr-md rounded-br-md">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {/* {userDetails.length > 0 ? userDetails.map((userDetail) => (
+                                <tr key={`${userDetail.id}-${userDetail.firstname}`}>
+                                    <td className="py-2 px-4 border-b border-b-gray-50">
+                                        <div className="flex items-center">
+                                            <img src="https://placehold.co/32x32" alt="" className="w-8 h-8 rounded object-cover block" />
+                                            <a 
+                                                href="#" 
+                                                className="text-gray-600 text-sm font-medium hover:text-blue-500 ml-2 truncate"
+                                            >
+                                                {userDetail.firstname} {userDetail.middlename} {userDetail.lastname}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td className="py-2 px-4 border-b border-b-gray-50">
+                                        <span className="text-[13px] font-medium text-gray-400">{userDetail.gender}</span>
+                                    </td>
+                                    <td className="py-2 px-4 border-b border-b-gray-50">
+                                        <span className="text-[13px] font-medium text-gray-400">{userDetail.birthday}</span>
+                                    </td>
+                                    <td className="py-2 px-4 border-b border-b-gray-50">
+                                        <span className="text-[13px] font-medium text-gray-400">{calculateAge(userDetail.birthday)}</span>
+                                    </td>
+                                    <td className="py-2 px-4 border-b border-b-gray-50">
+                                        <span className="text-[13px] font-medium text-gray-400">{userDetail.role}</span>
+                                    </td>
+                                    <td className="py-2 px-4 border-b border-b-gray-50">
+                                        <span className="inline-block p-1 rounded bg-emerald-500/10 text-emerald-500 font-medium text-[12px] leading-none">{userDetail.status}</span>
+                                    </td>
+                                    <td className="py-2 px-4 border-b border-b-gray-50">
+                                        {userDetail.status ? (
+                                            <button 
+                                                type="button" 
+                                                className="bg-red-50 text-sm font-medium text-red-400 py-2 px-4 hover:text-red-600 flex items-center"
+                                                onClick={() => { toggleModal(); }}
+                                            >
+                                                <TbUserExclamation className="mr-1" /> Deactive
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                type="button" 
+                                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                onClick={() => { toggleModal(); }}
+                                            >
+                                                <TbUserShield className="mr-1" /> Active
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan={7} className="text-center py-4 text-gray-500">{t('No Account Available')}.</td>
+                                </tr>
+                            )}       */}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </AdminLayout>
+            </div>
 
-            {showModal && (
-                <AppointmentModal
-                    showModal={showModal}
-                    toggleModal={closeModal}
-                    selectedAppointment={selectedAppointment}
-                />
-            )}
-        </Suspense>
-    );
-};
+        </AdminLayout>
+    </Suspense>
+  )
+}
 
-export default Appointment;
+export default Appointment
