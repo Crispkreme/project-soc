@@ -49,7 +49,6 @@ const StockModal = ({ showModal, toggleModal, selectedInventory, medicines, isEd
 
     const submit = (e) => {
         e.preventDefault();
-        console.log("Submitting data:", data);
 
         const isUpdating = isEditing && selectedInventory;
         const url = route(isUpdating ? "admin.update.medicines" : "admin.store.inventory", isUpdating ? selectedInventory.id : null);

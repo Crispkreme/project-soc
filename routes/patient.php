@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecordController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -24,6 +26,9 @@ Route::middleware(['auth', 'verified', 'patient'])
 
     // APPOINTMENTS
     Route::get('/book/appointments', [AppointmentController::class, 'bookAppointment'])->name('book.appointments');
+
+    // BOOKINGS
+    Route::post('/create/booking', [BookingController::class, 'createBooking'])->name('create.booking');
 
     // COMMUNITY
     Route::get('/show/communities', [UserController::class, 'getAllCommunity'])->name('show.communities');

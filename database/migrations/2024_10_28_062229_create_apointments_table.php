@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('booking_id')->nullable()->constrained('bookings')->onDelete('cascade');
             $table->foreignId('doctor_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->integer('slot')->default(0);
             $table->enum('appointment_status', ['Inprogress', 'Pending', 'Success', 'Failed'])->nullable()->default('Inprogress');
             $table->timestamps();
         });

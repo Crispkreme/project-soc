@@ -18,7 +18,7 @@ class BookingRepository implements BookingContract
     public function getAllBooking()
     {
         return $this->model
-            ->with(['approver:id,firstname,middlename,lastname', 'patient:id,firstname,middlename,lastname']) // Load first, middle, and last names
+            ->with(['approver:id,firstname,middlename,lastname', 'patient:id,firstname,middlename,lastname'])
             ->get()
             ->map(function ($booking) {
                 $doctorName = trim("{$booking->approver->firstname} {$booking->approver->middlename} {$booking->approver->lastname}");
@@ -38,4 +38,23 @@ class BookingRepository implements BookingContract
             });
     }
 
+    public function createOrUpdateBooking($data)
+    {
+        return $this->model->updateOrCreate(
+            [
+                'id' => $data['id'] ?? null,
+            ],
+            [
+                'approve_by_id' => $data['approve_by_id'] ?? null,
+                'patient_id' => $data['patient_id'],
+                'title' => $data['title'],
+                'notes' => $data['notes'],
+                'appointment_date' => $data['appointment_date'],
+                'appointment_start' => $data['appointment_start'],
+                'appointment_end' => $data['appointment_end'],
+                'approved_date' => $data['approved_date'] ?? null,
+                'booking_status' => $data['booking_status'] ?? 'Inprogress',
+            ]
+        );
+    }
 }
