@@ -63,11 +63,11 @@ export default function PatientLayout({children}) {
                     {
                         [
                             {icon: <RiCalendarTodoLine />,text: "Book Appointments", href: route('patient.book.appointments'), route: '/patient/book/appointments', sublinks: []},
-                            {icon: <RiCalendarTodoLine />,text: "Community", href: route('patient.show.communities'), route: '/patient/show/communities',
+                            {icon: <RiCalendarTodoLine />,text: "Community", href: route('patient.show.communities.practitioner'), route: '/patient/show/communities/practitioner',
                                 sublinks: [
-                                    {text: "Patients", href: route('patient.show.communities'), route: '/patient/show/communities'},
-                                    {text: "Practitioners", href: route('patient.show.communities'), route: '/patient/show/practitioners'},
-                                    {text: "BHWs", href: route('patient.show.communities'), route: '/patient/show/bhws'},
+                                    {text: "Patients", href: route('patient.show.communities.practitioner'), route: '/patient/show/communities'},
+                                    {text: "Practitioners", href: route('patient.show.communities.practitioner'), route: '/patient/show/communities/practitioner'},
+                                    {text: "BHWs", href: route('patient.show.communities.bhw'), route: '/patient/show/communities/bhw'},
                                 ]
                             },
                             {icon: <RiCalendarTodoLine />,text: "Service Available", href: route('patient.show.service.availables'), route: '/patient/show/service/availables',
@@ -75,7 +75,7 @@ export default function PatientLayout({children}) {
                                     {text: "Schedule Consultations", href: route('patient.show.schedule.consultations'), route: '/patient/show/schedule/consultations'},
                                     {text: "Medicine Available", href: route('patient.show.medicine.available'), route: '/patient/show/medicine/available'},
                                     {text: "Data Analysis Reports", href: route('patient.show.data.analysis'), route: '/patient/show/data/analysis'},
-                                    {text: "BHW Activities", href: route('patient.show.communities'), route: '/patient/show/communities'},
+                                    {text: "BHW Activities", href: route('patient.show.bhw.activities'), route: '/patient/show/bhw/activities'},
                                 ]
                             },
                             {icon: <PiAddressBookBold />,text: "My Records", href: route('patient.show.record.medicals'), route: '/patient/show/record/medicals',
