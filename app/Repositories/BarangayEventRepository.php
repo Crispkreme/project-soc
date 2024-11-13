@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Models\BarangayEvent;
 use App\Contracts\BarangayEventContract;
+use App\Models\BarangayEvent;
+use Carbon\Carbon;
 
 class BarangayEventRepository implements BarangayEventContract
 {
@@ -42,5 +43,16 @@ class BarangayEventRepository implements BarangayEventContract
             'event_end' => $event->event_end,
             'event_venue' => $event->event_venue,
         ];
+    }
+
+    public function getAllBarangayEvent()
+    {
+        $events = $this->model->get();
+
+        $groupedEvents = $events->groupBy(function ($event) {
+            return Carbon::parse($event->event_date)->format('F Y');
+        });
+    
+        return $groupedEvents;
     }
 }

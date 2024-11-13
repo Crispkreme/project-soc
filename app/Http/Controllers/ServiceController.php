@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\AppointmentContract;
+use App\Contracts\BarangayEventContract;
+use App\Contracts\UserDetailContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -9,6 +12,20 @@ use Inertia\Inertia;
 
 class ServiceController extends Controller
 {
+    protected $barangayEventContract;
+    protected $userDetailContract;
+    protected $appointmentContract;
+
+    public function __construct(
+        BarangayEventContract $barangayEventContract,
+        UserDetailContract $userDetailContract,
+        AppointmentContract $appointmentContract,
+    ) {
+        $this->userDetailContract = $userDetailContract;
+        $this->barangayEventContract = $barangayEventContract;
+        $this->appointmentContract = $appointmentContract;
+    }
+    
     public function getAllServiceAvailable()
     {
         $user = Auth::user();
@@ -56,14 +73,18 @@ class ServiceController extends Controller
         if (!$accountType) {
             return redirect()->route('login');
         }
-
+        
         $viewPath = match ($accountType) {
             'Practitioner' => 'Practitioners/Services/Consultation',
             'Patient' => 'Patients/Services/Consultation',
             default => 'login'
         };
 
-        return Inertia::render($viewPath);
+        $consultations = $this->appointmentContract->getAllAppointmentByMonth();
+
+        return Inertia::render($viewPath, [
+            'consultations' => $consultations
+        ]);
     }
 
     public function getAllMedicineAvailable()
@@ -146,7 +167,10 @@ class ServiceController extends Controller
             'Patient' => 'Patients/Services/BhwActivity',
             default => 'login'
         };
-
-        return Inertia::render($viewPath);
+        $barangayEvents = $this->barangayEventContract->getAllBarangayEvent();
+        
+        return Inertia::render($viewPath, [
+            'barangayEvents' => $barangayEvents,
+        ]);
     }  
 }

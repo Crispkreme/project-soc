@@ -1,60 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react'
-import PatientLayout from '@/Layouts/PatientLayout'
+import React, { lazy } from 'react';
 
-const BhwActivity = () => {
+const PatientLayout = lazy(() => import("@/Layouts/PatientLayout"));
+const Month = lazy(() => import("@/Components/Cards/Month"));
 
-    const record = [
-        {
-            period: "SEPTEMBER 2024",
-        },
-        {
-            period: "OCTOBER 2024",
-        },
-        {
-            period: "NOVEMBER 2024",
-        },
-    ]
+const BhwActivity = ({ barangayEvents }) => {
+    const months = Object.keys(barangayEvents);
+
+    const record = months.map(month => ({
+        period: month,
+        events: barangayEvents[month],
+    }));
 
     return (
         <PatientLayout>
-            <div className='p-8 relative'>
-                {
-                    record.map( (anl,idx) => {
-                        
-                      const top = idx * 30;
-                      const ref = useRef(null);
-                      const [visible, setVisible] = useState(false);
-                      const handleOnClick = () => setVisible(!visible);
-
-                      useEffect(() => {
-                          function handleClickOutside(event) {
-                            if (ref.current && !ref.current.contains(event.target)) {
-                              setVisible(false);
-                            }
-                          }
-
-                          document.addEventListener("mouseup", handleClickOutside);
-                          return () => {
-                            document.removeEventListener("mouseup", handleClickOutside);
-                          };
-                        }, [ref]);
-                      
-
-                      return (
-                          <section ref={ref} onClick={handleOnClick} key={idx} style={{top: `-${top}px`}} className={`${visible ? 'z-50' : 'z-0'} transition relative bg-white w-full border border-black rounded-xl`}>
-                              <div className='header bg-secondary-bg py-2 px-4 rounded-t-xl'>
-                                  {anl.period}
-                              </div>
-                              <div className='py-4 px-8 flex flex-col h-16'>
-                                  
-                              </div>
-                          </section>
-                      )
-                    })
-                }
+            <div className="p-8 relative">
+                {record.map((monthData, idx) => (
+                    <Month
+                        key={idx}
+                        period={monthData.period}
+                        events={monthData.events}
+                        top={idx * 30}
+                    />
+                ))}
             </div>
         </PatientLayout>
     );
-}
+};
 
-export default BhwActivity
+export default BhwActivity;
