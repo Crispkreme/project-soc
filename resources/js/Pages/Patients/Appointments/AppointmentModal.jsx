@@ -1,14 +1,14 @@
 import React, { lazy } from 'react';
 import { useForm } from '@inertiajs/react';
-import InputLabel from "@/Components/Inputs/InputLabel";
-import TextInput from "@/Components/Inputs/TextInput";
-import Textarea from "@/Components/Inputs/Textarea";
-import InputError from "@/Components/Inputs/InputError";
-import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 
 const Modal = lazy(() => import("@/Components/Modals/Modal"));
 const ComboBox = lazy(() => import("@/Components/Inputs/ComboBox"));
 const Title = lazy(() => import("@/Components/Headers/Title"));
+const InputLabel = lazy(() => import("@/Components/Inputs/InputLabel"));
+const TextInput = lazy(() => import("@/Components/Inputs/TextInput"));
+const Textarea = lazy(() => import("@/Components/Inputs/Textarea"));
+const InputError = lazy(() => import("@/Components/Inputs/InputError"));
+const PrimaryButton = lazy(() => import("@/Components/Buttons/PrimaryButton"));
 
 const AppointmentModal = ({ showModal, toggleModal, doctors }) => {
   const { data, setData, post, processing, errors } = useForm({

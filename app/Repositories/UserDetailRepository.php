@@ -80,4 +80,17 @@ class UserDetailRepository implements UserDetailContract
             ->where('user_details.status', '=', 'Active')
             ->get();
     }
+
+    public function countSpecificUserDetail($role, $status)
+    {
+        return $this->model
+            ->join('users', 'user_details.user_id', '=', 'users.id')
+            ->select(
+                'user_details.*',
+                'users.role'
+            )
+            ->where('users.role', '=', $role)
+            ->where('user_details.status', '=', $status)
+            ->count();
+    }
 }

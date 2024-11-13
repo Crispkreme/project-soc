@@ -10,14 +10,12 @@ const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 
 const ApproveModal = ({ showModal, toggleModal, selectedAppointment }) => {
-
+    
     const submit = async (e) => {
         e.preventDefault();
+        
         try {
-            await Inertia.post(route('admin.approve.appointments'), { 
-                id: selectedAppointment?.id
-            });
-
+            await Inertia.post(route('admin.approve.appointments', { id: selectedAppointment?.id }));
             toggleModal();
         } catch (error) {
             console.error("Error submitting appointment approval:", error);
