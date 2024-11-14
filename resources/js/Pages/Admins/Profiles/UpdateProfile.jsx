@@ -2,6 +2,7 @@ import React, { useState, Suspense, useEffect, useRef } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
 import { TbUserHexagon } from "react-icons/tb";
+import axios from 'axios';
 import { IoCameraOutline } from "react-icons/io5";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
@@ -17,7 +18,12 @@ const ChangeEmailModal = React.lazy(() => import("./ChangeEmailModal"));
 const DeactivateAccountModal = React.lazy(() => import("./DeactivateAccountModal"));
 
 const UpdateProfile = ({ userDetail }) => {
+
     const user = usePage().props.auth.user;
+    const username = user.username;
+    const profile = userDetail.profile;
+
+    const [avatar, setAvatar] = useState(null);
     const [activeModal, setActiveModal] = useState(null);
     const selectRef = useRef(null);
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -30,6 +36,18 @@ const UpdateProfile = ({ userDetail }) => {
         address: '',
         civil_status: '',
     });
+
+    useEffect(() => {
+        async function fetchAvatar() {
+            try {
+                const response = await axios.get(`/user/avatar/${username}`);
+                setAvatar(response.data.avatar);
+            } catch (error) {
+                console.error('Error fetching avatar:', error);
+            }
+        }
+        fetchAvatar();
+    }, [username]);
 
     useEffect(() => {
         if (userDetail) {
@@ -45,6 +63,7 @@ const UpdateProfile = ({ userDetail }) => {
                 civil_status: userDetail.civil_status || '',
             });
         }
+        
     }, [userDetail]);
 
     const submit = (e) => {
@@ -123,8 +142,16 @@ const UpdateProfile = ({ userDetail }) => {
                         <form onSubmit={submit}>
                             <input type="hidden" name="id" value={data.id} />
                             <input type="hidden" name="user_id" value={data.user_id} />
+                            
                             <div className="w-full rounded-sm">
-                                <div className="mx-auto flex justify-center w-[141px] h-[141px] bg-blue-300/20 rounded-full bg-[url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NzEyNjZ8MHwxfHNlYXJjaHw4fHxwcm9maWxlfGVufDB8MHx8fDE3MTEwMDM0MjN8MA&ixlib=rb-4.0.3&q=80&w=1080')] bg-cover bg-center bg-no-repeat">
+                                <div
+                                    className="mx-auto flex justify-center w-[141px] h-[141px] rounded-full"
+                                    style={{ 
+                                        backgroundImage: `url(${profile ? profile : avatar})`, 
+                                        backgroundSize: 'cover', 
+                                        backgroundPosition: 'center' 
+                                    }}
+                                >
                                     <div className="bg-white/90 rounded-full w-6 h-6 text-center ml-28 mt-4">
                                         <input type="file" name="profile" id="upload_profile" hidden />
                                         <label htmlFor="upload_profile">
@@ -279,7 +306,11 @@ const UpdateProfile = ({ userDetail }) => {
                     <div className="bg-white p-8 m-4 rounded-lg shadow-md md:w-3/12">
                         <div className="px-4 pb-6">
                             <div className="text-center my-4">
-                                <img className="h-32 w-32 rounded-full border-4 border-white dark:border-gray-800 mx-auto my-4" src="https://randomuser.me/api/portraits/women/21.jpg" alt="" />
+                                <img 
+                                    className="h-32 w-32 rounded-full border-4 border-white dark:border-gray-800 mx-auto my-4" 
+                                    src={`${profile ? profile : avatar}`} 
+                                    alt="" 
+                                />
                                 <div className="py-2">
                                     <h3 className="font-bold text-2xl text-gray-800 dark:text-white mb-1">{data.firstname} {data.middlename} {data.lastname}</h3>
                                     <div className="inline-flex text-gray-700 dark:text-gray-300 items-center">

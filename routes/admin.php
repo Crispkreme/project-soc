@@ -7,9 +7,9 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
-
 
 // ADMIN
 Route::middleware(['auth', 'verified', 'admin'])
@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified', 'admin'])
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');
     Route::post('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/update/user/password/{id}', [UserController::class, 'updatePassword'])->name('update.user.password');
     // Route::get('/view/password/{id}', [UserDetailController::class, 'viewPassword'])->name('view.password');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 

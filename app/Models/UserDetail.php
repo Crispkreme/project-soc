@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,5 +30,10 @@ class UserDetail extends Model
 
     public function patient() {
         return $this->hasOne(Patient::class);
+    }
+
+    public function scopeWhereUser(Builder $query, $id)
+    {
+        return $query->where('user_id', $id);
     }
 }
