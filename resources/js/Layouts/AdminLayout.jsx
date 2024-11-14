@@ -7,6 +7,9 @@ const Header = React.lazy(() => import("../Components/Headers/Header"));
 const AdminLayout = ({ children }) => {
 
     const user = usePage().props.auth.user;
+    const {someth} = usePage().props;
+
+    console.log(someth.id);
 
     return (
         <>
