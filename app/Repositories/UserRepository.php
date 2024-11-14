@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Models\User;
 use App\Contracts\UserContract;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserRepository implements UserContract
 {
@@ -23,8 +24,8 @@ class UserRepository implements UserContract
             ],
             [
                 'email' => $data['email'],
-                'password' => $data['password'],
-                'role' => $data['role'],
+                'password' => Hash::make($data['password']),
+                'role' => $data['role'] ?? 'Patient',
                 'username' => $data['username'],
             ]
         );
