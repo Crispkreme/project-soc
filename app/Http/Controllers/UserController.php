@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -22,6 +25,37 @@ class UserController extends Controller
         $this->userContract = $userContract;
     }
 
+    public function createUser()
+    {
+        return Inertia::render('Auth/Register');
+    }
+
+    public function storeUser(Request $request)
+    {
+        $data = $request->validate([
+            'username' => ['required', 'string', 'max:255', 'unique:' . User::class],
+            'role' => ['string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        $user = $this->userContract->createOrUpdateUser($data);
+
+        event(new Registered($user));
+
+        Auth::login($user);
+  
+        $viewPath = match ($user->role) {
+            'Administration' => 'admin.dashboard',
+            'Patient' => 'patient.dashboard',
+            'Practitioner' => 'practitioner.dashboard',
+            'Bhw' => 'bhw.dashboard',
+            default => 'login',
+        };
+
+        return redirect()->route($viewPath);
+    }
+    
     public function getAllCommunity()
     {
         $user = Auth::user();
