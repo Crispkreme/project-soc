@@ -1,12 +1,27 @@
-import React, { useState } from "react";
-import ProfileItem from './ProfileItem';
+import React, { useState, useEffect } from "react";
+import axios from 'axios';
 
-const Profile = ({ userId }) => {
+const ProfileItem = React.lazy(() => import("./ProfileItem"));
+
+const Profile = ({ username, userId }) => {
+    const [avatar, setAvatar] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleDropdown = () => {
         setIsOpen((prev) => !prev);
     };
+
+    useEffect(() => {
+        async function fetchAvatar() {
+            try {
+                const response = await axios.get(`/user/avatar/${username}`);
+                setAvatar(response.data.avatar);
+            } catch (error) {
+                console.error('Error fetching avatar:', error);
+            }
+        }
+        fetchAvatar();
+    }, [username]);
 
     const menuItems = [
         { label: 'Profile', link: route('admin.view.profile', userId) },
@@ -21,11 +36,19 @@ const Profile = ({ userId }) => {
                 className="dropdown-toggle flex items-center"
                 onClick={toggleDropdown}
             >
-                <img
-                    src="https://placehold.co/32x32"
-                    alt="User Avatar"
-                    className="w-8 h-8 rounded block object-cover align-middle"
-                />
+                {avatar ? (
+                    <img
+                        src={avatar}
+                        alt="User Avatar"
+                        className="w-8 h-8 rounded block object-cover align-middle"
+                    />
+                ) : (
+                    <img
+                        src="https://placehold.co/32x32"
+                        alt="Default Avatar"
+                        className="w-8 h-8 rounded block object-cover align-middle"
+                    />
+                )}
             </button>
             <ProfileItem isOpen={isOpen} items={menuItems} />
         </li>

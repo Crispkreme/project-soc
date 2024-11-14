@@ -5,6 +5,7 @@ import NotificationList from "./NotificationList";
 import MessageList from "./MessageList";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { FaBars } from "react-icons/fa6";
+import { usePage } from '@inertiajs/react';
 
 const notificationsData = [
     {
@@ -38,6 +39,7 @@ const messagesData = [
 
 const Header = ({ userId }) => {
 
+    const user = usePage().props.auth.user;
     const [isHeaderNotificationsOpen, setIsHeaderNotificationsOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isMessagesOpen, setIsMessagesOpen] = useState(false);
@@ -99,7 +101,7 @@ const Header = ({ userId }) => {
                         </div>
                     </div>
                 </li>
-                <Profile userId={userId} />
+                <Profile userId={userId} username={user.username}/>
             </ul>
         </div>
     );
