@@ -26,7 +26,7 @@ const Profile = ({ username, userId }) => {
     const menuItems = [
         { label: 'Profile', link: route('admin.view.profile', userId) },
         { label: 'Settings', link: route('admin.view.profile', userId) },
-        { label: 'Logout', link: route('logout') },
+        { label: 'Logout', link: route('admin.logout') },
     ];
 
     return (

@@ -230,4 +230,14 @@ class UserController extends Controller
             'bhws' => $bhws,
         ]);
     }
+
+    public function loginDestroy(Request $request)
+    {
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
 }
