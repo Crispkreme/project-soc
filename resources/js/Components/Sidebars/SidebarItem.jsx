@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from '@inertiajs/inertia-react';
+import { useSelector } from "react-redux";
 
 const SidebarItem = ({ icon: Icon, label, link, dropdownItems = [] }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -7,6 +8,8 @@ const SidebarItem = ({ icon: Icon, label, link, dropdownItems = [] }) => {
     const handleToggle = () => {
         setIsOpen(!isOpen);
     };
+
+    const open = useSelector(state => state.sidebar.open);
 
     return (
         <li className="mb-1 group">
