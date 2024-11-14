@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
+use App\Contracts\LedgerContract;
+use App\Contracts\MedicineContract;
 use App\Contracts\UserDetailContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,15 +17,21 @@ class ServiceController extends Controller
     protected $barangayEventContract;
     protected $userDetailContract;
     protected $appointmentContract;
+    protected $ledgerContract;
+    protected $medicineContract;
 
     public function __construct(
         BarangayEventContract $barangayEventContract,
         UserDetailContract $userDetailContract,
         AppointmentContract $appointmentContract,
+        LedgerContract $ledgerContract,
+        MedicineContract $medicineContract,
     ) {
         $this->userDetailContract = $userDetailContract;
         $this->barangayEventContract = $barangayEventContract;
         $this->appointmentContract = $appointmentContract;
+        $this->ledgerContract = $ledgerContract;
+        $this->medicineContract = $medicineContract;
     }
     
     public function getAllServiceAvailable()
@@ -112,7 +120,11 @@ class ServiceController extends Controller
             default => 'login'
         };
 
-        return Inertia::render($viewPath);
+        $inventories = $this->ledgerContract->getAllLedger();
+
+        return Inertia::render($viewPath, [
+            'inventories' => $inventories,
+        ]);
     }
 
     public function getAllDataAnalysis()

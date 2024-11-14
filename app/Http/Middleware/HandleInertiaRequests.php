@@ -35,7 +35,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
-            'someth' => UserDetail::whereUser($request->user()->id)->first()
+            // 'someth' => UserDetail::whereUser($request->user()->id)->first()
         ];
     }
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { usePage } from '@inertiajs/react';
 import SidebarItem from '../Components/Sidebars/SidebarItem';
 import { RiHome2Line, RiCalendarTodoLine } from "react-icons/ri";
@@ -18,7 +18,6 @@ const AdminLayout = ({ children }) => {
     const open = useSelector(state => state.sidebar.open);
 
     //const {someth} = usePage().props;
-
     //console.log(someth.id);
     return (
         <>
