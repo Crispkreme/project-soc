@@ -1,9 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { PiAddressBookBold } from 'react-icons/pi';
 import { RiCalendarTodoLine, RiCloseFill, RiMenuFill } from 'react-icons/ri';
 import Dropdown from '@/Components/Inputs/Dropdown';
 import { FaGripLines } from 'react-icons/fa';
+import Sidebar from '../Components/Sidebars/Sidebar';
+import Header from '../Components/Headers/Header';
+import { useSelector } from 'react-redux';
 
 const logo = "/assets/svg/logo.svg";
 const header = "/assets/svg/header.svg";
@@ -12,46 +15,16 @@ export default function PatientLayout({children}) {
 
     const {url, component} = usePage();
     const user = usePage().props.auth.user;
-    const [state, setState] = useState({
-        open: false,
-        visible: false,
-    });
-
-    const openOnClick = () => setState(prev => ({...prev, open: !state.open}));
+    const open = useSelector(state => state.sidebar.open);
 
     const redirectRole = user.role === "Patient" || user.role === "BHW" ? "Practitioner" : user.role === "Practitioner" ? "Patient" : "BHW" 
-
-    const target = useRef(null);
-
-    useEffect(() => {
-        
-        if(target.current) {
-            target.current.addEventListener("transitionend", () => {
-                console.log(state.open);
-                setState(prev => ({...prev, visible: prev.open}));
-            });
-        }
-
-        return () => {
-            if(target.current) target.current.removeEventListener("transitionend");
-        }
-    },[target]);
 
     return (
         <div className='min-h-screen h-full flex flex-col'>
             <section className='flex h-full lg:grow flex-wrap'>
-                <div className={`${state.open ? 'flex-[1_0_100%] lg:flex-[1_0_20%]' : 'flex-[1_0_0%]'} flex flex-col gap-24 bg-secondary-bg p-2 transition-all`}>
-                    <div className='flex justify-between'>
-                        <Link className={`${state.open ? 'opacity-1' : 'opacity-1 lg:opacity-0'} ${state.visible || state.open ? 'visible' : 'lg:block lg:visible  '} transition-all`} href={route('patient.dashboard')}>
-                            <img src={logo} alt="Logo" className="w-20" />
-                        </Link>
-                        <button onClick={openOnClick}>
-                            {state.open ? <RiCloseFill size={24}/> : <RiMenuFill size={24}/>}
-                        </button>
-                    </div>
-                    <div ref={target} className={`${state.open ? 'opacity-1' : 'opacity-0'} ${state.visible || state.open ? 'visible' : 'hidden lg:block lg:visible '}  transition-all text-center bg-white flex py-4 flex-col justify-center rounded-2xl`}>
+                <Sidebar user={user}>
+                    <div className={`h-full mt-4 transition-all text-center bg-white flex py-4 flex-col justify-start rounded-2xl`}>
                         <div className='w-full flex justify-center mb-8'>
-                            
                             <Dropdown>
                                 <Dropdown.Trigger>
                                     <button>
@@ -111,7 +84,7 @@ export default function PatientLayout({children}) {
                                         {link.icon}
                                         <span>{link.text}</span>
                                     </Link>
-                                    <ul className={`${active && (state.visible || state.open) ? 'visible' : 'hidden'}`}>
+                                    <ul className={`${active && (open) ? 'visible' : 'hidden'}`}>
                                     {
                                         link.sublinks.map( (sub, idx) => {
                                             return (
@@ -130,15 +103,16 @@ export default function PatientLayout({children}) {
                             })
                         }
                     </div>
-                </div>
+                </Sidebar>
                 
-                <section className='flex flex-col flex-[0_0_100%] lg:flex-[1_0_80%]'>
-                    <div className="header bg-cover p-5 text-white text-center h-full lg:h-[109px]" style={{ backgroundImage: `url(${header})` }}>
+                <section className={`flex flex-col w-[100%] ${open ? 'md:ml-64' : ''} transition-all`}>
+                    <div className="header relative p-5 text-white text-center w-full h-full lg:h-[109px]">
+                        <img src={header} className='hidden md:block bg-cover absolute w-full h-full top-0 left-0' alt="" />
                         <div className="flex justify-between items-center">
                             <Link href={route('patient.dashboard')}>
-                                <img src={logo} alt="Logo" className="w-16 lg:w-24" />
+                                <img src={logo} alt="Logo" className="w-20 lg:w-32" />
                             </Link>
-                            <div className="hidden lg:block lg:visible search-bar flex items-center space-x-2">
+                            <div className="hidden lg:block z-50 search-bar flex items-center space-x-2">
                                 <input
                                 type="text"
                                 className="form-control text-black px-4 py-2 lg:w-[300px] rounded-lg border border-gray-300"
@@ -184,7 +158,8 @@ export default function PatientLayout({children}) {
                             <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">Search</button>
                         </div>
                     </div>
-                    <main className='p-6 flex-[1_0_85%]'>
+                    <Header userId={user.id}/>
+                    <main className='p-6 w-full'>
                         {children}
                     </main>
                 </section>
