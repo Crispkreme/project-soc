@@ -19,18 +19,19 @@ class UserDetailRepository implements UserDetailContract
     {   
         return $this->model->updateOrCreate(
             [
-                'user_id' => $data['user_id'],
+                'user_id' => $data['user_id'] ?? null,
             ],
             [
                 
-                'firstname' => $data['firstname'],
-                'middlename' => $data['middlename'],
-                'lastname' => $data['lastname'],
-                'gender' => $data['gender'],
-                'birthday' => $data['birthday'],
-                'civil_status' => $data['civil_status'],
-                'religion' => $data['religion'],
-                'address' => $data['address'],
+                'firstname' => $data['firstname'] ?? '',
+                'middlename' => $data['middlename'] ?? null,
+                'lastname' => $data['lastname'] ?? '',
+                'gender' => $data['gender'] ?? null,
+                'birthday' => $data['birthday'] ?? null,
+                'civil_status' => $data['civil_status'] ?? null,
+                'religion' => $data['religion'] ?? '',
+                'status' => $data['status'] ?? 'Active',
+                'address' => $data['address'] ?? null,
                 'profile' => $data['profile'] ?? null,
             ]
         );
@@ -79,5 +80,18 @@ class UserDetailRepository implements UserDetailContract
             ->where('users.role', '=', $role)
             ->where('user_details.status', '=', 'Active')
             ->get();
+    }
+
+    public function countSpecificUserDetail($role, $status)
+    {
+        return $this->model
+            ->join('users', 'user_details.user_id', '=', 'users.id')
+            ->select(
+                'user_details.*',
+                'users.role'
+            )
+            ->where('users.role', '=', $role)
+            ->where('user_details.status', '=', $status)
+            ->count();
     }
 }

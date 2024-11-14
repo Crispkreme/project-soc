@@ -4,7 +4,10 @@ import Breadcrumb from "./Breadcrumb";
 import NotificationList from "./NotificationList";
 import MessageList from "./MessageList";
 import { IoMdNotificationsOutline } from "react-icons/io";
-import { FaBars } from "react-icons/fa6";
+import { FaBars, FaX } from "react-icons/fa6";
+import { useDispatch, useSelector } from "react-redux";
+import { closeSidebar, openSidebar } from "../../reducers/sidebarSlice";
+import { usePage } from '@inertiajs/react';
 
 const notificationsData = [
     {
@@ -38,6 +41,7 @@ const messagesData = [
 
 const Header = ({ userId }) => {
 
+    const user = usePage().props.auth.user;
     const [isHeaderNotificationsOpen, setIsHeaderNotificationsOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isMessagesOpen, setIsMessagesOpen] = useState(false);
@@ -58,10 +62,21 @@ const Header = ({ userId }) => {
         setIsNotificationsOpen(false);
     };
 
+    const open = useSelector(state => state.sidebar.open);
+    const dispatch = useDispatch();
+
+    const buttonOnClick = () => {   
+        if(open) {
+            dispatch(closeSidebar());
+        } else if (!open) {
+            dispatch(openSidebar());
+        }
+    }
+
     return (
         <div className="py-2 px-6 bg-white flex items-center shadow-md shadow-black/5 sticky top-0 left-0 z-30">
-            <button type="button" className="text-lg text-gray-600 sidebar-toggle">
-                <FaBars />
+            <button onClick={buttonOnClick} type="button" className="text-lg text-gray-600 sidebar-toggle">
+                {!open ? <FaBars /> : <FaX />}
             </button>
 
             <Breadcrumb />
@@ -99,7 +114,7 @@ const Header = ({ userId }) => {
                         </div>
                     </div>
                 </li>
-                <Profile userId={userId} />
+                <Profile userId={userId} username={user.username}/>
             </ul>
         </div>
     );

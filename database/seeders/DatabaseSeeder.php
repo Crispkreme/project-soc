@@ -29,6 +29,8 @@ class DatabaseSeeder extends Seeder
             TestResultSeeder::class,
             ImmunizationSeeder::class,
             HospitalizationSeeder::class,
+            BarangayEventSeeder::class,
+            AppointmentSeeder::class,
         ]);
     }
 }

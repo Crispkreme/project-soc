@@ -12,7 +12,6 @@ const AppointmentModal = ({ showModal, toggleModal, selectedAppointment }) => {
         <Modal show={showModal} onClose={toggleModal}>
             <div className="p-4">
                 
-                
                 {selectedAppointment ? (
 
                     <form action="" className="p-6">

@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Contracts\AppointmentContract;
+use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
 use App\Contracts\FamilyMedicalContract;
 use App\Contracts\HealthContract;
@@ -16,6 +18,8 @@ use App\Contracts\SurgicalContract;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
+use App\Repositories\AppointmentRepository;
+use App\Repositories\BarangayEventRepository;
 use App\Repositories\BookingRepository;
 use App\Repositories\FamilyMedicalRepository;
 use App\Repositories\HealthRepository;
@@ -49,6 +53,8 @@ class RepositoryProvider extends ServiceProvider
         ImmunizationContract::class => ImmunizationRepository::class,
         HospitalizationContract::class => HospitalizationRepository::class,
         MedicalRecordContract::class => MedicalRecordRepository::class,
+        BarangayEventContract::class => BarangayEventRepository::class,
+        AppointmentContract::class => AppointmentRepository::class,
     ];
 
     /**

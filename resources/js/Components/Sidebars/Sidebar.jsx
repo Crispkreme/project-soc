@@ -1,49 +1,43 @@
 import React from 'react';
-import { RiHome2Line, RiCalendarTodoLine } from "react-icons/ri";
-import { AiOutlineSkin } from "react-icons/ai";
-import { TbReportMedical, TbTools } from "react-icons/tb";
-import { MdOutlineInventory2 } from "react-icons/md";
-import { PiAddressBookBold } from "react-icons/pi";
-import { VscGraph } from "react-icons/vsc";
-import SidebarItem from './SidebarItem';
+import { FaBars } from 'react-icons/fa';
+import { FaX } from 'react-icons/fa6';
+import { useDispatch, useSelector } from 'react-redux';
+import { closeSidebar, openSidebar } from '../../reducers/sidebarSlice';
+import { usePage } from '@inertiajs/inertia-react';
 
-const Sidebar = () => {
+const Sidebar = ({children, user}) => {
 
+    const open = useSelector((state) => state.sidebar.open);
+    const dispatch = useDispatch();
+
+    const buttonOnClick = () => {
+        if(open) {
+            dispatch(closeSidebar());
+        } else if (!open) {
+            dispatch(openSidebar());
+        }
+    }
+
+    const admin = user.role === "Administration" || user.role === "BHW";
     return (
         <>
-            <div className="fixed left-0 top-0 w-64 h-full bg-gray-900 p-4 z-50 sidebar-menu transition-transform">
-                <a href="#" className="flex items-center pb-4 border-b border-b-gray-800">
-                    <img src="https://placehold.co/32x32" alt="" className="w-8 h-8 rounded object-cover" />
-                    <span className="text-lg font-bold text-white ml-3">Logo</span>
-                </a>
-                <ul className="mt-4">
-                    <SidebarItem icon={RiHome2Line} label="Dashboard" link="#" />
-                    <SidebarItem
-                        icon={AiOutlineSkin}
-                        label="Accounts"
-                        dropdownItems={[
-                            { label: 'Administrations', link: route('admin.accounts.admin') },
-                            { label: 'Doctors', link: route('admin.accounts.doctor') },
-                            { label: 'Bhws', link: route('admin.accounts.bhw') },
-                            { label: 'Patients', link: route('admin.accounts.patient') },
-                        ]}
-                    />
-                    <SidebarItem
-                        icon={PiAddressBookBold}
-                        label="Medical"
-                        dropdownItems={[
-                            { label: 'History', link: route('admin.medical.history') },
-                            { label: 'Records', link: route('admin.medical.records') },
-                        ]}
-                    />
-                    <SidebarItem icon={TbReportMedical} label="Medicines" link={route('admin.medicines')} />
-                    <SidebarItem icon={MdOutlineInventory2} label="Inventories" link={route('admin.inventories')} />
-                    <SidebarItem icon={RiCalendarTodoLine} label="Scheduling" link={route('admin.appointments')} />
-                    <SidebarItem icon={TbTools} label="Activities" link="#" />
-                    <SidebarItem icon={VscGraph} label="Data" link="#" />
-                </ul>
+            <div className={`fixed left-0 top-0 ${open ? 'w-64 p-4 ' : 'p-4 md:p-0'} ${open ? 'h-full' : ''} bg-gray-900  z-50 sidebar-menu transition-transform`}>
+                <div className={`flex ${admin ? 'justify-between' : 'justify-end'} items-center ${open ? 'border-b border-b-gray-800 pb-4' : ''} transition-all`}>
+                    { admin && (
+                        <a href="#" className={`flex ${open ? 'visible' : 'hidden'} items-center `}>
+                            <img src="https://placehold.co/32x32" alt="" className="w-8 h-8 rounded object-cover" />
+                            <span className="text-lg font-bold text-white ml-3">Logo</span>
+                        </a>
+                    )}
+                    <button onClick={buttonOnClick} className='md:hidden'>
+                        {!open ? <FaBars color='white' /> : <FaX color='white' />}
+                    </button>
+                </div>
+                <div className={`${open ? 'visible' : 'hidden'} h-full`}>
+                    {children}
+                </div>
             </div>
-            <div className="fixed top-0 left-0 w-full h-full bg-black/50 z-40 md:hidden sidebar-overlay"></div>
+            <div className={`${open ? 'fixed' : ''} top-0 left-0 w-full h-full bg-black/50 z-40 md:hidden sidebar-overlay`}></div>
         </>
     )
 }

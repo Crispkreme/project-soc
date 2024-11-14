@@ -1,26 +1,11 @@
 import StandardLayout from '@/Layouts/StandardLayout';
 import { Head } from '@inertiajs/react';
+import PatientLayout from '@/Layouts/PatientLayout';
 
 export default function Dashboard() {
     return (
-        <StandardLayout>
+        <PatientLayout>
             <Head title="Dashboard" />
-
-            <div className="container mx-auto text-center my-6 space-x-2 flex justify-center mt-[-40px]">
-                <button className="border bg-white border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition">
-                    Book Appointments
-                </button>
-                <button className="border bg-white border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition">
-                    Community
-                </button>
-                <button className="border bg-white border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition">
-                    Service Available
-                </button>
-                <button className="border bg-white border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-500 hover:text-white transition">
-                    My Records
-                </button>
-            </div>
-
             <div className="w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
                 <h5 className="text-lg font-semibold text-gray-800">Dental and General Check Up</h5>
                 <p className="text-gray-600">Dr. Sam Gonzales MD</p>
@@ -38,6 +23,6 @@ export default function Dashboard() {
                     <p className="text-gray-600">Biogesic<br />Bioflu</p>
                 </div>
             </div>
-        </StandardLayout>
+        </PatientLayout>
     );
 }
