@@ -231,6 +231,45 @@ class UserController extends Controller
         ]);
     }
 
+    // THIS IS TEMP
+    public function getAllPatientCommunity()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'practitioner.show.communities.patient' => 'Practitioner',
+            'patient.show.communities.patient' => 'Patient',
+            default => 'login',
+        };
+
+        if (!$accountType) {
+            return redirect()->route('login');
+        }
+
+        $viewPath = match ($accountType) {
+            'Practitioner' => 'Practitioners/Communities/Patient',
+            'Patient' => 'Patients/Communities/Patient',
+            default => 'login'
+        };
+
+        $totalBhw = $this->userDetailContract->countSpecificUserDetail('Bhw', 'Active');
+        $totalPatient = $this->userDetailContract->countSpecificUserDetail('Patient', 'Active');
+        $totalPractitioner = $this->userDetailContract->countSpecificUserDetail('Practitioner', 'Active');
+        $patients = $this->userDetailContract->getAllUserByRole('Patient', 'Active');
+        
+        return Inertia::render($viewPath, [
+            'totalBhw' => $totalBhw,
+            'totalPatient' => $totalPatient,
+            'totalPractitioner' => $totalPractitioner,
+            'patients' => $patients,
+        ]);
+    }
+
     public function loginDestroy(Request $request)
     {
         Auth::guard('web')->logout();
