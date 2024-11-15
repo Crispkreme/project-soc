@@ -3,7 +3,7 @@ import React, { lazy } from 'react';
 const UserDetail = lazy(() => import("@/Components/Cards/UserDetail"));
 const PatientLayout = lazy(() => import("@/Layouts/PatientLayout"));
 
-const Bhw = ({ totalBhw, totalPatient, totalPractitioner, bhws}) => {
+const Bhw = ({ totalBhw, totalPatient, totalPractitioner, patients}) => {
 
   return (
     <PatientLayout>
@@ -23,12 +23,12 @@ const Bhw = ({ totalBhw, totalPatient, totalPractitioner, bhws}) => {
           </div>
         </div>
         <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3'>
-          {bhws.length > 0 ? (
-            bhws.map((bhw) => (
+          {patients.length > 0 ? (
+            patients.map((bhw) => (
               <UserDetail key={bhw.id} userDetail={bhw} />
             ))
           ) : (
-            <div>No Available Bhw</div>
+            <div>No Available Patient</div>
           )}
         </div>
       </div>

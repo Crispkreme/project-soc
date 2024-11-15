@@ -20,7 +20,55 @@ export default function PatientLayout({children}) {
     const dispatch = useDispatch();
 
     const redirectRole = user.role === "Patient" || user.role === "BHW" ? "Practitioner" : user.role === "Practitioner" ? "Patient" : "BHW";
-    const linkOnClick = () => dispatch(closeSidebar());
+    const linkOnClick = () => window.innerWidth < 768 ? dispatch(closeSidebar()) : null;
+
+    const curLinks = user.role === "Patient" ? [
+      {icon: <RiCalendarTodoLine />,text: "Book Appointments", href: route(`patient.book.appointments`), route: '/patient/book/appointments', sublinks: []},
+      {icon: <RiCalendarTodoLine />,text: "Community", href: route(`patient.show.communities.${String(redirectRole).toLowerCase()}`), route: `/patient/show/communities/${String(redirectRole).toLowerCase()}`,
+          sublinks: [
+              user.role !== "Patient" && {text: "Patients", href: route('patient.show.communities.patient'), route: '/patient/show/communities/patient'},
+              user.role !== "Practitioner" && {text: "Practitioners", href: route('patient.show.communities.practitioner'), route: '/patient/show/communities/practitioner'},
+              user.role !== "BHW" && {text: "BHWs", href: route('patient.show.communities.bhw'), route: '/patient/show/communities/bhw'},
+          ].filter(Boolean)
+      },
+      {icon: <RiCalendarTodoLine />,text: "Service Available", href: route('patient.show.service.availables'), route: '/patient/show/service/availables',
+          sublinks: [
+              {text: "Schedule Consultations", href: route('patient.show.schedule.consultations'), route: '/patient/show/schedule/consultations'},
+              {text: "Medicine Available", href: route('patient.show.medicine.available'), route: '/patient/show/medicine/available'},
+              {text: "Data Analysis Reports", href: route('patient.show.data.analysis'), route: '/patient/show/data/analysis'},
+              {text: "BHW Activities", href: route('patient.show.bhw.activities'), route: '/patient/show/bhw/activities'},
+          ]
+      },
+      {icon: <PiAddressBookBold />,text: "My Records", href: route('patient.show.record.medicals'), route: '/patient/show/record/medicals',
+          sublinks: [
+              {text: "My Medical Records", href: route('patient.show.record.medicals'), route: '/patient/show/record/medicals'},
+              {text: "My Medical History", href: route('patient.show.record.histories'), route: '/patient/show/record/histories'},
+          ]
+      },
+  ] : [
+    // this is doctor
+    {icon: <PiAddressBookBold />,text: "Schedules", href: route('practitioner.book.appointments'), route: '/practitioner/book/appointments',
+      sublinks: [
+          {text: "Schedules", href: route('practitioner.book.appointments'), route: '/practitioner/book/appointments'},
+          {text: "Patient Booked", href: route('practitioner.book.appointments.booked'), route: '/practitioner/book/appointments/booked'},
+      ]
+    },
+    {icon: <RiCalendarTodoLine />,text: "Community", href: route(`practitioner.show.communities.patient`), route: `/practitioner/show/communities/patient`,
+      sublinks: [
+        user.role !== "Patient" && {text: "Patients", href: route('practitioner.show.communities.patient'), route: '/practitioner/show/communities/patient'},
+        user.role !== "Practitioner" && {text: "Practitioners", href: route('practitioner.show.communities.practitioner'), route: '/practitioner/show/communities/practitioner'},
+        user.role !== "BHW" && {text: "BHWs", href: route('practitioner.show.communities.bhw'), route: '/practitioner/show/communities/bhw'},
+      ].filter(Boolean)
+    },
+    {icon: <PiAddressBookBold />,text: "Reports", href: route('practitioner.show.report.appointment'), route: '/practitioner/show/reports/appointment',
+        sublinks: [
+            {text: "Appointment", href: route('practitioner.show.report.appointment'), route: '/practitioner/show/reports/appointment'},
+            {text: "Medical Available", href: route('practitioner.show.report.medicine.available'), route: '/practitioner/show/reports/medicine/available'},
+            {text: "Data Analytics", href: route('practitioner.show.report.analytics'), route: '/practitioner/show/reports/analytics'},
+            {text: "Released", href: route('practitioner.show.report.released'), route: '/practitioner/show/reports/released'},
+        ]
+    },
+  ];
 
     return (
         <div className='min-h-screen h-full flex flex-col'>
@@ -56,30 +104,7 @@ export default function PatientLayout({children}) {
                             </Dropdown>
                         </div>
                         {
-                            [
-                                {icon: <RiCalendarTodoLine />,text: "Book Appointments", href: route('patient.book.appointments'), route: '/patient/book/appointments', sublinks: []},
-                                {icon: <RiCalendarTodoLine />,text: "Community", href: route(`patient.show.communities.${String(redirectRole).toLowerCase()}`), route: `/patient/show/communities/${String(redirectRole).toLowerCase()}`,
-                                    sublinks: [
-                                        user.role !== "Patient" && {text: "Patients", href: route('patient.show.communities.patient'), route: '/patient/show/communities/patient'},
-                                        user.role !== "Practitioner" && {text: "Practitioners", href: route('patient.show.communities.practitioner'), route: '/patient/show/communities/practitioner'},
-                                        user.role !== "BHW" && {text: "BHWs", href: route('patient.show.communities.bhw'), route: '/patient/show/communities/bhw'},
-                                    ].filter(Boolean)
-                                },
-                                {icon: <RiCalendarTodoLine />,text: "Service Available", href: route('patient.show.service.availables'), route: '/patient/show/service/availables',
-                                    sublinks: [
-                                        {text: "Schedule Consultations", href: route('patient.show.schedule.consultations'), route: '/patient/show/schedule/consultations'},
-                                        {text: "Medicine Available", href: route('patient.show.medicine.available'), route: '/patient/show/medicine/available'},
-                                        {text: "Data Analysis Reports", href: route('patient.show.data.analysis'), route: '/patient/show/data/analysis'},
-                                        {text: "BHW Activities", href: route('patient.show.bhw.activities'), route: '/patient/show/bhw/activities'},
-                                    ]
-                                },
-                                {icon: <PiAddressBookBold />,text: "My Records", href: route('patient.show.record.medicals'), route: '/patient/show/record/medicals',
-                                    sublinks: [
-                                        {text: "My Medical Records", href: route('patient.show.record.medicals'), route: '/patient/show/record/medicals'},
-                                        {text: "My Medical History", href: route('patient.show.record.histories'), route: '/patient/show/record/histories'},
-                                    ]
-                                },
-                            ].map( (link, idx) => {
+                            curLinks.map( (link, idx) => {
                                 const active = url === link.route | link.sublinks.filter( link => link.route === url).length > 0;
                                 return (
                                     <>

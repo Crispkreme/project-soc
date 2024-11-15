@@ -105,7 +105,7 @@ class ServiceController extends Controller
 
         $routeName = Route::currentRouteName();
         $accountType = match ($routeName) {
-            'practitioner.show.medicine.available' => 'Practitioner',
+            'practitioner.show.report.medicine.available' => 'Practitioner',
             'patient.show.medicine.available' => 'Patient',
             default => 'login',
         };
@@ -115,7 +115,7 @@ class ServiceController extends Controller
         }
 
         $viewPath = match ($accountType) {
-            'Practitioner' => 'Practitioners/Services/Medicine',
+            'Practitioner' => 'Practitioners/Reports/Medicine',
             'Patient' => 'Patients/Services/Medicine',
             default => 'login'
         };
