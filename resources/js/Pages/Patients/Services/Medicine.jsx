@@ -21,30 +21,30 @@ const Medicine = ({ inventories }) => {
 
   return (
     <PatientLayout>
-      <div className="p-8">
-        <div className="border border-black rounded-xl">
-          <table className=" min-w-full rounded-xl">
-            <thead className="bg-secondary-bg">
+      <div className="p-4 md:p-8 max-w-full">
+        <div className="border-2 md:border border-black rounded-xl max-w-full overflow-scroll md:overflow-auto max-h-[400px] md:max-h-none overflow-y-scroll">
+          <table style={{tableLayout: 'auto'}} className=" min-w-full w-full rounded-xl">
+            <thead className="bg-secondary-bg rounded-xl">
               <tr className="border-b border-black">
-                <th className="p-5 text-center text-md font-semibold text-gray-900 capitalize">ID</th>
-                <th className="p-5 text-left text-md font-semibold text-gray-900 capitalize">Medicine</th>
-                <th className="p-5 text-left text-md font-semibold text-gray-900 capitalize">Description</th>
-                <th className="p-5 text-left text-md font-semibold text-gray-900 capitalize">Dosage</th>
-                <th className="p-5 text-left text-md font-semibold text-gray-900 capitalize">Available</th>
-                <th className="p-5 text-left text-md font-semibold text-gray-900 capitalize">Sold</th>
-                <th className="p-5 text-left text-md font-semibold text-gray-900 capitalize">Actions</th>
+                <th className="p-2 md:p-5 text-center text-md font-semibold text-gray-900 capitalize rounded-tl-xl">ID</th>
+                <th className="p-2 md:p-5 text-left text-md font-semibold text-gray-900 capitalize">Medicine</th>
+                <th className="p-2 md:p-5 text-left text-md font-semibold text-gray-900 capitalize inline-block">Description</th>
+                <th className="p-2 md:p-5 text-left text-md font-semibold text-gray-900 capitalize">Dosage</th>
+                <th className="p-2 md:p-5 text-left text-md font-semibold text-gray-900 capitalize">Available</th>
+                <th className="p-2 md:p-5 text-left text-md font-semibold text-gray-900 capitalize">Sold</th>
+                <th className="p-2 md:p-5 text-left text-md font-semibold text-gray-900 capitalize rounded-tr-xl">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-300">
               {inventories.map((item, index) => (
                 <tr key={item.id} className="bg-white transition-all duration-500 hover:bg-gray-50">
                   <td className="text-center p-5 text-md font-medium text-gray-900">{index + 1}</td>
-                  <td className="p-5 text-md font-medium text-gray-900">{item.medicine_name}</td>
-                  <td className="p-5 text-md font-medium text-gray-900">{item.description}</td>
-                  <td className="p-5 text-md font-medium text-gray-900">0</td>
-                  <td className="p-5 text-md font-medium text-gray-900">{item.in_stock}</td>
-                  <td className="p-5 text-md font-medium text-gray-900">{item.sold}</td>
-                  <td className="p-5">
+                  <td className="p-2 md:p-5 text-md font-medium text-gray-900">{item.medicine_name}</td>
+                  <td className="p-2 md:p-5 text-md font-medium text-gray-900 h-full min-w-[500px] md:min-w-none"><span>{item.description}</span></td>
+                  <td className="p-2 md:p-5 text-md font-medium text-gray-900">0</td>
+                  <td className="p-2 md:p-5 text-md font-medium text-gray-900">{item.in_stock}</td>
+                  <td className="p-2 md:p-5 text-md font-medium text-gray-900">{item.sold}</td>
+                  <td className="p-2 md:p-5">
                     <div className="flex items-center gap-2">
                       <button className="p-2 rounded-full group transition-all duration-500 flex items-center">
                         <FaRegEdit className='w-6 h-6 fill-indigo-500'/>

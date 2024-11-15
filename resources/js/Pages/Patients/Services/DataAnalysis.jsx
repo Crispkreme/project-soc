@@ -50,7 +50,7 @@ const DataAnalysis = () => {
 
     return (
         <PatientLayout>
-            <div className='p-8 relative'>
+            <div className='p-4 md:p-8 relative'>
                 {
                     analysis.map( (anl,idx) => {
                         
