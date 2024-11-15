@@ -20,18 +20,35 @@ export default function Dashboard() {
     {name: "Flu", percent: 23},
     {name: "Fever", percent: 38},
   ]
-  const labels = commonIlness.map( il => il.name);
+
+  const medecine = [
+    {name: "Biogesic", sold: 53},
+    {name: "BioFlu", sold: 23},
+  ]
+
   const data = {
-      labels: ["Common Ilness"],
-      datasets: commonIlness.map( c => {
-        return {
-          label: c.name,
-          backgroundColor: getRandomColor(),
-          borderColor: "rgb(255, 99, 132)",
-          data: [c.percent],
-        }
-      }),
-    };
+    labels: ["Common Ilness"],
+    datasets: commonIlness.map( c => {
+      return {
+        label: c.name,
+        backgroundColor: getRandomColor(),
+        borderColor: "rgb(255, 99, 132)",
+        data: [c.percent],
+      }
+    }),
+  };
+
+  const medecineData = {
+    labels: ["In-Demand Medecine"],
+    datasets: medecine.map( c => {
+      return {
+        label: c.name,
+        backgroundColor: getRandomColor(),
+        borderColor: "rgb(255, 99, 132)",
+        data: [c.sold],
+      }
+    }),
+  };
     
 
   
@@ -50,8 +67,7 @@ export default function Dashboard() {
                   <Bar data={data}/>
                 </div>
                 <div className="chart-card bg-gray-50 rounded-lg p-6 text-center shadow-lg w-full md:w-1/2">
-                    <h6 className="text-lg font-semibold">In-Demand Medicine</h6>
-                    <p className="text-gray-600">Biogesic<br />Bioflu</p>
+                  <Bar data={medecineData}/>
                 </div>
             </div>
         </PatientLayout>
