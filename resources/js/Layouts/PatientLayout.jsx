@@ -6,7 +6,8 @@ import Dropdown from '@/Components/Inputs/Dropdown';
 import { FaGripLines } from 'react-icons/fa';
 import Sidebar from '../Components/Sidebars/Sidebar';
 import Header from '../Components/Headers/Header';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { closeSidebar } from '../reducers/sidebarSlice';
 
 const logo = "/assets/svg/logo.svg";
 const header = "/assets/svg/header.svg";
@@ -16,8 +17,10 @@ export default function PatientLayout({children}) {
     const {url, component} = usePage();
     const user = usePage().props.auth.user;
     const open = useSelector(state => state.sidebar.open);
+    const dispatch = useDispatch();
 
-    const redirectRole = user.role === "Patient" || user.role === "BHW" ? "Practitioner" : user.role === "Practitioner" ? "Patient" : "BHW" 
+    const redirectRole = user.role === "Patient" || user.role === "BHW" ? "Practitioner" : user.role === "Practitioner" ? "Patient" : "BHW";
+    const linkOnClick = () => dispatch(closeSidebar());
 
     return (
         <div className='min-h-screen h-full flex flex-col'>
@@ -80,7 +83,7 @@ export default function PatientLayout({children}) {
                                 const active = url === link.route | link.sublinks.filter( link => link.route === url).length > 0;
                                 return (
                                     <>
-                                    <Link key={idx} href={link.href} className={`flex items-center gap-4 px-4 py-2 ${url === link.route ? 'text-primary-bg' : 'hover:text-primary-bg'} transition`}>
+                                    <Link key={idx} onClick={linkOnClick} href={link.href} className={`flex items-center gap-4 px-4 py-2 ${url === link.route ? 'text-primary-bg' : 'hover:text-primary-bg'} transition`}>
                                         {link.icon}
                                         <span>{link.text}</span>
                                     </Link>
@@ -89,7 +92,7 @@ export default function PatientLayout({children}) {
                                         link.sublinks.map( (sub, idx) => {
                                             return (
                                                 <li key={idx}>
-                                                    <Link key={idx} href={sub.href} className={`flex items-center gap-4 px-8 py-2 ${url === sub.route ? 'text-primary-bg' : 'hover:text-primary-bg'} transition`}>
+                                                    <Link onClick={linkOnClick} key={idx} href={sub.href} className={`flex items-center gap-4 px-8 py-2 ${url === sub.route ? 'text-primary-bg' : 'hover:text-primary-bg'} transition`}>
                                                         <FaGripLines />
                                                         <span>{sub.text}</span>
                                                     </Link>

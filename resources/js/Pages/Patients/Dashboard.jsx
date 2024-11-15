@@ -6,7 +6,7 @@ export default function Dashboard() {
     return (
         <PatientLayout>
             <Head title="Dashboard" />
-            <div className="w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
+            <div className="w-full md:w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
                 <h5 className="text-lg font-semibold text-gray-800">Dental and General Check Up</h5>
                 <p className="text-gray-600">Dr. Sam Gonzales MD</p>
                 <p className="text-gray-600">April 29, 2024 Mon 8AM - 3PM</p>

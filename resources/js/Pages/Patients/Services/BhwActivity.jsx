@@ -13,7 +13,7 @@ const BhwActivity = ({ barangayEvents }) => {
 
     return (
         <PatientLayout>
-            <div className="p-8 relative">
+            <div className="p-4 md:p-8 relative">
                 {record.map((monthData, idx) => (
                     <Month
                         key={idx}

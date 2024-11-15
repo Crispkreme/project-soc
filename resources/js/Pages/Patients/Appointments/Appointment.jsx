@@ -187,7 +187,7 @@ const Appointment = ({ barangayEvents, doctors }) => {
                       }
 
                       <div className='flex justify-center mt-8'>
-                        <button className='bg-secondary-bg hover:bg-primary-bg hover:text-white transition px-8 py-4 rounded-full border-2 border-black' onClick={() => { toggleModal(); }}>
+                        <button className='bg-secondary-bg hover:bg-primary-bg hover:text-white transition px-4 md:px-8 py-2 md:py-4 rounded-full border-2 border-black' onClick={() => { toggleModal(); }}>
                           Book Appointment
                         </button>
                       </div>

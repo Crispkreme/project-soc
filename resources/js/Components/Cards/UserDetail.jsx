@@ -6,7 +6,7 @@ const UserDetail = ({ userDetail }) => {
     const profileImage = userDetail.profile ? userDetail.profile : defaultProfileImage;
 
     return (
-        <div className="p-8">
+        <div className=" py-8 md:p-8">
             <div className="border border-black flex items-center gap-4 rounded-2xl">
                 <img 
                     src={profileImage} 
