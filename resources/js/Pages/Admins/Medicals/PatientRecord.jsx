@@ -51,7 +51,7 @@ const PatientRecord = ({ medicalRecords, hospitalizations, immunizations, testRe
                           </tr>
                         )}      
                       </tbody>
-                      </table>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -90,7 +90,7 @@ const PatientRecord = ({ medicalRecords, hospitalizations, immunizations, testRe
                           </tr>
                         )}      
                       </tbody>
-                      </table>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -133,7 +133,7 @@ const PatientRecord = ({ medicalRecords, hospitalizations, immunizations, testRe
                           </tr>
                         )}      
                       </tbody>
-                      </table>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -172,7 +172,7 @@ const PatientRecord = ({ medicalRecords, hospitalizations, immunizations, testRe
                           </tr>
                         )}      
                       </tbody>
-                      </table>
+                    </table>
                   </div>
                 </div>
               </div>

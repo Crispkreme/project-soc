@@ -3,12 +3,14 @@
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -45,4 +47,6 @@ Route::middleware(['auth', 'verified', 'patient'])
     // RECORDS
     Route::get('/show/record/medicals', [RecordController::class, 'getAllMedical'])->name('show.record.medicals');
     Route::get('/show/record/histories', [RecordController::class, 'getAllHistory'])->name('show.record.histories');
+    Route::get('/medical/history/{id}', [MedicalRecordController::class, 'getPatientMedicalHistory'])->name('medical.history');
+    Route::get('/medical/record/{id}', [MedicalRecordController::class, 'getPatientMedicalRecord'])->name('medical.record');
 });
