@@ -21,8 +21,13 @@ class BookingRepository implements BookingContract
             ->with(['approver:id,firstname,middlename,lastname', 'patient:id,firstname,middlename,lastname'])
             ->get()
             ->map(function ($booking) {
-                $doctorName = trim("{$booking->approver->firstname} {$booking->approver->middlename} {$booking->approver->lastname}");
-                $patientName = trim("{$booking->patient->firstname} {$booking->patient->middlename} {$booking->patient->lastname}");
+                $doctorName = $booking->approver
+                    ? trim("{$booking->approver->firstname} {$booking->approver->middlename} {$booking->approver->lastname}")
+                    : 'N/A';
+                
+                $patientName = $booking->patient
+                    ? trim("{$booking->patient->firstname} {$booking->patient->middlename} {$booking->patient->lastname}")
+                    : 'N/A';
 
                 return [
                     'id' => $booking->id,
@@ -37,6 +42,7 @@ class BookingRepository implements BookingContract
                 ];
             });
     }
+
 
     public function createOrUpdateBooking($data)
     {
@@ -56,5 +62,12 @@ class BookingRepository implements BookingContract
                 'booking_status' => $data['booking_status'] ?? 'Inprogress',
             ]
         );
+    }
+
+    public function getBookingById($id)
+    {
+        return $this->model
+            ->where('id', $id)
+            ->first();
     }
 }

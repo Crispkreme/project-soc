@@ -1,63 +1,66 @@
 import React, { useState } from 'react';
 import PatientLayout from '@/Layouts/PatientLayout';
+import { format } from 'date-fns'; // Ensure you import format function from date-fns
 
 const History = ({ patient, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords }) => {
     const [visibleSections, setVisibleSections] = useState([]);
+
     const records = [
         {
-          header: "SURGICAL HISTORY",
-          data: surgicalRecords,
-          columns: [
-            { label: "ID", render: (_, idx) => idx + 1 },
-            { label: "Procedure", accessor: "procedure" },
-            { label: "Description", accessor: "description" },
-            { label: "Doctor", accessor: "doctor_name" },
-            {
-              label: "Date",
-              accessor: "created_at",
-              format: (date) => format(new Date(date), "MMMM d, yyyy"),
-            },
-          ],
+            header: "SURGICAL HISTORY",
+            data: surgicalRecords,
+            columns: [
+                { label: "ID", render: (_, idx) => idx + 1 },
+                { label: "Procedure", accessor: "procedure" },
+                { label: "Description", accessor: "description" },
+                { label: "Doctor", accessor: "doctor_name" },
+                {
+                    label: "Date",
+                    accessor: "created_at",
+                    format: (date) => format(new Date(date), "MMMM d, yyyy"),
+                },
+            ],
         },
         {
-          header: "HEALTH HISTORY",
-          data: healthRecords,
-          columns: [
-            { label: "ID", render: (_, idx) => idx + 1 },
-            { label: "Health Issue", accessor: "name" },
-            { label: "Description", accessor: "description" },
-            {
-              label: "Date",
-              accessor: "created_at",
-              format: (date) => format(new Date(date), "MMMM d, yyyy"),
-            },
-          ],
+            header: "HEALTH HISTORY",
+            data: healthRecords,
+            columns: [
+                { label: "ID", render: (_, idx) => idx + 1 },
+                { label: "Health Issue", accessor: "name" },
+                { label: "Description", accessor: "description" },
+                {
+                    label: "Date",
+                    accessor: "created_at",
+                    format: (date) => format(new Date(date), "MMMM d, yyyy"),
+                },
+            ],
         },
         {
-          header: "MEDICATION HISTORY",
-          data: medicationRecords,
-          columns: [
-            { label: "ID", render: (_, idx) => idx + 1 },
-            { label: "Medicine", accessor: "medicine.medicine_name" },
-            { label: "Dosage", accessor: "dosage" },
-            { label: "Reason", accessor: "reason" },
-            {
-              label: "Date",
-              accessor: "created_at",
-              format: (date) => format(new Date(date), "MMMM d, yyyy"),
-            },
-          ],
+            header: "MEDICATION HISTORY",
+            data: medicationRecords,
+            columns: [
+                { label: "ID", render: (_, idx) => idx + 1 },
+                { label: "Medicine", accessor: "medicine.medicine_name" },
+                { label: "Dosage", accessor: "dosage" },
+                { label: "Reason", accessor: "reason" },
+                {
+                    label: "Date",
+                    accessor: "created_at",
+                    format: (date) => format(new Date(date), "MMMM d, yyyy"),
+                },
+            ],
         },
         {
-          header: "FAMILY MEDICAL HISTORY",
-          data: familyMedicalRecords,
-          columns: [
-            { label: "ID", render: (_, idx) => idx + 1 },
-            { label: "Disease", accessor: "disease" },
-            { label: "Relationship", accessor: "relationship_disease" },
-          ],
+            header: "FAMILY MEDICAL HISTORY",
+            data: familyMedicalRecords,
+            columns: [
+                { label: "ID", render: (_, idx) => idx + 1 },
+                { label: "Disease", accessor: "disease" },
+                { label: "Relationship", accessor: "relationship_disease" },
+            ],
         },
     ];
+
     const toggleVisibility = (idx) => {
         setVisibleSections((prev) =>
             prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
@@ -96,7 +99,7 @@ const History = ({ patient, healthRecords, surgicalRecords, medicationRecords, f
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {record.data.length > 0 ? (
+                                        {record.data && record.data.length > 0 ? (
                                             record.data.map((item, rowIdx) => (
                                                 <tr key={rowIdx}>
                                                     {record.columns.map((col, colIdx) => (
@@ -116,7 +119,7 @@ const History = ({ patient, healthRecords, surgicalRecords, medicationRecords, f
                                                                               (obj, key) => obj?.[key],
                                                                               item
                                                                           )
-                                                                    : item[col.accessor]}
+                                                                    : item[col.accessor] || 'N/A'}
                                                             </span>
                                                         </td>
                                                     ))}
@@ -143,4 +146,4 @@ const History = ({ patient, healthRecords, surgicalRecords, medicationRecords, f
     );
 }
 
-export default History
+export default History;
