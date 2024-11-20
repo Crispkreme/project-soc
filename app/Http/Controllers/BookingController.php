@@ -71,14 +71,14 @@ class BookingController extends Controller
                 'title' => 'required|string|max:255',
                 'notes' => 'nullable|string',
                 'appointment_date' => 'nullable|date',
-                'appointment_start' => 'nullable|date_format:H:i',
-                'appointment_end' => 'nullable|date_format:H:i',
+                'appointment_start' => 'nullable|date_format:H:i:s',
+                'appointment_end' => 'nullable|date_format:H:i:s',
                 'approved_date' => 'nullable|date',
                 'booking_status' => 'nullable|in:Inprogress,Pending,Success,Failed',
             ]);     
             $data['approve_by_id'] = null; 
             $data['patient_id'] = $user->id; 
-
+   
             if ($id) {
                 $data['id'] = $id; 
                 $this->bookingContract->createOrUpdateBooking($data);

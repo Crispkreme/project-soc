@@ -53,7 +53,7 @@ class AppointmentController extends Controller
 
         $barangayEvents = $this->barangayEventContract->getLatestBarangayEvent();
         $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', 'Active');
-        
+
         return Inertia::render($viewPath, [
             'barangayEvents' => $barangayEvents,
             'doctors' => $doctors,
