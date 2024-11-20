@@ -16,8 +16,8 @@ Route::middleware(['auth', 'verified', 'practitioner'])
 
     // APPOINTMENTS
     Route::get('/book/appointments', [AppointmentController::class, 'bookAppointment'])->name('book.appointments');
-    // TEMP
     Route::get('/book/appointments/booked', [AppointmentController::class, 'bookedAppointment'])->name('book.appointments.booked');
+    Route::post('/approve/appointments/{id}', [AppointmentController::class, 'approveAppointment'])->name('approve.appointments');
 
     // COMMUNITY
     Route::get('/show/communities', [UserController::class, 'getAllCommunity'])->name('show.communities');
