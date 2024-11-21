@@ -43,6 +43,12 @@ class UserController extends Controller
         return response()->json(['avatar' => $avatar]);
     }
 
+    public function getUserDetail($id)
+    {
+        $userDetail = $this->userDetailContract->getUserDetailById($id);
+        return response()->json(['userDetail' => $userDetail]);
+    }
+
     public function storeUser(Request $request)
     {
         DB::beginTransaction();
