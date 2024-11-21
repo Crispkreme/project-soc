@@ -21,7 +21,6 @@ Route::middleware(['auth', 'verified', 'practitioner'])
     Route::post('/update/user/password/{id}', [UserController::class, 'updatePassword'])->name('update.user.password');
     Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');
     Route::get('logout', [UserController::class, 'loginDestroy'])->name('logout');
-    Route::post('/store/profile/detail', [UserDetailController::class, 'storeProfileDetail'])->name('store.profile.detail');
     
     // APPOINTMENTS
     Route::get('/book/appointments', [AppointmentController::class, 'bookAppointment'])->name('book.appointments');

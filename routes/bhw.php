@@ -14,6 +14,5 @@ Route::middleware(['auth', 'verified', 'bhw'])
 
     // DASHBOARD
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-    Route::post('/store/profile/detail', [UserDetailController::class, 'storeProfileDetail'])->name('store.profile.detail');
     
 });

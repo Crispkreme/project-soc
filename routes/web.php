@@ -23,6 +23,7 @@ Route::get('/user/avatar/{username}', [UserController::class, 'getUserAvatar']);
 Route::get('/profile/details/{id}', [UserController::class, 'getUserDetail'])->name('profile.details');
 Route::get('/dashboard', function () { return Inertia::render('Dashboard'); })->middleware(['verified'])->name('dashboard');
 Route::get('/medicines/search', [MedicineController::class, 'searchMedicine'])->name('medicines.search');
+Route::post('/store/profile/detail', [UserDetailController::class, 'storeProfileDetail'])->name('store.profile.detail');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

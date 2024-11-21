@@ -100,7 +100,7 @@ const AccountModal = ({ showModal, toggleModal, userDetail }) => {
             formData.append("profile", file);
         }
 
-        post(route('admin.store.profile.detail'), {
+        post(route('store.profile.detail'), {
             data: formData,
             onError: (errors) => console.error(errors),
         });
