@@ -6,15 +6,14 @@ const ComboBox = lazy(() => import("@/Components/Inputs/ComboBox"));
 const Title = lazy(() => import("@/Components/Headers/Title"));
 const InputLabel = lazy(() => import("@/Components/Inputs/InputLabel"));
 const TextInput = lazy(() => import("@/Components/Inputs/TextInput"));
-const Textarea = lazy(() => import("@/Components/Inputs/Textarea"));
 const InputError = lazy(() => import("@/Components/Inputs/InputError"));
-const PrimaryButton = lazy(() => import("@/Components/Buttons/PrimaryButton"));
+const GenericButton = lazy(() => import("@/Components/Buttons/GenericButton"));
 
-const AppointmentModal = ({ showModal, toggleModal, doctors }) => {
+const AppointmentModal = ({ showModal, toggleModal, doctor }) => {
   const { data, setData, post, processing, errors } = useForm({
-    doctor_id: '', 
+    consultation_type: '', 
     patient_id: '', 
-    title: '', 
+    details: '', 
     notes: '', 
     appointment_date: '', 
     appointment_start: '', 
@@ -32,41 +31,21 @@ const AppointmentModal = ({ showModal, toggleModal, doctors }) => {
     });
   };
 
-  const handleDoctorChange = (selectedDoctor) => {
-    setData('doctor_id', selectedDoctor.id);
+  const consultationChange = (consultation) => {
+    setData('consultation_type', consultation.consultation);
   };
 
-  const doctorName = doctors.map((doctor) => ({
-    ...doctor,
-    name: `${doctor.firstname} ${doctor.middlename ? doctor.middlename + ' ' : ''}${doctor.lastname}`
-  }));
+  const consultation = [
+    {consultation: 'General Consultation'},
+    {consultation: 'Diagnosis and Assessment'},
+    {consultation: 'Treatment and Planning'},
+    {consultation: 'Preventive Care'}
+  ]
 
   return (
     <Modal show={showModal} onClose={toggleModal}>
       <form onSubmit={submit} className="p-6">
-        <Title>Book Appointment</Title>
-
-        <div className="mt-4">
-          <InputLabel value="Doctor" />
-          <ComboBox
-            items={doctorName}
-            onChange={handleDoctorChange}
-            placeholder="Select a Doctor"
-            displayKey="name"
-            ariaLabel="Select Doctor"
-          />
-        </div>
-
-        <div className="mt-4">
-          <InputLabel value="Appointment Title" />
-          <TextInput
-            value={data.title}
-            onChange={(e) => setData("title", e.target.value)}
-            type="text"
-            className="w-full border p-2 rounded"
-          />
-          {errors.title && <InputError message={errors.title} />}
-        </div>
+        <Title>Add Schedule</Title>
 
         <div className="mt-4">
           <InputLabel value="Appointment Date" />
@@ -77,6 +56,28 @@ const AppointmentModal = ({ showModal, toggleModal, doctors }) => {
             className="w-full border p-2 rounded"
           />
           {errors.appointment_date && <InputError message={errors.appointment_date} />}
+        </div>
+
+        <div className="mt-4">
+          <InputLabel value="Consultation" />
+          <ComboBox
+            items={consultation}
+            onChange={consultationChange}
+            placeholder="Type of Consultation"
+            displayKey="consultation"
+            ariaLabel="Select consultation"
+          />
+        </div>
+
+        <div className="mt-4">
+          <InputLabel value="Details" />
+          <TextInput
+            value={data.details}
+            onChange={(e) => setData("details", e.target.value)}
+            type="text"
+            className="w-full border p-2 rounded"
+          />
+          {errors.details && <InputError message={errors.details} />}
         </div>
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -101,26 +102,18 @@ const AppointmentModal = ({ showModal, toggleModal, doctors }) => {
             {errors.appointment_end && <InputError message={errors.appointment_end} />}
           </div>
         </div>
-
-        <div className="mt-4">
-          <InputLabel htmlFor="notes" value="Medicine Name" />
-          <Textarea
-            id="notes"
-            name="notes"
-            rows={5}
-            placeholder="What is the Medicine Description"
-            value={data.notes}
-            onChange={(e) => setData("notes", e.target.value)}
-            className="mt-1 block w-full"
-            helperText="Tell us the reason for the appointment"
-          />
-          {errors.notes && <InputError message={errors.notes} />}
+        <div className='flex flex-col justify-center py-8 items-center'>
+          {/* Need to change to doctor's name */}
+          <img src={"/assets/image/signature.png"} height={10} width={100}/>
+          <h1>{doctor.username}</h1>
         </div>
-
-        <div className="mt-4">
-          <PrimaryButton type="submit" disabled={processing}>
-            Create Booking
-          </PrimaryButton>
+        <div className="mt-4 flex justify-center">
+          <GenericButton
+            disabled={processing}
+            className="px-8 py-2"
+          >
+            Set
+          </GenericButton>
         </div>
       </form>
     </Modal>
