@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified', 'admin'])
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     // Route::get('/view/password/{id}', [UserDetailController::class, 'viewPassword'])->name('view.password');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/store/profile/detail', [UserDetailController::class, 'storeProfileDetail'])->name('store.profile.detail');
     Route::post('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
     Route::post('/update/user/password/{id}', [UserController::class, 'updatePassword'])->name('update.user.password');
     Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');

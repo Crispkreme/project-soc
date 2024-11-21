@@ -51,35 +51,33 @@ class UserController extends Controller
 
     public function storeUser(Request $request)
     {
+        
         DB::beginTransaction();
 
         try {
             $data = $request->validate([
                 'username' => ['required', 'string', 'max:255', 'unique:' . User::class],
-                'role' => ['string', 'max:255'],
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
                 'password' => ['required', 'confirmed', Password::defaults()],
             ]);
-            
+            $data['role'] = 'Patient';
             $user = $this->userContract->createOrUpdateUser($data);
-            
-            $userDetail = $request->validate([
-                'firstname' => 'required|string',
-                'middlename' => 'nullable|string',
-                'lastname' => 'required|string',
-                'gender' => 'nullable|string|in:Male,Female',
-                'birthday' => 'nullable|date',
-                'civil_status' => 'nullable|string|in:Single,Married,Divorce,Separated',
-                'religion' => 'required|string',
-                'address' => 'nullable|string',
-                'profile' => 'nullable|string',
-            ]);
 
-            $userDetail['user_id'] = $user->id;
-            $userDetail['status'] = 'Active';
-            $userDetail['profile'] = 'storage/avatars/' . $user->id . '_avatar.jpg';
+            $userDetailData = [
+                'user_id' => $user->id,
+                'firstname' => '',
+                'middlename' => null,
+                'lastname' => '',
+                'gender' => null,
+                'birthday' => null,
+                'civil_status' => null,
+                'religion' => '',
+                'status' => 'Active',
+                'address' => null,
+                'profile' => null,
+            ];
 
-            $this->userDetailContract->createOrUpdateUserDetail($userDetail);
+            $this->userDetailContract->createOrUpdateUserDetail($userDetailData);
 
             event(new Registered($user));
 
@@ -246,7 +244,6 @@ class UserController extends Controller
         ]);
     }
 
-    // THIS IS TEMP
     public function getAllPatientCommunity()
     {
         $user = Auth::user();

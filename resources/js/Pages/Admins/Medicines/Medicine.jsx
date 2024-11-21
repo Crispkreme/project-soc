@@ -3,19 +3,13 @@ import { Head } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { LuClipboardEdit } from "react-icons/lu";
-import { RiDeleteBin5Line } from "react-icons/ri";
-import { SlEyeglass } from "react-icons/sl";
+import { PiEyeBold } from "react-icons/pi";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const MedicineModal = React.lazy(() => import("./MedicineModal"));
 const ConfirmDeleteModal = React.lazy(() => import("@/Components/Modals/ConfirmDeleteModal"));
-const SecondaryButton = React.lazy(() => import("@/Components/Buttons/SecondaryButton"));
-const SuccessButton = React.lazy(() => import("@/Components/Buttons/SuccessButton"));
-const DangerButton = React.lazy(() => import("@/Components/Buttons/DangerButton"));
-const WarningButton = React.lazy(() => import("@/Components/Buttons/WarningButton"));
 
 const Medicine = ({ medicines }) => {
-
     const [showModal, setShowModal] = useState(false);
     const [selectedMedicine, setSelectedMedicine] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -23,31 +17,21 @@ const Medicine = ({ medicines }) => {
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [medicineToDelete, setMedicineToDelete] = useState(null);
 
-    const toggleModal = () => {
-        setShowModal(!showModal);
-    };
-
-    const closeModal = () => {
-        setShowModal(false); 
-    };
+    const toggleModal = () => setShowModal(!showModal);
+    const closeModal = () => setShowModal(false);
 
     const openViewModal = (medicine) => {
-        setSelectedMedicine(medicine); 
-        setIsEditing(false); 
-        setIsViewing(true); 
-        setShowModal(true); 
+        setSelectedMedicine(medicine);
+        setIsEditing(false);
+        setIsViewing(true);
+        setShowModal(true);
     };
 
     const openEditModal = (medicine) => {
-        setSelectedMedicine(medicine); 
-        setIsEditing(true); 
-        setIsViewing(false); 
-        setShowModal(true);  
-    };
-
-    const handleDelete = (medicine) => {
-        setMedicineToDelete(medicine);
-        setConfirmDelete(true);
+        setSelectedMedicine(medicine);
+        setIsEditing(true);
+        setIsViewing(false);
+        setShowModal(true);
     };
 
     const confirmDeleteHandler = () => {
@@ -57,9 +41,7 @@ const Medicine = ({ medicines }) => {
                     setConfirmDelete(false);
                     setMedicineToDelete(null);
                 },
-                onError: () => {
-                    console.error("Error deleting medicine");
-                },
+                onError: () => console.error("Error deleting medicine"),
             });
         }
     };
@@ -67,69 +49,92 @@ const Medicine = ({ medicines }) => {
     return (
         <Suspense fallback={<div>Loading...</div>}>
             <AdminLayout>
-                
-                <Head title="Accounts" />
+                <Head title="Manage Medicines" />
 
-                <div className='grid grid-cols-1 gap-6 mb-6'>
-                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                        <div className="flex justify-between mb-4 items-start">
-                            <div className="font-medium">Manage Medicine</div>
+                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="font-medium">Manage Medicines</h2>
+                        <button
+                            type="button"
+                            className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                            onClick={toggleModal}
+                        >
+                            <HiOutlinePlusSm className="mr-1" /> Add Medicine
+                        </button>
+                    </div>
+
+                    <div className="pb-4">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                id="table-search"
+                                className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Search for medicines"
+                            />
                         </div>
-                        <div className="flex items-center mb-4 order-tab justify-between">
-                            <div className="flex">
-                                <button type="button" className="bg-gray-50 text-sm font-medium text-gray-400 py-2 px-4 rounded-tl-md rounded-bl-md hover:text-gray-600 active">
-                                    Out of Stock
-                                </button>
-                                <button type="button" className="bg-gray-50 text-sm font-medium text-gray-400 py-2 px-4 hover:text-gray-600">
-                                    On Hand
-                                </button>
-                            </div>
+                    </div>
 
-                            <SuccessButton onClick={toggleModal}>
-                                <HiOutlinePlusSm className="mr-1" /> Medicine
-                            </SuccessButton>
-                        </div>
-
-                        <div className="overflow-x-auto">
-                            <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                                <thead>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left text-gray-500">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th className="p-4">
+                                        <input
+                                            type="checkbox"
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                        />
+                                    </th>
+                                    <th className="px-6 py-3">ID</th>
+                                    <th className="px-6 py-3">Medicine Name</th>
+                                    <th className="px-6 py-3">Description</th>
+                                    <th className="px-6 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {medicines.length > 0 ? (
+                                    medicines.map((medicine, index) => (
+                                        <tr
+                                            key={medicine.id}
+                                            className="bg-white border-b hover:bg-gray-50"
+                                        >
+                                            <td className="p-4">
+                                                <input
+                                                    type="checkbox"
+                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                                />
+                                            </td>
+                                            <th
+                                                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                                            >
+                                                {index + 1}
+                                            </th>
+                                            <td className="px-6 py-4">{medicine.medicine_name}</td>
+                                            <td className="px-6 py-4">{medicine.description}</td>
+                                            <td className="px-6 py-4 flex space-x-2">
+                                                <button
+                                                    className="bg-yellow-50 text-yellow-400 hover:text-yellow-600 text-xs font-medium py-1 px-2 flex items-center"
+                                                    onClick={() => openViewModal(medicine)}
+                                                >
+                                                    <PiEyeBold className="mr-1 text-sm" /> View
+                                                </button>
+                                                <button
+                                                    className="bg-blue-50 text-blue-400 hover:text-blue-600 text-xs font-medium py-1 px-2 flex items-center"
+                                                    onClick={() => openEditModal(medicine)}
+                                                >
+                                                    <LuClipboardEdit className="mr-1 text-sm" /> Edit
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
                                     <tr>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Medicine Name</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Medicine Description</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                {medicines.length > 0 ? medicines.map((medicine) => (
-                                    <tr key={medicine.id}>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="text-[13px] font-medium text-gray-400">{medicine.medicine_name}</span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="text-[13px] font-medium text-gray-400">{medicine.description}</span>
-                                        </td>
-                                        <td className="py-2 px-2 border-b border-b-gray-50">
-                                            <div className="flex space-x-2">
-                                                <WarningButton onClick={() => openViewModal(medicine)} >
-                                                    <SlEyeglass />
-                                                </WarningButton>
-                                                <SecondaryButton onClick={() => openEditModal(medicine)}>
-                                                    <LuClipboardEdit />
-                                                </SecondaryButton>
-                                                <DangerButton onClick={() => handleDelete(medicine)}>
-                                                    <RiDeleteBin5Line />
-                                                </DangerButton>
-                                            </div>
+                                        <td colSpan={5} className="text-center py-4 text-gray-500">
+                                            No Medicines Available.
                                         </td>
                                     </tr>
-                                )) : (
-                                    <tr>
-                                        <td colSpan={3} className="text-center py-4 text-gray-500">No Medicine Available.</td>
-                                    </tr>
-                                )}      
-                                </tbody>
-                            </table>
-                        </div>
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -150,10 +155,9 @@ const Medicine = ({ medicines }) => {
                     title="Confirm Deletion"
                     message={`Are you sure you want to delete "${medicineToDelete?.medicine_name}"?`}
                 />
-
             </AdminLayout>
         </Suspense>
     );
-}
+};
 
 export default Medicine;
