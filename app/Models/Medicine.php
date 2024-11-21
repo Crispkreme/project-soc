@@ -22,4 +22,9 @@ class Medicine extends Model
     public function prescriptions() {
         return $this->hasMany(Prescription::class);
     }
+
+    public function medicalRecords()
+    {
+        return $this->hasMany(MedicalRecord::class);
+    }
 }

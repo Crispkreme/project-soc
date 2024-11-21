@@ -7,6 +7,7 @@ import { FaGripLines } from 'react-icons/fa';
 import Sidebar from '../Components/Sidebars/Sidebar';
 import { useSelector, useDispatch } from 'react-redux';
 import { closeSidebar } from '../reducers/sidebarSlice';
+import { IoSearch } from "react-icons/io5";
 
 const logo = "/assets/svg/logo.svg";
 const header = "/assets/svg/header.svg";
@@ -19,6 +20,10 @@ export default function PatientLayout({ children }) {
     const [avatar, setAvatar] = useState(null);
     const [loading, setLoading] = useState(true);
     const [userDetail, setUserDetail] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+
     const open = useSelector(state => state.sidebar.open);
     const dispatch = useDispatch();
 
@@ -77,7 +82,6 @@ export default function PatientLayout({ children }) {
             try {
                 const response = await fetch(route('patient.profile.details', user.id));
                 const data = await response.json();
-                console.log(data);
                 setUserDetail(data.userDetail);
             } catch (error) {
                 console.error("Error fetching user details:", error);
@@ -100,6 +104,24 @@ export default function PatientLayout({ children }) {
         }
         fetchAvatar();
     }, [user.username]);
+
+    const handleSearchChange = async (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        if (query.length >= 3) {
+            setIsSearching(true);
+            try {
+                const response = await axios.get(`/medicines/search`, { params: { query } });
+                setSearchResults(response.data);
+            } catch (error) {
+                console.error("Error fetching medicines:", error);
+            } finally {
+                setIsSearching(false);
+            }
+        } else {
+            setSearchResults([]);
+        }
+    };
     
     return (
         <div className='min-h-screen h-full flex flex-col'>
@@ -172,13 +194,37 @@ export default function PatientLayout({ children }) {
                         <Profile userId={user.id} username={user.username}/>
 
                         <div className="visible lg:hidden search-bar flex items-center space-x-2 justify-center mt-4">
-                            <input
-                            type="text"
-                            className="form-control text-black px-4 py-2 lg:w-[300px] rounded-lg border border-gray-300"
-                            placeholder="Search"
-                            />
-                            <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">Search</button>
+                            <div className="relative w-full lg:w-[300px]">
+                                <input
+                                    type="text"
+                                    className="form-control text-black px-4 py-2 rounded-lg border w-[500px] border-gray-300 pl-10"
+                                    placeholder="Search"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                />
+                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                    <IoSearch />
+                                </span>
+                            </div>
+                            {isSearching && (
+                                <div className="absolute bg-white border border-gray-300 w-[500px] z-10 mt-1">
+                                    <div className="text-center py-2">Loading...</div>
+                                </div>
+                            )}
+                            {searchResults.length > 0 && !isSearching && (
+                                <div className="absolute bg-white border border-gray-300 w-[500px] z-10 mt-1">
+                                    <ul>
+                                        {searchResults.map((medicine, index) => (
+                                            
+                                            <li key={index} className="py-2 px-4 text-sm cursor-pointer hover:bg-gray-100 text-black">
+                                                {medicine}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
+
                     </div>
                     
                     <main className='p-6 w-full'>

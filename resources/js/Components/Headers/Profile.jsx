@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, usePage } from '@inertiajs/react';
-import ProfileItem from './ProfileItem'; // Ensure you're importing the ProfileItem correctly
+import ProfileItem from './ProfileItem';
+import { IoSearch } from "react-icons/io5";
 import axios from "axios";
 
 const logoImage = "/assets/svg/logo.svg";
@@ -13,6 +14,9 @@ const Profile = ({ username, userId }) => {
     const [userDetail, setUserDetail] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
 
     const toggleDropdown = () => {
         setIsOpen(prev => !prev);
@@ -48,6 +52,24 @@ const Profile = ({ username, userId }) => {
         if (userId) fetchUserDetails();
     }, [userId]);
 
+    const handleSearchChange = async (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        if (query.length >= 3) {
+            setIsSearching(true);
+            try {
+                const response = await axios.get(`/medicines/search`, { params: { query } });
+                setSearchResults(response.data);
+            } catch (error) {
+                console.error("Error fetching medicines:", error);
+            } finally {
+                setIsSearching(false);
+            }
+        } else {
+            setSearchResults([]);
+        }
+    };
+    
     let menuItems = [];
     switch (user.role) {
         case "Administration":
@@ -106,6 +128,7 @@ const Profile = ({ username, userId }) => {
         </div>
     );
 
+    console.log(searchResults);
     return user.role === "Administration" ? (
         <li className="dropdown ml-3 relative">
             <button
@@ -123,14 +146,39 @@ const Profile = ({ username, userId }) => {
             <Link href={route('patient.dashboard')}>
                 <img src={logoImage} alt="Logo" className="w-20 lg:w-32" />
             </Link>
+
             <div className="hidden lg:block z-50 search-bar flex items-center space-x-2">
-                <input
-                    type="text"
-                    className="form-control text-black px-4 py-2 lg:w-[300px] rounded-lg border border-gray-300"
-                    placeholder="Search"
-                />
-                <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">Search</button>
+                <div className="relative w-full lg:w-[300px]">
+                    <input
+                        type="text"
+                        className="form-control text-black px-4 py-2 rounded-lg border w-[500px] border-gray-300 pl-10"
+                        placeholder="Search"
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                    />
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        <IoSearch />
+                    </span>
+                </div>
+                {isSearching && (
+                    <div className="absolute bg-white border border-gray-300 w-[500px] z-10 mt-1">
+                        <div className="text-center py-2">Loading...</div>
+                    </div>
+                )}
+                {searchResults.length > 0 && !isSearching && (
+                    <div className="absolute bg-white border border-gray-300 w-[500px] z-10 mt-1">
+                        <ul>
+                            {searchResults.map((medicine, index) => (
+                                
+                                <li key={index} className="py-2 px-4 text-sm cursor-pointer hover:bg-gray-100 text-black">
+                                    {medicine}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
+
             <div className="relative ms-3">
                 <button onClick={toggleDropdown}>
                     <div className="flex items-center gap-4">

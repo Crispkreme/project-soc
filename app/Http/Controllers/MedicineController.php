@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicineContract;
 use App\Models\Medicine;
 use Exception;
@@ -14,11 +15,14 @@ use Inertia\Inertia;
 class MedicineController extends Controller
 {
     protected $medicineContract;
+    protected $medicalRecordContract;
 
     public function __construct(
         MedicineContract $medicineContract,
+        MedicalRecordContract $medicalRecordContract,
     ) {
         $this->medicineContract = $medicineContract;
+        $this->medicalRecordContract = $medicalRecordContract;
     }
 
     public function getAllMedicine()
@@ -91,4 +95,11 @@ class MedicineController extends Controller
             return redirect()->back();
         }
     }
+
+    public function searchMedicine(Request $request)
+    {
+        $query = $request->input('query');
+        $medicines = $this->medicalRecordContract->searchMedicine($query);
+        return response()->json($medicines);
+    }   
 }
