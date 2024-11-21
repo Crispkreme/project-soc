@@ -1,10 +1,11 @@
 import React, { Suspense, useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import GenericButton from '../../../Components/Buttons/GenericButton';
 
 const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
 const AppointmentModal = React.lazy(() => import("./AppointmentModal"));
@@ -65,6 +66,8 @@ const Appointment = ({ consultations, doctors }) => {
     );
   };
 
+  const cur = usePage().props.auth.user;
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <PatientLayout>
@@ -116,13 +119,10 @@ const Appointment = ({ consultations, doctors }) => {
             ))}
           </div>
 
-          <div className="col-span-12 flex justify-center gap-4 p-4">
-            <button
-              className="bg-secondary-bg hover:bg-primary-bg hover:text-white transition px-4 py-2 rounded-full border-2 border-black"
-              onClick={toggleModal}
-            >
+          <div className="col-span-12 flex justify-center">
+            <GenericButton onClick={toggleModal} className='py-4 px-8'>
               Add Schedules
-            </button>
+            </GenericButton>
           </div>
         </div>
 
@@ -132,7 +132,7 @@ const Appointment = ({ consultations, doctors }) => {
         <AppointmentModal
           showModal={showModal}
           toggleModal={closeModal}
-          doctors={doctors}
+          doctor={cur}
         />
       )}
     </Suspense>

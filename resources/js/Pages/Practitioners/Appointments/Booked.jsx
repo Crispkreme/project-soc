@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { lazy, memo, useCallback, useState } from "react";
 import PatientLayout from "@/Layouts/PatientLayout";
 import { Inertia } from '@inertiajs/inertia';
 import { MdOutlinePendingActions } from "react-icons/md";
 import { BsClipboardCheck } from "react-icons/bs";
 import { LuClipboardEdit } from "react-icons/lu";
 import { TbClipboardX } from "react-icons/tb";
+import { useForm, usePage } from "@inertiajs/react";
+
+const GenericButton = lazy(() => import("@/Components/Buttons/GenericButton"));
+const Modal = lazy(() => import("@/Components/Modals/Modal"));
 
 const Booked = ({ bookings }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -83,6 +87,159 @@ const Booked = ({ bookings }) => {
     return badgeClasses[status] || '';
   };
 
+  const doctor = usePage().props.auth.user;
+
+  const AddModal = memo(function AddModal({children}) {
+    const [state, setState] = useState({
+      open: false
+    });
+    const OpenModal = useCallback(() => setState(prev => ({...prev, open:true})));
+    return (
+      <>
+      <GenericButton onClick={OpenModal} className="text-xs py-1 px-4 text-black">
+        Add
+      </GenericButton>
+      <Modal show={state.open} onClose={() => setState(prev => ({...prev, open: false}))}>
+        {children}
+      </Modal>
+      </>
+    )
+  });
+
+  const AddPrescriptionModal = memo(function AddPrescriptionModal({user_id, patient_name, patient_age=25}) {
+    const { data, setData, post, processing, errors } = useForm({
+      prescription: ''
+    });
+    return (
+      <AddModal>
+        <form>
+          <div className='w-full bg-secondary-bg px-4 py-2'>
+            <h1 className='text-lg text-white'>Add Prescription</h1>
+          </div>
+          <div className='px-4 py-2 font-light text-sm flex flex-col gap-4'>
+            <h1 className="text-sm text-gray-600">Date: {new Date().toLocaleDateString()}</h1>
+            <div className='flex flex-row w-full gap-32'>
+              <h1 className="text-sm text-gray-600">Patient: {patient_name}</h1>
+              <h1 className="text-sm text-gray-600">Age: {patient_age}</h1>
+            </div>
+            <div className="mt-4">
+              <div>
+                <div className="mt-2">
+                  <label className={`block text-sm font-medium text-gray-700 `}>
+                      Prescription
+                  </label>
+                  <textarea
+                    id={"prescription"}
+                    name={"prescription"}
+                    rows={5}
+                    placeholder={"What will you prescribe?"}
+                    value={data.prescription}
+                    onChange={(e) => setData("prescription", e.target.value)}
+                    className={`rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block w-full`}
+                  ></textarea>
+                </div>
+                <p className="mt-3 text-sm text-gray-600">Tell us the prescription</p>
+              </div>
+            </div>
+            <h1 className="text-sm text-gray-600">Interview: </h1>
+            <h1 className="text-sm text-gray-600">Medicine Allergies: </h1>
+            <h1 className="text-sm text-gray-600">Family History: </h1>
+            <div className='flex flex-col justify-center pt-8 items-center'>
+              {/* Need to change to doctor's name */}
+              <img src={"/assets/image/signature.png"} height={10} width={100}/>
+              <h1>{doctor.username}</h1>
+            </div>
+            <GenericButton className="self-center text-xs py-2 px-8 text-black">
+              Add
+            </GenericButton>
+          </div>
+        </form>
+      </AddModal>
+    )
+  });
+
+  const AddReferralModal = memo(function AddReferralModal({patient, patient_age=25}) {
+    const { data, setData, post, processing, errors } = useForm({
+      referral_to: '',
+      doctor: '',
+      bhw: '',
+    });
+    return (
+      <AddModal>
+        <form>
+          <div className='w-full bg-secondary-bg px-4 py-2'>
+            <h1 className='text-lg text-white'>Add Referral</h1>
+          </div>
+          <div className='px-4 py-2 font-light text-sm flex flex-col gap-2'>
+            <h1 className="text-lg text-gray-600 py-4">Patient</h1>
+            <h1 className="text-sm text-gray-600">Patient: {patient.patient_name}</h1>
+            <h1 className="text-sm text-gray-600">Age: {patient_age}</h1>
+            <h1 className="text-sm text-gray-600">Diagnosis: Sample Diagnosis</h1>
+
+            <h1 className="text-lg text-gray-600 py-4">Details</h1>
+            {/* Details */}
+            <div>
+              <div className='flex items-center gap-4'>
+                <label className={`block text-sm font-medium text-gray-700 `}>
+                  Reffer to:
+                </label>
+                <input
+                    type="text"
+                    value={data.referral_to}
+                    onChange={(e) => setData("referral_to", e.target.value)}
+                    className={'rounded-md text-sm border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 '}
+                />
+              </div>
+              { errors.referral_to && <p className={'text-sm text-red-600 '}>{errors.referral_to}</p>}
+            </div>
+
+            {/* Doc in charge */}
+            <div>
+              <div className='flex items-center gap-4'>
+                <label className={`block text-sm font-medium text-gray-700 `}>
+                  Doc In-charge:
+                </label>
+                <input
+                    type="text"
+                    value={data.doctor}
+                    onChange={(e) => setData("doctor", e.target.value)}
+                    className={'rounded-md text-sm border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 '}
+                />
+              </div>
+              { errors.doctor && <p className={'text-sm text-red-600 '}>{errors.doctor}</p>}
+            </div>
+
+            {/* BHW In charge */}
+            <div>
+              <div className='flex items-center gap-4'>
+                <label className={`block text-sm font-medium text-gray-700 `}>
+                  BHW In-charge:
+                </label>
+                <input
+                    type="text"
+                    value={data.bhw}
+                    onChange={(e) => setData("bhw", e.target.value)}
+                    className={'rounded-md text-sm border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 '}
+                />
+              </div>
+              { errors.bhw && <p className={'text-sm text-red-600 '}>{errors.bhw}</p>}
+            </div>
+
+            <h1 className="text-sm text-gray-600">Date of referral: {new Date().toDateString()}</h1>
+            <div className='flex flex-col justify-center pt-8 items-center'>
+              {/* Need to change to doctor's name */}
+              <img src={"/assets/image/signature.png"} height={10} width={100}/>
+              <h1>{doctor.username}</h1>
+            </div>
+            <GenericButton className="self-center text-xs py-2 px-8 text-black">
+              Add
+            </GenericButton>
+          </div>
+        </form>
+      </AddModal>
+    )
+  });
+
   return (
     <PatientLayout>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -146,6 +303,8 @@ const Booked = ({ bookings }) => {
               <th scope="col" className="px-6 py-3">Appointment</th>
               <th scope="col" className="px-6 py-3">Date</th>
               <th scope="col" className="px-6 py-3">Time</th>
+              <th scope="col" className="px-6 py-3">Prescription</th>
+              <th scope="col" className="px-6 py-3">Referral</th>
               <th scope="col" className="px-6 py-3">Status</th>
               <th scope="col" className="px-6 py-3">Action</th>
             </tr>
@@ -161,6 +320,12 @@ const Booked = ({ bookings }) => {
                 <td className="px-6 py-4">{user.appointment}</td>
                 <td className="px-6 py-4">{user.date}</td>
                 <td className="px-6 py-4">{user.time}</td>
+                <td className="px-6 py-4">
+                  <AddPrescriptionModal user_id={user.id} patient_name={user.patientName}/>
+                </td>
+                <td className="px-6 py-4">
+                  <AddReferralModal patient={user} />
+                </td>
                 <td className="px-6 py-4">
                   <span className={`text-sm font-medium me-2 px-2.5 py-0.5 rounded ${getStatusBadgeClasses(user.status)}`}>
                     {user.status}
