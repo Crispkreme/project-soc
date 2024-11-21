@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class UserDetailController extends Controller
@@ -125,5 +126,72 @@ class UserDetailController extends Controller
         return Inertia::render('Patients/Profiles/Password', [
             'user' => $user,
         ]);
+    }
+
+    public function storeProfileDetail(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $userDetailData = $request->validate([
+                'user_id' => 'nullable|exists:users,id|unique:user_details,user_id',
+                'firstname' => 'required|string|max:255',
+                'middlename' => 'nullable|string|max:255',
+                'lastname' => 'required|string|max:255',
+                'gender' => 'nullable|in:Male,Female',
+                'birthday' => 'nullable|date',
+                'civil_status' => 'nullable|in:Single,Married,Divorce,Separated',
+                'religion' => 'required|string|max:255',
+                'address' => 'nullable|string|max:1000',
+                'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+            $userDetailData['status'] = 'Active'; 
+
+            $fullName = $userDetailData['firstname'] . ' ' . ($userDetailData['middlename'] ?? '') . ' ' . $userDetailData['lastname'];
+            $slug = Str::slug($fullName);
+            
+            $username = strtolower(Str::slug($userDetailData['firstname'] . $userDetailData['lastname'] . rand(100, 999)));
+            $email = strtolower(Str::slug($userDetailData['firstname'] . '.' . $userDetailData['lastname'] . rand(100, 999))) . '@example.com';
+
+            $userDetailData['slug'] = $slug;
+            $userData['email'] = $email;
+            $userData['username'] = $username;
+            $userData['password'] = 'password';
+            $userData['role'] = 'Administration';
+
+            $user = $this->userContract->createOrUpdateUser($userData);
+
+            $userDetailData['user_id'] = $user->id;
+
+            $this->userDetailContract->createOrUpdateUserDetail($userDetailData);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Account added successfully!',
+            ]);
+
+        } catch (Exception $e) {
+
+            Log::error('Error during storeProfileDetail: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            Session::flash('error', '');
+            return response()->json([
+                'error' => 'error',
+                'message' => 'An error occurred during account creation.',
+            ]);
+        }
     }
 }
