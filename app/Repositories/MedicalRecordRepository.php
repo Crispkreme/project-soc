@@ -46,4 +46,15 @@ class MedicalRecordRepository implements MedicalRecordContract
         return $this->model
             ->get();
     }
+
+    public function searchMedicine($data)
+    {
+        return MedicalRecord::where('diagnosis', 'like', "%{$data}%")
+        ->with('medicine')
+        ->get()
+        ->map(function ($record) {
+            return $record->medicine ? $record->medicine->medicine_name : null;
+        })
+        ->filter();
+    }
 }

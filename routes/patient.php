@@ -22,7 +22,8 @@ Route::middleware(['auth', 'verified', 'patient'])
 ->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');
-    Route::patch('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/update/user/password/{id}', [UserController::class, 'updatePassword'])->name('update.user.password');
     Route::get('/view/password/{id}', [UserDetailController::class, 'viewPassword'])->name('view.password');
     Route::get('/profile/details/{id}', [UserController::class, 'getUserDetail'])->name('profile.details');
     Route::get('logout', [UserController::class, 'loginDestroy'])->name('logout');
