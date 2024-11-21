@@ -5,7 +5,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
+
 
 // PRACTITIONERS
 Route::middleware(['auth', 'verified', 'practitioner'])
@@ -14,6 +16,12 @@ Route::middleware(['auth', 'verified', 'practitioner'])
 ->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
+    // AUTH
+    Route::post('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/update/user/password/{id}', [UserController::class, 'updatePassword'])->name('update.user.password');
+    Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');
+    Route::get('logout', [UserController::class, 'loginDestroy'])->name('logout');
+    
     // APPOINTMENTS
     Route::get('/book/appointments', [AppointmentController::class, 'bookAppointment'])->name('book.appointments');
     Route::get('/book/appointments/booked', [AppointmentController::class, 'bookedAppointment'])->name('book.appointments.booked');

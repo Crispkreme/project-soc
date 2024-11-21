@@ -43,6 +43,12 @@ class UserController extends Controller
         return response()->json(['avatar' => $avatar]);
     }
 
+    public function getUserDetail($id)
+    {
+        $userDetail = $this->userDetailContract->getUserDetailById($id);
+        return response()->json(['userDetail' => $userDetail]);
+    }
+
     public function storeUser(Request $request)
     {
         DB::beginTransaction();
@@ -54,9 +60,9 @@ class UserController extends Controller
                 'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
                 'password' => ['required', 'confirmed', Password::defaults()],
             ]);
-
+            
             $user = $this->userContract->createOrUpdateUser($data);
-
+            
             $userDetail = $request->validate([
                 'firstname' => 'required|string',
                 'middlename' => 'nullable|string',
@@ -88,11 +94,16 @@ class UserController extends Controller
             };
 
             DB::commit();
-            Session::flash('success', 'User saved successfully!');
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'User saved successfully!'
+            ]);
 
             return redirect()->route($viewPath);
 
         } catch (Exception $e) {
+            
             Log::error('Error during storeUser: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
@@ -100,7 +111,11 @@ class UserController extends Controller
 
             DB::rollback();
             Session::flash('error', 'An error occurred during user registration.');
-            return redirect()->back();
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'Please try again'
+            ]);
         }
     }
 

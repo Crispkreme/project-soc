@@ -17,8 +17,6 @@ const AdminLayout = ({ children }) => {
     const user = usePage().props.auth.user;
     const open = useSelector(state => state.sidebar.open);
 
-    //const {someth} = usePage().props;
-    //console.log(someth.id);
     return (
         <>
             <Sidebar user={user}>
