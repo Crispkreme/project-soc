@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { TbTableDown, TbTableImport } from "react-icons/tb";
 
 const Accordion = ({ title, children }) => {
     const [accordionOpen, setAccordionOpen] = useState(false);
@@ -11,11 +10,11 @@ const Accordion = ({ title, children }) => {
                 className="flex justify-between items-center w-full"
             >
                 <span className="flex items-center space-x-2">
-                    {accordionOpen ? (
+                    {/* {accordionOpen ? (
                         <TbTableImport className="text-black-500 w-4 h-4" />
                     ) : (
                         <TbTableDown className="text-black-500 w-4 h-4" />
-                    )}
+                    )} */}
                     <span className="text-slate-700 font-medium">{title}</span>
                 </span>
             </button>

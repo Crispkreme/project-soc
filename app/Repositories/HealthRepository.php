@@ -22,10 +22,9 @@ class HealthRepository implements HealthContract
                 'id' => $data['id'] ?? null,
             ],
             [
-                'email' => $data['email'],
-                'password' => $data['password'],
-                'role' => $data['role'],
-                'username' => $data['username'],
+                'patient_id' => $data['patient_id'],
+                'name' => $data['name'],
+                'description' => $data['description'],
             ]
         );
     }

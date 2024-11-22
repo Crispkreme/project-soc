@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -26,6 +27,8 @@ Route::get('/medicines/search', [MedicineController::class, 'searchMedicine'])->
 Route::post('/store/profile/detail', [UserDetailController::class, 'storeProfileDetail'])->name('store.profile.detail');
 Route::post('/accounts/activate', [UserDetailController::class, 'activateAccount'])->name('account.activate');
 Route::post('/accounts/deactivate', [UserDetailController::class, 'deactivateAccount'])->name('account.deactivate');
+Route::post('/health/record/update/{id}', [MedicalRecordController::class, 'updateOrCreateHealthRecord'])->name('health.record.update');
+Route::post('/health/record/create', [MedicalRecordController::class, 'updateOrCreateHealthRecord'])->name('health.record.create');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

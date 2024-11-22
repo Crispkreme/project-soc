@@ -11,8 +11,12 @@ use App\Contracts\MedicationContract;
 use App\Contracts\SurgicalContract;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserDetailContract;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
 class MedicalRecordController extends Controller
@@ -115,18 +119,63 @@ class MedicalRecordController extends Controller
 
         $role = 'Patient';
         $status = 'Active';
-        $patient = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
+        $patients = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
         $healthRecords = $this->healthContract->getHealthById($id);
         $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
         $medicationRecords = $this->medicationContract->getMedicationById($id);
         $familyMedicalRecords = $this->familyMedicalContract->getFamilyMedicalById($id);
 
         return Inertia::render('Admins/Medicals/PatientHistory', [
-            'patient' => $patient,
+            'patients' => $patients,
             'healthRecords' => $healthRecords,
             'surgicalRecords' => $surgicalRecords,
             'medicationRecords' => $medicationRecords,
             'familyMedicalRecords' => $familyMedicalRecords,
         ]);
+    }
+
+    public function updateOrCreateHealthRecord(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $data = $request->validate([
+                'patient_id' => 'nullable|exists:users,id',
+                'name' => 'required|string|max:255',         
+                'description' => 'nullable|string|max:1000',
+            ]);
+            
+            if ($id) {
+                $data['id'] = $id; 
+                $this->healthContract->createOrUpdateHealth($data);
+            } else {
+                $this->healthContract->createOrUpdateHealth($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'User saved successfully!'
+            ]);
+
+            return redirect()->route($viewPath);
+
+        } catch (Exception $e) {
+            
+            Log::error('Error during updateOrCreateHealthRecord: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            Session::flash('error', 'An error occurred during updateOrCreateHealthRecord.');
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'Please try again'
+            ]);
+        }
     }
 }
