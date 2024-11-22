@@ -64,7 +64,7 @@ class UserDetailRepository implements UserDetailContract
                 'users.role'
             )
             ->where('users.role', '=', $role)
-            ->where('user_details.status', '=', $status)
+            // ->where('user_details.status', '=', $status)
             ->get();
     }
 
@@ -93,5 +93,11 @@ class UserDetailRepository implements UserDetailContract
             ->where('users.role', '=', $role)
             ->where('user_details.status', '=', $status)
             ->count();
+    }
+
+    public function updateUserDetailStatus($status, $id)
+    {
+        $user = $this->model->findOrFail($id);
+        $user->update(['status' => $status]);
     }
 }

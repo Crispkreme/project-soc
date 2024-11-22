@@ -24,6 +24,8 @@ Route::get('/profile/details/{id}', [UserController::class, 'getUserDetail'])->n
 Route::get('/dashboard', function () { return Inertia::render('Dashboard'); })->middleware(['verified'])->name('dashboard');
 Route::get('/medicines/search', [MedicineController::class, 'searchMedicine'])->name('medicines.search');
 Route::post('/store/profile/detail', [UserDetailController::class, 'storeProfileDetail'])->name('store.profile.detail');
+Route::post('/accounts/activate', [UserDetailController::class, 'activateAccount'])->name('account.activate');
+Route::post('/accounts/deactivate', [UserDetailController::class, 'deactivateAccount'])->name('account.deactivate');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
