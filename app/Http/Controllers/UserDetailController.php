@@ -194,4 +194,78 @@ class UserDetailController extends Controller
             ]);
         }
     }
+
+    public function activateAccount(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $this->userDetailContract->updateUserDetailStatus('Active', $request->id);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Account activated successfully!',
+            ]);
+
+        } catch (Exception $e) {
+
+            Log::error('Error during activateAccount: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            Session::flash('error', '');
+            return response()->json([
+                'error' => 'error',
+                'message' => 'An error occurred during activateAccount.',
+            ]);
+        }
+    }
+
+    public function deactivateAccount(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $this->userDetailContract->updateUserDetailStatus('Deactivate', $request->id);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Account deactivated successfully!',
+            ]);
+
+        } catch (Exception $e) {
+
+            Log::error('Error during deactivateAccount: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            Session::flash('error', '');
+            return response()->json([
+                'error' => 'error',
+                'message' => 'An error occurred during deactivateAccount.',
+            ]);
+        }
+    }
 }

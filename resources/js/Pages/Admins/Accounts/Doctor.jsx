@@ -1,13 +1,45 @@
 import React, { useState, Suspense } from "react";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { TbUserShield, TbUserExclamation } from "react-icons/tb";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const AccountModal = React.lazy(() => import("./AccountModal"));
+const DialogBox = React.lazy(() => import("@/Components/Modals/DialogBox"));
 
 const Doctor = ({ userDetails }) => {
   const [showModal, setShowModal] = useState(false);
+
+  const toggleModal = (value = null) => {
+    setShowModal(value === null ? !showModal : value);
+  };
+
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    message: "",
+    onConfirm: null,
+  });
+
+  const handleDeactivate = (status, userId) => {
+    const action = status === "Active" ? "deactivate" : "activate";
+
+    setConfirmDialog({
+      isOpen: true,
+      message: `Are you sure you want to ${action} this account?`,
+      onConfirm: () => {
+        const route = `/accounts/${action}`;
+        router.post(route, { id: userId }, {
+          onSuccess: () => {
+            setConfirmDialog({ isOpen: false, message: "", onConfirm: null });
+          },
+          onError: (error) => {
+            console.error("Error updating account status:", error);
+            setConfirmDialog({ isOpen: false, message: "", onConfirm: null });
+          },
+        });
+      },
+    });
+  };
 
   const calculateAge = (birthday) => {
     const today = new Date();
@@ -23,10 +55,6 @@ const Doctor = ({ userDetails }) => {
     return `${ageYears}`;
   };
 
-  const toggleModal = (value = null) => {
-    setShowModal(value === null ? !showModal : value);
-  };
-
   return (
     <Suspense fallback={<div className="text-center py-4">Loading layout...</div>}>
       <AdminLayout>
@@ -34,7 +62,7 @@ const Doctor = ({ userDetails }) => {
         <div className="grid grid-cols-1 gap-6 mb-6">
           <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="font-medium">Manage Doctor Accounts</h2>
+              <h2 className="font-medium">Manage Administration Accounts</h2>
               <button
                 type="button"
                 className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
@@ -42,37 +70,6 @@ const Doctor = ({ userDetails }) => {
               >
                 <HiOutlinePlusSm className="mr-1" /> Account
               </button>
-            </div>
-
-            <div className="pb-4 bg-white">
-              <label htmlFor="table-search" className="sr-only">
-                Search
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <svg
-                    className="w-4 h-4 text-gray-500"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  id="table-search"
-                  className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Search for items"
-                />
-              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -132,7 +129,7 @@ const Doctor = ({ userDetails }) => {
                         <td className="px-6 py-4">
                           {calculateAge(userDetail.birthday)}
                         </td>
-                        <td className="px-6 py-4">Doctor</td>
+                        <td className="px-6 py-4">{userDetail.role}</td>
                         <td className="px-6 py-4">
                           <span
                             className={`inline-block p-1 rounded font-medium text-[12px] leading-none ${
@@ -152,7 +149,7 @@ const Doctor = ({ userDetails }) => {
                                 ? "bg-red-50 text-red-400 hover:text-red-600"
                                 : "bg-green-50 text-green-400 hover:text-green-600"
                             } text-xs font-medium py-1 px-2 flex items-center`}
-                            onClick={() => toggleModal(true)}
+                            onClick={() => handleDeactivate(userDetail.status, userDetail.id)}
                           >
                             {userDetail.status === "Active" ? (
                               <TbUserExclamation className="mr-1 text-sm" />
@@ -177,8 +174,15 @@ const Doctor = ({ userDetails }) => {
           </div>
         </div>
 
-        {showModal && <AccountModal showModal={showModal} toggleModal={toggleModal} page={'practitioner'} />}
+        {showModal && <AccountModal showModal={showModal} toggleModal={toggleModal} />}
       </AdminLayout>
+
+      <DialogBox
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onClose={() => setConfirmDialog({ isOpen: false, message: "", onConfirm: null })}
+        onConfirm={confirmDialog.onConfirm}
+      />
     </Suspense>
   );
 };
