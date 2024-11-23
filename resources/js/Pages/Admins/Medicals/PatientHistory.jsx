@@ -9,73 +9,23 @@ const Accordion = React.lazy(() => import("@/Components/Accordion"));
 const Table = React.lazy(() => import("@/Components/Table"));
 const HealthHistoryModal = React.lazy(() => import("@/Components/Forms/HealthHistoryModal"));
 const SurgicalHistoryModal = React.lazy(() => import("@/Components/Forms/SurgicalHistoryModal"));
+const FamilyMedicalRecordModal = React.lazy(() => import("@/Components/Forms/FamilyMedicalRecordModal"));
+const MedicationRecordModal = React.lazy(() => import("@/Components/Forms/MedicationRecordModal"));
 
-const healthRecordColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
-    { key: "name", label: "Illness" },
-    { key: "description", label: "Illness Description" },
-    {
-      key: "created_at",
-      label: "Date",
-      render: (value) => format(new Date(value), "MMMM d, yyyy"),
-    },
-];
-const surgicalRecordColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
-    { key: "procedure", label: "Surgery" },
-    { key: "description", label: "Procedure" },
-    { key: "doctor_name", label: "Doctor" },
-    {
-      key: "created_at",
-      label: "Date",
-      render: (value) => format(new Date(value), "MMMM d, yyyy"),
-    },
-];
-const medicationRecordColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
-    { key: "medicine.medicine_name", label: "Medicine Name" },
-    { key: "dosage", label: "Dosage" },
-    { key: "reason", label: "Reason/For:" },
-    {
-      key: "created_at",
-      label: "Date",
-      render: (value) => format(new Date(value), "MMMM d, yyyy"),
-    },
-];
-const medicationRecordAction = [
-    {
-      label: "Edit",
-      icon: LuClipboardEdit,
-      onClick: (row) => toggleSurgicalModal(row, true, false, row.id),
-    },
-];
-const familyMedicalRecordColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
-    { key: "disease", label: "Desease" },
-    { key: "relationship_disease", label: "Relationship" },
-    {
-      key: "created_at",
-      label: "Date",
-      render: (value) => format(new Date(value), "MMMM d, yyyy"),
-    },
-];
-const familyMedicalRecordAction = [
-    {
-      label: "Edit",
-      icon: LuClipboardEdit,
-      onClick: (row) => toggleSurgicalModal(row, true, false, row.id),
-    },
-];
-
-const PatientHistory = ({ patients, doctors, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords,}) => {
-
+const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords }) => {
+    
     const transformedDoctors = doctors.map(doctor => ({
         value: doctor.id,
         option: `${doctor.firstname} ${doctor.middlename} ${doctor.lastname}`
     }));
 
+    const [showFamilyMedicalModal, setShowFamilyModal] = useState(false);
+    const [showMedicationModal, setShowMedicationModal] = useState(false);
     const [showHealthModal, setShowHealthModal] = useState(false);
     const [showSurgicalModal, setShowSurgicalModal] = useState(false);
+
+    const [selectedFamilyMedicalRecord, setSelectedFamilyMedicalRecord] = useState(null);
+    const [selectedMedicationRecord, setSelectedMedicationRecord] = useState(null);
     const [selectedHealthRecord, setSelectedHealthRecord] = useState(null);
     const [selectedSurgicalRecord, setSelectedSurgicalRecord] = useState(null);
 
@@ -87,10 +37,15 @@ const PatientHistory = ({ patients, doctors, healthRecords, surgicalRecords, med
         setSelectedSurgicalRecord(surgicalRecord);
         setShowSurgicalModal(!!surgicalRecord || !showSurgicalModal);
     };
-    const closeModals = () => {
-        setShowHealthModal(false);
-        setShowSurgicalModal(false);
+    const toggleFamilyMedicalModal = (familyMedical = null) => {
+        setSelectedFamilyMedicalRecord(familyMedical);
+        setShowFamilyModal(!!familyMedical || !showFamilyMedicalModal);
     };
+    const toggleMedicationModal = (medication = null) => {
+        setSelectedMedicationRecord(medication);
+        setShowMedicationModal(!!medication || !showMedicationModal);
+    };    
+
     const healthRecordAction = [
         {
             label: "Edit",
@@ -110,7 +65,63 @@ const PatientHistory = ({ patients, doctors, healthRecords, surgicalRecords, med
           },
         },
     ];
-      
+    const familyMedicalRecordAction = [
+        {
+          label: "Edit",
+          icon: LuClipboardEdit,
+          onClick: (row) => toggleFamilyMedicalModal(row, true, false, row.id),
+        },
+    ];
+    const medicationRecordAction = [
+        {
+          label: "Edit",
+          icon: LuClipboardEdit,
+          onClick: (row) => toggleMedicationModal(row, true, false, row.id),
+        },
+    ];
+
+    const healthRecordColumn = [
+        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+        { key: "name", label: "Illness" },
+        { key: "description", label: "Illness Description" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const surgicalRecordColumn = [
+        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
+        { key: "procedure", label: "Surgery" },
+        { key: "description", label: "Procedure" },
+        { key: "doctor_name", label: "Doctor" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const medicationRecordColumn = [
+        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
+        { key: "medicine.medicine_name", label: "Medicine Name" },
+        { key: "dosage", label: "Dosage" },
+        { key: "reason", label: "Reason/For:" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const familyMedicalRecordColumn = [
+        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
+        { key: "disease", label: "Desease" },
+        { key: "relationship_disease", label: "Relationship" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
 
     return (
         <Suspense fallback={<div>Loading...</div>}>
@@ -195,7 +206,7 @@ const PatientHistory = ({ patients, doctors, healthRecords, surgicalRecords, med
                                             <button
                                                 type="button"
                                                 className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
-                                                onClick={() => toggleSurgicalModal(null,false,false)}
+                                                onClick={() => toggleMedicationModal(null,false,false)}
                                             >
                                                 <HiOutlinePlusSm className="mr-1" />{" "}
                                                 Add Medication History
@@ -224,7 +235,7 @@ const PatientHistory = ({ patients, doctors, healthRecords, surgicalRecords, med
                                             <button
                                                 type="button"
                                                 className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
-                                                onClick={() => toggleSurgicalModal(null,false,false)}
+                                                onClick={() => toggleFamilyMedicalModal(null,false,false)}
                                             >
                                                 <HiOutlinePlusSm className="mr-1" />{" "}
                                                 Add Family Medical History
@@ -263,7 +274,23 @@ const PatientHistory = ({ patients, doctors, healthRecords, surgicalRecords, med
                 isEditing={!!selectedSurgicalRecord}
                 doctors={transformedDoctors}
             />
-
+            <FamilyMedicalRecordModal
+                showModal={showFamilyMedicalModal}
+                toggleFamilyMedicalModal={toggleFamilyMedicalModal}
+                selectedRecord={selectedFamilyMedicalRecord}
+                patient_id={patients[0]?.id}
+                patients={patients}
+                isEditing={!!selectedFamilyMedicalRecord}
+            />
+            <MedicationRecordModal
+                showModal={showMedicationModal}
+                toggleMedicationModal={toggleMedicationModal}
+                selectedMedication={selectedMedicationRecord}
+                patient_id={patients[0]?.id}
+                patients={patients}
+                medicines={medicines}
+                isEditing={!!selectedMedicationRecord}
+            />
         </Suspense>
     );
 };

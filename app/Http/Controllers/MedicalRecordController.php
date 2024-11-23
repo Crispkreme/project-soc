@@ -8,6 +8,7 @@ use App\Contracts\HospitalizationContract;
 use App\Contracts\ImmunizationContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
+use App\Contracts\MedicineContract;
 use App\Contracts\SurgicalContract;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserDetailContract;
@@ -24,6 +25,7 @@ class MedicalRecordController extends Controller
     protected $userDetailContract;
     protected $healthContract;
     protected $surgicalContract;
+    protected $medicineContract;
     protected $medicationContract;
     protected $familyMedicalContract;
     protected $testResultContract;
@@ -33,6 +35,8 @@ class MedicalRecordController extends Controller
 
     public function __construct(
         UserDetailContract $userDetailContract,
+        MedicineContract $medicineContract,
+        MedicationContract $MedicationContract,
         HealthContract $healthContract,
         SurgicalContract $surgicalContract,
         MedicationContract $medicationContract,
@@ -43,9 +47,10 @@ class MedicalRecordController extends Controller
         MedicalRecordContract $medicalRecordContract,
     ) {
         $this->userDetailContract = $userDetailContract;
+        $this->medicineContract = $medicineContract;
+        $this->medicationContract = $medicationContract;
         $this->healthContract = $healthContract;
         $this->surgicalContract = $surgicalContract;
-        $this->medicationContract = $medicationContract;
         $this->familyMedicalContract = $familyMedicalContract;
         $this->testResultContract = $testResultContract;
         $this->hospitalizationContract = $hospitalizationContract;
@@ -114,7 +119,7 @@ class MedicalRecordController extends Controller
         $role = 'Patient';
         $status = 'Active';
         $patients = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
-
+        $medicines = $this->medicineContract->getAllMedicine();
         $healthRecords = $this->healthContract->getHealthById($id);
         $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
         $medicationRecords = $this->medicationContract->getMedicationById($id);
@@ -129,8 +134,9 @@ class MedicalRecordController extends Controller
                     'lastname' => $doctor['lastname'],
                 ];
             });
-
+            
         return Inertia::render('Admins/Medicals/PatientHistory', [
+            'medicines' => $medicines,
             'patients' => $patients,
             'healthRecords' => $healthRecords,
             'surgicalRecords' => $surgicalRecords,
@@ -224,6 +230,99 @@ class MedicalRecordController extends Controller
 
             DB::rollback();
             Session::flash('error', 'An error occurred during updateOrCreateSurgicalRecord.');
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'Please try again'
+            ]);
+        }
+    }
+
+    public function updateOrCreateFamilyMedical(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $data = $request->validate([
+                'patient_id' => 'nullable|exists:users,id',
+                'disease' => 'nullable|string|max:255',
+                'relationship_disease' => 'nullable|in:Mother Family Disease,Father Family Disease',
+            ]);
+
+            $id = $request->id;
+            if ($id) {
+                $data['id'] = $id; 
+                $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
+            } else {
+                $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Medication Record saved successfully!'
+            ]);
+
+            return redirect()->route($viewPath);
+
+        } catch (Exception $e) {
+ 
+            Log::error('Error during updateOrCreateFamilyMedical: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            Session::flash('error', 'An error occurred during updateOrCreateFamilyMedical.');
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'Please try again'
+            ]);
+        }
+    }
+
+    public function updateOrCreateMedication(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $data = $request->validate([
+                'patient_id' => 'nullable|exists:users,id',
+                'medicine_id' => 'nullable|exists:medicines,id',
+                'dosage' => 'required|string|max:255',
+                'reason' => 'nullable|string',  
+            ]);
+
+            $id = $request->id;
+            if ($id) {
+                $data['id'] = $id; 
+                $this->medicationContract->createOrUpdateMedication($data);
+            } else {
+                $this->medicationContract->createOrUpdateMedication($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Medication Record saved successfully!'
+            ]);
+
+            return redirect()->route($viewPath);
+
+        } catch (Exception $e) {
+ 
+            Log::error('Error during updateOrCreateMedication: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            Session::flash('error', 'An error occurred during updateOrCreateMedication.');
 
             return response()->json([
                 'error' => 'error',
