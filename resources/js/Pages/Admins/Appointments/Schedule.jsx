@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useMemo } from 'react';
 import { Head } from '@inertiajs/react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -14,31 +14,38 @@ const Schedule = ({ bookings }) => {
     const [showModal, setShowModal] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
 
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+
     const formatTime = (isoString) => {
         const date = new Date(isoString);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
     };
-    
-    const bookingSchedule = bookings.map(booking => {
-        const startTime = `${booking.appointment_date}T${booking.appointment_start}`;
-        const endTime = `${booking.appointment_date}T${booking.appointment_end}`;
-    
-        return {
-            title: booking.title,
-            start: startTime,
-            end: endTime,      
-            
-            extendedProps: {
-                date: booking.appointment_date,
-                status: booking.booking_status,
-                doctor_name: booking.doctor_name,
-                patient_name: booking.patient_name,
-                notes: booking.notes,
-                formattedStart: formatTime(startTime),
-                formattedEnd: formatTime(endTime)
-            }
-        };
-    });
+
+    const filteredBookingSchedule = useMemo(() => {
+        return bookings.filter((booking) => {
+            const startTime = new Date(`${booking.appointment_date}T${booking.appointment_start}`);
+            return startTime.getMonth() === currentMonth && startTime.getFullYear() === currentYear;
+        }).map(booking => {
+            const startTime = `${booking.appointment_date}T${booking.appointment_start}`;
+            const endTime = `${booking.appointment_date}T${booking.appointment_end}`;
+        
+            return {
+                title: booking.title,
+                start: startTime,
+                end: endTime,
+                extendedProps: {
+                    date: booking.appointment_date,
+                    status: booking.booking_status,
+                    doctor_name: booking.doctor_name,
+                    patient_name: booking.patient_name,
+                    notes: booking.notes,
+                    formattedStart: formatTime(startTime),
+                    formattedEnd: formatTime(endTime)
+                }
+            };
+        });
+    }, [bookings, currentMonth, currentYear]);
 
     const handleEventClick = (info) => {
         const { date, status, doctor_name, patient_name, notes } = info.event.extendedProps;
@@ -54,7 +61,6 @@ const Schedule = ({ bookings }) => {
         });
         setShowModal(true);
     };
-    
 
     const closeModal = () => {
         setShowModal(false);
@@ -76,7 +82,7 @@ const Schedule = ({ bookings }) => {
                                 center: "title",
                                 end: ""
                             }}
-                            events={bookingSchedule}
+                            events={filteredBookingSchedule}
                             selectable={true}
                             height="100vh"
                             buttonText={{
@@ -91,8 +97,8 @@ const Schedule = ({ bookings }) => {
                     <div className="col-span-4 flex flex-col gap-4 p-4">
                         <FullCalendar
                             plugins={[listPlugin]}
-                            initialView="listWeek"
-                            events={bookingSchedule}
+                            initialView="listMonth"
+                            events={filteredBookingSchedule}
                             selectable={true}
                             eventClick={handleEventClick}
                             headerToolbar={false}

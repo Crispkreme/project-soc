@@ -46,6 +46,7 @@ Route::post('/hospitalization/update/{id}', [MedicalRecordController::class, 'up
 Route::post('/hospitalization/create', [MedicalRecordController::class, 'updateOrCreateHospitalization'])->name('hospitalization.create');
 Route::post('/inventory/update/{id}', [InventoryController::class, 'updateInventory'])->name('inventory.update');
 Route::post('/inventory/create', [InventoryController::class, 'createInventory'])->name('inventory.create');
+Route::post('/user/avatar/upload', [UserDetailController::class, 'uploadAvatar'])->name('user.avatar.upload');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
