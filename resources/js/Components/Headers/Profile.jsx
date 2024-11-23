@@ -128,7 +128,6 @@ const Profile = ({ username, userId }) => {
         </div>
     );
 
-    console.log(searchResults);
     return user.role === "Administration" ? (
         <li className="dropdown ml-3 relative">
             <button

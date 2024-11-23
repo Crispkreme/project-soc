@@ -7,21 +7,22 @@ const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
 const InputLabel = React.lazy(() => import("@/Components/Inputs/InputLabel"));
 const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButton"));
 const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
+// const SelectInput = React.lazy(() => import("@/Components/Inputs/SelectInput"));
 
-const FamilyMedicalRecordModal = ({
+const MedicalRecordModal = ({
   showModal,
-  toggleFamilyMedicalModal,
+  toggleMedicalRecordModal,
   selectedRecord,
   patient_id,
-  patients,
+  medicines,
   isEditing,
   isViewing = false,
   onClose,
 }) => {
   const { data, setData, post, processing, errors } = useForm({
     patient_id: patient_id || "",
-    disease: "",
-    relationship_disease: "",
+    medicine_id: "",
+    diagnosis: "",
   });
 
   useEffect(() => {
@@ -29,21 +30,21 @@ const FamilyMedicalRecordModal = ({
       if (selectedRecord) {
         setData({
           patient_id: selectedRecord.patient_id || patient_id || "",
-          disease: selectedRecord.disease || "",
-          relationship_disease: selectedRecord.relationship_disease || "",
+          medicine_id: selectedRecord.medicine_id || "",
+          diagnosis: selectedRecord.diagnosis || "",
         });
       } else {
         setData({
           patient_id: patient_id || "",
-          disease: "",
-          relationship_disease: "",
+          medicine_id: "",
+          diagnosis: "",
         });
       }
     }
   }, [showModal, selectedRecord, patient_id]);
 
   const handleClose = () => {
-    toggleFamilyMedicalModal(false);
+    toggleMedicalRecordModal(false);
     if (onClose) onClose();
   };
 
@@ -51,7 +52,7 @@ const FamilyMedicalRecordModal = ({
     e.preventDefault();
 
     const url = route(
-      isEditing ? "family.medical.update" : "family.medical.create",
+      isEditing ? "medical.record.update" : "medical.record.create",
       isEditing ? selectedRecord.id : null
     );
 
@@ -77,40 +78,43 @@ const FamilyMedicalRecordModal = ({
         />
         <Title>
           {isViewing
-            ? "View Family Medical Record"
+            ? "View Medical Record"
             : isEditing
-            ? "Edit Family Medical Record"
-            : "Add Family Medical Record"}
+            ? "Edit Medical Record"
+            : "Add Medical Record"}
         </Title>
 
-        {/* Disease Field */}
+        {/* Diagnosis Field */}
         <div className="mt-4">
-          <InputLabel value="Disease" />
+          <InputLabel value="Diagnosis" />
           <TextInput
-            value={data.disease}
-            onChange={(e) => setData("disease", e.target.value)}
+            value={data.diagnosis}
+            onChange={(e) => setData("diagnosis", e.target.value)}
             type="text"
             className="w-full border p-2 rounded"
             disabled={isViewing}
-            placeholder="Enter the disease"
+            placeholder="Enter the diagnosis"
           />
-          {errors.disease && <InputError message={errors.disease} />}
+          {errors.diagnosis && <InputError message={errors.diagnosis} />}
         </div>
 
-        {/* Relationship Disease Field */}
+        {/* Medicine Field */}
         <div className="mt-4">
-          <InputLabel value="Relationship Disease" />
-          <select
-            value={data.relationship_disease}
-            onChange={(e) => setData("relationship_disease", e.target.value)}
-            className="w-full border p-2 rounded"
+          <InputLabel value="Medicine" />
+          {/* <SelectInput
+            value={data.medicine_id}
+            onChange={(e) => setData("medicine_id", e.target.value)}
             disabled={isViewing}
+            className="w-full border p-2 rounded"
           >
-            <option value="">Select relationship</option>
-            <option value="Mother Family Disease">Mother Family Disease</option>
-            <option value="Father Family Disease">Father Family Disease</option>
-          </select>
-          {errors.relationship_disease && <InputError message={errors.relationship_disease} />}
+            <option value="">Select Medicine</option>
+            {medicines.map((medicine) => (
+              <option key={medicine.id} value={medicine.id}>
+                {medicine.name}
+              </option>
+            ))}
+          </SelectInput> */}
+          {errors.medicine_id && <InputError message={errors.medicine_id} />}
         </div>
 
         {/* Submit Button */}
@@ -126,4 +130,4 @@ const FamilyMedicalRecordModal = ({
   );
 };
 
-export default FamilyMedicalRecordModal;
+export default MedicalRecordModal;

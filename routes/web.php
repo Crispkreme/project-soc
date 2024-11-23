@@ -36,6 +36,12 @@ Route::post('/medication/update/{id}', [MedicalRecordController::class, 'updateO
 Route::post('/medication/create', [MedicalRecordController::class, 'updateOrCreateMedication'])->name('medication.create');
 Route::post('/family/medical/update/{id}', [MedicalRecordController::class, 'updateOrCreateFamilyMedical'])->name('family.medical.update');
 Route::post('/family/medical/create', [MedicalRecordController::class, 'updateOrCreateFamilyMedical'])->name('family.medical.create');
+Route::post('/test/result/update/{id}', [MedicalRecordController::class, 'updateOrCreateTestResult'])->name('test.result.update');
+Route::post('/test/result/create', [MedicalRecordController::class, 'updateOrCreateTestResult'])->name('test.result.create');
+Route::post('/immunization/update/{id}', [MedicalRecordController::class, 'updateOrCreateImmunization'])->name('immunization.update');
+Route::post('/immunization/create', [MedicalRecordController::class, 'updateOrCreateImmunization'])->name('immunization.create');
+Route::post('/hospitalization/update/{id}', [MedicalRecordController::class, 'updateOrCreateHospitalization'])->name('hospitalization.update');
+Route::post('/hospitalization/create', [MedicalRecordController::class, 'updateOrCreateHospitalization'])->name('hospitalization.create');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

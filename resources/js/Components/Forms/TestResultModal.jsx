@@ -8,42 +8,42 @@ const InputLabel = React.lazy(() => import("@/Components/Inputs/InputLabel"));
 const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButton"));
 const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 
-const FamilyMedicalRecordModal = ({
+const TestResultModal = ({
   showModal,
-  toggleFamilyMedicalModal,
-  selectedRecord,
+  toggleTestResultModal,
+  selectedTestResult,
   patient_id,
-  patients,
   isEditing,
   isViewing = false,
   onClose,
 }) => {
-  const { data, setData, post, processing, errors } = useForm({
-    patient_id: patient_id || "",
-    disease: "",
-    relationship_disease: "",
+  const { data, setData, post, processing, reset, errors } = useForm({
+    patient_id: "",
+    name: "",
+    result: "",
   });
 
+  // Populate the form only when the modal opens or the selectedTestResult changes
   useEffect(() => {
     if (showModal) {
-      if (selectedRecord) {
+      if (selectedTestResult) {
         setData({
-          patient_id: selectedRecord.patient_id || patient_id || "",
-          disease: selectedRecord.disease || "",
-          relationship_disease: selectedRecord.relationship_disease || "",
+          patient_id: selectedTestResult.patient_id || patient_id || "",
+          name: selectedTestResult.name || "",
+          result: selectedTestResult.result || "",
         });
       } else {
-        setData({
+        reset({
           patient_id: patient_id || "",
-          disease: "",
-          relationship_disease: "",
+          name: "",
+          result: "",
         });
       }
     }
-  }, [showModal, selectedRecord, patient_id]);
+  }, [showModal, selectedTestResult]); // Removed `setData` and `reset` from dependencies
 
   const handleClose = () => {
-    toggleFamilyMedicalModal(false);
+    toggleTestResultModal(false);
     if (onClose) onClose();
   };
 
@@ -51,8 +51,8 @@ const FamilyMedicalRecordModal = ({
     e.preventDefault();
 
     const url = route(
-      isEditing ? "family.medical.update" : "family.medical.create",
-      isEditing ? selectedRecord.id : null
+      isEditing ? "test.result.update" : "test.result.create",
+      isEditing ? selectedTestResult?.id : null
     );
 
     post(url, {
@@ -77,40 +77,38 @@ const FamilyMedicalRecordModal = ({
         />
         <Title>
           {isViewing
-            ? "View Family Medical Record"
+            ? "View Test Result"
             : isEditing
-            ? "Edit Family Medical Record"
-            : "Add Family Medical Record"}
+            ? "Edit Test Result"
+            : "Add Test Result"}
         </Title>
 
-        {/* Disease Field */}
+        {/* Name Field (Test Name) */}
         <div className="mt-4">
-          <InputLabel value="Disease" />
+          <InputLabel value="Test Name" />
           <TextInput
-            value={data.disease}
-            onChange={(e) => setData("disease", e.target.value)}
+            value={data.name}
+            onChange={(e) => setData("name", e.target.value)}
             type="text"
             className="w-full border p-2 rounded"
             disabled={isViewing}
-            placeholder="Enter the disease"
+            placeholder="Enter the test name"
           />
-          {errors.disease && <InputError message={errors.disease} />}
+          {errors.name && <InputError message={errors.name} />}
         </div>
 
-        {/* Relationship Disease Field */}
+        {/* Result Field (Test Result) */}
         <div className="mt-4">
-          <InputLabel value="Relationship Disease" />
-          <select
-            value={data.relationship_disease}
-            onChange={(e) => setData("relationship_disease", e.target.value)}
+          <InputLabel value="Test Result" />
+          <TextInput
+            value={data.result}
+            onChange={(e) => setData("result", e.target.value)}
+            type="text"
             className="w-full border p-2 rounded"
             disabled={isViewing}
-          >
-            <option value="">Select relationship</option>
-            <option value="Mother Family Disease">Mother Family Disease</option>
-            <option value="Father Family Disease">Father Family Disease</option>
-          </select>
-          {errors.relationship_disease && <InputError message={errors.relationship_disease} />}
+            placeholder="Enter the test result"
+          />
+          {errors.result && <InputError message={errors.result} />}
         </div>
 
         {/* Submit Button */}
@@ -126,4 +124,4 @@ const FamilyMedicalRecordModal = ({
   );
 };
 
-export default FamilyMedicalRecordModal;
+export default TestResultModal;

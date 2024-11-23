@@ -52,7 +52,6 @@ const MedicationRecordModal = ({
   };
 
   const submit = (e) => {
-    console.log("Submitting data:", data); 
     e.preventDefault();
 
     const url = route(

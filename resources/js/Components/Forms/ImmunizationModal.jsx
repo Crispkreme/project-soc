@@ -4,46 +4,49 @@ import { useForm } from "@inertiajs/react";
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
 const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
+const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const InputLabel = React.lazy(() => import("@/Components/Inputs/InputLabel"));
 const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButton"));
-const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
+const ComboBox = React.lazy(() => import("@/Components/Inputs/ComboBox"));
 
-const FamilyMedicalRecordModal = ({
+const ImmunizationModal = ({
   showModal,
-  toggleFamilyMedicalModal,
-  selectedRecord,
+  toggleImmunizationModal,
+  selectedImmunization,
   patient_id,
-  patients,
+  doctors,
   isEditing,
   isViewing = false,
   onClose,
 }) => {
+  console.log("selectedImmunization", selectedImmunization);
   const { data, setData, post, processing, errors } = useForm({
     patient_id: patient_id || "",
-    disease: "",
-    relationship_disease: "",
+    immunization: "",
+    doctor_id: selectedImmunization ? selectedImmunization.doctor_id : "",
   });
 
   useEffect(() => {
+
     if (showModal) {
-      if (selectedRecord) {
+      if (selectedImmunization) {
         setData({
-          patient_id: selectedRecord.patient_id || patient_id || "",
-          disease: selectedRecord.disease || "",
-          relationship_disease: selectedRecord.relationship_disease || "",
+          doctor_id: selectedImmunization.doctor_id,
+          patient_id: selectedImmunization.patient_id || patient_id || "",
+          immunization: selectedImmunization.immunization || "",
         });
       } else {
         setData({
+          doctor_id: "",
           patient_id: patient_id || "",
-          disease: "",
-          relationship_disease: "",
+          immunization: "",
         });
       }
     }
-  }, [showModal, selectedRecord, patient_id]);
+  }, [showModal, selectedImmunization, patient_id]);
 
   const handleClose = () => {
-    toggleFamilyMedicalModal(false);
+    toggleImmunizationModal(false);
     if (onClose) onClose();
   };
 
@@ -51,8 +54,8 @@ const FamilyMedicalRecordModal = ({
     e.preventDefault();
 
     const url = route(
-      isEditing ? "family.medical.update" : "family.medical.create",
-      isEditing ? selectedRecord.id : null
+      isEditing ? "immunization.update" : "immunization.create",
+      isEditing ? selectedImmunization?.id : null
     );
 
     post(url, {
@@ -63,6 +66,10 @@ const FamilyMedicalRecordModal = ({
         console.error("An error occurred", errors);
       },
     });
+  };
+
+  const doctorChange = (selectedDoctor) => {
+    setData("doctor_id", selectedDoctor?.value || selectedDoctor?.id);
   };
 
   return (
@@ -77,40 +84,40 @@ const FamilyMedicalRecordModal = ({
         />
         <Title>
           {isViewing
-            ? "View Family Medical Record"
+            ? "View Immunization Record"
             : isEditing
-            ? "Edit Family Medical Record"
-            : "Add Family Medical Record"}
+            ? "Edit Immunization Record"
+            : "Add Immunization Record"}
         </Title>
 
-        {/* Disease Field */}
+        {/* Immunization Field */}
         <div className="mt-4">
-          <InputLabel value="Disease" />
+          <InputLabel value="Immunization" />
           <TextInput
-            value={data.disease}
-            onChange={(e) => setData("disease", e.target.value)}
+            value={data.immunization}
+            onChange={(e) => setData("immunization", e.target.value)}
             type="text"
             className="w-full border p-2 rounded"
             disabled={isViewing}
-            placeholder="Enter the disease"
+            placeholder="Enter the immunization name"
           />
-          {errors.disease && <InputError message={errors.disease} />}
+          {errors.immunization && <InputError message={errors.immunization} />}
         </div>
 
-        {/* Relationship Disease Field */}
+        {/* Doctor Field */}
         <div className="mt-4">
-          <InputLabel value="Relationship Disease" />
-          <select
-            value={data.relationship_disease}
-            onChange={(e) => setData("relationship_disease", e.target.value)}
-            className="w-full border p-2 rounded"
-            disabled={isViewing}
-          >
-            <option value="">Select relationship</option>
-            <option value="Mother Family Disease">Mother Family Disease</option>
-            <option value="Father Family Disease">Father Family Disease</option>
-          </select>
-          {errors.relationship_disease && <InputError message={errors.relationship_disease} />}
+          <InputLabel value="Doctor" />
+          <ComboBox
+            items={doctors}
+            value={data.doctor_id}
+            onChange={(selected) => {
+              setData("doctor_id", selected ? selected.id : ""); 
+            }}
+            placeholder="Select a doctor"
+            displayKey="doctor_name"
+            ariaLabel="Select doctor"
+          />
+          {errors.doctor_id && <InputError message={errors.doctor_id} />}
         </div>
 
         {/* Submit Button */}
@@ -126,4 +133,4 @@ const FamilyMedicalRecordModal = ({
   );
 };
 
-export default FamilyMedicalRecordModal;
+export default ImmunizationModal;

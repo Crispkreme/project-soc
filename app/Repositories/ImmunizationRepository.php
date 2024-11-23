@@ -40,6 +40,7 @@ class ImmunizationRepository implements ImmunizationContract
         ->get()
         ->map(function ($immunizations) {
             return [
+                'id' => $immunizations->id,
                 'doctor_name' => optional($immunizations->doctor->details)->firstname . ' ' .
                                 optional($immunizations->doctor->details)->middlename . ' ' .
                                 optional($immunizations->doctor->details)->lastname,

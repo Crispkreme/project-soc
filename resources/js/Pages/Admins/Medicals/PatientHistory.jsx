@@ -51,7 +51,6 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
             label: "Edit",
             icon: LuClipboardEdit,
             onClick: (row) => {
-                console.log("Row data:", row);
                 toggleHealthModal(row);
               },
         },

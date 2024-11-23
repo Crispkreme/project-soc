@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\FamilyMedicalContract;
 use App\Contracts\HealthContract;
+use App\Contracts\HospitalContract;
 use App\Contracts\HospitalizationContract;
 use App\Contracts\ImmunizationContract;
 use App\Contracts\MedicalRecordContract;
@@ -32,8 +33,10 @@ class MedicalRecordController extends Controller
     protected $immunizationContract;
     protected $hospitalizationContract;
     protected $medicalRecordContract;
+    protected $hospitalContract;
 
     public function __construct(
+        HospitalContract $hospitalContract,
         UserDetailContract $userDetailContract,
         MedicineContract $medicineContract,
         MedicationContract $MedicationContract,
@@ -46,6 +49,7 @@ class MedicalRecordController extends Controller
         HospitalizationContract $hospitalizationContract,
         MedicalRecordContract $medicalRecordContract,
     ) {
+        $this->hospitalContract = $hospitalContract;
         $this->userDetailContract = $userDetailContract;
         $this->medicineContract = $medicineContract;
         $this->medicationContract = $medicationContract;
@@ -103,13 +107,27 @@ class MedicalRecordController extends Controller
         $immunizations = $this->immunizationContract->getImmunizationById($id);
         $hospitalizations = $this->hospitalizationContract->getHospitalizationById($id);
         $medicalRecords = $this->medicalRecordContract->getMedicalRecordById($id);
+        $patients = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
+        $medicines = $this->medicineContract->getAllMedicine();
+        $hospitals = $this->hospitalContract->getAllHospital();
+        $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true)
+            ->map(function ($doctor) {
+                return [
+                    'id' => $doctor['id'],
+                    'doctor_name' => trim("{$doctor['firstname']} {$doctor['middlename']} {$doctor['lastname']}"), // Combine names into a single field
+                ];
+            });
 
         return Inertia::render('Admins/Medicals/PatientRecord', [
             'patient' => $patient,
+            'hospitals' => $hospitals,
             'testResults' => $testResults,
             'immunizations' => $immunizations,
             'hospitalizations' => $hospitalizations,
             'medicalRecords' => $medicalRecords,
+            'patients' => $patients,
+            'medicines' => $medicines,
+            'doctors' => $doctors,
         ]);
     }
 
@@ -323,6 +341,144 @@ class MedicalRecordController extends Controller
 
             DB::rollback();
             Session::flash('error', 'An error occurred during updateOrCreateMedication.');
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'Please try again'
+            ]);
+        }
+    }
+
+    public function updateOrCreateTestResult(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $data = $request->validate([
+                'patient_id' => 'nullable|exists:users,id',
+                'name'       => 'required|string|max:255',
+                'result'     => 'nullable|string',
+            ]);
+
+            $id = $request->id;
+            if ($id) {
+                $data['id'] = $id; 
+                $this->testResultContract->createOrUpdateTestResult($data);
+            } else {
+                $this->testResultContract->createOrUpdateTestResult($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Test Result saved successfully!'
+            ]);
+
+            return redirect()->route($viewPath);
+
+        } catch (Exception $e) {
+ 
+            Log::error('Error during updateOrCreateMedication: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            Session::flash('error', 'An error occurred during updateOrCreateMedication.');
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'Please try again'
+            ]);
+        }
+    }
+
+    public function updateOrCreateImmunization(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $data = $request->validate([
+                'doctor_id' => 'nullable|exists:users,id',
+                'patient_id' => 'required|exists:users,id',
+                'immunization' => 'required|string|max:255',
+            ]);
+
+            $id = $request->id;
+            if ($id) {
+                $data['id'] = $id; 
+                $this->immunizationContract->createOrUpdateImmunization($data);
+            } else {
+                $this->immunizationContract->createOrUpdateImmunization($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Immunization saved successfully!'
+            ]);
+
+            return redirect()->route($viewPath);
+
+        } catch (Exception $e) {
+ 
+            Log::error('Error during updateOrCreateImmunization: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            Session::flash('error', 'An error occurred during updateOrCreateImmunization.');
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'Please try again'
+            ]);
+        }
+    }
+    public function updateOrCreateHospitalization(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $data = $request->validate([
+                'hospital_id' => 'nullable|exists:hospitals,id',
+                'doctor_id' => 'nullable|exists:users,id',
+                'patient_id' => 'nullable|exists:users,id',
+                'diagnosis' => 'required|string|max:255', 
+            ]);
+
+            $id = $request->id;
+            if ($id) {
+                $data['id'] = $id; 
+                $this->hospitalizationContract->createOrUpdateHospitalization($data);
+            } else {
+                $this->hospitalizationContract->createOrUpdateHospitalization($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Hospitalization saved successfully!'
+            ]);
+
+            return redirect()->route($viewPath);
+
+        } catch (Exception $e) {
+ 
+            Log::error('Error during updateOrCreateHospitalization: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            Session::flash('error', 'An error occurred during updateOrCreateHospitalization.');
 
             return response()->json([
                 'error' => 'error',

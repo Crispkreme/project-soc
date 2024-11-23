@@ -31,23 +31,29 @@ class HospitalizationRepository implements HospitalizationContract
     }
 
     public function getHospitalizationById($id)
-    {
-        return $this->model->with([
-            'doctor.details',
-            'patient.details',
+{
+    return $this->model->with([
+            'doctor.details',  // Eager load doctor's details
+            'patient.details',  // Eager load patient's details
+            'hospital', // Make sure the hospital relationship is eager-loaded
         ])
         ->select('id', 'hospital_id', 'doctor_id', 'patient_id', 'diagnosis')
         ->where('patient_id', $id)
         ->get()
         ->map(function ($hospitalizations) {
             return [
-                'doctor_name' => optional($hospitalizations->doctor->details)->firstname . ' ' .
-                                optional($hospitalizations->doctor->details)->middlename . ' ' .
-                                optional($hospitalizations->doctor->details)->lastname,
-                'patient_name' => optional($hospitalizations->patient->details)->firstname . ' ' .
-                                optional($hospitalizations->patient->details)->middlename . ' ' .
-                                optional($hospitalizations->patient->details)->lastname,
-                'hospital_name' => $hospitalizations->hospital->name,
+                'id' => $hospitalizations->id,
+                'doctor_name' => optional($hospitalizations->doctor)->details
+                                ? optional($hospitalizations->doctor->details)->firstname . ' ' . 
+                                  optional($hospitalizations->doctor->details)->middlename . ' ' . 
+                                  optional($hospitalizations->doctor->details)->lastname
+                                : 'No doctor assigned',
+                'patient_name' => optional($hospitalizations->patient)->details
+                                 ? optional($hospitalizations->patient->details)->firstname . ' ' . 
+                                   optional($hospitalizations->patient->details)->middlename . ' ' . 
+                                   optional($hospitalizations->patient->details)->lastname
+                                 : 'No patient details',
+                'hospital_name' => optional($hospitalizations->hospital)->name,
                 'diagnosis' => $hospitalizations->diagnosis,
                 'created_at' => $hospitalizations->created_at,
             ];
@@ -56,7 +62,6 @@ class HospitalizationRepository implements HospitalizationContract
 
     public function getAllHospitalization()
     {
-        return $this->model
-            ->get();
+        return $this->model->get();
     }
 }
