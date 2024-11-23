@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified', 'admin'])
     Route::post('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
     Route::post('/update/user/password/{id}', [UserController::class, 'updatePassword'])->name('update.user.password');
     Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');
+    Route::get('/get/all/doctors', [UserDetailController::class, 'getAllDoctors'])->name('get.all.doctors');
     Route::get('logout', [UserController::class, 'loginDestroy'])->name('logout');
 
     Route::get('/accounts/admin', [AccountController::class, 'getAccount'])->name('accounts.admin');

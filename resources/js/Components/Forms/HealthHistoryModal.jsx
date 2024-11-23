@@ -12,14 +12,14 @@ const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 
 const HealthHistoryModal = ({
   showModal,
-  toggleModal,
+  toggleHealthModal,
   selectedHealthRecord,
   patient_id,
   patients,
   isEditing,
   isViewing,
+  onClose,
 }) => {
-  console.log(patient_id);
   const { data, setData, post, processing, errors } = useForm({
     patient_id: patient_id,
     name: "",
@@ -63,7 +63,8 @@ const HealthHistoryModal = ({
 
     post(url, {
       onSuccess: () => {
-        toggleModal(null, false, false);
+        toggleHealthModal(null, false, false);
+        if (onClose) onClose();
       },
       onError: (errors) => {
         console.error("An error occurred", errors);
@@ -72,9 +73,12 @@ const HealthHistoryModal = ({
   };
 
   return (
-    <Modal show={showModal} onClose={() => toggleModal(null, false, false)}>
+    <Modal show={showModal} onClose={() => { 
+      toggleHealthModal(null, false, false); 
+      if (onClose) onClose();
+    }}>
       <form onSubmit={submit} className="p-6">
-        <input type="hidden" value={data.patient_id} name="patient_id" onChange={(e) => setData("patient_id", e.target.value)}/>
+        <input type="hidden" value={data.patient_id} name="patient_id" onChange={(e) => setData("patient_id", e.target.value)} />
         <Title>
           {isViewing
             ? "View Health Record"

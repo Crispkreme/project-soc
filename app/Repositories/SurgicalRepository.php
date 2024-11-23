@@ -41,6 +41,8 @@ class SurgicalRepository implements SurgicalContract
             ->get()
             ->map(function ($surgical) {
                 return [
+                    'id' => $surgical->id, 
+                    'doctor_id' => $surgical->doctor_id,
                     'doctor_name' => optional($surgical->doctor->details)->firstname . ' ' .
                                     optional($surgical->doctor->details)->middlename . ' ' .
                                     optional($surgical->doctor->details)->lastname,

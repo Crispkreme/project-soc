@@ -29,6 +29,8 @@ Route::post('/accounts/activate', [UserDetailController::class, 'activateAccount
 Route::post('/accounts/deactivate', [UserDetailController::class, 'deactivateAccount'])->name('account.deactivate');
 Route::post('/health/record/update/{id}', [MedicalRecordController::class, 'updateOrCreateHealthRecord'])->name('health.record.update');
 Route::post('/health/record/create', [MedicalRecordController::class, 'updateOrCreateHealthRecord'])->name('health.record.create');
+Route::post('/surgical/record/update/{id}', [MedicalRecordController::class, 'updateOrCreateSurgicalRecord'])->name('surgical.record.update');
+Route::post('/surgical/record/create', [MedicalRecordController::class, 'updateOrCreateSurgicalRecord'])->name('surgical.record.create');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

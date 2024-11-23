@@ -108,22 +108,27 @@ class MedicalRecordController extends Controller
         ]);
     }
 
-
     public function getPatientMedicalHistory($id)
     {
         $user = Auth::user();
-
-        if (!$user) {
-            return redirect()->route('login');
-        }
-
         $role = 'Patient';
         $status = 'Active';
         $patients = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
+
         $healthRecords = $this->healthContract->getHealthById($id);
         $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
         $medicationRecords = $this->medicationContract->getMedicationById($id);
         $familyMedicalRecords = $this->familyMedicalContract->getFamilyMedicalById($id);
+
+        $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true)
+            ->map(function ($doctor) {
+                return [
+                    'id' => $doctor['id'],
+                    'firstname' => $doctor['firstname'],
+                    'middlename' => $doctor['middlename'],
+                    'lastname' => $doctor['lastname'],
+                ];
+            });
 
         return Inertia::render('Admins/Medicals/PatientHistory', [
             'patients' => $patients,
@@ -131,6 +136,7 @@ class MedicalRecordController extends Controller
             'surgicalRecords' => $surgicalRecords,
             'medicationRecords' => $medicationRecords,
             'familyMedicalRecords' => $familyMedicalRecords,
+            'doctors' => $doctors,
         ]);
     }
 
@@ -171,6 +177,53 @@ class MedicalRecordController extends Controller
 
             DB::rollback();
             Session::flash('error', 'An error occurred during updateOrCreateHealthRecord.');
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'Please try again'
+            ]);
+        }
+    }
+
+    public function updateOrCreateSurgicalRecord(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $data = $request->validate([
+                'patient_id' => 'nullable|exists:users,id',      
+                'doctor_id'  => 'nullable|exists:users,id',      
+                'procedure'  => 'required|string|max:255',       
+                'description'=> 'nullable|string',  
+            ]);
+            
+            $id = $request->id;
+            if ($id) {
+                $data['id'] = $id; 
+                $this->surgicalContract->createOrUpdateSurgical($data);
+            } else {
+                $this->surgicalContract->createOrUpdateSurgical($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Surgical saved successfully!'
+            ]);
+
+            return redirect()->route($viewPath);
+
+        } catch (Exception $e) {
+            
+            Log::error('Error during updateOrCreateSurgicalRecord: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            Session::flash('error', 'An error occurred during updateOrCreateSurgicalRecord.');
 
             return response()->json([
                 'error' => 'error',

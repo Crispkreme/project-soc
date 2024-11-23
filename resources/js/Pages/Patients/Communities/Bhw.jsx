@@ -1,39 +1,75 @@
-import React, { lazy } from 'react';
+import React, { lazy, Suspense } from 'react';
 
+const Tabs = lazy(() => import("@/Components/Links/Tabs"));
 const UserDetail = lazy(() => import("@/Components/Cards/UserDetail"));
 const PatientLayout = lazy(() => import("@/Layouts/PatientLayout"));
 
-const Bhw = ({ totalBhw, totalPatient, totalPractitioner, bhws}) => {
-
+const Bhw = ({ totalBhw, totalPatient, totalPractitioner, practitioners, bhws }) => {
   return (
-    <PatientLayout>
-      <div className='lg:p-8'>
-        <div className='w-full flex justify-around py-2 items-center bg-secondary-bg rounded-full border-2 border-black'>
-          <div className='flex flex-col lg:flex-row px-4 gap-2 items-center'>
-            <span className='text-sm lg:text-lg'>Patients</span>
-            <span className='flex justify-center items-center lg:w-10 lg:h-10 w-6 h-6 rounded-full border-2 border-black'>{totalPatient}</span>
+    <Suspense fallback={<div>Loading...</div>}>
+      <PatientLayout>
+        <Tabs tabTitles={[`Patient ${totalPatient}`, `Practitioner ${totalPractitioner}`, `Bhw ${totalBhw}`]}>
+          <div>
+            <h2>First Tab Panel</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas dolores voluptate temporibus.</p>
           </div>
-          <div className='flex flex-col lg:flex-row px-4 gap-2 items-center'>
-            <span className='text-sm lg:text-lg'>Practitioners</span>
-            <span className='flex justify-center items-center lg:w-10 lg:h-10 w-6 h-6 rounded-full border-2 border-black'>{totalPractitioner}</span>
+          <div>
+            <h2>List of Practitioner</h2>
+            {practitioners.length > 0 ? (
+              <div style={styles.cardContainer}>
+                {practitioners.map((practitioner) => (
+                  <UserDetail
+                    key={practitioner.id}
+                    userDetail={{
+                      role: practitioner.role,
+                      profile: practitioner.profile || "https://cdn-icons-png.freepik.com/512/700/700674.png",
+                      firstname: practitioner.firstname,
+                      middlename: practitioner.middlename,
+                      lastname: practitioner.lastname,
+                      address: practitioner.address || "No Address Provided",
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div>No Available Practitioner</div>
+            )}
           </div>
-          <div className='flex flex-col lg:flex-row px-4 gap-2 items-center'>
-            <span className='text-sm lg:text-lg'>BHW</span>
-            <span className='flex justify-center items-center lg:w-10 lg:h-10 w-6 h-6 rounded-full border-2 border-black'>{totalBhw}</span>
+          <div>
+            <h2>List of Barangay Health Worker</h2>
+            {bhws.length > 0 ? (
+              <div style={styles.cardContainer}>
+                {bhws.map((bhw) => (
+                  <UserDetail
+                    key={bhw.id}
+                    userDetail={{
+                      role: bhw.role,
+                      profile: bhw.profile || "https://cdn-icons-png.freepik.com/512/700/700674.png",
+                      firstname: bhw.firstname,
+                      middlename: bhw.middlename,
+                      lastname: bhw.lastname,
+                      address: bhw.address || "No Address Provided",
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div>No Available Bhw</div>
+            )}
           </div>
-        </div>
-        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3'>
-          {bhws.length > 0 ? (
-            bhws.map((bhw) => (
-              <UserDetail key={bhw.id} userDetail={bhw} />
-            ))
-          ) : (
-            <div>No Available Bhw</div>
-          )}
-        </div>
-      </div>
-    </PatientLayout>
-  )
-}
+        </Tabs>
+      </PatientLayout>
+    </Suspense>
+  );
+};
 
-export default Bhw
+const styles = {
+  cardContainer: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '16px',
+    padding: '16px',
+  },
+};
+
+export default Bhw;

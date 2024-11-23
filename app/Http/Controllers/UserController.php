@@ -197,12 +197,14 @@ class UserController extends Controller
         $totalPatient = $this->userDetailContract->countSpecificUserDetail('Patient', 'Active');
         $totalPractitioner = $this->userDetailContract->countSpecificUserDetail('Practitioner', 'Active');
         $practitioners = $this->userDetailContract->getAllUserByRole('Practitioner', 'Active');
+        $bhws = $this->userDetailContract->getAllUserByRole('Bhw', 'Active');
         
         return Inertia::render($viewPath, [
             'totalBhw' => $totalBhw,
             'totalPatient' => $totalPatient,
             'totalPractitioner' => $totalPractitioner,
             'practitioners' => $practitioners,
+            'bhws' => $bhws,
         ]);
     }
 
@@ -234,12 +236,14 @@ class UserController extends Controller
         $totalBhw = $this->userDetailContract->countSpecificUserDetail('Bhw', 'Active');
         $totalPatient = $this->userDetailContract->countSpecificUserDetail('Patient', 'Active');
         $totalPractitioner = $this->userDetailContract->countSpecificUserDetail('Practitioner', 'Active');
+        $practitioners = $this->userDetailContract->getAllUserByRole('Practitioner', 'Active');
         $bhws = $this->userDetailContract->getAllUserByRole('Bhw', 'Active');
         
         return Inertia::render($viewPath, [
             'totalBhw' => $totalBhw,
             'totalPatient' => $totalPatient,
             'totalPractitioner' => $totalPractitioner,
+            'practitioners' => $practitioners,
             'bhws' => $bhws,
         ]);
     }

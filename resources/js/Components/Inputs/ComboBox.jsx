@@ -7,13 +7,15 @@ import { useState } from 'react';
 function ComboBox({
   items,
   onChange,
+  value,
   placeholder = '',
   displayKey = 'name',
   ariaLabel = 'Select an option'
 }) {
 
   const [query, setQuery] = useState('');
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [defaultItem] = items.filter(i => i.value === value);
+  const [selectedItem, setSelectedItem] = useState(defaultItem ? defaultItem : null);
 
   const filteredItems =
     query === ''
