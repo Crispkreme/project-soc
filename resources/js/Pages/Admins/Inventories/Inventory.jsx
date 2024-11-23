@@ -2,40 +2,61 @@ import React, { useState, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { LuClipboardEdit } from "react-icons/lu";
-import { SlEyeglass } from "react-icons/sl";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const StockModal = React.lazy(() => import("./StockModal"));
+const Table = React.lazy(() => import("@/Components/Table"));
+const InventoryModal = React.lazy(() => import("@/Components/Forms/InventoryModal"));
 
 const Inventory = ({ inventories, medicines }) => {
     const [showModal, setShowModal] = useState(false);
-    const [selectedInventory, setSelectedInventory] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isViewing, setIsViewing] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredInventories, setFilteredInventories] = useState(inventories);
 
-    const openModal = () => {
-        setShowModal(true);
-    };
+    const [selectedInventory, setSelectedInventory] = useState(null);
 
-    const closeModal = () => {
-        setShowModal(false);
-        setSelectedInventory(null);
-        setIsEditing(false);
-        setIsViewing(false);
-    };
-
-    const openViewModal = (inventory) => {
+    const toggleInventoryModal = (inventory = null, isEditing = false, isViewing = false) => {
         setSelectedInventory(inventory);
-        setIsEditing(false);
-        setIsViewing(true);
-        openModal();
+        setIsEditing(isEditing);
+        setIsViewing(isViewing);
+        setShowModal(!showModal);
     };
 
-    const openEditModal = (inventory) => {
-        setSelectedInventory(inventory);
-        setIsEditing(true);
-        setIsViewing(false);
-        openModal();
+    const InventoryColumn = [
+        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+        { key: "medicine_name", label: "Medicine Name" },
+        { key: "description", label: "Description" },
+        { key: "sold", label: "Dispense" },
+        { key: "in_stock", label: "In-Stock" },
+    ];
+
+    const inventoryAction = [
+        {
+            label: "View",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleInventoryModal(row, false, true),
+            style: "bg-yellow-300 text-yellow-800 hover:bg-yellow-400"
+        },
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleInventoryModal(row, true, false),
+            style: "bg-blue-300 text-blue-800 hover:bg-blue-400"
+        },
+    ];
+
+    const handleSearch = (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+
+        const filtered = inventories.filter((inventory) =>
+            inventory.medicine_name.toLowerCase().includes(query.toLowerCase()) ||
+            inventory.description.toLowerCase().includes(query.toLowerCase())
+        );
+
+        setFilteredInventories(filtered);
     };
 
     return (
@@ -49,9 +70,10 @@ const Inventory = ({ inventories, medicines }) => {
                             <button
                                 type="button"
                                 className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
-                                onClick={openModal}
+                                onClick={() => toggleInventoryModal(null)}
                             >
-                                <HiOutlinePlusSm className="mr-1" /> Add Inventory
+                                <HiOutlinePlusSm className="mr-1" />{" "}
+                                Add Inventory
                             </button>
                         </div>
                         <div className="pb-4">
@@ -61,88 +83,40 @@ const Inventory = ({ inventories, medicines }) => {
                                     id="table-search"
                                     className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Search for inventory"
+                                    value={searchQuery}
+                                    onChange={handleSearch}
                                 />
                             </div>
                         </div>
                         <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left text-gray-500">
-                                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                                    <tr>
-                                        <th className="p-4">
-                                            <input
-                                                type="checkbox"
-                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                            />
-                                        </th>
-                                        <th className="px-6 py-3">ID</th>
-                                        <th className="px-6 py-3">Medicine Name</th>
-                                        <th className="px-6 py-3">Description</th>
-                                        <th className="px-6 py-3">Dispense</th>
-                                        <th className="px-6 py-3">In-Stock</th>
-                                        <th className="px-6 py-3">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {inventories.length > 0 ? (
-                                        inventories.map((inventory, index) => (
-                                            <tr
-                                                key={inventory.id}
-                                                className="bg-white border-b hover:bg-gray-50"
-                                            >
-                                                <td className="p-4">
-                                                    <input
-                                                        type="checkbox"
-                                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                                    />
-                                                </td>
-                                                <td className="px-6 py-4 font-medium text-gray-900">
-                                                    {index + 1}
-                                                </td>
-                                                <td className="px-6 py-4">{inventory.medicine_name}</td>
-                                                <td className="px-6 py-4">{inventory.description}</td>
-                                                <td className="px-6 py-4">{inventory.sold}</td>
-                                                <td className="px-6 py-4">{inventory.in_stock}</td>
-                                                <td className="px-6 py-4 flex space-x-2">
-                                                    <button
-                                                        className="bg-yellow-50 text-yellow-400 hover:text-yellow-600 text-xs font-medium py-1 px-2 flex items-center"
-                                                        onClick={() => openViewModal(inventory)}
-                                                    >
-                                                        <SlEyeglass className="mr-1 text-sm" /> View
-                                                    </button>
-                                                    <button
-                                                        className="bg-blue-50 text-blue-400 hover:text-blue-600 text-xs font-medium py-1 px-2 flex items-center"
-                                                        onClick={() => openEditModal(inventory)}
-                                                    >
-                                                        <LuClipboardEdit className="mr-1 text-sm" /> Edit
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td
-                                                colSpan={7}
-                                                className="text-center py-4 text-gray-500"
-                                            >
-                                                No Inventory Available.
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                            <Table
+                                columns={InventoryColumn}
+                                data={filteredInventories}
+                                actions={inventoryAction}
+                                renderActions={(action, row) => (
+                                    <button
+                                        key={action.label}
+                                        onClick={() => action.onClick(row)}
+                                        className={`inline-flex items-center px-4 py-2 mr-2 rounded-md text-sm font-medium ${action.style}`}
+                                    >
+                                        <action.icon className="mr-2" />
+                                        {action.label}
+                                    </button>
+                                )}
+                                noDataMessage="No Surgical Record Available."
+                            />
                         </div>
                     </div>
                 </div>
 
-                {showModal && (
-                    <StockModal
-                        showModal={showModal}
-                        toggleModal={closeModal}
-                        selectedInventory={selectedInventory}
-                        isEditing={isEditing}
-                        isViewing={isViewing}
-                    />
-                )}
+                <InventoryModal
+                    showModal={showModal}
+                    toggleInventoryModal={toggleInventoryModal}
+                    selectedInventory={selectedInventory}
+                    isEditing={isEditing}
+                    isViewing={isViewing}
+                    medicines={medicines}
+                />
             </AdminLayout>
         </Suspense>
     );

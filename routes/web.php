@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\ProfileController;
@@ -10,6 +11,7 @@ use App\Models\FamilyMedical;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 
 Route::get('/', function () {
@@ -42,6 +44,8 @@ Route::post('/immunization/update/{id}', [MedicalRecordController::class, 'updat
 Route::post('/immunization/create', [MedicalRecordController::class, 'updateOrCreateImmunization'])->name('immunization.create');
 Route::post('/hospitalization/update/{id}', [MedicalRecordController::class, 'updateOrCreateHospitalization'])->name('hospitalization.update');
 Route::post('/hospitalization/create', [MedicalRecordController::class, 'updateOrCreateHospitalization'])->name('hospitalization.create');
+Route::post('/inventory/update/{id}', [InventoryController::class, 'updateInventory'])->name('inventory.update');
+Route::post('/inventory/create', [InventoryController::class, 'createInventory'])->name('inventory.create');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

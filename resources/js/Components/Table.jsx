@@ -48,19 +48,21 @@ const Table = ({
               ))}
               {actions && (
                 <td className="px-6 py-4">
-                  {actions.map((action, actionIndex) => (
-                    <button
-                      key={actionIndex}
-                      className="bg-blue-50 text-blue-400 hover:text-blue-600 text-xs font-medium py-1 px-2 flex items-center"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        action.onClick(row);
-                      }}
-                    >
-                      {action.icon && <action.icon className="mr-1 text-sm" />}
-                      {action.label}
-                    </button>
-                  ))}
+                  <div className="inline-flex space-x-2">
+                    {actions.map((action, actionIndex) => (
+                      <button
+                        key={actionIndex}
+                        className="bg-blue-50 text-blue-400 hover:text-blue-600 text-xs font-medium py-1 px-2 flex items-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          action.onClick(row);
+                        }}
+                      >
+                        {action.icon && <action.icon className="mr-1 text-sm" />}
+                        {action.label}
+                      </button>
+                    ))}
+                  </div>
                 </td>
               )}
             </tr>

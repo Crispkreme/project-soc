@@ -16,10 +16,7 @@ class LedgerRepository implements LedgerContract
     }
 
     public function createOrUpdateLedger($data)
-    {
-        $ledger = $this->model->where('medicine_id', $data['medicine_id'])->first();
-        $id = $ledger->id;
-        
+    {        
         return $this->model->updateOrCreate(
             [
                 'medicine_id' => $data['medicine_id'],

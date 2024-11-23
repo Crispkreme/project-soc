@@ -16,9 +16,23 @@ const Medicine = ({ medicines }) => {
     const [isViewing, setIsViewing] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [medicineToDelete, setMedicineToDelete] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredMedicines, setFilteredMedicines] = useState(medicines);
 
     const toggleModal = () => setShowModal(!showModal);
     const closeModal = () => setShowModal(false);
+
+    const handleSearch = (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        
+        const filtered = medicines.filter(medicine =>
+            medicine.medicine_name.toLowerCase().includes(query.toLowerCase()) ||
+            medicine.description.toLowerCase().includes(query.toLowerCase())
+        );
+
+        setFilteredMedicines(filtered);
+    };
 
     const openViewModal = (medicine) => {
         setSelectedMedicine(medicine);
@@ -70,6 +84,8 @@ const Medicine = ({ medicines }) => {
                                 id="table-search"
                                 className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="Search for medicines"
+                                value={searchQuery}
+                                onChange={handleSearch}
                             />
                         </div>
                     </div>
@@ -91,21 +107,16 @@ const Medicine = ({ medicines }) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {medicines.length > 0 ? (
-                                    medicines.map((medicine, index) => (
-                                        <tr
-                                            key={medicine.id}
-                                            className="bg-white border-b hover:bg-gray-50"
-                                        >
+                                {filteredMedicines.length > 0 ? (
+                                    filteredMedicines.map((medicine, index) => (
+                                        <tr key={medicine.id} className="bg-white border-b hover:bg-gray-50">
                                             <td className="p-4">
                                                 <input
                                                     type="checkbox"
                                                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                                                 />
                                             </td>
-                                            <th
-                                                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-                                            >
+                                            <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                                 {index + 1}
                                             </th>
                                             <td className="px-6 py-4">{medicine.medicine_name}</td>

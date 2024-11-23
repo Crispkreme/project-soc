@@ -46,64 +46,127 @@ class InventoryController extends Controller
         ]);
     }
 
-    public function updateOrCreateInventory(Request $request, $id = null)
+    public function createInventory(Request $request, $id = null)
     {
-
         $user = Auth::user();
 
         if (!$user) {
             return redirect()->route('login');
         }
-        
+
         DB::beginTransaction();
-
-        $data = $request->validate([
-            'medicine_id' => 'nullable|exists:medicines,id',
-            'encode_by_id' => 'nullable|exists:users,id',
-            'usage' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:1',
-        ]);
-
+        
         try {
-        
-            if ($id) {
-                $data['id'] = $id; 
-                $this->inventoryContract->createOrUpdateInventory($data);
-            } else {
-                $this->inventoryContract->createOrUpdateInventory($data);
-            }
-        
+
+            $data = $request->validate([
+                'medicine_id' => 'nullable|exists:medicines,id',
+                'sold' => 'nullable|integer|min:0',
+            ]);
+
+            $data['encode_by_id'] = $user->id; 
+            $data['usage'] = $request->description;
+            $data['quantity'] = $request->in_stock;
+
+            $this->inventoryContract->createOrUpdateInventory($data);
+            
             $ledgers = $this->ledgerContract->getLedgerByMedicineId($data['medicine_id']);
             
             $inStock = ($data['quantity'] ?? 0) + ($ledgers->in_stock ?? 0);
             $sold = $ledgers->sold ?? 0;
-        
+
             $ledgerData = [
                 'medicine_id' => $data['medicine_id'],
                 'sold' => $sold,
                 'in_stock' => $inStock,
             ];
-            
-            // DB::enableQueryLog();
-            $this->ledgerContract->createOrUpdateLedger($ledgerData);
-            // dd(DB::getQueryLog());
+
+            if ($id) {
+                $data['id'] = $id; 
+                $this->ledgerContract->createOrUpdateLedger($ledgerData);
+            } else {
+                $this->ledgerContract->createOrUpdateLedger($ledgerData);
+            }
 
             DB::commit();
-            
-            Session::flash('success', 'Inventory saved successfully!');
-        
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Inventory saved successfully!'
+            ]);
+
         } catch (Exception $e) {
+
+            DB::rollback();
 
             Log::error('Error during updateOrCreateInventory: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);
-        
-            DB::rollback();
-        
-            Session::flash('error', 'An error occurred during updateOrCreateInventory.');
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'An error occurred during updateOrCreateInventory.'
+            ]);
+
             return redirect()->back();
-        }        
+        }
+    }
+
+    public function updateInventory(Request $request, $id = null)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        DB::beginTransaction();
         
+        try {
+
+            $data = $request->validate([
+                'medicine_id' => 'nullable|exists:medicines,id',
+                'sold' => 'nullable|integer|min:0',
+            ]);
+            $data['encode_by_id'] = $user->id; 
+            $data['usage'] = $request->description;
+            $data['quantity'] = $request->in_stock;
+
+            $ledgerData = [
+                'medicine_id' => $data['medicine_id'],
+                'sold' => $request->sold,
+                'in_stock' => $request->in_stock,
+            ];
+
+            if ($id) {
+                $data['id'] = $id; 
+                $this->ledgerContract->createOrUpdateLedger($ledgerData);
+            } else {
+                $this->ledgerContract->createOrUpdateLedger($ledgerData);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Inventory saved successfully!'
+            ]);
+
+        } catch (Exception $e) {
+
+            DB::rollback();
+
+            Log::error('Error during updateOrCreateInventory: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'An error occurred during updateOrCreateInventory.'
+            ]);
+
+            return redirect()->back();
+        }
     }
 }

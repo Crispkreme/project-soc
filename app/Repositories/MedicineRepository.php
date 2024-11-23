@@ -17,7 +17,7 @@ class MedicineRepository implements MedicineContract
 
     public function getAllMedicine()
     {
-        return $this->model->get();
+        return $this->model->orderBy('id', 'desc')->get();
     }
 
     public function createOrUpdateMedicine($data)
