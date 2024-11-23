@@ -7,6 +7,7 @@ use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
 use App\Contracts\FamilyMedicalContract;
 use App\Contracts\HealthContract;
+use App\Contracts\HospitalContract;
 use App\Contracts\HospitalizationContract;
 use App\Contracts\ImmunizationContract;
 use App\Contracts\InventoryContract;
@@ -24,6 +25,7 @@ use App\Repositories\BookingRepository;
 use App\Repositories\FamilyMedicalRepository;
 use App\Repositories\HealthRepository;
 use App\Repositories\HospitalizationRepository;
+use App\Repositories\HospitalRepository;
 use App\Repositories\ImmunizationRepository;
 use App\Repositories\InventoryRepository;
 use App\Repositories\LedgerRepository;
@@ -55,6 +57,7 @@ class RepositoryProvider extends ServiceProvider
         MedicalRecordContract::class => MedicalRecordRepository::class,
         BarangayEventContract::class => BarangayEventRepository::class,
         AppointmentContract::class => AppointmentRepository::class,
+        HospitalContract::class => HospitalRepository::class,
     ];
 
     /**

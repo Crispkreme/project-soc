@@ -1,6 +1,45 @@
 import React, { useState } from 'react';
 import PatientLayout from '@/Layouts/PatientLayout';
-import { format } from 'date-fns'; // Ensure you import format function from date-fns
+import { format } from 'date-fns';
+
+const Sample = React.lazy(() => import("@/Components/Sample"));
+const Table = React.lazy(() => import("@/Components/Table"));
+
+const frequentlyAskQuestions = [
+    {
+      title: "SURGICAL HISTORY",
+      description:
+        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",
+    },
+    {
+      title: "Why do we use it? ",
+      description:
+        "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.",
+    },
+    {
+      title: "Where does it come from?",
+      description:
+        "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.",
+    },
+];
+
+const healthRecordColumn = [
+    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+    { key: "name", label: "Illness" },
+    { key: "description", label: "Illness Description" },
+    {
+      key: "created_at",
+      label: "Date",
+      render: (value) => format(new Date(value), "MMMM d, yyyy"),
+    },
+];
+const healthRecordAction = [
+    {
+      label: "Edit",
+      icon: LuClipboardEdit,
+      onClick: (row) => toggleSurgicalModal(row, true, false, row.id),
+    },
+];
 
 const History = ({ patient, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords }) => {
     const [visibleSections, setVisibleSections] = useState([]);
@@ -142,6 +181,36 @@ const History = ({ patient, healthRecords, surgicalRecords, medicationRecords, f
                     </section>
                 ))}
             </div>
+
+            <Sample questions={frequentlyAskQuestions} />
+
+            <div className="grid grid-cols-1 gap-6 mb-6">
+                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="font-medium">
+                            Manage Health History
+                        </h2>
+                        <button
+                            type="button"
+                            className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                            onClick={() => toggleHealthModal(null,false,false)}
+                        >
+                            <HiOutlinePlusSm className="mr-1" />{" "}
+                            Add Health History
+                        </button>
+                    </div>
+
+                    <div className="overflow-x-auto mt-4">
+                        <Table
+                            columns={healthRecordColumn}
+                            data={healthRecords}
+                            actions={healthRecordAction}
+                            noDataMessage="No Medication History Available."
+                        />
+                    </div>
+                </div>
+            </div>
+
         </PatientLayout>
     );
 }

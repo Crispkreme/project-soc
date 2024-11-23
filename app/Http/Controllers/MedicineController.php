@@ -54,7 +54,10 @@ class MedicineController extends Controller
 
             DB::commit();
             
-            Session::flash('success', 'Medicine saved successfully!');
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Medicine saved successfully!'
+            ]);
 
         } catch (Exception $e) {
 
@@ -65,7 +68,10 @@ class MedicineController extends Controller
 
             DB::rollback();
 
-            Session::flash('error', 'An error occurred during updateOrCreateMedicine.');
+            return response()->json([
+                'error' => 'success',
+                'message' => 'An error occurred during updateOrCreateMedicine.'
+            ]);
             return redirect()->back();
         }
     }

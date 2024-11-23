@@ -76,7 +76,6 @@ const StockModal = ({ showModal, toggleModal, selectedInventory, medicines, isEd
                         medicine={medicines}
                         value={selectedMedicine}
                         onChange={(med) => {
-                            console.log("Selected medicine:", med);
                             setSelectedMedicine(med);
                             setData("medicine_id", med?.id);
                         }}
