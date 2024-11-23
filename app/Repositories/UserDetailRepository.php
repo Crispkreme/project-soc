@@ -2,8 +2,10 @@
 
 namespace App\Repositories;
 
-use App\Models\UserDetail;
 use App\Contracts\UserDetailContract;
+use App\Models\UserDetail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class UserDetailRepository implements UserDetailContract
 {
@@ -99,5 +101,17 @@ class UserDetailRepository implements UserDetailContract
     {
         $user = $this->model->findOrFail($id);
         $user->update(['status' => $status]);
+    }
+
+    public function createOrUpdateUserAvatar($path)
+    {
+        $user = Auth::user();
+        $userDetail = $this->model->where('user_id', $user->id)->firstOrFail();
+
+        if ($userDetail->profile) {
+            Storage::disk('public')->delete($userDetail->profile);
+        }
+
+        $userDetail->update(['profile' => $path]);
     }
 }
