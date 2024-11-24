@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('referrals', function (Blueprint $table) {
+        Schema::create('schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('doctor_id')->nullable()->constrained('users')->onDelete('cascade');
-            $table->foreignId('patient_id')->nullable()->constrained('users')->onDelete('cascade');
-            $table->foreignId('refer_to_id')->nullable()->constrained('users')->onDelete('cascade');
-            $table->text('reason');
-            $table->enum('referral_status', ['Inprogress', 'Pending', 'Success', 'Failed'])->nullable()->default('Inprogress');
+            $table->foreignId('barangay_event_id')->nullable()->constrained('barangay_events')->onDelete('cascade');
+            $table->text('notes')->nullable();
+            $table->date('appointment_date')->nullable();
+            $table->time('appointment_start')->nullable();
+            $table->time('appointment_end')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('referrals');
+        Schema::dropIfExists('schedules');
     }
 };

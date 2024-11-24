@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\AppointmentContract;
 use App\Contracts\BookingContract;
+use App\Contracts\ReferralContract;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,14 +16,17 @@ use Inertia\Inertia;
 class BookingController extends Controller
 {
     protected $bookingContract;
+    protected $referralContract;
     protected $appointmentContract;
 
     public function __construct(
         BookingContract $bookingContract,
+        ReferralContract $referralContract,
         AppointmentContract $appointmentContract,
     ) {
         $this->bookingContract = $bookingContract;
         $this->appointmentContract = $appointmentContract;
+        $this->referralContract = $referralContract;
     }
 
     public function getSchedules()
@@ -107,5 +111,20 @@ class BookingController extends Controller
     public function approveAppointments($id = null)
     {
         dd($id);
+    }
+
+    public function getReferral()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+        
+        $referrals = $this->referralContract->getAllReferral();
+
+        return Inertia::render('Admins/Referrals/Referral', [
+            'referrals' => $referrals,
+        ]);
     }
 }

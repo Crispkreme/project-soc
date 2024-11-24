@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\UserDetailContract;
 use App\Models\UserDetail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class UserDetailRepository implements UserDetailContract
@@ -113,5 +114,18 @@ class UserDetailRepository implements UserDetailContract
         }
 
         $userDetail->update(['profile' => $path]);
+    }
+
+    public function getAllUserNameByRole($role, $status)
+    {
+        return $this->model
+        ->join('users', 'user_details.user_id', '=', 'users.id')
+        ->select(
+            'user_details.id',
+            DB::raw("CONCAT(user_details.firstname, ' ', user_details.middlename, ' ', user_details.lastname) as name")
+        )
+        ->where('users.role', '=', $role)
+        ->where('status', '=', $status)
+        ->get();
     }
 }

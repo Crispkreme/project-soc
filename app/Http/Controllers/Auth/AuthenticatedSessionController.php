@@ -65,17 +65,17 @@ class AuthenticatedSessionController extends Controller
         }
 
         $roleRoutes = [
-            'Admin' => 'admin.dashboard',
+            'Administration' => 'admin.dashboard',
             'Practitioner' => 'practitioner.dashboard',
             'Patient' => 'patient.dashboard',
         ];
-
-        $redirectRoute = $roleRoutes[$user->role] ?? '/';
+        $redirectRoute = $roleRoutes[$user->role] ?? 'login';
         
-        return response()->json([
-            'message' => 'Login successful',
-            'redirect' => route($redirectRoute),
-        ]);
+        // return response()->json([
+        //     'message' => 'Login successful',
+        // ]);
+
+        return redirect()->route($redirectRoute);
     }
 
     /**

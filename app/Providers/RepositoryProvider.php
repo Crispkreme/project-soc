@@ -15,10 +15,13 @@ use App\Contracts\LedgerContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
+use App\Contracts\ReferralContract;
+use App\Contracts\ScheduleContract;
 use App\Contracts\SurgicalContract;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
+use App\Models\Referral;
 use App\Repositories\AppointmentRepository;
 use App\Repositories\BarangayEventRepository;
 use App\Repositories\BookingRepository;
@@ -32,6 +35,8 @@ use App\Repositories\LedgerRepository;
 use App\Repositories\MedicalRecordRepository;
 use App\Repositories\MedicationRepository;
 use App\Repositories\MedicineRepository;
+use App\Repositories\ReferralRepository;
+use App\Repositories\ScheduleRepository;
 use App\Repositories\SurgicalRepository;
 use App\Repositories\TestResultRepository;
 use App\Repositories\UserDetailRepository;
@@ -58,6 +63,8 @@ class RepositoryProvider extends ServiceProvider
         BarangayEventContract::class => BarangayEventRepository::class,
         AppointmentContract::class => AppointmentRepository::class,
         HospitalContract::class => HospitalRepository::class,
+        ScheduleContract::class => ScheduleRepository::class,
+        ReferralContract::class => ReferralRepository::class,
     ];
 
     /**

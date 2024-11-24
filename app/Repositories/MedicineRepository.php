@@ -31,7 +31,6 @@ class MedicineRepository implements MedicineContract
                 'description' => $data['description'],
             ]
         );
-
     }
 
     public function getMedicineById($id)
