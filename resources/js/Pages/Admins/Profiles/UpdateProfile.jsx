@@ -11,9 +11,9 @@ const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButton"));
-const ChangePasswordModal = React.lazy(() => import("./ChangePasswordModal"));
-const ChangeEmailModal = React.lazy(() => import("./ChangeEmailModal"));
-const DeactivateAccountModal = React.lazy(() => import("./DeactivateAccountModal"));
+const ChangePasswordModal = React.lazy(() => import("@/Components/Forms/ChangePasswordModal"));
+const ChangeEmailModal = React.lazy(() => import("@/Components/Forms/ChangeEmailModal"));
+const DeactivateAccountModal = React.lazy(() => import("@/Components/Forms/DeactivateAccountModal"));
 const UpdateAvatar = React.lazy(() => import("@/Components/Profiles/UpdateAvatar"));
 
 const UpdateProfile = ({ userDetail }) => {
@@ -288,22 +288,22 @@ const UpdateProfile = ({ userDetail }) => {
                             </div>
                             <div className="flex flex-col gap-2 px-2 h-full">
                                 <button
-                                    className="rounded-full bg-blue-600 dark:bg-blue-800 text-white dark:text-white antialiased font-bold hover:bg-blue-800 dark:hover:bg-blue-900 active:bg-blue-900 active:border-blue-500 active:text-white dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    className="rounded-full bg-blue-900 text-white hover:text-white antialiased font-bold hover:bg-blue-800 active:bg-blue-900 active:border-blue-500 px-4 py-2">
                                     Account Details
                                 </button>
                                 <button
                                     onClick={openChangePasswordModal}
-                                    className="mt-auto rounded-full border-2 border-gray-400 dark:border-gray-700 font-semibold text-black dark:text-white hover:border-blue-600 hover:bg-blue-100 active:bg-blue-600 active:border-blue-600 active:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    className="mt-auto rounded-full border-2 border-black-400 font-semibold text-black hover:text-white hover:border-blue-600 hover:bg-blue-900 active:bg-blue-600 active:border-blue-600 active:text-white px-4 py-2">
                                     Change Password
                                 </button>
                                 <button
                                     onClick={openChangeEmailModal}
-                                    className="mt-auto rounded-full border-2 border-gray-400 dark:border-gray-700 font-semibold text-black dark:text-white hover:border-blue-600 hover:bg-blue-100 active:bg-blue-600 active:border-blue-600 active:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    className="mt-auto rounded-full border-2 border-black-400 font-semibold text-black hover:text-white hover:border-blue-600 hover:bg-blue-900 active:bg-blue-600 active:border-blue-600 active:text-white px-4 py-2">
                                     Change Email
                                 </button>
                                 <button 
                                     onClick={openDeactivateAccountModal}
-                                    className="mt-auto rounded-full border-2 border-gray-400 dark:border-gray-700 font-semibold text-black dark:text-white hover:border-blue-600 hover:bg-blue-100 active:bg-blue-600 active:border-blue-600 active:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    className="mt-auto rounded-full border-2 border-black-400 font-semibold text-black hover:text-white hover:border-blue-600 hover:bg-blue-900 active:bg-blue-600 active:border-blue-600 active:text-white px-4 py-2">
                                     Deactivate Account
                                 </button>
                             </div>

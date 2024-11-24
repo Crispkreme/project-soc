@@ -295,4 +295,81 @@ class UserController extends Controller
 
         return redirect('/');
     }
+
+    public function changeEmail(Request $request)
+    {
+        $data = $request->validate([  
+            'current_email' => 'required|email|exists:users,email',
+            'new_email' => 'required|email|unique:users,email',
+        ]);
+
+        $user = Auth::user();
+
+        if ($user->email !== $request->current_email) {
+            return back()->withErrors([
+                'current_email' => 'The current email does not match our records.'
+            ]);
+        }
+
+        $this->userContract->changeEmail($data['new_email']);
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your email has been updated successfully. Please log in with your new email.',
+                'redirect_url' => route('login'),
+            ]);
+        }
+        
+        return redirect()->route('login')->with('success', 'Your email has been updated successfully. Please log in with your new email.');        
+    }
+
+    public function changePassword(Request $request)
+    {
+        $data = $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:3|confirmed',
+        ]);
+
+        $this->userContract->changePassword($data['new_password']);
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your password has been updated successfully. Please log in with your new password.',
+                'redirect_url' => route('login'),
+            ]);
+        }
+        
+        return redirect()->route('login')->with('success', 'Your password has been updated successfully. Please log in with your new password.');        
+    }
+
+    public function deactivateAccount(Request $request)
+    {
+        $userId = Auth::user()->id;
+        $status = 'Deactivate';
+        $this->userDetailContract->updateUserDetailStatus($status, $userId);
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your account has been deactivated successfully.',
+                'redirect_url' => route('login'),
+            ]);
+        }
+        
+        return redirect()->route('login')->with('success', 'Your account has been deactivated successfully.');        
+    }
 }
