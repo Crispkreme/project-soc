@@ -2,12 +2,15 @@ import React, { useState, Suspense } from "react";
 import PatientLayout from "@/Layouts/PatientLayout";
 import { LuClipboardEdit } from "react-icons/lu";
 import Table from "@/Components/Table";
-const ReferralModal = React.lazy(() => import("@/Components/Forms/ReferralModal"));
 
-const Booked = ({ bookings, doctors, patients, hospitals }) => {
+const ReferralModal = React.lazy(() => import("@/Components/Forms/ReferralModal"));
+const PrescriptionModal = React.lazy(() => import("@/Components/Forms/PrescriptionModal"));
+
+const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
     const [filteredBookings, setFilteredBookings] = useState(bookings);
     const [searchQuery, setSearchQuery] = useState("");
-    const [showModal, setShowModal] = useState(false);
+    const [showReferralModal, setShowReferralModal] = useState(false);
+    const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
     const [selectedReferral, setSelectedReferral] = useState(null);
 
     const handleSearch = (e) => {
@@ -29,12 +32,22 @@ const Booked = ({ bookings, doctors, patients, hospitals }) => {
 
     const handleReferralClick = (row) => {
         setSelectedReferral(row);
-        setShowModal(true);
+        setShowReferralModal(true); // Show Referral Modal
+    };
+
+    const handlePrescriptionClick = (row) => {
+        setSelectedReferral(row); // Set the selected row data
+        setShowPrescriptionModal(true); // Show Prescription Modal
     };
 
     const toggleReferralModal = () => {
-        setShowModal(false);
+        setShowReferralModal(false);
         setSelectedReferral(null);
+    };
+
+    const togglePrescriptionModal = () => {
+        setShowPrescriptionModal(false);
+        setSelectedReferral(null); // Clear selected referral when closing the modal
     };
 
     const BookingColumn = [
@@ -63,7 +76,7 @@ const Booked = ({ bookings, doctors, patients, hospitals }) => {
         {
             label: "Prescription",
             icon: LuClipboardEdit,
-            onClick: (row) => console.log("Prescription clicked", row),
+            onClick: (row) => handlePrescriptionClick(row), // Handle click for Prescription Modal
             style: "bg-green-300 text-green-800 hover:bg-green-400",
         },
     ];
@@ -92,7 +105,7 @@ const Booked = ({ bookings, doctors, patients, hospitals }) => {
             prescriptionActions: prescriptionAction.map((action) => (
                 <button
                     key={action.label}
-                    onClick={() => action.onClick(row)}
+                    onClick={() => action.onClick(row)} // Pass the row to the Prescription modal
                     className={`inline-flex items-center px-4 py-2 mr-2 rounded-md text-sm font-medium ${action.style}`}
                 >
                     <action.icon className="mr-2" />
@@ -149,35 +162,19 @@ const Booked = ({ bookings, doctors, patients, hospitals }) => {
                                     ]}
                                     data={filteredBookings.map((row) => ({
                                         ...row,
-                                        referralAction:
-                                            getActionButtons(row).referralActions,
-                                        prescriptionAction:
-                                            getActionButtons(row)
-                                                .prescriptionActions,
-                                        action: getActionButtons(row)
-                                            .bookingActions,
+                                        referralAction: getActionButtons(row).referralActions,
+                                        prescriptionAction: getActionButtons(row).prescriptionActions,
+                                        action: getActionButtons(row).bookingActions,
                                     }))}
                                     renderRow={(row) => (
                                         <tr key={row.id}>
                                             <td className="px-6 py-3">{row.id}</td>
-                                            <td className="px-6 py-3">
-                                                {row.patient_name}
-                                            </td>
-                                            <td className="px-6 py-3">
-                                                {row.title}
-                                            </td>
-                                            <td className="px-6 py-3">
-                                                {row.booking_status}
-                                            </td>
-                                            <td className="px-6 py-3">
-                                                {row.referralAction}
-                                            </td>
-                                            <td className="px-6 py-3">
-                                                {row.prescriptionAction}
-                                            </td>
-                                            <td className="px-6 py-3 flex">
-                                                {row.action}
-                                            </td>
+                                            <td className="px-6 py-3">{row.patient_name}</td>
+                                            <td className="px-6 py-3">{row.title}</td>
+                                            <td className="px-6 py-3">{row.booking_status}</td>
+                                            <td className="px-6 py-3">{row.referralAction}</td>
+                                            <td className="px-6 py-3">{row.prescriptionAction}</td>
+                                            <td className="px-6 py-3 flex">{row.action}</td>
                                         </tr>
                                     )}
                                     noDataMessage="No Bookings Available."
@@ -187,14 +184,23 @@ const Booked = ({ bookings, doctors, patients, hospitals }) => {
                     </div>
                 </div>
 
-                {showModal && (
+                {showReferralModal && (
                     <ReferralModal
-                        showModal={showModal}
+                        showModal={showReferralModal}
                         toggleReferralModal={toggleReferralModal}
                         selectedReferral={selectedReferral}
                         doctors={doctors}
                         patients={patients}
                         hospitals={hospitals}
+                    />
+                )}
+
+                {showPrescriptionModal && (
+                    <PrescriptionModal
+                        showModal={showPrescriptionModal}
+                        toggleReferralModal={togglePrescriptionModal} // Use togglePrescriptionModal to close it
+                        selectedReferral={selectedReferral}
+                        medicines={medicines}
                     />
                 )}
             </PatientLayout>

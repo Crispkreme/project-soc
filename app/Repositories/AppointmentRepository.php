@@ -78,4 +78,13 @@ class AppointmentRepository implements AppointmentContract
 
         return $groupedEvents;
     }
+
+    public function updateAppointmentStatusById($status, $id)
+    {
+        $appointment = $this->model->where('booking_id', $id)->first();
+        if ($appointment) {
+            $appointment->update(['appointment_status' => $status]);
+            return $appointment;
+        }
+    }
 }

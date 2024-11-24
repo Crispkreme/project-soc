@@ -6,14 +6,18 @@ use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
 use App\Contracts\HospitalContract;
+use App\Contracts\MedicineContract;
+use App\Contracts\PrescriptionContract;
 use App\Contracts\ReferralContract;
 use App\Contracts\ScheduleContract;
+
 use App\Contracts\UserDetailContract;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
@@ -27,17 +31,22 @@ class AppointmentController extends Controller
     protected $scheduleContract;
     protected $hospitalContract;
     protected $referralContract;
+    protected $medicineContract;
+    protected $prescriptionContract;
 
     public function __construct(
         BookingContract $bookingContract,
-        
+        MedicineContract $medicineContract,
         ReferralContract $referralContract,
         BarangayEventContract $barangayEventContract,
         UserDetailContract $userDetailContract,
         AppointmentContract $appointmentContract,
         ScheduleContract $scheduleContract,
         HospitalContract $hospitalContract,
+        PrescriptionContract $prescriptionContract,
     ) {
+        $this->prescriptionContract = $prescriptionContract;
+        $this->medicineContract = $medicineContract;
         $this->referralContract = $referralContract;
         $this->hospitalContract = $hospitalContract;
         $this->userDetailContract = $userDetailContract;
@@ -114,6 +123,7 @@ class AppointmentController extends Controller
         $patients = $this->userDetailContract->getAllUserNameByRole('Patient', 'Active');
         $bookings = $this->bookingContract->getAllBooking();
         $hospitals = $this->hospitalContract->getAllHospital();
+        $medicines = $this->medicineContract->getAllMedicine();
 
         return Inertia::render($viewPath, [
             'barangayEvents' => $barangayEvents,
@@ -121,6 +131,7 @@ class AppointmentController extends Controller
             'patients' => $patients,
             'bookings' => $bookings,
             'hospitals' => $hospitals,
+            'medicines' => $medicines,
         ]);
     }
 
@@ -264,6 +275,60 @@ class AppointmentController extends Controller
         } catch (Exception $e) {
             
             Log::error('Error during updateOrCreateReferral: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Error please try again.',
+            ]);
+        }
+    }
+
+    public function updateOrCreatePrescription(Request $request, $id = null)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        try {
+            
+            DB::beginTransaction();
+            $patientId = $this->bookingContract->getPatientIdByBookingId($id);
+            $data = $request->validate([  
+                'medicines' => 'required|array|min:1',
+                'instruction' => 'nullable|string|max:255',
+            ]);   
+            $data['patient_id'] = $patientId; 
+            $data['doctor_id'] = $user->id; 
+            
+            foreach ($request->medicines as $medicine) {
+
+                $data['medicine_id'] = $medicine['medicine_id'];
+                $data['quantity'] = $medicine['quantity'];
+
+                $this->prescriptionContract->updateOrCreatePrescription($data);
+            }
+            
+            $this->bookingContract->updateBookingstatus('Success', $id);
+
+            $this->appointmentContract->updateAppointmentStatusById('Success', $id);
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Prescription successfully added.',
+            ]);
+
+        } catch (Exception $e) {
+            
+            Log::error('Error during updateOrCreatePrescription: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);

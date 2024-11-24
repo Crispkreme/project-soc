@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\AppointmentContract;
 use App\Contracts\BookingContract;
+use App\Contracts\PrescriptionContract;
 use App\Contracts\ReferralContract;
 use Exception;
 use Illuminate\Http\Request;
@@ -17,14 +18,17 @@ class BookingController extends Controller
 {
     protected $bookingContract;
     protected $referralContract;
+    protected $prescriptionContract;
     protected $appointmentContract;
 
     public function __construct(
         BookingContract $bookingContract,
         ReferralContract $referralContract,
+        PrescriptionContract $prescriptionContract,
         AppointmentContract $appointmentContract,
     ) {
         $this->bookingContract = $bookingContract;
+        $this->prescriptionContract = $prescriptionContract;
         $this->appointmentContract = $appointmentContract;
         $this->referralContract = $referralContract;
     }
@@ -125,6 +129,21 @@ class BookingController extends Controller
 
         return Inertia::render('Admins/Referrals/Referral', [
             'referrals' => $referrals,
+        ]);
+    }
+
+    public function getPrescription()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+        
+        $prescriptions = $this->prescriptionContract->getAllPrescription();
+
+        return Inertia::render('Admins/Prescriptions/Prescription', [
+            'prescriptions' => $prescriptions,
         ]);
     }
 }
