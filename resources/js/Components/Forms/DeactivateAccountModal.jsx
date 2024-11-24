@@ -1,13 +1,26 @@
 import React from 'react';
+import { useForm } from '@inertiajs/react';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
 const InputLabel = React.lazy(() => import("@/Components/Inputs/InputLabel"));
 const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
+const Title = React.lazy(() => import("@/Components/Headers/Title"));
 
 const DeactivateAccountModal = ({ showModal, toggleModal }) => {
+    const { post, processing } = useForm();
+
     const handleClose = () => {
         toggleModal();
+    };
+
+    const handleDeactivate = () => {
+        // Send the request to deactivate the account
+        post(route('user.deactivate'), {
+            onFinish: () => {
+                toggleModal();  // Close modal after deactivation
+            }
+        });
     };
 
     return (
@@ -37,23 +50,32 @@ const DeactivateAccountModal = ({ showModal, toggleModal }) => {
                             </h3>
                             <div className="mt-2">
                                 <p className="text-sm text-gray-500">
-                                    Are your sure you want to Deactivate your Account?
+                                    Are you sure you want to deactivate your account?
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                        <button type="button" data-behavior="commit" className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-                            Deactivate
+                        <button
+                            type="button"
+                            onClick={handleDeactivate}
+                            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                            disabled={processing}
+                        >
+                            {processing ? 'Deactivating...' : 'Deactivate'}
                         </button>
-                        <button type="button" data-behavior="cancel" className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm">
+                        <button
+                            type="button"
+                            onClick={handleClose}
+                            className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm"
+                        >
                             Cancel
                         </button>
                     </div>
                 </div>
             </div>
         </Modal>
-    )
-}
+    );
+};
 
-export default DeactivateAccountModal
+export default DeactivateAccountModal;

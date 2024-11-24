@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\UserContract;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserRepository implements UserContract
@@ -36,5 +37,23 @@ class UserRepository implements UserContract
         return $this->model
             ->where('id', $id)
             ->first();
+    }
+
+    public function changeEmail($data)
+    {
+        $user = Auth::user();
+        if ($user) {
+            $user->update(['email' => $data]);
+        }
+        return $user;
+    }
+
+    public function changePassword($data)
+    {
+        $user = Auth::user();
+        if ($user) {
+            $user->update(['password' => $data]);
+        }
+        return $user;
     }
 }

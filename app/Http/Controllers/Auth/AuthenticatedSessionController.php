@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Contracts\UserDetailContract;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
@@ -13,6 +14,14 @@ use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
+    protected $userDetailContract;
+
+    public function __construct(
+        UserDetailContract $userDetailContract,
+    ) {
+        $this->userDetailContract = $userDetailContract;
+    }
+
     /**
      * Display the login view.
      */
@@ -27,23 +36,47 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
         $request->authenticate();
         $request->session()->regenerate();
 
-        $roleRedirects = [
-            'Administration' => 'admin.dashboard',
+        $user = $request->user();        
+        $userDetail = $this->userDetailContract->getUserDetailById($user->id);
+
+        if (!$userDetail) {
+            return response()->json([
+                'message' => 'User details not found.',
+            ], 404);
+        }
+
+        $userStatus = $userDetail->status;
+
+        if ($userStatus === 'Deactivate') {
+
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return response()->json([
+                'message' => 'Account Deactivated',
+                'redirect_url' => route('login'),
+            ]);
+        }
+
+        $roleRoutes = [
+            'Admin' => 'admin.dashboard',
             'Practitioner' => 'practitioner.dashboard',
-            'Bhw' => 'bhw.dashboard',
             'Patient' => 'patient.dashboard',
         ];
 
-        $redirectRoute = $roleRedirects[Auth::user()->role];
-
-        return redirect()->intended(route($redirectRoute));
+        $redirectRoute = $roleRoutes[$user->role] ?? '/';
+        
+        return response()->json([
+            'message' => 'Login successful',
+            'redirect' => route($redirectRoute),
+        ]);
     }
-
 
     /**
      * Destroy an authenticated session.

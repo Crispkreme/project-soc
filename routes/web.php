@@ -23,7 +23,12 @@ Route::get('/', function () {
     ]);
 });
 
+// AUTH
 Route::get('/user/avatar/{username}', [UserController::class, 'getUserAvatar']);
+Route::post('/user/change/email', [UserController::class, 'changeEmail'])->name('user.change.email');
+Route::post('/user/change/password', [UserController::class, 'changePassword'])->name('user.change.password');
+Route::post('/user/deactivate', [UserController::class, 'deactivateAccount'])->name('user.deactivate');
+
 Route::get('/profile/details/{id}', [UserController::class, 'getUserDetail'])->name('profile.details');
 Route::get('/dashboard', function () { return Inertia::render('Dashboard'); })->middleware(['verified'])->name('dashboard');
 Route::get('/medicines/search', [MedicineController::class, 'searchMedicine'])->name('medicines.search');
