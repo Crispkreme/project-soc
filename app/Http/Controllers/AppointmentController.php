@@ -84,14 +84,17 @@ class AppointmentController extends Controller
         };
 
         $barangayEvents = $this->barangayEventContract->getBarangayEvent();
+        $latestBarangayEvent = $this->barangayEventContract->getLatestBarangayEvent();
         $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', 'Active');
         $consultations = $this->appointmentContract->getAllAppointmentByMonth();
         $schedules = $this->scheduleContract->getDoctorScheduleByID();
- 
+        
         return Inertia::render($viewPath, [
+            'latestBarangayEvent' => $latestBarangayEvent,
             'barangayEvents' => $barangayEvents,
             'doctors' => $doctors,
             'consultations' => $consultations,
+            'schedules' => $schedules,
         ]);
     }
 
