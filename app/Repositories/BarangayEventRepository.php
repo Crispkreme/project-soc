@@ -55,4 +55,9 @@ class BarangayEventRepository implements BarangayEventContract
     
         return $groupedEvents;
     }
+
+    public function getBarangayEvent()
+    {
+        return $this->model->get();
+    }
 }

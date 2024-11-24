@@ -7,4 +7,6 @@ interface BookingContract {
     public function getAllBooking();
     public function createOrUpdateBooking($data);
     public function getBookingById($id);
+    public function getPatientIdByBookingId($id);
+    public function updateBookingstatus($status, $id);
 }

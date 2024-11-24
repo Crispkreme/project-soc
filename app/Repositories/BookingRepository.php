@@ -70,4 +70,15 @@ class BookingRepository implements BookingContract
             ->where('id', $id)
             ->first();
     }
+
+    public function getPatientIdByBookingId($id)
+    {
+        return $this->model->where('id', $id)->value('patient_id');
+    }
+
+    public function updateBookingstatus($status, $id)
+    {
+        $booking = $this->model->findOrFail($id);
+        $booking->update(['booking_status' => $status]);
+    }
 }

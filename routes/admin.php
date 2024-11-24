@@ -43,6 +43,8 @@ Route::middleware(['auth', 'verified', 'admin'])
     // APPOINTMENTS
     Route::get('/schedules', [BookingController::class, 'getSchedules'])->name('schedules');
     Route::get('/appointments', [BookingController::class, 'getAppointments'])->name('appointments');
+    Route::get('/referrals', [BookingController::class, 'getReferral'])->name('referrals');
+    Route::get('/prescriptions', [BookingController::class, 'getPrescription'])->name('prescriptions');
     Route::post('/approve/appointments/{id}', [BookingController::class, 'approveAppointments'])->name('approve.appointments');
 
     // MEDICAL

@@ -4,9 +4,11 @@ import SidebarItem from '../Components/Sidebars/SidebarItem';
 import { RiHome2Line, RiCalendarTodoLine } from "react-icons/ri";
 import { AiOutlineSkin } from "react-icons/ai";
 import { TbReportMedical, TbTools } from "react-icons/tb";
+import { RiHospitalLine } from "react-icons/ri";
 import { MdOutlineInventory2 } from "react-icons/md";
 import { PiAddressBookBold } from "react-icons/pi";
 import { VscGraph } from "react-icons/vsc";
+import { GoChecklist } from "react-icons/go";
 import { useSelector } from 'react-redux';
 
 const Sidebar = React.lazy(() => import("../Components/Sidebars/Sidebar"));
@@ -51,6 +53,8 @@ const AdminLayout = ({ children }) => {
                         ]}
                     />
                     <SidebarItem icon={TbTools} label="Activities" link="#" />
+                    <SidebarItem icon={RiHospitalLine} label="Referral" link={route('admin.referrals')} />
+                    <SidebarItem icon={GoChecklist} label="Prescription" link={route('admin.prescriptions')} />
                     <SidebarItem icon={VscGraph} label="Data" link="#" />
                 </ul>
             </Sidebar>
