@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\InventoryContract;
 use App\Contracts\LedgerContract;
+use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
 use Exception;
 use Illuminate\Http\Request;
@@ -18,15 +19,18 @@ class InventoryController extends Controller
     protected $inventoryContract;
     protected $ledgerContract;
     protected $medicineContract;
+    protected $medicationContract;
 
     public function __construct(
         InventoryContract $inventoryContract,
         LedgerContract $ledgerContract,
         MedicineContract $medicineContract,
+        MedicationContract $medicationContract,
     ) {
         $this->inventoryContract = $inventoryContract;
         $this->ledgerContract = $ledgerContract;
         $this->medicineContract = $medicineContract;
+        $this->medicationContract = $medicationContract;
     }
 
     public function getAllInventory()
@@ -167,6 +171,56 @@ class InventoryController extends Controller
             ]);
 
             return redirect()->back();
+        }
+    }
+
+    public function updateOrCreateMedication(Request $request, $id = null)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        try {
+            
+            DB::beginTransaction();
+            $data = $request->validate([  
+                'medicines' => 'required|array|min:1',
+                'reason' => 'nullable|string|max:255',
+            ]);   
+            $data['patient_id'] = $user->id; 
+            
+            foreach ($request->medicines as $medicine) {
+
+                $data['medicine_id'] = $medicine['medicine_id'];
+                $data['quantity'] = $medicine['quantity'];
+
+                $this->medicationContract->createOrUpdateMedication($data);
+
+                $this->ledgerContract->updateLedgerQuantity($data['medicine_id'], $data['quantity']);
+            }
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Request successfully added.',
+            ]);
+
+        } catch (Exception $e) {
+            
+            Log::error('Error during updateOrCreateMedication: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Error please try again.',
+            ]);
         }
     }
 }

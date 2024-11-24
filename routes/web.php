@@ -71,6 +71,9 @@ Route::put('/referrals/{id}', [AppointmentController::class, 'updateOrCreateRefe
 Route::post('/prescriptions/create/{id}', [AppointmentController::class, 'updateOrCreatePrescription'])->name('prescription.create');
 Route::post('/prescriptions/update/{id}', [AppointmentController::class, 'updateOrCreatePrescription'])->name('prescription.update');
 
+Route::post('/medications', [InventoryController::class, 'updateOrCreateMedication'])->name('medications.store');
+Route::put('/medications/{id}', [InventoryController::class, 'updateOrCreateMedication'])->name('medications.update');
+
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
 require __DIR__.'/practitioner.php';
