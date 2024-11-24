@@ -9,7 +9,7 @@ class Medication extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['patient_id', 'medicine_id', 'dosage', 'reason'];
+    protected $fillable = ['patient_id', 'medicine_id', 'quantity', 'reason'];
 
     public function patient()
     {

@@ -53,4 +53,24 @@ class LedgerRepository implements LedgerContract
             )
             ->get();
     }
+
+    public function updateLedgerQuantity($id, $quantity)
+    {
+        $medicine = $this->model->where('medicine_id', $id)->firstOrFail();
+
+        if ($quantity > $medicine->in_stock) {
+            throw new \Exception('Quantity to deduct exceeds available stock.');
+        }
+
+        $newInStock = $medicine->in_stock - $quantity;
+        $newSold = $medicine->sold + $quantity;
+
+        $medicine->update([
+            'sold' => $newSold,
+            'in_stock' => $newInStock,
+        ]);
+
+        return $medicine;
+    }
+
 }

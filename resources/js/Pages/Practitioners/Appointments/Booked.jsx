@@ -198,7 +198,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
                 {showPrescriptionModal && (
                     <PrescriptionModal
                         showModal={showPrescriptionModal}
-                        toggleReferralModal={togglePrescriptionModal} // Use togglePrescriptionModal to close it
+                        toggleReferralModal={togglePrescriptionModal}
                         selectedReferral={selectedReferral}
                         medicines={medicines}
                     />

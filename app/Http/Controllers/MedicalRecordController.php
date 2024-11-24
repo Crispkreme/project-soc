@@ -311,7 +311,6 @@ class MedicalRecordController extends Controller
             $data = $request->validate([
                 'patient_id' => 'nullable|exists:users,id',
                 'medicine_id' => 'nullable|exists:medicines,id',
-                'dosage' => 'required|string|max:255',
                 'reason' => 'nullable|string',  
             ]);
 
@@ -485,5 +484,22 @@ class MedicalRecordController extends Controller
                 'message' => 'Please try again'
             ]);
         }
+    }
+
+    public function getMedicineRequester()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $medicineRequesters = $this->medicationContract->getMedicationById($user->id);
+        $medicines = $this->medicineContract->getAllMedicine();
+        
+        return Inertia::render('Patients/Requesters/Requester', [
+            'medicineRequesters' => $medicineRequesters,
+            'medicines' => $medicines,
+        ]);
     }
 }
