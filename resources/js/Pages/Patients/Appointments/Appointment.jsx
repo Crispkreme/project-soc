@@ -8,8 +8,8 @@ import interactionPlugin from '@fullcalendar/interaction';
 
 const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
 
-const Appointment = ({ barangayEvents, doctors }) => {
-
+const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
+  console.log(barangayEvents);
   const bookings = [
     {
       title: 'General Consultation',
@@ -167,39 +167,39 @@ const Appointment = ({ barangayEvents, doctors }) => {
 
           {/* Appointment Details Section */}
           <div className="col-span-12 lg:col-span-5 flex flex-col gap-4 p-4">
-            {barangayEvents && (
+            {latestBarangayEvent && (
               <section className="p-8">
                 <div className="relative z-10">
                   <div className="w-full h-full absolute bg-secondary-bg top-8 left-8 rounded-md z-10"></div>
                   <div className="relative border-2 rounded-md border-black bg-white p-4 z-50">
                     {[
-                      { head: 'WHAT', item: barangayEvents.event_name },
+                      { head: 'WHAT', item: latestBarangayEvent.event_name },
                       {
                         head: 'WHEN',
                         item: `${new Date(
-                          barangayEvents.event_date + 'T' + barangayEvents.event_start
+                          latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_start
                         ).toLocaleString('en-US', {
                           timeZone: 'Asia/Manila',
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
                         })} ${new Date(
-                          barangayEvents.event_date + 'T' + barangayEvents.event_start
+                          latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_start
                         ).toLocaleTimeString('en-US', {
                           hour: 'numeric',
                           minute: '2-digit',
                           hour12: true,
                         })} - ${new Date(
-                          barangayEvents.event_date + 'T' + barangayEvents.event_end
+                          latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_end
                         ).toLocaleTimeString('en-US', {
                           hour: 'numeric',
                           minute: '2-digit',
                           hour12: true,
                         })}`,
                       },
-                      { head: 'WHERE', item: barangayEvents.event_venue },
-                      { head: 'DOC In-Charge', item: `Dr. ${barangayEvents.doctor_name} MD` },
-                      { head: 'BHW In-Charge', item: barangayEvents.bhw_name },
+                      { head: 'WHERE', item: latestBarangayEvent.event_venue },
+                      { head: 'DOC In-Charge', item: `Dr. ${latestBarangayEvent.doctor_name} MD` },
+                      { head: 'BHW In-Charge', item: latestBarangayEvent.bhw_name },
                     ].map((itm, idx) => (
                       <div key={idx} className="flex flex-col">
                         <span>{itm.head}:</span>

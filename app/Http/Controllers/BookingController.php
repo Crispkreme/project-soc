@@ -114,7 +114,18 @@ class BookingController extends Controller
 
     public function approveAppointments($id = null)
     {
-        dd($id);
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $this->bookingContract->updateBookingstatus('Pending', $id);
+
+        return response()->json([
+            'success' => 'success',
+            'message' => 'Account added successfully!',
+        ]);
     }
 
     public function getReferral()
