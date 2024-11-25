@@ -63,7 +63,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
     approve_by_id: null,
     patient_id: null,
     approved_date: null,
-    booking_status: 'Inprogress',
+    booking_status: 'Approve',
     event_name: latestBarangayEvent?.event_name || '',
     event_venue: latestBarangayEvent?.event_venue || '',
     event_date: latestBarangayEvent?.event_date || '',
@@ -85,7 +85,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
   }, [latestBarangayEvent, setData]);
 
   const handleBookAppointment = (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
     post(route('patient.create.booking'), {
       // onSuccess: () => alert('Appointment booked successfully!'),
       onError: (errors) => console.error('Failed to book appointment:', errors),

@@ -91,7 +91,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
     ];
 
     const getActionButtons = (row) => {
-        const isDisabled = row.booking_status === "Success" || row.booking_status === "Inprogress";
+        const isDisabled = row.booking_status === "Success" || row.booking_status === "Approve";
     
         return {
             bookingActions: bookingAction.map((action) => (

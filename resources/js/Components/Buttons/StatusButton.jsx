@@ -6,8 +6,8 @@ const StatusButton = ({ status, onClick, className }) => {
     let buttonText, buttonClass, icon, isDisabled;
 
     switch (status) {
-        case 'Inprogress':
-            buttonText = 'In Progress';
+        case 'Approve':
+            buttonText = 'Approve';
             buttonClass = 'bg-yellow-50 text-yellow-500 hover:text-yellow-600';
             icon = <TbUserExclamation className="mr-1" />;
             isDisabled = false;

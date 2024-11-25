@@ -76,9 +76,13 @@ class BookingRepository implements BookingContract
         return $this->model->where('id', $id)->value('patient_id');
     }
 
-    public function updateBookingstatus($status, $id)
+    public function updateBookingstatus($status, $id, $approverId)
     {
         $booking = $this->model->findOrFail($id);
-        $booking->update(['booking_status' => $status]);
+        $booking->update([
+            'approve_by_id' => $approverId,
+            'booking_status' => $status,
+            'approved_date' => now(),
+        ]);
     }
 }

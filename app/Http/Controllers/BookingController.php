@@ -82,12 +82,12 @@ class BookingController extends Controller
                 '' => 'nullable|date_format:H:i:s',
                 '' => 'nullable|date_format:H:i:s',
                 'approved_date' => 'nullable|date',
-                'booking_status' => 'nullable|in:Inprogress,Pending,Success,Failed',
+                'booking_status' => 'nullable|in:Approve,Pending,Success,Failed',
             ]);     
             $data['approve_by_id'] = null; 
             $data['patient_id'] = $user->id; 
-            $data['title'] = "Booking"; 
-            $data['notes'] = $request->event_name;  
+            $data['title'] = $request->event_name; 
+            $data['notes'] = "Booking";  
             $data['appointment_date'] = $request->event_date;  
             $data['appointment_start'] = $request->event_start;  
             $data['appointment_end'] = $request->event_end;  
@@ -125,7 +125,7 @@ class BookingController extends Controller
             return redirect()->route('login');
         }
 
-        $this->bookingContract->updateBookingstatus('Pending', $id);
+        $this->bookingContract->updateBookingstatus('Pending', $id, $user->id);
 
         return response()->json([
             'success' => 'success',

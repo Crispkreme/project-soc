@@ -25,7 +25,7 @@ class BookingSeeder extends Seeder
                 'appointment_start' => '09:13:00',
                 'appointment_end'   => '10:00:00',
                 'approved_date'     => null,
-                'booking_status'    => 'Inprogress',
+                'booking_status'    => 'Approve',
                 'notes'             => $faker->sentence(),
             ],
             [
