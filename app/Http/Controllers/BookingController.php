@@ -65,6 +65,7 @@ class BookingController extends Controller
 
     public function createBooking(Request $request, $id = null)
     {
+
         $user = Auth::user();
 
         if (!$user) {
@@ -76,16 +77,20 @@ class BookingController extends Controller
             DB::beginTransaction();
 
             $data = $request->validate([  
-                'title' => 'required|string|max:255',
-                'notes' => 'nullable|string',
-                'appointment_date' => 'nullable|date',
-                'appointment_start' => 'nullable|date_format:H:i:s',
-                'appointment_end' => 'nullable|date_format:H:i:s',
+
+                '' => 'nullable|date',
+                '' => 'nullable|date_format:H:i:s',
+                '' => 'nullable|date_format:H:i:s',
                 'approved_date' => 'nullable|date',
                 'booking_status' => 'nullable|in:Inprogress,Pending,Success,Failed',
             ]);     
             $data['approve_by_id'] = null; 
             $data['patient_id'] = $user->id; 
+            $data['title'] = "Booking"; 
+            $data['notes'] = $request->event_name;  
+            $data['appointment_date'] = $request->event_date;  
+            $data['appointment_start'] = $request->event_start;  
+            $data['appointment_end'] = $request->event_end;  
    
             if ($id) {
                 $data['id'] = $id; 
