@@ -48,8 +48,13 @@ class BarangayEventRepository implements BarangayEventContract
             return null;
         }
 
-        $doctorName = trim("{$event->doctor->firstname} {$event->doctor->middlename} {$event->doctor->lastname}");
-        $bhwName = trim("{$event->bhw->firstname} {$event->bhw->middlename} {$event->bhw->lastname}");
+        $doctorName = isset($event->doctor)
+            ? trim("{$event->doctor->firstname} {$event->doctor->middlename} {$event->doctor->lastname}")
+            : 'N/A';
+
+        $bhwName = isset($event->bhw)
+            ? trim("{$event->bhw->firstname} {$event->bhw->middlename} {$event->bhw->lastname}")
+            : 'N/A';
 
         return [
             'id' => $event->id,

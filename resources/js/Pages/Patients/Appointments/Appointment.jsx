@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -8,7 +8,6 @@ import interactionPlugin from '@fullcalendar/interaction';
 const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
 
 const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
-
   const bookingSchedule = barangayEvents.map((event) => ({
     id: event.id,
     title: event.event_name,
@@ -21,52 +20,44 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
       time: event.event_time,
       status: event.booking_status,
     },
-  }));  
-
-  const completedBookings = barangayEvents.filter((barangayEvent) => barangayEvent.booking_status === 'Success');
-  const latestFinishedBookings = completedBookings.length > 0 ? completedBookings[completedBookings.length - 1] : null;
-
-  const formatTime = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-  };
+  }));
 
   const { data, setData, post, processing, errors } = useForm({
     approve_by_id: null,
     patient_id: null,
     approved_date: null,
     booking_status: 'Approve',
-    event_name: latestBarangayEvent?.event_name || '',
-    event_venue: latestBarangayEvent?.event_venue || '',
-    event_date: latestBarangayEvent?.event_date || '',
-    event_start: latestBarangayEvent?.event_start || '',
-    event_end: latestBarangayEvent?.event_end || '',
+    event_name: '',
+    event_venue: '',
+    event_date: '',
+    event_start: '',
+    event_end: '',
   });
 
-  useEffect(() => {
-    if (latestBarangayEvent) {
-      setData('approve_by_id', latestBarangayEvent.approve_by_id);
-      setData('patient_id', latestBarangayEvent.patient_id);
-      setData('approved_date', latestBarangayEvent.approved_date);
-      setData('event_name', latestBarangayEvent.event_name);
-      setData('event_venue', latestBarangayEvent.event_venue);
-      setData('event_date', latestBarangayEvent.event_date);
-      setData('event_start', latestBarangayEvent.event_start);
-      setData('event_end', latestBarangayEvent.event_end);
-    }
-  }, [latestBarangayEvent, setData]);
+  const handleEventClick = (clickInfo) => {
+    const event = clickInfo.event;
+    const { extendedProps } = event;
+
+    setData({
+      ...data,
+      event_name: event.title,
+      event_venue: extendedProps.venue,
+      event_date: event.start.toISOString().split('T')[0],
+      event_start: event.start.toTimeString().split(' ')[0],
+      event_end: event.end ? event.end.toTimeString().split(' ')[0] : '',
+    });
+  };
 
   const handleBookAppointment = (e) => {
     e.preventDefault();
     post(route('patient.create.booking'), {
-      // onSuccess: () => alert('Appointment booked successfully!'),
       onError: (errors) => console.error('Failed to book appointment:', errors),
     });
   };
 
   const renderEvent = (eventInfo) => {
     const { status } = eventInfo.event.extendedProps;
-  
+
     return (
       <span className="relative items-center overflow-hidden text-center">
         <div
@@ -77,7 +68,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
         <span className="pl-4">{eventInfo.event.title}</span>
       </span>
     );
-  };  
+  };
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -97,6 +88,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
               }}
               events={bookingSchedule}
               selectable={true}
+              eventClick={handleEventClick} // Add eventClick handler
               buttonText={{
                 today: 'Today',
                 month: 'Month',
@@ -104,100 +96,72 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                 day: 'Day',
               }}
             />
-            {latestFinishedBookings && (
-              <div className="flex flex-col justify-center items-center mt-8">
-                <span>
-                  Previous Sched:{' '}
-                  {new Date(latestFinishedBookings.appointment_date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </span>
-                <span>
-                  {latestFinishedBookings.title} by Dr. {latestFinishedBookings.doctor_name}
-                </span>
-              </div>
-            )}
           </div>
 
           <div className="col-span-12 lg:col-span-5 flex flex-col gap-4 p-4">
             <form onSubmit={handleBookAppointment}>
-              <input
-                type="hidden"
-                value={latestBarangayEvent?.event_name || ''}
-                name="event_name"
-                onChange={(e) => setData("event_name", e.target.value)}
-              />
-              <input
-                type="hidden"
-                value={latestBarangayEvent?.event_start || ''}
-                name="event_start"
-                onChange={(e) => setData("event_start", e.target.value)}
-              />
-              <input
-                type="hidden"
-                value={latestBarangayEvent?.event_date || ''}
-                name="event_date"
-                onChange={(e) => setData("event_date", e.target.value)}
-              />
-              <input
-                type="hidden"
-                value={latestBarangayEvent?.event_venue || ''}
-                name="event_venue"
-                onChange={(e) => setData("event_venue", e.target.value)}
-              />
-              
-              {latestBarangayEvent && (
-                <section className="p-8">
-                  <div className="relative z-10">
-                    <div className="w-full h-full absolute bg-secondary-bg top-8 left-8 rounded-md z-10"></div>
-                    <div className="relative border-2 rounded-md border-black bg-white p-4 z-50">
-                      {[{ head: 'WHAT', item: latestBarangayEvent.event_name },
-                      {
-                        head: 'WHEN',
-                        item: `${new Date(latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_start)
-                        .toLocaleString('en-US', {
-                          timeZone: 'Asia/Manila',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })} ${new Date(latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_start)
-                        .toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true,
-                        })} - ${new Date(latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_end)
-                        .toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true,
-                        })}`,
-                      },
-                      { head: 'WHERE', item: latestBarangayEvent.event_venue },
-                      { head: 'DOC In-Charge', item: `Dr. ${latestBarangayEvent.doctor_name} MD` },
-                      { head: 'BHW In-Charge', item: latestBarangayEvent.bhw_name }]
-                        .map((itm, idx) => (
-                          <div key={idx} className="flex flex-col">
-                            <span>{itm.head}:</span>
-                            <span className="pl-8">{itm.item}</span>
-                          </div>
-                        ))}
-                      <div className="flex justify-center mt-8">
-                        <button
-                          className={`bg-blue-500 text-white px-4 py-2 rounded ${
-                            processing ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
-                          onClick={handleBookAppointment}
-                          disabled={processing}
-                        >
-                          {processing ? 'Processing...' : 'Book Appointment'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              )}
+              <div className="p-8">
+                <div>
+                  <label>Event Name:</label>
+                  <input
+                    type="text"
+                    value={data.event_name}
+                    name="event_name"
+                    onChange={(e) => setData("event_name", e.target.value)}
+                    className="border w-full p-2 rounded"
+                  />
+                </div>
+                <div>
+                  <label>Event Venue:</label>
+                  <input
+                    type="text"
+                    value={data.event_venue}
+                    name="event_venue"
+                    onChange={(e) => setData("event_venue", e.target.value)}
+                    className="border w-full p-2 rounded"
+                  />
+                </div>
+                <div>
+                  <label>Event Date:</label>
+                  <input
+                    type="date"
+                    value={data.event_date}
+                    name="event_date"
+                    onChange={(e) => setData("event_date", e.target.value)}
+                    className="border w-full p-2 rounded"
+                  />
+                </div>
+                <div>
+                  <label>Event Start Time:</label>
+                  <input
+                    type="time"
+                    value={data.event_start}
+                    name="event_start"
+                    onChange={(e) => setData("event_start", e.target.value)}
+                    className="border w-full p-2 rounded"
+                  />
+                </div>
+                <div>
+                  <label>Event End Time:</label>
+                  <input
+                    type="time"
+                    value={data.event_end}
+                    name="event_end"
+                    onChange={(e) => setData("event_end", e.target.value)}
+                    className="border w-full p-2 rounded"
+                  />
+                </div>
+                <div className="mt-4">
+                  <button
+                    className={`bg-blue-500 text-white px-4 py-2 rounded ${
+                      processing ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={processing}
+                  >
+                    {processing ? 'Processing...' : 'Book Appointment'}
+                  </button>
+                </div>
+              </div>
             </form>
           </div>
         </div>

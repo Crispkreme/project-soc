@@ -318,7 +318,7 @@ class AppointmentController extends Controller
                 $this->prescriptionContract->updateOrCreatePrescription($data);
             }
             
-            $this->bookingContract->updateBookingstatus('Success', $id);
+            $this->bookingContract->updateBookingstatus('Success', $id, $user->id);
 
             $this->appointmentContract->updateAppointmentStatusById('Success', $id);
             
