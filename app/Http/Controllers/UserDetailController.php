@@ -163,7 +163,7 @@ class UserDetailController extends Controller
             $userData['email'] = $email;
             $userData['username'] = $username;
             $userData['password'] = 'password';
-            $userData['role'] = 'Administration';
+            $userData['role'] = $request->isPage;
 
             $user = $this->userContract->createOrUpdateUser($userData);
 
