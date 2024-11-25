@@ -81,7 +81,7 @@ class AppointmentController extends Controller
             'Patient' => 'Patients/Appointments/Appointment',
             'Practitioner' => 'Practitioners/Appointments/Booked',
             default => 'login'
-        };
+        }; 
 
         $barangayEvents = $this->barangayEventContract->getBarangayEvent();
         $latestBarangayEvent = $this->barangayEventContract->getLatestBarangayEvent();

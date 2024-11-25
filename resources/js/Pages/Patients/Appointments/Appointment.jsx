@@ -8,56 +8,28 @@ import interactionPlugin from '@fullcalendar/interaction';
 const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
 
 const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
-  const bookings = [
-    {
-      title: 'General Consultation',
-      notes: 'Sample Descriptions',
-      appointment_date: '2024-11-11',
-      doctor_name: 'Victor Chiong',
-      patient_name: 'Victor Wawa',
-      appointment_start: '09:00:00.000Z',
-      appointment_end: '05:00:00.000Z',
-      booking_status: 'Success',
-    },
-    {
-      title: 'Dentism',
-      notes: 'Sample Descriptions',
-      appointment_date: '2024-11-15',
-      doctor_name: 'Victor Chiong',
-      patient_name: 'Victor Wawa',
-      appointment_start: '09:00:00.000Z',
-      appointment_end: '05:00:00.000Z',
-      booking_status: 'Pending',
-    },
-  ];
 
-  const completedBookings = bookings.filter((booking) => booking.booking_status === 'Success');
+  const bookingSchedule = barangayEvents.map((event) => ({
+    id: event.id,
+    title: event.event_name,
+    start: `${event.event_date}T${event.event_start}`,
+    end: `${event.event_date}T${event.event_end}`,
+    extendedProps: {
+      doctor_name: event.doctor_name,
+      bhw_name: event.bhw_name,
+      venue: event.event_venue,
+      time: event.event_time,
+      status: event.booking_status,
+    },
+  }));  
+
+  const completedBookings = barangayEvents.filter((barangayEvent) => barangayEvent.booking_status === 'Success');
   const latestFinishedBookings = completedBookings.length > 0 ? completedBookings[completedBookings.length - 1] : null;
 
   const formatTime = (isoString) => {
     const date = new Date(isoString);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
   };
-
-  const bookingSchedule = bookings.map((booking) => {
-    const startTime = `${booking.appointment_date}T${booking.appointment_start}`;
-    const endTime = `${booking.appointment_date}T${booking.appointment_end}`;
-
-    return {
-      title: booking.title,
-      start: startTime,
-      end: endTime,
-      extendedProps: {
-        date: booking.appointment_date,
-        status: booking.booking_status,
-        doctor_name: booking.doctor_name,
-        patient_name: booking.patient_name,
-        notes: booking.notes,
-        formattedStart: formatTime(startTime),
-        formattedEnd: formatTime(endTime),
-      },
-    };
-  });
 
   const { data, setData, post, processing, errors } = useForm({
     approve_by_id: null,
@@ -93,18 +65,19 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
   };
 
   const renderEvent = (eventInfo) => {
-    const status = eventInfo.event.extendedProps.status;
+    const { status } = eventInfo.event.extendedProps;
+  
     return (
       <span className="relative items-center overflow-hidden text-center">
         <div
           className={`absolute top-1 left-1 rounded-full w-2 h-2 ${
-            status === 'Success' ? 'bg-app-complete' : 'bg-app-coming'
+            status === 'Success' ? 'bg-green-500' : status === 'Pending' ? 'bg-yellow-500' : 'bg-gray-500'
           }`}
         ></div>
         <span className="pl-4">{eventInfo.event.title}</span>
       </span>
     );
-  };
+  };  
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -120,6 +93,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
               headerToolbar={{
                 start: 'today, prev, next',
                 center: 'title',
+                end: 'dayGridMonth,timeGridWeek,timeGridDay',
               }}
               events={bookingSchedule}
               selectable={true}
@@ -130,16 +104,6 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                 day: 'Day',
               }}
             />
-            <div className="flex justify-center gap-16 mt-4">
-              <span className="flex gap-2 items-center">
-                <div className="w-4 h-4 bg-app-complete"></div>
-                Completed
-              </span>
-              <span className="flex gap-2 items-center">
-                <div className="w-4 h-4 bg-app-coming"></div>
-                Coming
-              </span>
-            </div>
             {latestFinishedBookings && (
               <div className="flex flex-col justify-center items-center mt-8">
                 <span>
@@ -193,22 +157,22 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                       {
                         head: 'WHEN',
                         item: `${new Date(latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_start)
-                          .toLocaleString('en-US', {
-                            timeZone: 'Asia/Manila',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })} ${new Date(latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_start)
-                            .toLocaleTimeString('en-US', {
-                              hour: 'numeric',
-                              minute: '2-digit',
-                              hour12: true,
-                            })} - ${new Date(latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_end)
-                              .toLocaleTimeString('en-US', {
-                                hour: 'numeric',
-                                minute: '2-digit',
-                                hour12: true,
-                              })}`,
+                        .toLocaleString('en-US', {
+                          timeZone: 'Asia/Manila',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })} ${new Date(latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_start)
+                        .toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true,
+                        })} - ${new Date(latestBarangayEvent.event_date + 'T' + latestBarangayEvent.event_end)
+                        .toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true,
+                        })}`,
                       },
                       { head: 'WHERE', item: latestBarangayEvent.event_venue },
                       { head: 'DOC In-Charge', item: `Dr. ${latestBarangayEvent.doctor_name} MD` },
