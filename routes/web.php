@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivitiesController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
@@ -12,6 +13,7 @@ use App\Models\FamilyMedical;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 
 
 
@@ -73,6 +75,9 @@ Route::post('/prescriptions/update/{id}', [AppointmentController::class, 'update
 
 Route::post('/medications', [InventoryController::class, 'updateOrCreateMedication'])->name('medications.store');
 Route::put('/medications/{id}', [InventoryController::class, 'updateOrCreateMedication'])->name('medications.update');
+
+Route::post('/barangay/event/create', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.create');
+Route::post('/barangay/event/update/{id}', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.update');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

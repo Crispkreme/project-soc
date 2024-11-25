@@ -52,7 +52,7 @@ const AdminLayout = ({ children }) => {
                             { label: 'Appointment', link: route('admin.appointments') },
                         ]}
                     />
-                    <SidebarItem icon={TbTools} label="Activities" link="#" />
+                    <SidebarItem icon={TbTools} label="Activities" link={route('admin.activities')} />
                     <SidebarItem icon={RiHospitalLine} label="Referral" link={route('admin.referrals')} />
                     <SidebarItem icon={GoChecklist} label="Prescription" link={route('admin.prescriptions')} />
                     <SidebarItem icon={VscGraph} label="Data" link="#" />

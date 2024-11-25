@@ -19,7 +19,6 @@ const ImmunizationModal = ({
   isViewing = false,
   onClose,
 }) => {
-  console.log("selectedImmunization", selectedImmunization);
   const { data, setData, post, processing, errors } = useForm({
     patient_id: patient_id || "",
     immunization: "",

@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Contracts\BarangayEventContract;
+use App\Contracts\UserDetailContract;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+class ActivitiesController extends Controller
+{
+    protected $barangayEventContract;
+    protected $userDetailContract;
+
+    public function __construct(
+        BarangayEventContract $barangayEventContract,
+        UserDetailContract $userDetailContract,
+    ) {
+        $this->barangayEventContract = $barangayEventContract;
+        $this->userDetailContract = $userDetailContract;
+    }
+
+    public function getActivities()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            // 'practitioner.book.appointments' => 'Practitioner',
+            // 'patient.book.appointments' => 'Patient',
+            'admin.activities' => 'Administration',
+            default => 'login',
+        };
+
+        if (!$accountType) {
+            return redirect()->route('login');
+        }
+
+        $viewPath = match ($accountType) {
+            'Administration' => 'Admins/Activities/Activity',
+            // 'Patient' => 'Patients/Appointments/Appointment',
+            // 'Practitioner' => 'Practitioners/Appointments/Booked',
+            default => 'login'
+        };
+
+        $barangayEvents = $this->barangayEventContract->getBarangayEvent();
+        $doctors = $this->userDetailContract->getAllUserNameByRole('Practitioner', 'Active');
+        $bhws = $this->userDetailContract->getAllUserNameByRole('Bhw', 'Active');
+
+        return Inertia::render($viewPath, [
+            'barangayEvents' => $barangayEvents,
+            'doctors' => $doctors,
+            'bhws' => $bhws,
+        ]);
+    }
+
+    public function updateOrCreateBarangayEvent(Request $request, $id = null)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        try {
+            
+            DB::beginTransaction();
+
+            $data = $request->validate([  
+                'doctor_id' => 'nullable|exists:user_details,id',
+                'bhw_id' => 'nullable|exists:user_details,id',
+                'event_name' => 'required|string|max:255',
+                'event_date' => 'required|date|after_or_equal:today',
+                'event_start' => 'required|date_format:H:i|before:event_end',
+                'event_end' => 'required|date_format:H:i|after:event_start',
+                'event_venue' => 'required|string|max:255',
+            ]);   
+            
+            if ($id) {
+                $data['id'] = $id; 
+                $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+            } else {
+                $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+            }
+
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Barangay Event successfully added.',
+            ]);
+
+        } catch (Exception $e) {
+            
+            Log::error('Error during updateOrCreateSchedule: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Error please try again.',
+            ]);
+        }
+    }
+}

@@ -4,7 +4,7 @@ import { HiOutlinePlusSm } from "react-icons/hi";
 import { LuClipboardEdit } from "react-icons/lu";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
-const StockModal = React.lazy(() => import("./StockModal"));
+const StockModal = React.lazy(() => import("@/Components/Forms/StockModal"));
 const Table = React.lazy(() => import("@/Components/Table"));
 const InventoryModal = React.lazy(() => import("@/Components/Forms/InventoryModal"));
 
