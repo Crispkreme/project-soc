@@ -174,7 +174,7 @@ const Bhw = ({ userDetails }) => {
           </div>
         </div>
 
-        {showModal && <AccountModal showModal={showModal} toggleModal={toggleModal} />}
+        {showModal && <AccountModal showModal={showModal} toggleModal={toggleModal} isPage="Bhw"/>}
       </AdminLayout>
 
       <DialogBox
