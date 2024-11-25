@@ -62,7 +62,7 @@ const Patient = ({ userDetails }) => {
         <div className="grid grid-cols-1 gap-6 mb-6">
           <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="font-medium">Manage Administration Accounts</h2>
+              <h2 className="font-medium">Manage Patient Accounts</h2>
               <button
                 type="button"
                 className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
