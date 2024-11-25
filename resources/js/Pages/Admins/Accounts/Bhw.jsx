@@ -4,7 +4,7 @@ import { HiOutlinePlusSm } from "react-icons/hi";
 import { TbUserShield, TbUserExclamation } from "react-icons/tb";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
-const AccountModal = React.lazy(() => import("./AccountModal"));
+const AccountModal = React.lazy(() => import("@/Components/Forms/AccountModal"));
 const DialogBox = React.lazy(() => import("@/Components/Modals/DialogBox"));
 
 const Bhw = ({ userDetails }) => {
