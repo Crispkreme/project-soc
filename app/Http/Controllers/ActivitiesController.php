@@ -37,6 +37,7 @@ class ActivitiesController extends Controller
         $accountType = match ($routeName) {
             // 'practitioner.book.appointments' => 'Practitioner',
             // 'patient.book.appointments' => 'Patient',
+            'bhw.activities' => 'Bhw',
             'admin.activities' => 'Administration',
             default => 'login',
         };
@@ -47,6 +48,7 @@ class ActivitiesController extends Controller
 
         $viewPath = match ($accountType) {
             'Administration' => 'Admins/Activities/Activity',
+            'Bhw' => 'Bhws/Activities/Activity',
             // 'Patient' => 'Patients/Appointments/Appointment',
             // 'Practitioner' => 'Practitioners/Appointments/Booked',
             default => 'login'
