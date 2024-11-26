@@ -6,6 +6,7 @@ import Table from "@/Components/Table";
 const MedicineRequesterModal = lazy(() => import("@/Components/Forms/MedicineRequesterModal"));
 
 const Requester = ({ medicineRequesters, medicines }) => {
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredMedicineRequester, setFilteredMedicineRequester] = useState(medicineRequesters);
   const [showModal, setShowModal] = useState(false);
@@ -22,6 +23,7 @@ const Requester = ({ medicineRequesters, medicines }) => {
     { key: "medicine_name", label: "Medicine" },
     { key: "quantity", label: "Quantity" },
     { key: "reason", label: "Reason" },
+    { key: "medication_status", label: "Status" },
     { key: "created_at", label: "Created At", render: (date) => formatDate(date) },
   ];
 
@@ -59,12 +61,12 @@ const Requester = ({ medicineRequesters, medicines }) => {
           <div className="pb-4">
               <div className="relative">
                   <input
-                      type="text"
-                      id="table-search"
-                      className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Search for inventory"
-                      value={searchQuery}
-                      onChange={handleSearch}
+                    type="text"
+                    id="table-search"
+                    className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Search for inventory"
+                    value={searchQuery}
+                    onChange={handleSearch}
                   />
               </div>
           </div>

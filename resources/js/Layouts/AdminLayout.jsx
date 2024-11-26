@@ -50,6 +50,7 @@ const AdminLayout = ({ children }) => {
                 ]}
             />
             <SidebarItem icon={TbTools} label="Activities" link={route('admin.activities')} />
+            <SidebarItem icon={TbTools} label="Medicine Requester" link={route('admin.medicine.requester')} />
             <SidebarItem icon={RiHospitalLine} label="Referral" link={route('admin.referrals')} />
             <SidebarItem icon={GoChecklist} label="Prescription" link={route('admin.prescriptions')} />
             <SidebarItem icon={VscGraph} label="Data" link="#" />

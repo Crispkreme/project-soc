@@ -18,8 +18,6 @@ Route::middleware(['auth', 'verified', 'admin'])
 ->as('admin.')
 ->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
-    // Route::get('/view/password/{id}', [UserDetailController::class, 'viewPassword'])->name('view.password');
-    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
     Route::post('/update/user/password/{id}', [UserController::class, 'updatePassword'])->name('update.user.password');
     Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');
@@ -54,4 +52,6 @@ Route::middleware(['auth', 'verified', 'admin'])
     Route::get('/medical/history', [MedicalRecordController::class, 'getUserMedicalHistory'])->name('medical.history');
     Route::get('/medical/patient/history/{id}', [MedicalRecordController::class, 'getPatientMedicalHistory'])->name('medical.patient.history');
     Route::get('/activities', [ActivitiesController::class, 'getActivities'])->name('activities');
+
+    Route::get('/medicine/requester', [MedicalRecordController::class, 'getMedicineRequester'])->name('medicine.requester');
 });

@@ -190,7 +190,8 @@ class InventoryController extends Controller
                 'reason' => 'nullable|string|max:255',
             ]);   
             $data['patient_id'] = $user->id; 
-            
+            $data['medication_status'] = "Pending"; 
+             
             foreach ($request->medicines as $medicine) {
 
                 $data['medicine_id'] = $medicine['medicine_id'];
@@ -198,7 +199,7 @@ class InventoryController extends Controller
 
                 $this->medicationContract->createOrUpdateMedication($data);
 
-                $this->ledgerContract->updateLedgerQuantity($data['medicine_id'], $data['quantity']);
+                // $this->ledgerContract->updateLedgerQuantity($data['medicine_id'], $data['quantity']);
             }
             
             DB::commit();

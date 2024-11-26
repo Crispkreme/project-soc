@@ -121,7 +121,7 @@ const MedicineRequesterModal = ({ showModal, toggleModal, medicines, selectedRef
 
         <div className="mt-4 flex justify-center">
           <PrimaryButton disabled={processing} className="px-8 py-2">
-            {processing ? 'Saving...' : 'Save Request'}
+            {processing ? 'Saving...' : 'Request Medicine'}
           </PrimaryButton>
         </div>
       </form>

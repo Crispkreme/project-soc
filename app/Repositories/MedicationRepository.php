@@ -26,6 +26,7 @@ class MedicationRepository implements MedicationContract
                 'medicine_id' => $data['medicine_id'],
                 'quantity' => $data['quantity'],
                 'reason' => $data['reason'],
+                'medication_status' => $data['medication_status'] ?? 'Pending',
             ]
         );
     }
@@ -43,6 +44,7 @@ class MedicationRepository implements MedicationContract
                     'medicine_id' => $medication->medicine_id,
                     'medicine_name' => $medication->medicine->medicine_name ?? null,
                     'reason' => $medication->reason,
+                    'medication_status' => $medication->medication_status,
                     'quantity' => $medication->quantity,
                     'created_at' => $medication->created_at,
                     'updated_at' => $medication->updated_at,
@@ -53,6 +55,29 @@ class MedicationRepository implements MedicationContract
     public function getAllMedication()
     {
         return $this->model
-            ->get();
+            ->with(['medicine'])
+            ->get()
+            ->map(function ($medication) {
+                return [
+                    'id' => $medication->id,
+                    'patient_id' => $medication->patient_id,
+                    'medicine_id' => $medication->medicine_id,
+                    'medicine_name' => $medication->medicine->medicine_name ?? null,
+                    'reason' => $medication->reason,
+                    'medication_status' => $medication->medication_status,
+                    'quantity' => $medication->quantity,
+                    'created_at' => $medication->created_at,
+                    'updated_at' => $medication->updated_at,
+                ];
+            });
+    }
+
+    public function updateMedicationStatusById($status, $id)
+    {
+        $appointment = $this->model->where('id', $id)->first();
+        if ($appointment) {
+            $appointment->update(['medication_status' => $status]);
+            return $appointment;
+        }
     }
 }

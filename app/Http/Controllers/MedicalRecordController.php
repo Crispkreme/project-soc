@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
@@ -494,10 +495,23 @@ class MedicalRecordController extends Controller
             return redirect()->route('login');
         }
 
-        $medicineRequesters = $this->medicationContract->getMedicationById($user->id);
+        $viewPath = match (Route::currentRouteName()) {
+            'admin.medicine.requester' => 'Admins/Medicines/Requester',
+            'patient.medicine.requester' => 'Patients/Requesters/Requester',
+            default => null,
+        };
+
+        if (!$viewPath) {
+            return redirect()->route('login');
+        }
+
+        $medicineRequesters = $user->role === 'Administration'
+            ? $this->medicationContract->getAllMedication()
+            : $this->medicationContract->getMedicationById($user->id);
+
         $medicines = $this->medicineContract->getAllMedicine();
         
-        return Inertia::render('Patients/Requesters/Requester', [
+        return Inertia::render($viewPath, [
             'medicineRequesters' => $medicineRequesters,
             'medicines' => $medicines,
         ]);
