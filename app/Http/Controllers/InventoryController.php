@@ -195,7 +195,7 @@ class InventoryController extends Controller
                 'reason' => 'nullable|string|max:255',
             ]);   
             $data['patient_id'] = $user->id; 
-            $data['medication_status'] = "Pending"; 
+            $data['medication_status'] = "Approve"; 
              
             foreach ($request->medicines as $medicine) {
 
