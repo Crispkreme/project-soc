@@ -16,7 +16,6 @@ const Activity = ({ barangayEvents, doctors, bhws }) => {
     const [filteredBarangayEvents, setFilteredBarangayEvents] = useState(barangayEvents);
     const [selectedBarangayEvent, setSelectedBarangayEvent] = useState(null);
 
-    // Toggle modal for viewing or editing events
     const toggleBarangayEventModal = (barangayEvent = null, isEditing = false, isViewing = false) => {
         setSelectedBarangayEvent(barangayEvent);
         setIsEditing(isEditing);
@@ -36,10 +35,9 @@ const Activity = ({ barangayEvents, doctors, bhws }) => {
             label: "Time", 
             render: (row) => {
                 const formatTime = (timeStr) => {
-                    // Handle invalid or empty times gracefully
                     if (!timeStr) return 'N/A';
                     
-                    const date = new Date(`1970-01-01T${timeStr}Z`); // Convert to Date object (UTC time)
+                    const date = new Date(`1970-01-01T${timeStr}Z`);
                     if (isNaN(date)) return 'Invalid Time';
                     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
                 };
@@ -62,7 +60,6 @@ const Activity = ({ barangayEvents, doctors, bhws }) => {
         },
     ];          
 
-    // Define table actions
     const barangayEventAction = [
         {
             label: "View",
@@ -78,7 +75,6 @@ const Activity = ({ barangayEvents, doctors, bhws }) => {
         },
     ];
 
-    // Handle search functionality
     const handleSearch = (e) => {
         const query = e.target.value;
         setSearchQuery(query);

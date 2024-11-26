@@ -12,6 +12,7 @@ use App\Contracts\HospitalizationContract;
 use App\Contracts\ImmunizationContract;
 use App\Contracts\InventoryContract;
 use App\Contracts\LedgerContract;
+use App\Contracts\LogContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
@@ -22,8 +23,7 @@ use App\Contracts\SurgicalContract;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
-use App\Models\Prescription;
-use App\Models\Referral;
+
 use App\Repositories\AppointmentRepository;
 use App\Repositories\BarangayEventRepository;
 use App\Repositories\BookingRepository;
@@ -34,6 +34,7 @@ use App\Repositories\HospitalRepository;
 use App\Repositories\ImmunizationRepository;
 use App\Repositories\InventoryRepository;
 use App\Repositories\LedgerRepository;
+use App\Repositories\LogRepository;
 use App\Repositories\MedicalRecordRepository;
 use App\Repositories\MedicationRepository;
 use App\Repositories\MedicineRepository;
@@ -69,6 +70,7 @@ class RepositoryProvider extends ServiceProvider
         ScheduleContract::class => ScheduleRepository::class,
         ReferralContract::class => ReferralRepository::class,
         PrescriptionContract::class => PrescriptionRepository::class,
+        LogContract::class => LogRepository::class,
     ];
 
     /**

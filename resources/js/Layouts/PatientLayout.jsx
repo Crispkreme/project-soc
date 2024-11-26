@@ -7,6 +7,7 @@ import { FaGripLines } from 'react-icons/fa';
 import Sidebar from '../Components/Sidebars/Sidebar';
 import { useSelector, useDispatch } from 'react-redux';
 import { closeSidebar } from '../reducers/sidebarSlice';
+import { LuBookMarked } from "react-icons/lu";
 import { IoSearch } from "react-icons/io5";
 
 const logo = "/assets/svg/logo.svg";
@@ -54,6 +55,7 @@ export default function PatientLayout({ children }) {
                 {text: "My Medical History", href: route('patient.show.record.histories'), route: '/patient/show/record/histories'},
             ]
         },
+        {icon: <LuBookMarked />,text: "Logs", href: route(`patient.logs`), route: '/patient/logs', sublinks: []},
     ] : [
         {icon: <PiAddressBookBold />,text: "Schedules", href: route('practitioner.book.appointments'), route: '/practitioner/book/appointments',
         sublinks: [

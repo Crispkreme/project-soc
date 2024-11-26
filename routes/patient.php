@@ -54,4 +54,5 @@ Route::middleware(['auth', 'verified', 'patient'])
     Route::get('/medical/record/{id}', [MedicalRecordController::class, 'getPatientMedicalRecord'])->name('medical.record');
 
     Route::get('/medicine/requester', [MedicalRecordController::class, 'getMedicineRequester'])->name('medicine.requester');
+    Route::get('/logs', [DashboardController::class, 'getUserLogs'])->name('logs');
 });

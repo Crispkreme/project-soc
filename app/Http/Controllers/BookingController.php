@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\AppointmentContract;
 use App\Contracts\BookingContract;
+use App\Contracts\LogContract;
 use App\Contracts\PrescriptionContract;
 use App\Contracts\ReferralContract;
 use Exception;
@@ -20,14 +21,17 @@ class BookingController extends Controller
     protected $referralContract;
     protected $prescriptionContract;
     protected $appointmentContract;
+    protected $logContract;
 
     public function __construct(
         BookingContract $bookingContract,
+        LogContract $logContract,
         ReferralContract $referralContract,
         PrescriptionContract $prescriptionContract,
         AppointmentContract $appointmentContract,
     ) {
         $this->bookingContract = $bookingContract;
+        $this->logContract = $logContract;
         $this->prescriptionContract = $prescriptionContract;
         $this->appointmentContract = $appointmentContract;
         $this->referralContract = $referralContract;
@@ -77,10 +81,6 @@ class BookingController extends Controller
             DB::beginTransaction();
 
             $data = $request->validate([  
-
-                '' => 'nullable|date',
-                '' => 'nullable|date_format:H:i:s',
-                '' => 'nullable|date_format:H:i:s',
                 'approved_date' => 'nullable|date',
                 'booking_status' => 'nullable|in:Approve,Pending,Success,Failed',
             ]);     
@@ -99,9 +99,20 @@ class BookingController extends Controller
                 $this->bookingContract->createOrUpdateBooking($data);
             }
 
+            $logData = [  
+                'user_id' => $user->id,
+                'message' => 'has booked an appointment',
+                'log_status' => 'Pending',
+            ]; 
+
+            $this->logContract->updateOrCreateLog($logData);
+
             DB::commit();
             
-            Session::flash('success', 'Booking updated successfully!');
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Appointment successfully added!',
+            ]);
 
         } catch (Exception $e) {
             

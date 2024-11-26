@@ -88,7 +88,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
               }}
               events={bookingSchedule}
               selectable={true}
-              eventClick={handleEventClick} // Add eventClick handler
+              eventClick={handleEventClick}
               buttonText={{
                 today: 'Today',
                 month: 'Month',

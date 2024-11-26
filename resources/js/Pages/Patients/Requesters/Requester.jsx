@@ -45,58 +45,38 @@ const Requester = ({ medicineRequesters, medicines }) => {
   return (
     <PatientLayout>
       <Suspense fallback={<div>Loading...</div>}>
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="font-medium">Manage Medicine Requester</h2>
-          <button
-            type="button"
-            className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
-            onClick={() => toggleModal()} // Open the modal to create a new request
-          >
-            <HiOutlinePlusSm className="mr-1" /> Request Medicine
-          </button>
-        </div>
-
-        <div className="pb-4 bg-white">
-          <label htmlFor="table-search" className="sr-only">Search</label>
-          <div className="relative mt-1">
-            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-              <svg
-                className="w-4 h-4 text-gray-500"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                />
-              </svg>
-            </div>
-            <input
-              type="text"
-              id="table-search"
-              value={searchQuery}
-              onChange={handleSearch}
-              className="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Search for items"
+        <div className="bg-white border border-gray-100 shadow-md p-6 rounded-md">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="font-medium">Manage Medicine Requester</h2>
+            <button
+              type="button"
+              className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+              onClick={() => toggleModal()}
+            >
+              <HiOutlinePlusSm className="mr-1" /> Request Medicine
+            </button>
+          </div>
+          <div className="pb-4">
+              <div className="relative">
+                  <input
+                      type="text"
+                      id="table-search"
+                      className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Search for inventory"
+                      value={searchQuery}
+                      onChange={handleSearch}
+                  />
+              </div>
+          </div>
+          <div className="overflow-x-auto">
+            <Table
+              columns={medicineRequesterColumn}
+              data={filteredMedicineRequester}
+              noDataMessage="No Medicine Request Available."
             />
           </div>
         </div>
 
-        <Table
-          columns={medicineRequesterColumn}
-          data={filteredMedicineRequester}
-          noDataMessage="No Medicine Request Available."
-        />
-      </div>
-
-      {/* Modal */}
-      
         {showModal && (
           <MedicineRequesterModal
             showModal={showModal}

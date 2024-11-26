@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->text('message');
+            $table->enum('log_status', ['Pending', 'Approve', 'Success', 'Failed'])
+                  ->nullable()
+                  ->default('Pending');
             $table->timestamps();
         });
     }
