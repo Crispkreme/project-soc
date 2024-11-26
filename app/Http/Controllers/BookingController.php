@@ -100,7 +100,7 @@ class BookingController extends Controller
             }
 
             $logData = [  
-                'user_id' => $user->id,
+                'patient_id' => $user->id,
                 'message' => 'has booked an appointment',
                 'log_status' => 'Pending',
             ]; 
@@ -136,8 +136,17 @@ class BookingController extends Controller
             return redirect()->route('login');
         }
 
-        $this->bookingContract->updateBookingstatus('Pending', $id, $user->id);
+        $data = $this->bookingContract->updateBookingstatus('Pending', $id, $user->id);
 
+        $logData = [  
+            'doctor_id' => $user->id,
+            'patient_id' => $data->patient_id,
+            'message' => 'has approved booked your appointment',
+            'log_status' => 'Success',
+        ]; 
+
+        $this->logContract->updateOrCreateLog($logData);
+        
         return response()->json([
             'success' => 'success',
             'message' => 'Account added successfully!',

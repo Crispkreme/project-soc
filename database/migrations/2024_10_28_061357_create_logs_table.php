@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('doctor_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('patient_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->text('message');
             $table->enum('log_status', ['Pending', 'Approve', 'Success', 'Failed'])
                   ->nullable()

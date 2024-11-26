@@ -6,18 +6,19 @@ use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
 use App\Contracts\HospitalContract;
+use App\Contracts\LogContract;
 use App\Contracts\MedicineContract;
 use App\Contracts\PrescriptionContract;
 use App\Contracts\ReferralContract;
-use App\Contracts\ScheduleContract;
 
+use App\Contracts\ScheduleContract;
 use App\Contracts\UserDetailContract;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
@@ -32,6 +33,7 @@ class AppointmentController extends Controller
     protected $hospitalContract;
     protected $referralContract;
     protected $medicineContract;
+    protected $logContract;
     protected $prescriptionContract;
 
     public function __construct(
@@ -43,12 +45,14 @@ class AppointmentController extends Controller
         AppointmentContract $appointmentContract,
         ScheduleContract $scheduleContract,
         HospitalContract $hospitalContract,
+        LogContract $logContract,
         PrescriptionContract $prescriptionContract,
     ) {
         $this->prescriptionContract = $prescriptionContract;
         $this->medicineContract = $medicineContract;
         $this->referralContract = $referralContract;
         $this->hospitalContract = $hospitalContract;
+        $this->logContract = $logContract;
         $this->userDetailContract = $userDetailContract;
         $this->barangayEventContract = $barangayEventContract;
         $this->bookingContract = $bookingContract;
@@ -268,6 +272,15 @@ class AppointmentController extends Controller
   
             $this->referralContract->updateOrCreateReferral($data);
 
+            $logData = [  
+                'doctor_id' => $user->id,
+                'patient_id' => $patientId,
+                'message' => 'has created a referral to other hospital',
+                'log_status' => 'Success',
+            ]; 
+    
+            $this->logContract->updateOrCreateLog($logData);
+
             DB::commit();
             
             return response()->json([
@@ -321,6 +334,15 @@ class AppointmentController extends Controller
             $this->bookingContract->updateBookingstatus('Success', $id, $user->id);
 
             $this->appointmentContract->updateAppointmentStatusById('Success', $id);
+
+            $logData = [  
+                'doctor_id' => $user->id,
+                'patient_id' => $patientId,
+                'message' => 'has created a prescription',
+                'log_status' => 'Success',
+            ]; 
+    
+            $this->logContract->updateOrCreateLog($logData);
             
             DB::commit();
             

@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/react';
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const StatusButton = React.lazy(() => import("@/Components/Buttons/StatusButton"));
-const ApproveModal = React.lazy(() => import("./ApproveModal"));
+const ApproveModal = React.lazy(() => import("@/Components/Forms/ApproveModal"));
 
 const Appointment = ({ appointments }) => {
 

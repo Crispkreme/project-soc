@@ -1,24 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Inertia } from '@inertiajs/inertia';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
-const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
 const InputLabel = React.lazy(() => import("@/Components/Inputs/InputLabel"));
 const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButton"));
 const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 
 const ApproveModal = ({ showModal, toggleModal, selectedAppointment }) => {
-    
+
+    const [description, setDescription] = useState(selectedAppointment?.notes || '');
+    const [processing, setProcessing] = useState(false);
+
     const submit = async (e) => {
         e.preventDefault();
-        
+        setProcessing(true);
+
         try {
-            await Inertia.post(route('admin.approve.appointments', { id: selectedAppointment?.id }));
+            await Inertia.post(
+                route('admin.approve.appointments', { id: selectedAppointment?.id }),
+                { description }
+            );
             toggleModal();
         } catch (error) {
             console.error("Error submitting appointment approval:", error);
+        } finally {
+            setProcessing(false);
         }
     };
 
@@ -47,7 +55,7 @@ const ApproveModal = ({ showModal, toggleModal, selectedAppointment }) => {
                                 value={selectedAppointment?.patient_name}
                                 type="text"
                                 className="w-full border p-2 rounded"
-                                disabled={true}
+                                disabled
                             />
                         </div>
                         <div className="mt-4">
@@ -56,7 +64,7 @@ const ApproveModal = ({ showModal, toggleModal, selectedAppointment }) => {
                                 value={selectedAppointment?.title}
                                 type="text"
                                 className="w-full border p-2 rounded"
-                                disabled={true}
+                                disabled
                             />
                         </div>
                         <div className="mt-4">
@@ -65,7 +73,7 @@ const ApproveModal = ({ showModal, toggleModal, selectedAppointment }) => {
                                 value={formatDate(selectedAppointment?.appointment_date)}
                                 type="text"
                                 className="w-full border p-2 rounded"
-                                disabled={true}
+                                disabled
                             />
                         </div>
                         <div className="mt-4">
@@ -74,7 +82,7 @@ const ApproveModal = ({ showModal, toggleModal, selectedAppointment }) => {
                                 value={`${formatTimeToAMPM(selectedAppointment?.appointment_start)} - ${formatTimeToAMPM(selectedAppointment?.appointment_end)}`}
                                 type="text"
                                 className="w-full border p-2 rounded"
-                                disabled={true}
+                                disabled
                             />
                         </div>
                         <div className="mt-4">
@@ -83,34 +91,25 @@ const ApproveModal = ({ showModal, toggleModal, selectedAppointment }) => {
                                 id="description"
                                 name="description"
                                 rows={5}
-                                placeholder="What the appointment description"
-                                value={selectedAppointment?.notes}
-                                className="mt-1 block w-full"
-                                helperText="Tell us what this medicine is used for"
-                                disabled={true}
+                                placeholder="Enter the appointment description"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                className="mt-1 block w-full border rounded"
                             />
                         </div>
                     </div>
                 </div>
                 <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                    <span className="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                        <button 
-                            type="button" 
-                            onClick={submit} 
-                            className="inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-green-600 text-base leading-6 font-medium text-white shadow-sm hover:bg-green-500 focus:outline-none focus:shadow-outline-green transition ease-in-out duration-150 sm:text-sm sm:leading-5"
-                        >
-                            Approve
-                        </button>
-                    </span>
-                    <span className="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
-                        <button 
-                            type="button" 
-                            onClick={toggleModal} 
-                            className="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5"
-                        >
-                            Cancel
-                        </button>
-                    </span>
+                    <PrimaryButton onClick={submit} className="ml-4" disabled={processing}>
+                        {processing ? 'Processing...' : 'Approve'}
+                    </PrimaryButton>
+                    <button
+                        type="button"
+                        onClick={toggleModal}
+                        className="mt-3 sm:mt-0 sm:ml-3 w-full sm:w-auto inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-gray-700 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition duration-150"
+                    >
+                        Cancel
+                    </button>
                 </div>
             </div>
         </Modal>

@@ -58,7 +58,7 @@ class DashboardController extends Controller
             return redirect()->route('login');
         }
 
-        $logs = $this->logContract->getLogById($user->id);
+        $logs = $this->logContract->getAllPatientLog($user->id);
 
         $viewPath = match ($accountType) {
             // 'Administration' => 'Admins/Accounts/Admin',

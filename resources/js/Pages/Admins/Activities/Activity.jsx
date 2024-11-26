@@ -23,7 +23,6 @@ const Activity = ({ barangayEvents, doctors, bhws }) => {
         setShowModal(!showModal);
     };    
 
-    // Define table columns
     const barangayEventColumn = [
         { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "doctor_name", label: "Doctor Name" },

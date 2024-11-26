@@ -4,7 +4,6 @@ import Table from "@/Components/Table";
 
 const Log = ({ logs }) => {
     console.log(logs);
-
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredLog, setFilteredLog] = useState(logs);
 
@@ -20,10 +19,15 @@ const Log = ({ logs }) => {
 
     const logColumn = [
         { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+        {
+            key: "doctor_name",
+            label: "Name",
+            render: (value, row) => row.doctor_name || row.patient_name || "N/A",
+        },
         { key: "message", label: "Message" },
         { key: "log_status", label: "Status" },
         { key: "created_at", label: "Created At", render: (date) => formatDate(date) },
-    ];
+    ];    
 
     const handleSearch = (e) => {
         const query = e.target.value.trim();

@@ -84,5 +84,6 @@ class BookingRepository implements BookingContract
             'booking_status' => $status,
             'approved_date' => now(),
         ]);
+        return $booking;
     }
 }
