@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\InventoryContract;
 use App\Contracts\LedgerContract;
+use App\Contracts\LogContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
 use Exception;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
+use Pest\Support\NullClosure;
 
 class InventoryController extends Controller
 {
@@ -20,17 +22,20 @@ class InventoryController extends Controller
     protected $ledgerContract;
     protected $medicineContract;
     protected $medicationContract;
+    protected $logContract;
 
     public function __construct(
         InventoryContract $inventoryContract,
         LedgerContract $ledgerContract,
         MedicineContract $medicineContract,
         MedicationContract $medicationContract,
+        LogContract $logContract,
     ) {
         $this->inventoryContract = $inventoryContract;
         $this->ledgerContract = $ledgerContract;
         $this->medicineContract = $medicineContract;
         $this->medicationContract = $medicationContract;
+        $this->logContract = $logContract;
     }
 
     public function getAllInventory()
@@ -43,7 +48,7 @@ class InventoryController extends Controller
         
         $inventories = $this->ledgerContract->getAllLedger();
         $medicines = $this->medicineContract->getAllMedicineName();
-
+  
         return Inertia::render('Admins/Inventories/Inventory', [
             'inventories' => $inventories,
             'medicines' => $medicines,
@@ -221,6 +226,105 @@ class InventoryController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => 'Error please try again.',
+            ]);
+        }
+    }
+
+    public function approveMedication($id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        DB::beginTransaction();
+        
+        try {
+            
+            $medicine = $this->medicationContract->getSpecificMedicationById($id);
+            $medicineId = $medicine->medicine_id;
+            $quantity = $medicine->quantity;
+
+            $this->medicationContract->updateMedicationStatusById('Success', $id);
+            // dd($data);
+            if (!$medicine) {
+                return response()->json([
+                    'error' => 'error',
+                    'message' => 'Medication not found.'
+                ]);
+            }
+
+            $inventories = $this->inventoryContract->getAllInventoryQuantityById($medicineId);
+            if (!$inventories) {
+                return response()->json([
+                    'error' => 'error',
+                    'message' => 'Inventory data not found.'
+                ]);
+            }
+            
+            $ledgers = $this->ledgerContract->getLedgerByMedicineId($medicineId);
+            if (!$ledgers) {
+                return response()->json([
+                    'error' => 'error',
+                    'message' => 'Ledger data not found.'
+                ]);
+            }
+            
+            if ($ledgers->in_stock < $quantity) {
+                return response()->json([
+                    'error' => 'error',
+                    'message' => 'Insufficient stock available.'
+                ]);
+            }
+
+            $inStock = $ledgers->in_stock - $quantity;
+            $sold = $quantity;
+
+            $ledgerData = [
+                'medicine_id' => $medicineId,
+                'sold' => $sold + $ledgers->sold,
+                'in_stock' => $inStock,
+            ];
+            $ledgerData['id'] = $ledgers->id;
+            $this->ledgerContract->createOrUpdateLedger($ledgerData);
+            
+            $inventoryData = [
+                'medicine_id' => $inventories->medicine_id,
+                'encode_by_id' => $inventories->encode_by_id,
+                'usage' => $inventories->usage,
+                'quantity' => $inStock,
+            ];
+            $inventoryData['id'] = $inventories->id;
+            $data = $this->inventoryContract->createOrUpdateInventory($inventoryData);
+
+            $logData = [
+                'doctor_id' => $user->id,
+                'patient_id' => $medicine->patient_id, 
+                'message' => 'has approved your medicine request',
+                'log_status' => 'Success',
+            ];
+
+            $this->logContract->updateOrCreateLog($logData);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'success',
+                'message' => 'Medication approved and inventory updated successfully!'
+            ]);
+
+        } catch (Exception $e) {
+            DB::rollback();
+
+            Log::error('Error during approveMedication: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => 'error',
+                'message' => 'An error occurred during approveMedication.'
             ]);
         }
     }

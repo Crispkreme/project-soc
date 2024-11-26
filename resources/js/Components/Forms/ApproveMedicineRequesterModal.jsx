@@ -9,7 +9,6 @@ const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 
 const ApproveMedicineRequesterModal = ({ showModal, toggleModal, selectedMedicineRequester }) => {
-  const [description, setDescription] = useState(selectedMedicineRequester?.reason || '');
   const [processing, setProcessing] = useState(false);
 
   const submit = async (e) => {
@@ -18,8 +17,7 @@ const ApproveMedicineRequesterModal = ({ showModal, toggleModal, selectedMedicin
 
     try {
       await Inertia.post(
-        route('admin.approve.medicine', { id: selectedMedicineRequester?.id }),
-        { description }
+        route('medication.approve', { id: selectedMedicineRequester?.id })
       );
       toggleModal();
     } catch (error) {
@@ -44,7 +42,7 @@ const ApproveMedicineRequesterModal = ({ showModal, toggleModal, selectedMedicin
             {selectedMedicineRequester ? (
               <>
                 <div className="mt-4">
-                  <InputLabel value="Patient Name" />
+                  <InputLabel value="Medicine Name" />
                   <TextInput
                     value={selectedMedicineRequester?.patient_name || ''}
                     type="text"
@@ -73,10 +71,10 @@ const ApproveMedicineRequesterModal = ({ showModal, toggleModal, selectedMedicin
                 <div className="mt-4">
                   <InputLabel value="Reason" />
                   <Textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={selectedMedicineRequester?.reason || 'N/A'}
                     className="mt-1 block w-full border rounded"
                     rows={5}
+                    disabled
                   />
                 </div>
               </>

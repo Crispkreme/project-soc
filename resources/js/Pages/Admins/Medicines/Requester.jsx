@@ -1,101 +1,98 @@
-import React, { useState, lazy, Suspense } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
-import Table from "@/Components/Table";
-import { Head } from "@inertiajs/react";
+import React, { Suspense, useState } from 'react';
+import { Head } from '@inertiajs/react';
 
-const ApproveMedicineRequesterModal = lazy(() => import("@/Components/Forms/ApproveMedicineRequesterModal"));
-const StatusButton = lazy(() => import("@/Components/Buttons/StatusButton"));
+const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
+const StatusButton = React.lazy(() => import("@/Components/Buttons/StatusButton"));
+const ApproveMedicineRequesterModal = React.lazy(() => import("@/Components/Forms/ApproveMedicineRequesterModal"));
 
 const Requester = ({ medicineRequesters, medicines }) => {
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredMedicineRequester, setFilteredMedicineRequester] = useState(medicineRequesters);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedMedicineRequester, setSelectedMedicineRequester] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedMedicineRequester, setSelectedMedicineRequester] = useState(null);
 
-  const formatDate = (date) => {
-    if (!date) return '';
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(date).toLocaleDateString('en-US', options);
-  };
+    const toggleModal = (requester = null) => {
+        setSelectedMedicineRequester(requester);
+        setShowModal(!showModal);
+    };
 
-  const toggleMedicineRequesterModal = (requester = null) => {
-    setSelectedMedicineRequester(requester);
-    setShowModal((prev) => !prev);
-  };
+    const closeModal = () => {
+        setShowModal(false);
+        setSelectedMedicineRequester(null);
+    };
 
-  const handleSearch = (e) => {
-    const query = e.target.value.trim().toLowerCase();
-    setSearchQuery(query);
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <AdminLayout>
+                <Head title="Manage Medicine Requests" />
 
-    const filtered = medicineRequesters.filter((requester) =>
-      (requester.medicine_name || "").toLowerCase().includes(query) ||
-      (requester.reason || "").toLowerCase().includes(query)
+                <div className="grid grid-cols-1 gap-6 mb-6">
+                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                        <div className="flex justify-between mb-4 items-start">
+                            <div className="font-medium">Manage Medicine Requests</div>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full min-w-[540px]" data-tab-for="medicineRequesters" data-page="active">
+                                <thead>
+                                    <tr>
+                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tl-md rounded-bl-md">ID</th>
+                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Patient Name</th>
+                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Medicine</th>
+                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Quantity</th>
+                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Reason</th>
+                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Date</th>
+                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tr-md rounded-br-md">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {medicineRequesters.length > 0 ? medicineRequesters.map((requester, index) => (
+                                        <tr key={`${requester.id}-${requester.medicine_name}`}>
+                                            <td className="py-2 px-4 border-b border-b-gray-50">
+                                                <span className="text-[13px] font-medium text-gray-400">{index + 1}</span>
+                                            </td>
+                                            <td className="py-2 px-4 border-b border-b-gray-50">
+                                                <span className="text-[13px] font-medium text-gray-400">{requester.patient_name}</span>
+                                            </td>
+                                            <td className="py-2 px-4 border-b border-b-gray-50">
+                                                <span className="text-[13px] font-medium text-gray-400">{requester.medicine_name}</span>
+                                            </td>
+                                            <td className="py-2 px-4 border-b border-b-gray-50">
+                                                <span className="text-[13px] font-medium text-gray-400">{requester.quantity}</span>
+                                            </td>
+                                            <td className="py-2 px-4 border-b border-b-gray-50">
+                                                <span className="text-[13px] font-medium text-gray-400">{requester.reason}</span>
+                                            </td>
+                                            <td className="py-2 px-4 border-b border-b-gray-50">
+                                                <span className="text-[13px] font-medium text-gray-400">{new Date(requester.created_at).toLocaleDateString()}</span>
+                                            </td>
+                                            <td className="py-2 px-4 border-b border-b-gray-50">
+                                                <StatusButton
+                                                    status={requester.medication_status}
+                                                    onClick={() => toggleModal(requester)}
+                                                />
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr>
+                                            <td colSpan={6} className="text-center py-4 text-gray-500">No Medicine Requests Available.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {showModal && selectedMedicineRequester && (
+                    <ApproveMedicineRequesterModal
+                        showModal={showModal}
+                        toggleModal={closeModal}
+                        selectedMedicineRequester={selectedMedicineRequester}
+                        medicines={medicines}
+                    />
+                )}
+            </AdminLayout>
+        </Suspense>
     );
-
-    setFilteredMedicineRequester(filtered);
-  };
-
-  const medicineRequesterColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
-    { key: "medicine_name", label: "Medicine" },
-    { key: "quantity", label: "Quantity" },
-    { key: "reason", label: "Reason" },
-    { key: "created_at", label: "Created At", render: (date) => formatDate(date) },
-    { 
-      key: "action", 
-      label: "Action", 
-      render: (row) => (
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          onClick={() => {
-            console.log("Row data:", row);
-            toggleMedicineRequesterModal(row);
-          }}
-        >
-          Approve
-        </button>
-      )
-    },
-  ];
-
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AdminLayout>
-        <Head title="Manage Medicines" />
-        <div className="bg-white border border-gray-100 shadow-md p-6 rounded-md">
-          <div className="pb-4">
-            <div className="relative">
-              <input
-                type="text"
-                id="table-search"
-                className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Search for medicine requests"
-                value={searchQuery}
-                onChange={handleSearch}
-              />
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <Table
-              columns={medicineRequesterColumn}
-              data={filteredMedicineRequester}
-              noDataMessage="No Medicine Request Available."
-            />
-          </div>
-        </div>
-
-        {showModal && (
-          <ApproveMedicineRequesterModal
-            showModal={showModal}
-            toggleModal={toggleMedicineRequesterModal}
-            selectedMedicineRequester={selectedMedicineRequester}
-            medicines={medicines}
-          />
-        )}
-      </AdminLayout>
-    </Suspense>
-  );
 };
 
 export default Requester;

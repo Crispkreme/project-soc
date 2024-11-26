@@ -75,6 +75,8 @@ Route::post('/prescriptions/update/{id}', [AppointmentController::class, 'update
 
 Route::post('/medications', [InventoryController::class, 'updateOrCreateMedication'])->name('medications.store');
 Route::put('/medications/{id}', [InventoryController::class, 'updateOrCreateMedication'])->name('medications.update');
+Route::post('/medication/approve/{id}', [InventoryController::class, 'approveMedication'])->name('medication.approve');
+
 
 Route::post('/barangay/event/create', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.create');
 Route::post('/barangay/event/update/{id}', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.update');

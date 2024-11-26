@@ -55,12 +55,18 @@ class MedicationRepository implements MedicationContract
     public function getAllMedication()
     {
         return $this->model
-            ->with(['medicine'])
+            ->with(['medicine', 'patient.details'])
             ->get()
             ->map(function ($medication) {
+                $patientDetails = $medication->patient->details ?? null;
+                $patientName = $patientDetails 
+                    ? $patientDetails->firstname . ' ' . $patientDetails->lastname 
+                    : null;
+
                 return [
                     'id' => $medication->id,
                     'patient_id' => $medication->patient_id,
+                    'patient_name' => $patientName,
                     'medicine_id' => $medication->medicine_id,
                     'medicine_name' => $medication->medicine->medicine_name ?? null,
                     'reason' => $medication->reason,
@@ -79,5 +85,11 @@ class MedicationRepository implements MedicationContract
             $appointment->update(['medication_status' => $status]);
             return $appointment;
         }
+    }
+
+    public function getSpecificMedicationById($id)
+    {
+        
+        return $this->model->where('id', $id)->first();
     }
 }

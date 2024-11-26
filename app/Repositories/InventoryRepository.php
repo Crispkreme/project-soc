@@ -52,4 +52,11 @@ class InventoryRepository implements InventoryContract
             )
             ->get();
     }
+
+    public function getAllInventoryQuantityById($id)
+    {
+        return $this->model
+            ->where('medicine_id', $id)
+            ->first();
+    }
 }
