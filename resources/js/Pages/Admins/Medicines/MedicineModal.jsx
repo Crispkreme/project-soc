@@ -96,7 +96,7 @@ const MedicineModal = ({ showModal, toggleModal, selectedMedicine, isEditing, is
             <InputError message={errors.medicine_name} className="mt-2" />
           </div>
           <div className="mt-4">
-            <InputLabel htmlFor="description" value="Medicine Name" />
+            <InputLabel htmlFor="description" value="Medicine Description" />
             <Textarea
               id="description"
               name="description"

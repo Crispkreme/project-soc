@@ -32,12 +32,12 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
 
     const handleReferralClick = (row) => {
         setSelectedReferral(row);
-        setShowReferralModal(true); // Show Referral Modal
+        setShowReferralModal(true);
     };
 
     const handlePrescriptionClick = (row) => {
-        setSelectedReferral(row); // Set the selected row data
-        setShowPrescriptionModal(true); // Show Prescription Modal
+        setSelectedReferral(row);
+        setShowPrescriptionModal(true);
     };
 
     const toggleReferralModal = () => {
@@ -47,7 +47,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
 
     const togglePrescriptionModal = () => {
         setShowPrescriptionModal(false);
-        setSelectedReferral(null); // Clear selected referral when closing the modal
+        setSelectedReferral(null);
     };
 
     const BookingColumn = [
