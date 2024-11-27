@@ -1,136 +1,322 @@
-import React, { useState } from "react";
-import PatientLayout from "@/Layouts/PatientLayout";
+import React, { useState, Suspense } from "react";
 import { format } from "date-fns";
+import { LuClipboardEdit } from "react-icons/lu";
+import { HiOutlinePlusSm } from "react-icons/hi";
 
-const Medical = ({ medicalRecords, hospitalizations, immunizations, testResults, patient }) => {
-    const [visibleSections, setVisibleSections] = useState([]);
+const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
+const Accordion = React.lazy(() => import("@/Components/Accordion"));
+const Table = React.lazy(() => import("@/Components/Table"));
 
-    const toggleVisibility = (idx) => {
-        setVisibleSections((prev) =>
-            prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
-        );
+const HospitalizationModal = React.lazy(() =>
+    import("@/Components/Forms/HospitalizationModal")
+);
+const ImmunizationModal = React.lazy(() =>
+    import("@/Components/Forms/ImmunizationModal")
+);
+const MedicalRecordModal = React.lazy(() =>
+    import("@/Components/Forms/MedicalRecordModal")
+);
+const TestResultModal = React.lazy(() =>
+    import("@/Components/Forms/TestResultModal")
+);
+
+const Medical = ({
+    hospitals,
+    medicines,
+    patients,
+    doctors,
+    medicalRecords,
+    hospitalizations,
+    immunizations,
+    testResults,
+}) => {
+    const [showTestResultModal, setShowTestResultModal] = useState(false);
+    const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
+    const [showImmunizationModal, setShowImmunizationModal] = useState(false);
+    const [showHospitalizationModal, setShowHospitalizationModal] =
+        useState(false);
+
+    const [selectedTestResult, setSelectedTestResult] = useState(null);
+    const [selectedMedicalRecord, setSelectedMedicalRecord] = useState(null);
+    const [selectedImmunization, setSelectedImmunization] = useState(null);
+    const [selectedHospitalization, setSelectedHospitalization] =
+        useState(null);
+
+    const toggleTestResultModal = (testResult = null) => {
+        setSelectedTestResult(testResult);
+        setShowTestResultModal((prev) => !prev);
+    };
+    const toggleMedicalRecordModal = (medicalRecord = null) => {
+        setSelectedMedicalRecord(medicalRecord);
+        setShowMedicalRecordModal((prev) => !prev);
+    };
+    const toggleImmunizationModal = (immunization = null) => {
+        setSelectedImmunization(immunization);
+        setShowImmunizationModal((prev) => !prev);
+    };
+    const toggleHospitalizationModal = (hospitalization = null) => {
+        setSelectedHospitalization(hospitalization);
+        setShowHospitalizationModal((prev) => !prev);
     };
 
-    const records = [
+    const testResultColumn = [
+        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+        { key: "name", label: "Test" },
+        { key: "result", label: "Result" },
         {
-            header: "TEST RESULTS",
-            data: testResults,
-            columns: [
-                { label: "ID", render: (_, idx) => idx + 1 },
-                { label: "Test", accessor: "name" },
-                { label: "Result", accessor: "result" },
-                { label: "Date", accessor: "created_at", format: (date) => format(new Date(date), "MMMM d, yyyy") },
-            ],
+            key: "created_at",
+            label: "Date",
+            render: (value) => format(new Date(value), "MMMM d, yyyy"),
         },
+    ];
+    const medicalRecordColumn = [
+        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+        { key: "diagnosis", label: "Diagnosis" },
+        { key: "medicine.medicine_name", label: "Medication" },
         {
-            header: "IMMUNIZATION RECORDS",
-            data: immunizations,
-            columns: [
-                { label: "ID", render: (_, idx) => idx + 1 },
-                { label: "Immunization", accessor: "immunization" },
-                { label: "Doctor", accessor: "doctor_name" },
-                { label: "Date", accessor: "created_at", format: (date) => format(new Date(date), "MMMM d, yyyy") },
-            ],
+            key: "created_at",
+            label: "Date",
+            render: (value) => format(new Date(value), "MMMM d, yyyy"),
         },
+    ];
+    const immunizationColumn = [
+        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+        { key: "immunization", label: "Immunization" },
+        { key: "doctor_name", label: "Doctor" },
         {
-            header: "HOSPITALIZATION RECORDS",
-            data: hospitalizations,
-            columns: [
-                { label: "ID", render: (_, idx) => idx + 1 },
-                { label: "Diagnosis", accessor: "diagnosis" },
-                { label: "Hospital", accessor: "hospital_name" },
-                { label: "Doctor", accessor: "doctor_name" },
-                { label: "Date", accessor: "created_at", format: (date) => format(new Date(date), "MMMM d, yyyy") },
-            ],
+            key: "created_at",
+            label: "Date",
+            render: (value) => format(new Date(value), "MMMM d, yyyy"),
         },
+    ];
+    const hospitalizationColumn = [
+        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+        { key: "diagnosis", label: "Diagnosis" },
+        { key: "hospital_name", label: "Hospital" },
+        { key: "doctor_name", label: "Doctor" },
         {
-            header: "PERSONAL RECORDS",
-            data: medicalRecords,
-            columns: [
-                { label: "ID", render: (_, idx) => idx + 1 },
-                { label: "Diagnosis", accessor: "diagnosis" },
-                { label: "Medication", accessor: "medicine.medicine_name" },
-                { label: "Date", accessor: "created_at", format: (date) => format(new Date(date), "MMMM d, yyyy") },
-            ],
+            key: "created_at",
+            label: "Date",
+            render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+
+    const immunizationAction = [
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleImmunizationModal(row, true, false, row.id),
+        },
+    ];
+
+    const hospitalizationAction = [
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) =>
+                toggleHospitalizationModal(row, true, false, row.id),
+        },
+    ];
+
+    const testResultAction = [
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleTestResultModal(row, true, false, row.id),
+        },
+    ];
+
+    const medicalRecordAction = [
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) =>
+                toggleMedicalRecordModal(row, true, false, row.id),
         },
     ];
 
     return (
-        <PatientLayout>
-            <div className="p-4 md:p-8 relative">
-                {records.map((record, idx) => (
-                    <section
-                        key={idx}
-                        className={`transition relative bg-white w-full border border-black rounded-xl ${
-                            visibleSections.includes(idx) ? "z-50" : "z-0"
-                        }`}
-                    >
-                        <div
-                            onClick={() => toggleVisibility(idx)}
-                            className="header bg-secondary-bg py-2 px-4 rounded-t-xl cursor-pointer"
-                        >
-                            {record.header}
+        <Suspense fallback={<div>Loading...</div>}>
+            <PatientLayout>
+                <div className="grid grid-cols-1 gap-6 mb-6">
+                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                        <div className="flex justify-between mb-4 items-start">
+                            <div className="font-medium">Manage Patient Record</div>
                         </div>
-                        {visibleSections.includes(idx) && (
-                            <div className="py-4 px-8 flex flex-col">
-                                <table className="w-full min-w-[540px]">
-                                    <thead>
-                                        <tr>
-                                            {record.columns.map((col, colIdx) => (
-                                                <th
-                                                    key={colIdx}
-                                                    className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left"
+
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Test Result">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="overflow-x-auto">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h2 className="font-medium">
+                                                    Manage Test Result
+                                                </h2>
+                                                <button
+                                                    type="button"
+                                                    className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                    onClick={() =>
+                                                        toggleTestResultModal(null)
+                                                    }
                                                 >
-                                                    {col.label}
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {record.data.length > 0 ? (
-                                            record.data.map((item, rowIdx) => (
-                                                <tr key={rowIdx}>
-                                                    {record.columns.map((col, colIdx) => (
-                                                        <td
-                                                            key={colIdx}
-                                                            className="py-2 px-4 border-b border-b-gray-50"
-                                                        >
-                                                            <span className="text-[13px] font-medium text-gray-400">
-                                                                {col.render
-                                                                    ? col.render(item, rowIdx)
-                                                                    : col.format
-                                                                    ? col.format(item[col.accessor])
-                                                                    : col.accessor.includes(".")
-                                                                    ? col.accessor
-                                                                          .split(".")
-                                                                          .reduce(
-                                                                              (obj, key) => obj?.[key],
-                                                                              item
-                                                                          )
-                                                                    : item[col.accessor]}
-                                                            </span>
-                                                        </td>
-                                                    ))}
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td
-                                                    colSpan={record.columns.length}
-                                                    className="text-center py-4 text-gray-500"
+                                                    <HiOutlinePlusSm className="mr-1" />{" "}
+                                                    Add Test Result
+                                                </button>
+                                            </div>
+                                            <Table
+                                                columns={testResultColumn}
+                                                data={testResults}
+                                                actions={testResultAction}
+                                                noDataMessage="No Test Result Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
+                        </div>
+
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Immunization Records">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="overflow-x-auto">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h2 className="font-medium">
+                                                    Manage Immunization Records
+                                                </h2>
+                                                <button
+                                                    type="button"
+                                                    className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                    onClick={() =>
+                                                        toggleImmunizationModal(
+                                                            null
+                                                        )
+                                                    }
                                                 >
-                                                    No {record.header.toLowerCase()} available.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </section>
-                ))}
-            </div>
-        </PatientLayout>
+                                                    <HiOutlinePlusSm className="mr-1" />{" "}
+                                                    Add Immunization Record
+                                                </button>
+                                            </div>
+                                            <Table
+                                                columns={immunizationColumn}
+                                                data={immunizations}
+                                                actions={immunizationAction}
+                                                noDataMessage="No Immunization Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
+                        </div>
+
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Hospitalization Records">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="overflow-x-auto">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h2 className="font-medium">
+                                                    Manage Hospitalization Records
+                                                </h2>
+                                                <button
+                                                    type="button"
+                                                    className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                    onClick={() =>
+                                                        toggleHospitalizationModal(
+                                                            null
+                                                        )
+                                                    }
+                                                >
+                                                    <HiOutlinePlusSm className="mr-1" />{" "}
+                                                    Add Hospitalization Records
+                                                </button>
+                                            </div>
+                                            <Table
+                                                columns={hospitalizationColumn}
+                                                data={hospitalizations}
+                                                actions={hospitalizationAction}
+                                                noDataMessage="No Hospitalization Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
+                        </div>
+
+                        <div className="p-4 bg-gray-200 rounded-lg">
+                            <Accordion title="Personal Medical Records">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="overflow-x-auto">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h2 className="font-medium">
+                                                    Manage Personal Medical Records
+                                                </h2>
+                                                <button
+                                                    type="button"
+                                                    className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                    onClick={() =>
+                                                        toggleMedicalRecordModal(
+                                                            null
+                                                        )
+                                                    }
+                                                >
+                                                    <HiOutlinePlusSm className="mr-1" />{" "}
+                                                    Add Personal Medical Records
+                                                </button>
+                                            </div>
+                                            <Table
+                                                columns={medicalRecordColumn}
+                                                data={medicalRecords}
+                                                actions={medicalRecordAction}
+                                                noDataMessage="No Medical Record Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
+                        </div>
+                    </div>
+                </div>
+
+                <HospitalizationModal
+                    showModal={showHospitalizationModal}
+                    toggleHospitalizationModal={toggleHospitalizationModal}
+                    selectedHospitalization={selectedHospitalization}
+                    patient_id={patients[0]?.id}
+                    patients={patients}
+                    doctors={doctors}
+                    hospitals={hospitals}
+                    isEditing={!!selectedHospitalization}
+                />
+                <ImmunizationModal
+                    showModal={showImmunizationModal}
+                    toggleImmunizationModal={toggleImmunizationModal}
+                    selectedImmunization={selectedImmunization}
+                    patient_id={patients[0]?.id}
+                    doctors={doctors}
+                    isEditing={!!selectedImmunization}
+                />
+                <MedicalRecordModal
+                    showModal={showMedicalRecordModal}
+                    toggleMedicalRecordModal={toggleMedicalRecordModal}
+                    selectedMedicalRecord={selectedMedicalRecord}
+                    patient_id={patients[0]?.id}
+                    patients={patients}
+                    medicines={medicines}
+                    isEditing={!!selectedMedicalRecord}
+                />
+                <TestResultModal
+                    showModal={showTestResultModal}
+                    toggleTestResultModal={toggleTestResultModal}
+                    selectedTestResult={selectedTestResult}
+                    patient_id={patients[0]?.id}
+                    patients={patients}
+                    isEditing={!!selectedTestResult}
+                />
+            </PatientLayout>
+        </Suspense>
     );
 };
 

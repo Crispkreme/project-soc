@@ -1,217 +1,294 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import PatientLayout from '@/Layouts/PatientLayout';
 import { format } from 'date-fns';
+import { HiOutlinePlusSm } from "react-icons/hi";
+import { LuClipboardEdit } from "react-icons/lu";
 
 const Sample = React.lazy(() => import("@/Components/Sample"));
 const Table = React.lazy(() => import("@/Components/Table"));
+const Accordion = React.lazy(() => import("@/Components/Accordion"));
+const HealthHistoryModal = React.lazy(() => import("@/Components/Forms/HealthHistoryModal"));
+const SurgicalHistoryModal = React.lazy(() => import("@/Components/Forms/SurgicalHistoryModal"));
+const FamilyMedicalRecordModal = React.lazy(() => import("@/Components/Forms/FamilyMedicalRecordModal"));
+const MedicationRecordModal = React.lazy(() => import("@/Components/Forms/MedicationRecordModal"));
 
-const frequentlyAskQuestions = [
-    {
-      title: "SURGICAL HISTORY",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",
-    },
-    {
-      title: "Why do we use it? ",
-      description:
-        "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.",
-    },
-    {
-      title: "Where does it come from?",
-      description:
-        "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source.",
-    },
-];
+const History = ({ medicines, patients, doctors, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords }) => {
 
-const healthRecordColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
-    { key: "name", label: "Illness" },
-    { key: "description", label: "Illness Description" },
-    {
-      key: "created_at",
-      label: "Date",
-      render: (value) => format(new Date(value), "MMMM d, yyyy"),
-    },
-];
-const healthRecordAction = [
-    {
-      label: "Edit",
-      icon: LuClipboardEdit,
-      onClick: (row) => toggleSurgicalModal(row, true, false, row.id),
-    },
-];
+    const transformedDoctors = doctors.map(doctor => ({
+        value: doctor.id,
+        option: `${doctor.firstname} ${doctor.middlename} ${doctor.lastname}`
+    }));
 
-const History = ({ patient, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords }) => {
-    const [visibleSections, setVisibleSections] = useState([]);
+    const [showFamilyMedicalModal, setShowFamilyModal] = useState(false);
+    const [showMedicationModal, setShowMedicationModal] = useState(false);
+    const [showHealthModal, setShowHealthModal] = useState(false);
+    const [showSurgicalModal, setShowSurgicalModal] = useState(false);
 
-    const records = [
+    const [selectedFamilyMedicalRecord, setSelectedFamilyMedicalRecord] = useState(null);
+    const [selectedMedicationRecord, setSelectedMedicationRecord] = useState(null);
+    const [selectedHealthRecord, setSelectedHealthRecord] = useState(null);
+    const [selectedSurgicalRecord, setSelectedSurgicalRecord] = useState(null);
+
+    const toggleHealthModal = (healthRecord = null) => {
+        setSelectedHealthRecord(healthRecord);
+        setShowHealthModal(!!healthRecord || !showHealthModal);
+    };
+    const toggleSurgicalModal = (surgicalRecord = null) => {
+        setSelectedSurgicalRecord(surgicalRecord);
+        setShowSurgicalModal(!!surgicalRecord || !showSurgicalModal);
+    };
+    const toggleFamilyMedicalModal = (familyMedical = null) => {
+        setSelectedFamilyMedicalRecord(familyMedical);
+        setShowFamilyModal(!!familyMedical || !showFamilyMedicalModal);
+    };
+    const toggleMedicationModal = (medication = null) => {
+        setSelectedMedicationRecord(medication);
+        setShowMedicationModal(!!medication || !showMedicationModal);
+    };    
+
+    const healthRecordAction = [
         {
-            header: "SURGICAL HISTORY",
-            data: surgicalRecords,
-            columns: [
-                { label: "ID", render: (_, idx) => idx + 1 },
-                { label: "Procedure", accessor: "procedure" },
-                { label: "Description", accessor: "description" },
-                { label: "Doctor", accessor: "doctor_name" },
-                {
-                    label: "Date",
-                    accessor: "created_at",
-                    format: (date) => format(new Date(date), "MMMM d, yyyy"),
-                },
-            ],
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) => {
+                toggleHealthModal(row);
+              },
         },
+    ];
+    const surgicalRecordAction = [
         {
-            header: "HEALTH HISTORY",
-            data: healthRecords,
-            columns: [
-                { label: "ID", render: (_, idx) => idx + 1 },
-                { label: "Health Issue", accessor: "name" },
-                { label: "Description", accessor: "description" },
-                {
-                    label: "Date",
-                    accessor: "created_at",
-                    format: (date) => format(new Date(date), "MMMM d, yyyy"),
-                },
-            ],
+          label: "Edit",
+          icon: LuClipboardEdit,
+          onClick: (row) => {
+            toggleSurgicalModal(row);
+          },
         },
+    ];
+    const familyMedicalRecordAction = [
         {
-            header: "MEDICATION HISTORY",
-            data: medicationRecords,
-            columns: [
-                { label: "ID", render: (_, idx) => idx + 1 },
-                { label: "Medicine", accessor: "medicine.medicine_name" },
-                { label: "Dosage", accessor: "dosage" },
-                { label: "Reason", accessor: "reason" },
-                {
-                    label: "Date",
-                    accessor: "created_at",
-                    format: (date) => format(new Date(date), "MMMM d, yyyy"),
-                },
-            ],
+          label: "Edit",
+          icon: LuClipboardEdit,
+          onClick: (row) => toggleFamilyMedicalModal(row, true, false, row.id),
         },
+    ];
+    const medicationRecordAction = [
         {
-            header: "FAMILY MEDICAL HISTORY",
-            data: familyMedicalRecords,
-            columns: [
-                { label: "ID", render: (_, idx) => idx + 1 },
-                { label: "Disease", accessor: "disease" },
-                { label: "Relationship", accessor: "relationship_disease" },
-            ],
+          label: "Edit",
+          icon: LuClipboardEdit,
+          onClick: (row) => toggleMedicationModal(row, true, false, row.id),
         },
     ];
 
-    const toggleVisibility = (idx) => {
-        setVisibleSections((prev) =>
-            prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
-        );
-    };
+    const healthRecordColumn = [
+        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+        { key: "name", label: "Illness" },
+        { key: "description", label: "Illness Description" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const surgicalRecordColumn = [
+        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
+        { key: "procedure", label: "Surgery" },
+        { key: "description", label: "Procedure" },
+        { key: "doctor_name", label: "Doctor" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const medicationRecordColumn = [
+        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
+        { key: "medicine.medicine_name", label: "Medicine Name" },
+        { key: "dosage", label: "Dosage" },
+        { key: "reason", label: "Reason/For:" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const familyMedicalRecordColumn = [
+        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
+        { key: "disease", label: "Desease" },
+        { key: "relationship_disease", label: "Relationship" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
 
     return (
-        <PatientLayout>
-            <div className="p-4 md:p-8 relative">
-                {records.map((record, idx) => (
-                    <section
-                        key={idx}
-                        className={`transition relative bg-white w-full border border-black rounded-xl ${
-                            visibleSections.includes(idx) ? "z-50" : "z-0"
-                        }`}
-                    >
-                        <div
-                            onClick={() => toggleVisibility(idx)}
-                            className="header bg-secondary-bg py-2 px-4 rounded-t-xl cursor-pointer"
-                        >
-                            {record.header}
-                        </div>
-                        {visibleSections.includes(idx) && (
-                            <div className="py-4 px-8 flex flex-col">
-                                <table className="w-full min-w-[540px]">
-                                    <thead>
-                                        <tr>
-                                            {record.columns.map((col, colIdx) => (
-                                                <th
-                                                    key={colIdx}
-                                                    className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left"
-                                                >
-                                                    {col.label}
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {record.data && record.data.length > 0 ? (
-                                            record.data.map((item, rowIdx) => (
-                                                <tr key={rowIdx}>
-                                                    {record.columns.map((col, colIdx) => (
-                                                        <td
-                                                            key={colIdx}
-                                                            className="py-2 px-4 border-b border-b-gray-50"
-                                                        >
-                                                            <span className="text-[13px] font-medium text-gray-400">
-                                                                {col.render
-                                                                    ? col.render(item, rowIdx)
-                                                                    : col.format
-                                                                    ? col.format(item[col.accessor])
-                                                                    : col.accessor.includes(".")
-                                                                    ? col.accessor
-                                                                          .split(".")
-                                                                          .reduce(
-                                                                              (obj, key) => obj?.[key],
-                                                                              item
-                                                                          )
-                                                                    : item[col.accessor] || 'N/A'}
-                                                            </span>
-                                                        </td>
-                                                    ))}
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td
-                                                    colSpan={record.columns.length}
-                                                    className="text-center py-4 text-gray-500"
-                                                >
-                                                    No {record.header.toLowerCase()} available.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+        <Suspense fallback={<div>Loading...</div>}>
+            <PatientLayout>
+                <div className="grid grid-cols-1 gap-6 mb-6">
+                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                        <div className="flex justify-between mb-4 items-start">
+                            <div className="font-medium">
+                                Manage Patient History
                             </div>
-                        )}
-                    </section>
-                ))}
-            </div>
+                        </div>
 
-            <Sample questions={frequentlyAskQuestions} />
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Manage Health History">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="font-medium">
+                                                Manage Health History
+                                            </h2>
+                                            <button
+                                                type="button"
+                                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                onClick={() => toggleHealthModal(null)}
+                                            >
+                                                <HiOutlinePlusSm className="mr-1" />{" "}
+                                                Add Health History
+                                            </button>
+                                        </div>
 
-            <div className="grid grid-cols-1 gap-6 mb-6">
-                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-medium">
-                            Manage Health History
-                        </h2>
-                        <button
-                            type="button"
-                            className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
-                            onClick={() => toggleHealthModal(null,false,false)}
-                        >
-                            <HiOutlinePlusSm className="mr-1" />{" "}
-                            Add Health History
-                        </button>
-                    </div>
-
-                    <div className="overflow-x-auto mt-4">
-                        <Table
-                            columns={healthRecordColumn}
-                            data={healthRecords}
-                            actions={healthRecordAction}
-                            noDataMessage="No Medication History Available."
-                        />
+                                        <div className="overflow-x-auto mt-4">
+                                            <Table
+                                                columns={healthRecordColumn}
+                                                data={healthRecords}
+                                                actions={healthRecordAction}
+                                                noDataMessage="No Medication History Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
+                        </div>
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Manage Surgical History">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="font-medium">
+                                                Manage Surgical History
+                                            </h2>
+                                            <button
+                                                type="button"
+                                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                onClick={() => toggleSurgicalModal(null)}
+                                            >
+                                                <HiOutlinePlusSm className="mr-1" />{" "}
+                                                Add Surgical History
+                                            </button>
+                                        </div>
+                                        <div className="overflow-x-auto mt-4">
+                                            <Table
+                                                columns={surgicalRecordColumn}
+                                                data={surgicalRecords}
+                                                actions={surgicalRecordAction}
+                                                noDataMessage="No Surgical Record Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
+                        </div>
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Manage Medication History">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="font-medium">
+                                                Manage Medication History
+                                            </h2>
+                                            <button
+                                                type="button"
+                                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                onClick={() => toggleMedicationModal(null,false,false)}
+                                            >
+                                                <HiOutlinePlusSm className="mr-1" />{" "}
+                                                Add Medication History
+                                            </button>
+                                        </div>
+                                        <div className="overflow-x-auto mt-4">
+                                            <Table
+                                                columns={medicationRecordColumn}
+                                                data={medicationRecords}
+                                                actions={medicationRecordAction}
+                                                noDataMessage="No Surgical Record Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
+                        </div>
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Family Medical History">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="font-medium">
+                                                Family Medical History
+                                            </h2>
+                                            <button
+                                                type="button"
+                                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                onClick={() => toggleFamilyMedicalModal(null,false,false)}
+                                            >
+                                                <HiOutlinePlusSm className="mr-1" />{" "}
+                                                Add Family Medical History
+                                            </button>
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <Table
+                                                columns={familyMedicalRecordColumn}
+                                                data={familyMedicalRecords}
+                                                actions={familyMedicalRecordAction}
+                                                noDataMessage="No Surgical Record Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </PatientLayout>
+                <HealthHistoryModal
+                    showModal={showHealthModal}
+                    toggleHealthModal={toggleHealthModal} 
+                    selectedHealthRecord={selectedHealthRecord}
+                    patient_id={patients[0]?.id}
+                    patients={patients}
+                    isEditing={!!selectedHealthRecord}
+                />
+                <SurgicalHistoryModal
+                    showModal={showSurgicalModal}
+                    toggleSurgicalModal={toggleSurgicalModal}
+                    selectedSurgicalRecord={selectedSurgicalRecord}
+                    patient_id={patients[0]?.id}
+                    isEditing={!!selectedSurgicalRecord}
+                    doctors={transformedDoctors}
+                />
+                <FamilyMedicalRecordModal
+                    showModal={showFamilyMedicalModal}
+                    toggleFamilyMedicalModal={toggleFamilyMedicalModal}
+                    selectedRecord={selectedFamilyMedicalRecord}
+                    patient_id={patients[0]?.id}
+                    patients={patients}
+                    isEditing={!!selectedFamilyMedicalRecord}
+                />
+                <MedicationRecordModal
+                    showModal={showMedicationModal}
+                    toggleMedicationModal={toggleMedicationModal}
+                    selectedMedication={selectedMedicationRecord}
+                    patient_id={patients[0]?.id}
+                    patients={patients}
+                    medicines={medicines}
+                    isEditing={!!selectedMedicationRecord}
+                />
+
+            </PatientLayout>
+        </Suspense>
     );
 }
 

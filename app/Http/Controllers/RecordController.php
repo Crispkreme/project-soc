@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Contracts\FamilyMedicalContract;
 use App\Contracts\HealthContract;
+use App\Contracts\HospitalContract;
 use App\Contracts\HospitalizationContract;
 use App\Contracts\ImmunizationContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
+use App\Contracts\MedicineContract;
 use App\Contracts\SurgicalContract;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserDetailContract;
@@ -27,8 +29,11 @@ class RecordController extends Controller
     protected $immunizationContract;
     protected $hospitalizationContract;
     protected $medicalRecordContract;
-
+    protected $medicineContract;
+    protected $hospitalContract;
+    
     public function __construct(
+        HospitalContract $hospitalContract,
         UserDetailContract $userDetailContract,
         HealthContract $healthContract,
         SurgicalContract $surgicalContract,
@@ -38,7 +43,10 @@ class RecordController extends Controller
         ImmunizationContract $immunizationContract,
         HospitalizationContract $hospitalizationContract,
         MedicalRecordContract $medicalRecordContract,
+        MedicineContract $medicineContract,
     ) {
+        $this->medicineContract = $medicineContract;
+        $this->hospitalContract = $hospitalContract;
         $this->userDetailContract = $userDetailContract;
         $this->healthContract = $healthContract;
         $this->surgicalContract = $surgicalContract;
@@ -89,13 +97,27 @@ class RecordController extends Controller
         $immunizations = $this->immunizationContract->getImmunizationById($id);
         $hospitalizations = $this->hospitalizationContract->getHospitalizationById($id);
         $medicalRecords = $this->medicalRecordContract->getMedicalRecordById($id);
+        $patients = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
+        $medicines = $this->medicineContract->getAllMedicine();
+        $hospitals = $this->hospitalContract->getAllHospital();
+        $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true)
+            ->map(function ($doctor) {
+                return [
+                    'id' => $doctor['id'],
+                    'doctor_name' => trim("{$doctor['firstname']} {$doctor['middlename']} {$doctor['lastname']}"), // Combine names into a single field
+                ];
+            });
 
         return Inertia::render($viewPath, [
             'patient' => $patient,
+            'hospitals' => $hospitals,
             'testResults' => $testResults,
             'immunizations' => $immunizations,
             'hospitalizations' => $hospitalizations,
             'medicalRecords' => $medicalRecords,
+            'patients' => $patients,
+            'medicines' => $medicines,
+            'doctors' => $doctors,
         ]);
     }  
     
@@ -126,14 +148,27 @@ class RecordController extends Controller
 
         $role = 'Patient';
         $status = 'Active';
-        $patient = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
+        $patients = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
         $healthRecords = $this->healthContract->getHealthById($id);
         $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
         $medicationRecords = $this->medicationContract->getMedicationById($id);
         $familyMedicalRecords = $this->familyMedicalContract->getFamilyMedicalById($id);
+        $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
+        $medicines = $this->medicineContract->getAllMedicine();
+        $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true)
+            ->map(function ($doctor) {
+                return [
+                    'id' => $doctor['id'],
+                    'firstname' => $doctor['firstname'],
+                    'middlename' => $doctor['middlename'],
+                    'lastname' => $doctor['lastname'],
+                ];
+            });
 
         return Inertia::render($viewPath, [
-            'patient' => $patient,
+            'medicines' => $medicines,
+            'patients' => $patients,
+            'doctors' => $doctors,
             'healthRecords' => $healthRecords,
             'surgicalRecords' => $surgicalRecords,
             'medicationRecords' => $medicationRecords,
