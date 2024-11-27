@@ -95,11 +95,8 @@ class ActivitiesController extends Controller
             }
 
             DB::commit();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Barangay Event successfully added.',
-            ]);
+
+            return redirect()->back()->with('success', 'Baranagy Event added successfully!');
 
         } catch (Exception $e) {
             
@@ -110,10 +107,7 @@ class ActivitiesController extends Controller
 
             DB::rollback();
 
-            return response()->json([
-                'error' => true,
-                'message' => 'Error please try again.',
-            ]);
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 }

@@ -173,10 +173,7 @@ class UserDetailController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Account added successfully!',
-            ]);
+            return redirect()->back()->with('success', 'Account added successfully!');
 
         } catch (Exception $e) {
 
@@ -188,10 +185,8 @@ class UserDetailController extends Controller
             DB::rollback();
 
             Session::flash('error', '');
-            return response()->json([
-                'error' => 'error',
-                'message' => 'An error occurred during account creation.',
-            ]);
+
+            return redirect()->back()->with('success', 'An error occurred during account creation.');
         }
     }
 
