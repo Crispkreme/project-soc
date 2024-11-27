@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { toast } from 'react-hot-toast';
 import { useForm } from "@inertiajs/react";
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
@@ -60,8 +61,14 @@ const ReferralModal = ({
       : route("referrals.create");
 
     post(url, {
-      onSuccess: () => toggleReferralModal(null, false),
-      onError: (errors) => console.error("Form Submission Error:", errors),
+      onSuccess: (response) => {
+        toggleReferralModal(false);
+        toast.success("Referral added successfully!");
+      },
+      onError: (errors) => {
+        toggleReferralModal(false);
+        toast.error("An error occurred during Referral creation.");
+      },
     });
   };
 

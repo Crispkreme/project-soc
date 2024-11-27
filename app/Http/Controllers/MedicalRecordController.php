@@ -193,12 +193,7 @@ class MedicalRecordController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'User saved successfully!'
-            ]);
-
-            return redirect()->route($viewPath);
+            return redirect()->back()->with('success', 'Health Record saved successfully!');
 
         } catch (Exception $e) {
             
@@ -208,12 +203,8 @@ class MedicalRecordController extends Controller
             ]);
 
             DB::rollback();
-            Session::flash('error', 'An error occurred during updateOrCreateHealthRecord.');
-
-            return response()->json([
-                'error' => 'error',
-                'message' => 'Please try again'
-            ]);
+            
+            return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
 
@@ -247,12 +238,7 @@ class MedicalRecordController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Surgical saved successfully!'
-            ]);
-
-            return redirect()->route($viewPath);
+            return redirect()->back()->with('success', 'Surgical Record saved successfully!');
 
         } catch (Exception $e) {
             
@@ -262,12 +248,8 @@ class MedicalRecordController extends Controller
             ]);
 
             DB::rollback();
-            Session::flash('error', 'An error occurred during updateOrCreateSurgicalRecord.');
 
-            return response()->json([
-                'error' => 'error',
-                'message' => 'Please try again'
-            ]);
+            return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
 
@@ -300,12 +282,7 @@ class MedicalRecordController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Medication Record saved successfully!'
-            ]);
-
-            return redirect()->route($viewPath);
+            return redirect()->back()->with('success', 'Family Medical Record saved successfully!');
 
         } catch (Exception $e) {
  
@@ -315,12 +292,8 @@ class MedicalRecordController extends Controller
             ]);
 
             DB::rollback();
-            Session::flash('error', 'An error occurred during updateOrCreateFamilyMedical.');
 
-            return response()->json([
-                'error' => 'error',
-                'message' => 'Please try again'
-            ]);
+            return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
 
@@ -353,12 +326,7 @@ class MedicalRecordController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Medication Record saved successfully!'
-            ]);
-
-            return redirect()->route($viewPath);
+            return redirect()->back()->with('success', 'Medication Record saved successfully!');
 
         } catch (Exception $e) {
  
@@ -368,12 +336,8 @@ class MedicalRecordController extends Controller
             ]);
 
             DB::rollback();
-            Session::flash('error', 'An error occurred during updateOrCreateMedication.');
 
-            return response()->json([
-                'error' => 'error',
-                'message' => 'Please try again'
-            ]);
+            return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
 
@@ -406,12 +370,7 @@ class MedicalRecordController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Test Result saved successfully!'
-            ]);
-
-            return redirect()->route($viewPath);
+            return redirect()->back()->with('success', 'Test Result saved successfully!');
 
         } catch (Exception $e) {
  
@@ -421,12 +380,8 @@ class MedicalRecordController extends Controller
             ]);
 
             DB::rollback();
-            Session::flash('error', 'An error occurred during updateOrCreateMedication.');
-
-            return response()->json([
-                'error' => 'error',
-                'message' => 'Please try again'
-            ]);
+            
+            return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
 
@@ -459,12 +414,7 @@ class MedicalRecordController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Immunization saved successfully!'
-            ]);
-
-            return redirect()->route($viewPath);
+            return redirect()->back()->with('success', 'Immunization saved successfully!');
 
         } catch (Exception $e) {
  
@@ -474,12 +424,8 @@ class MedicalRecordController extends Controller
             ]);
 
             DB::rollback();
-            Session::flash('error', 'An error occurred during updateOrCreateImmunization.');
-
-            return response()->json([
-                'error' => 'error',
-                'message' => 'Please try again'
-            ]);
+            
+            return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
     public function updateOrCreateHospitalization(Request $request, $id = null)
@@ -512,12 +458,7 @@ class MedicalRecordController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Hospitalization saved successfully!'
-            ]);
-
-            return redirect()->route($viewPath);
+            return redirect()->back()->with('success', 'Hospitalization saved successfully!');
 
         } catch (Exception $e) {
  
@@ -527,12 +468,8 @@ class MedicalRecordController extends Controller
             ]);
 
             DB::rollback();
-            Session::flash('error', 'An error occurred during updateOrCreateHospitalization.');
-
-            return response()->json([
-                'error' => 'error',
-                'message' => 'Please try again'
-            ]);
+            
+            return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
 

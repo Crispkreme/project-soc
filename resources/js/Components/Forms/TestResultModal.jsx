@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useForm } from "@inertiajs/react";
+import { toast } from 'react-hot-toast';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
@@ -40,7 +41,7 @@ const TestResultModal = ({
         });
       }
     }
-  }, [showModal, selectedTestResult]); // Removed `setData` and `reset` from dependencies
+  }, [showModal, selectedTestResult]);
 
   const handleClose = () => {
     toggleTestResultModal(false);
@@ -56,11 +57,13 @@ const TestResultModal = ({
     );
 
     post(url, {
-      onSuccess: () => {
-        handleClose();
+      onSuccess: (response) => {
+        toggleTestResultModal(false);
+        toast.success("Test Result added successfully!");
       },
       onError: (errors) => {
-        console.error("An error occurred", errors);
+        toggleTestResultModal(false);
+        toast.error("An error occurred during Test Result creation.");
       },
     });
   };

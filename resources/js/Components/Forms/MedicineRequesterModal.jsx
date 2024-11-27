@@ -1,5 +1,6 @@
 import React, { lazy } from 'react';
 import { useForm } from '@inertiajs/react';
+import { toast } from 'react-hot-toast';
 
 const Modal = lazy(() => import("@/Components/Modals/Modal"));
 const Title = lazy(() => import("@/Components/Headers/Title"));
@@ -42,8 +43,14 @@ const MedicineRequesterModal = ({ showModal, toggleModal, medicines, selectedRef
       : route("medications.store");
 
     post(url, {
-      onSuccess: () => toggleModal(false),
-      onError: (errors) => console.error("Form Submission Error:", errors),
+      onSuccess: (response) => {
+        toggleMedicationModal(false);
+        toast.success("Medicine Request added successfully!");
+      },
+      onError: (errors) => {
+        toggleMedicationModal(false);
+        toast.error("An error occurred during medicine request creation.");
+      },
     });
   };
 

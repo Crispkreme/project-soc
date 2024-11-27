@@ -226,11 +226,8 @@ class AppointmentController extends Controller
             }
 
             DB::commit();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Schedule successfully added.',
-            ]);
+
+            return redirect()->back()->with('success', 'Schedule successfully added.');
 
         } catch (Exception $e) {
             
@@ -241,10 +238,8 @@ class AppointmentController extends Controller
 
             DB::rollback();
 
-            return response()->json([
-                'error' => true,
-                'message' => 'Error please try again.',
-            ]);
+            return redirect()->back()->with('error', 'Error please try again.');
+
         }
     }
 

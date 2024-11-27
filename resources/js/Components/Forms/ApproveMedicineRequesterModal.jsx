@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Inertia } from '@inertiajs/inertia';
+import { toast } from 'react-hot-toast';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
@@ -19,9 +20,11 @@ const ApproveMedicineRequesterModal = ({ showModal, toggleModal, selectedMedicin
       await Inertia.post(
         route('medication.approve', { id: selectedMedicineRequester?.id })
       );
-      toggleModal();
+      toggleModal(false);
+      toast.success("Medicine Request added successfully!");
     } catch (error) {
-      console.error("Error submitting approval:", error);
+      toggleModal(false);
+      toast.Error("Please try again");
     } finally {
       setProcessing(false);
     }

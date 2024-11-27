@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useForm } from "@inertiajs/react";
+import { toast } from 'react-hot-toast';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
@@ -57,11 +58,13 @@ const MedicalRecordModal = ({
     );
 
     post(url, {
-      onSuccess: () => {
-        handleClose();
+      onSuccess: (response) => {
+        toggleMedicalRecordModal(false);
+        toast.success("Medical Record added successfully!");
       },
       onError: (errors) => {
-        console.error("An error occurred", errors);
+        toggleMedicalRecordModal(false);
+        toast.error("An error occurred during medical creation.");
       },
     });
   };

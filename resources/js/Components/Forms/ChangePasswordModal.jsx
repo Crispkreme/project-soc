@@ -1,5 +1,6 @@
 import React from 'react';
 import { usePage, useForm } from '@inertiajs/react';
+import { toast } from 'react-hot-toast';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
@@ -19,6 +20,14 @@ const ChangePasswordModal = ({ showModal, toggleModal }) => {
         e.preventDefault();
         post(route('user.change.password', { id: user.id }), {
             onFinish: () => reset('current_password', 'new_password', 'new_password_confirmation'),
+            onSuccess: (response) => {
+                toggleModal(false);
+                toast.success("Password updated successfully!");
+              },
+              onError: (errors) => {
+                toggleModal(false);
+                toast.error("An error occurred during Password creation.");
+              },
         });
     };
 
