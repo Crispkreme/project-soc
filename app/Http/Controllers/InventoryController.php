@@ -98,10 +98,7 @@ class InventoryController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Inventory saved successfully!'
-            ]);
+            return redirect()->back()->with('success', 'Inventory saved successfully!');
 
         } catch (Exception $e) {
 
@@ -112,12 +109,7 @@ class InventoryController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'error' => 'error',
-                'message' => 'An error occurred during updateOrCreateInventory.'
-            ]);
-
-            return redirect()->back();
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 
@@ -156,10 +148,7 @@ class InventoryController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Inventory saved successfully!'
-            ]);
+            return redirect()->back()->with('success', 'Inventory saved successfully!');
 
         } catch (Exception $e) {
 
@@ -170,12 +159,7 @@ class InventoryController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'error' => 'error',
-                'message' => 'An error occurred during updateOrCreateInventory.'
-            ]);
-
-            return redirect()->back();
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 
@@ -208,11 +192,8 @@ class InventoryController extends Controller
             }
             
             DB::commit();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Request successfully added.',
-            ]);
+        
+            return redirect()->back()->with('success', 'Request successfully added.');
 
         } catch (Exception $e) {
             
@@ -223,10 +204,7 @@ class InventoryController extends Controller
 
             DB::rollback();
 
-            return response()->json([
-                'error' => true,
-                'message' => 'Error please try again.',
-            ]);
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 
@@ -247,35 +225,23 @@ class InventoryController extends Controller
             $quantity = $medicine->quantity;
 
             $this->medicationContract->updateMedicationStatusById('Success', $id);
-            // dd($data);
+
             if (!$medicine) {
-                return response()->json([
-                    'error' => 'error',
-                    'message' => 'Medication not found.'
-                ]);
+                return redirect()->back()->with('error', 'Medication not found.');
             }
 
             $inventories = $this->inventoryContract->getAllInventoryQuantityById($medicineId);
             if (!$inventories) {
-                return response()->json([
-                    'error' => 'error',
-                    'message' => 'Inventory data not found.'
-                ]);
+                return redirect()->back()->with('error', 'Inventory data not found.');
             }
             
             $ledgers = $this->ledgerContract->getLedgerByMedicineId($medicineId);
             if (!$ledgers) {
-                return response()->json([
-                    'error' => 'error',
-                    'message' => 'Ledger data not found.'
-                ]);
+                return redirect()->back()->with('error', 'Ledger data not found.');
             }
             
             if ($ledgers->in_stock < $quantity) {
-                return response()->json([
-                    'error' => 'error',
-                    'message' => 'Insufficient stock available.'
-                ]);
+                return redirect()->back()->with('error', 'Insufficient stock available.');
             }
 
             $inStock = $ledgers->in_stock - $quantity;

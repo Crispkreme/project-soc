@@ -54,10 +54,7 @@ class MedicineController extends Controller
 
             DB::commit();
             
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Medicine saved successfully!'
-            ]);
+            return redirect()->back()->with('success', 'Medicine saved successfully!');
 
         } catch (Exception $e) {
 
@@ -68,11 +65,7 @@ class MedicineController extends Controller
 
             DB::rollback();
 
-            return response()->json([
-                'error' => 'success',
-                'message' => 'An error occurred during updateOrCreateMedicine.'
-            ]);
-            return redirect()->back();
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 
@@ -86,7 +79,7 @@ class MedicineController extends Controller
 
             DB::commit();
             
-            Session::flash('success', 'Medicine deleted successfully!');
+            return redirect()->back()->with('success', 'Medicine deleted successfully!');
 
         } catch (Exception $e) {
 
@@ -97,8 +90,7 @@ class MedicineController extends Controller
 
             DB::rollback();
 
-            Session::flash('error', 'An error occurred during deleteMedicine.');
-            return redirect()->back();
+            return redirect()->back()->with('error', 'An error occurred during deleteMedicine.');
         }
     }
 
