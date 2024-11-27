@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "@inertiajs/react";
+import { toast } from 'react-hot-toast';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
@@ -62,12 +63,13 @@ const HealthHistoryModal = ({
     );
 
     post(url, {
-      onSuccess: () => {
-        toggleHealthModal(null, false, false);
-        if (onClose) onClose();
+      onSuccess: (response) => {
+        toggleHealthModal(false);
+        toast.success("Health history record added successfully!");
       },
       onError: (errors) => {
-        console.error("An error occurred", errors);
+        toggleHealthModal(false);
+        toast.error("An error occurred during health history creation.");
       },
     });
   };

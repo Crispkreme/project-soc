@@ -1,4 +1,5 @@
 import React, { lazy } from 'react';
+import { toast } from 'react-hot-toast';
 import { useForm } from '@inertiajs/react';
 
 const Modal = lazy(() => import("@/Components/Modals/Modal"));
@@ -22,8 +23,14 @@ const AppointmentModal = ({ showModal, toggleModal, doctors, barangayEvents }) =
     e.preventDefault();
     post(route('schedule.create'), {
       data,
-      onSuccess: () => toggleModal(),
-      onError: (errors) => console.error("An error occurred", errors),
+      onSuccess: (response) => {
+        toggleModal(false);
+        toast.success("Account added successfully!");
+      },
+      onError: (errors) => {
+        toggleModal(false);
+        toast.error("An error occurred during account creation.");
+      },
     });
   };
 

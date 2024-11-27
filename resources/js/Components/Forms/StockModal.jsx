@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useForm, usePage } from '@inertiajs/react';
+import { toast } from 'react-hot-toast';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
@@ -52,14 +53,17 @@ const StockModal = ({ showModal, toggleModal, selectedInventory, medicines, isEd
 
         const isUpdating = isEditing && selectedInventory;
         const url = route(isUpdating ? "admin.update.medicines" : "admin.store.inventory", isUpdating ? selectedInventory.id : null);
+        
         post(url, {
             data,
-            onSuccess: () => {
-                toggleModal();
-            },
-            onError: (errors) => {
-                console.error("An error occurred", errors);
-            },
+            onSuccess: (response) => {
+                toggleModal(false);
+                toast.success("Stock added successfully!");
+              },
+              onError: (errors) => {
+                toggleModal(false);
+                toast.error("An error occurred during Stock creation.");
+              },
         });
     };
 

@@ -309,10 +309,7 @@ class InventoryController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Medication approved and inventory updated successfully!'
-            ]);
+            return redirect()->back()->with('success', 'Medication approved and inventory updated successfully!');
 
         } catch (Exception $e) {
             DB::rollback();
@@ -322,10 +319,8 @@ class InventoryController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json([
-                'error' => 'error',
-                'message' => 'An error occurred during approveMedication.'
-            ]);
+            return redirect()->back()->with('error', 'An error occurred during approveMedication.');
+
         }
     }
 }

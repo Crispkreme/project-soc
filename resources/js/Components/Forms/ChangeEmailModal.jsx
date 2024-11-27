@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import axios from 'axios';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
@@ -32,13 +33,15 @@ const ChangeEmailModal = ({ showModal, toggleModal }) => {
             const response = await axios.post('/user/change/email', formData);
             setSuccessMessage(response.data.message || 'Email updated successfully.');
             setProcessing(false);
-            toggleModal();
+            toggleModal(false);
+            toast.success("Email Change successfully!");
         } catch (error) {
             setProcessing(false);
             if (error.response && error.response.data.errors) {
                 setErrors(error.response.data.errors);
             } else {
-                setErrors({ general: 'An unexpected error occurred. Please try again.' });
+                toggleModal(false);
+                toast.success("An unexpected error occurred. Please try again.!");
             }
         }
     };

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useForm } from '@inertiajs/react';
+import { toast } from 'react-hot-toast';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
@@ -15,11 +16,15 @@ const DeactivateAccountModal = ({ showModal, toggleModal }) => {
     };
 
     const handleDeactivate = () => {
-        // Send the request to deactivate the account
         post(route('user.deactivate'), {
-            onFinish: () => {
-                toggleModal();  // Close modal after deactivation
-            }
+            onSuccess: (response) => {
+                toggleModal(false);
+                toast.success("Account deactivated successfully!");
+            },
+            onError: (errors) => {
+                toggleModal(false);
+                toast.error("An error occurred during account creation.");
+            },
         });
     };
 

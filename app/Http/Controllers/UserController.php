@@ -306,9 +306,7 @@ class UserController extends Controller
         $user = Auth::user();
 
         if ($user->email !== $request->current_email) {
-            return back()->withErrors([
-                'current_email' => 'The current email does not match our records.'
-            ]);
+            return redirect()->back()->with('error', 'The current email does not match our records.');
         }
 
         $this->userContract->changeEmail($data['new_email']);
@@ -349,7 +347,9 @@ class UserController extends Controller
             ]);
         }
         
-        return redirect()->route('login')->with('success', 'Your password has been updated successfully. Please log in with your new password.');        
+        return redirect()
+            ->route('login')
+            ->with('success', 'Your password has been updated successfully. Please log in with your new password.');        
     }
 
     public function deactivateAccount(Request $request)

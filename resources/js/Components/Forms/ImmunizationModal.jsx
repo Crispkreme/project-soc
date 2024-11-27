@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { toast } from 'react-hot-toast';
 import { useForm } from "@inertiajs/react";
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
@@ -58,11 +59,13 @@ const ImmunizationModal = ({
     );
 
     post(url, {
-      onSuccess: () => {
-        handleClose();
+      onSuccess: (response) => {
+        toggleImmunizationModal(false);
+        toast.success("Immunization added successfully!");
       },
       onError: (errors) => {
-        console.error("An error occurred", errors);
+        toggleImmunizationModal(false);
+        toast.error("An error occurred during immunization creation.");
       },
     });
   };

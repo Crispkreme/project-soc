@@ -1,5 +1,6 @@
 import React, { lazy } from 'react';
 import { useForm } from '@inertiajs/react';
+import { toast } from 'react-hot-toast';
 
 const Modal = lazy(() => import("@/Components/Modals/Modal"));
 const Title = lazy(() => import("@/Components/Headers/Title"));
@@ -43,8 +44,14 @@ const PrescriptionModal = ({ showModal, toggleModal, medicines, selectedReferral
       : route("prescription.create");
 
     post(url, {
-      onSuccess: () => toggleReferralModal(null, false),
-      onError: (errors) => console.error("Form Submission Error:", errors),
+      onSuccess: (response) => {
+        toggleMedicationModal(false);
+        toast.success("Prescription added successfully!");
+      },
+      onError: (errors) => {
+        toggleMedicationModal(false);
+        toast.error("An error occurred during prescription creation.");
+      },
     });
   };
 

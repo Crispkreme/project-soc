@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { Inertia } from '@inertiajs/inertia';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
@@ -22,9 +23,11 @@ const ApproveModal = ({ showModal, toggleModal, selectedAppointment }) => {
                 route('admin.approve.appointments', { id: selectedAppointment?.id }),
                 { description }
             );
-            toggleModal();
+            toggleModal(false);
+            toast.success("Account added successfully!");
         } catch (error) {
-            console.error("Error submitting appointment approval:", error);
+            toggleModal(false);
+            toast.error("Error submitting appointment approval");
         } finally {
             setProcessing(false);
         }

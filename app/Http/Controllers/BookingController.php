@@ -146,11 +146,8 @@ class BookingController extends Controller
         ]; 
 
         $this->logContract->updateOrCreateLog($logData);
-        
-        return response()->json([
-            'success' => 'success',
-            'message' => 'Account added successfully!',
-        ]);
+
+        return redirect()->back()->with('success', 'Appointment successfully aprroved.');
     }
 
     public function getReferral()
