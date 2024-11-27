@@ -108,11 +108,8 @@ class BookingController extends Controller
             $this->logContract->updateOrCreateLog($logData);
 
             DB::commit();
-            
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Appointment successfully added!',
-            ]);
+
+            return redirect()->back()->with('success', 'Appointment saved successfully!');
 
         } catch (Exception $e) {
             

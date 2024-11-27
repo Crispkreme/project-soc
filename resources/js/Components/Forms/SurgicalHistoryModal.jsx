@@ -59,11 +59,11 @@ const SurgicalHistoryModal = ({
 
     post(url, {
       onSuccess: (response) => {
-        toggleModal(false);
+        toggleSurgicalModal(false);
         toast.success("Surgical added successfully!");
       },
       onError: (errors) => {
-        toggleModal(false);
+        toggleSurgicalModal(false);
         toast.error("An error occurred during Surgical creation.");
       },
     });

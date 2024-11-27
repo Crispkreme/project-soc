@@ -277,11 +277,8 @@ class AppointmentController extends Controller
             $this->logContract->updateOrCreateLog($logData);
 
             DB::commit();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Referral successfully added.',
-            ]);
+
+            return redirect()->back()->with('success', 'Referral successfully added.');
 
         } catch (Exception $e) {
             
@@ -292,10 +289,7 @@ class AppointmentController extends Controller
 
             DB::rollback();
 
-            return response()->json([
-                'error' => true,
-                'message' => 'Error please try again.',
-            ]);
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 
@@ -341,10 +335,7 @@ class AppointmentController extends Controller
             
             DB::commit();
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Prescription successfully added.',
-            ]);
+            return redirect()->back()->with('success', 'Prescription saved successfully!');
 
         } catch (Exception $e) {
             
@@ -355,10 +346,7 @@ class AppointmentController extends Controller
 
             DB::rollback();
 
-            return response()->json([
-                'error' => true,
-                'message' => 'Error please try again.',
-            ]);
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 }

@@ -45,9 +45,7 @@ class AuthenticatedSessionController extends Controller
         $userDetail = $this->userDetailContract->getUserDetailById($user->id);
 
         if (!$userDetail) {
-            return response()->json([
-                'message' => 'User details not found.',
-            ], 404);
+            return redirect()->back()->with('error', 'User details not found.');
         }
 
         $userStatus = $userDetail->status;
@@ -58,10 +56,7 @@ class AuthenticatedSessionController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return response()->json([
-                'message' => 'Account Deactivated',
-                'redirect_url' => route('login'),
-            ]);
+            return redirect()->route('login')->with('error', 'Account Deactivated');
         }
 
         $roleRoutes = [

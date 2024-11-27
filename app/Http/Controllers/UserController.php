@@ -93,12 +93,7 @@ class UserController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'User saved successfully!'
-            ]);
-
-            return redirect()->route($viewPath);
+            return redirect()->route($viewPath)->with('success', 'User saved successfully!');
 
         } catch (Exception $e) {
             
@@ -108,12 +103,8 @@ class UserController extends Controller
             ]);
 
             DB::rollback();
-            Session::flash('error', 'An error occurred during user registration.');
 
-            return response()->json([
-                'error' => 'error',
-                'message' => 'Please try again'
-            ]);
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 
@@ -314,14 +305,6 @@ class UserController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Your email has been updated successfully. Please log in with your new email.',
-                'redirect_url' => route('login'),
-            ]);
-        }
         
         return redirect()->route('login')->with('success', 'Your email has been updated successfully. Please log in with your new email.');        
     }
@@ -338,14 +321,6 @@ class UserController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Your password has been updated successfully. Please log in with your new password.',
-                'redirect_url' => route('login'),
-            ]);
-        }
         
         return redirect()
             ->route('login')
@@ -361,14 +336,6 @@ class UserController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Your account has been deactivated successfully.',
-                'redirect_url' => route('login'),
-            ]);
-        }
         
         return redirect()->route('login')->with('success', 'Your account has been deactivated successfully.');        
     }

@@ -205,10 +205,7 @@ class UserDetailController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Account activated successfully!',
-            ]);
+            return redirect()->back()->with('success', 'Account activated successfully!');
 
         } catch (Exception $e) {
 
@@ -219,11 +216,7 @@ class UserDetailController extends Controller
 
             DB::rollback();
 
-            Session::flash('error', '');
-            return response()->json([
-                'error' => 'error',
-                'message' => 'An error occurred during activateAccount.',
-            ]);
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 
@@ -242,10 +235,7 @@ class UserDetailController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'success' => 'success',
-                'message' => 'Account deactivated successfully!',
-            ]);
+            return redirect()->back()->with('success', 'Account deactivated successfully!');
 
         } catch (Exception $e) {
 
@@ -256,11 +246,7 @@ class UserDetailController extends Controller
 
             DB::rollback();
 
-            Session::flash('error', '');
-            return response()->json([
-                'error' => 'error',
-                'message' => 'An error occurred during deactivateAccount.',
-            ]);
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 
