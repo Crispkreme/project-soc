@@ -167,6 +167,12 @@ class MedicalRecordController extends Controller
 
     public function updateOrCreateHealthRecord(Request $request, $id = null)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -181,6 +187,7 @@ class MedicalRecordController extends Controller
                 $data['id'] = $id; 
                 $this->healthContract->createOrUpdateHealth($data);
             } else {
+                $data['patient_id'] = $user->id; 
                 $this->healthContract->createOrUpdateHealth($data);
             }
 
@@ -212,6 +219,12 @@ class MedicalRecordController extends Controller
 
     public function updateOrCreateSurgicalRecord(Request $request, $id = null)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -228,6 +241,7 @@ class MedicalRecordController extends Controller
                 $data['id'] = $id; 
                 $this->surgicalContract->createOrUpdateSurgical($data);
             } else {
+                $data['patient_id'] = $user->id; 
                 $this->surgicalContract->createOrUpdateSurgical($data);
             }
 
@@ -259,6 +273,12 @@ class MedicalRecordController extends Controller
 
     public function updateOrCreateFamilyMedical(Request $request, $id = null)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -274,6 +294,7 @@ class MedicalRecordController extends Controller
                 $data['id'] = $id; 
                 $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
             } else {
+                $data['patient_id'] = $user->id; 
                 $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
             }
 
@@ -305,6 +326,12 @@ class MedicalRecordController extends Controller
 
     public function updateOrCreateMedication(Request $request, $id = null)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -320,6 +347,7 @@ class MedicalRecordController extends Controller
                 $data['id'] = $id; 
                 $this->medicationContract->createOrUpdateMedication($data);
             } else {
+                $data['patient_id'] = $user->id; 
                 $this->medicationContract->createOrUpdateMedication($data);
             }
 
@@ -351,6 +379,12 @@ class MedicalRecordController extends Controller
 
     public function updateOrCreateTestResult(Request $request, $id = null)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -366,6 +400,7 @@ class MedicalRecordController extends Controller
                 $data['id'] = $id; 
                 $this->testResultContract->createOrUpdateTestResult($data);
             } else {
+                $data['patient_id'] = $user->id; 
                 $this->testResultContract->createOrUpdateTestResult($data);
             }
 
@@ -397,6 +432,12 @@ class MedicalRecordController extends Controller
 
     public function updateOrCreateImmunization(Request $request, $id = null)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -412,6 +453,7 @@ class MedicalRecordController extends Controller
                 $data['id'] = $id; 
                 $this->immunizationContract->createOrUpdateImmunization($data);
             } else {
+                $data['patient_id'] = $user->id; 
                 $this->immunizationContract->createOrUpdateImmunization($data);
             }
 
@@ -442,6 +484,12 @@ class MedicalRecordController extends Controller
     }
     public function updateOrCreateHospitalization(Request $request, $id = null)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -458,6 +506,7 @@ class MedicalRecordController extends Controller
                 $data['id'] = $id; 
                 $this->hospitalizationContract->createOrUpdateHospitalization($data);
             } else {
+                $data['patient_id'] = $user->id; 
                 $this->hospitalizationContract->createOrUpdateHospitalization($data);
             }
 
