@@ -6,6 +6,7 @@ import Modal from "@/Components/Modals/Modal";
 import Title from "@/Components/Headers/Title";
 import InputLabel from "@/Components/Inputs/InputLabel";
 import TextInput from "@/Components/Inputs/TextInput";
+import { toast } from 'react-hot-toast';
 import Select from "@/Components/Inputs/Select";
 import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import InputError from "@/Components/Inputs/InputError";
@@ -94,15 +95,23 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
     });
-
+ 
     if (file) {
       formData.append("profile", file);
     }
 
     post(route("store.profile.detail"), {
       data: formData,
-      onError: (errors) => console.error(errors),
+      onSuccess: (response) => {
+        toggleModal(false);
+        toast.success("Account added successfully!");
+      },
+      onError: (errors) => {
+        toggleModal(false);
+        toast.error("An error occurred during account creation.");
+      },
     });
+    
   };
 
   return (

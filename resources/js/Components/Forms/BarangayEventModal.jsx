@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useForm } from "@inertiajs/react";
+import { toast } from 'react-hot-toast';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
@@ -79,11 +80,13 @@ const BarangayEventModal = ({
     );
 
     post(url, {
-      onSuccess: () => {
-        handleClose();
+      onSuccess: (response) => {
+        toggleBarangayEventModal(false);
+        toast.success("Barangay Event added successfully!");
       },
       onError: (errors) => {
-        console.error("An error occurred", errors);
+        toggleBarangayEventModal(false);
+        toast.error("An error occurred during barangay event creation.");
       },
     });
   };
