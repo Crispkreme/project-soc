@@ -8,6 +8,8 @@ import interactionPlugin from '@fullcalendar/interaction';
 const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
 
 const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
+  const today = new Date().toISOString().split('T')[0];
+
   const bookingSchedule = barangayEvents.map((event) => ({
     id: event.id,
     title: event.event_name,
@@ -19,6 +21,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
       venue: event.event_venue,
       time: event.event_time,
       status: event.booking_status,
+      isPast: event.event_date < today,
     },
   }));
 
@@ -38,6 +41,12 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
     const event = clickInfo.event;
     const { extendedProps } = event;
 
+    // Prevent clicking on past events
+    if (extendedProps.isPast) {
+      alert('This appointment date has passed and cannot be booked.');
+      return;
+    }
+
     setData({
       ...data,
       event_name: event.title,
@@ -56,7 +65,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
   };
 
   const renderEvent = (eventInfo) => {
-    const { status } = eventInfo.event.extendedProps;
+    const { status, isPast } = eventInfo.event.extendedProps;
 
     return (
       <span className="relative items-center overflow-hidden text-center">
@@ -65,7 +74,11 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
             status === 'Success' ? 'bg-green-500' : status === 'Pending' ? 'bg-yellow-500' : 'bg-gray-500'
           }`}
         ></div>
-        <span className="pl-4">{eventInfo.event.title}</span>
+        <span
+          className={`pl-4 ${isPast ? 'text-gray-400 cursor-not-allowed' : 'text-black'}`}
+        >
+          {eventInfo.event.title}
+        </span>
       </span>
     );
   };
@@ -111,7 +124,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                     className="border w-full p-2 rounded"
                   />
                 </div>
-                <div>
+                <div className='mt-2'>
                   <label>Event Venue:</label>
                   <input
                     type="text"
@@ -121,7 +134,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                     className="border w-full p-2 rounded"
                   />
                 </div>
-                <div>
+                <div className='mt-2'>
                   <label>Event Date:</label>
                   <input
                     type="date"
@@ -131,7 +144,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                     className="border w-full p-2 rounded"
                   />
                 </div>
-                <div>
+                <div className='mt-2'>
                   <label>Event Start Time:</label>
                   <input
                     type="time"
@@ -141,7 +154,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                     className="border w-full p-2 rounded"
                   />
                 </div>
-                <div>
+                <div className='mt-2'>
                   <label>Event End Time:</label>
                   <input
                     type="time"
