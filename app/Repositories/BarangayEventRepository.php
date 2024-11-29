@@ -16,6 +16,18 @@ class BarangayEventRepository implements BarangayEventContract
         $this->model = $model;
     }
 
+    private function formatFullName($firstname, $middlename, $lastname)
+    {
+        return trim(implode(' ', array_filter([$firstname, $middlename, $lastname])));
+    }
+
+    private function formatEventTime($startTime, $endTime)
+    {
+        $start = Carbon::parse($startTime)->format('h:i a');
+        $end = Carbon::parse($endTime)->format('h:i a');
+        return "{$start} - {$end}";
+    }
+
     public function updateOrCreateBarangayEvent($data)
     {
         return $this->model->updateOrCreate(
@@ -91,17 +103,18 @@ class BarangayEventRepository implements BarangayEventContract
                 'event_start' => $event->event_start,
                 'event_end' => $event->event_end,
                 'event_time' => $event->event_start && $event->event_end
-                    ? "{$event->event_start} - {$event->event_end}"
+                    ? $this->formatEventTime($event->event_start, $event->event_end)
                     : 'N/A',
                 'event_venue' => $event->event_venue,
                 'doctor_name' => $event->doctor 
-                    ? trim("{$event->doctor->firstname} {$event->doctor->middlename} {$event->doctor->lastname}")
+                    ? $this->formatFullName($event->doctor->firstname, $event->doctor->middlename, $event->doctor->lastname)
                     : null,
                 'bhw_name' => $event->bhw 
-                    ? trim("{$event->bhw->firstname} {$event->bhw->middlename} {$event->bhw->lastname}")
+                    ? $this->formatFullName($event->bhw->firstname, $event->bhw->middlename, $event->bhw->lastname)
                     : null,
-                'created_at' => $event->created_at,
-                'updated_at' => $event->updated_at,
+                'created_at' => $event->created_at 
+                    ? $event->created_at->format('F j, Y')
+                    : null,
             ];
         });
     }

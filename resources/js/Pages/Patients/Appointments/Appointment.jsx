@@ -81,20 +81,20 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
     e.preventDefault();
     post(route('patient.create.booking'), {
       onSuccess: (response) => {
-      const flash = response.props?.flash;
-      if (flash?.error) {
-        console.error('Error:', flash.error);
-        toast.error(flash.error);
-      }
+        const flash = response.props?.flash;
+        if (flash?.error) {
+          console.error('Error:', flash.error);
+          toast.error(flash.error);
+        }
 
-      if (flash?.success) {
-        console.log('Success:', flash.success);
-        toast.success(flash.success);
-      }
-    },
-    onError: (errors) => {
-      console.error('Failed to book appointment:', errors);
-    },
+        if (flash?.success) {
+          console.log('Success:', flash.success);
+          toast.success(flash.success);
+        }
+      },
+      onError: (errors) => {
+        console.error('Failed to book appointment:', errors);
+      },
     });
   };
 

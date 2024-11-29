@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
 class ActivitiesController extends Controller
@@ -57,7 +58,7 @@ class ActivitiesController extends Controller
         $barangayEvents = $this->barangayEventContract->getBarangayEvent();
         $doctors = $this->userDetailContract->getAllUserNameByRole('Practitioner', 'Active');
         $bhws = $this->userDetailContract->getAllUserNameByRole('Bhw', 'Active');
-
+  
         return Inertia::render($viewPath, [
             'barangayEvents' => $barangayEvents,
             'doctors' => $doctors,
@@ -88,11 +89,11 @@ class ActivitiesController extends Controller
             ]);   
 
             $existingEvent = $this->barangayEventContract->getDoctorBarangayEvent($data['doctor_id'], $data['event_date']);
-            $message = '';
-            $isSuccess = 0;
         
             if ($existingEvent) {
-                $message = 'The doctor already has a scheduled event on this date.';
+                
+                Session::flash('error', 'The doctor already has a scheduled event on this date.');
+
             } else {
                 if ($id) {
                     $data['id'] = $id; 
@@ -101,11 +102,11 @@ class ActivitiesController extends Controller
                     $this->barangayEventContract->updateOrCreateBarangayEvent($data);
                 }
 
-                $message = 'Success';
+                Session::flash('success', 'New Event successfully saved!');
             }
             
             DB::commit();
-            return redirect()->back()->with('success', $message);
+            return redirect()->back();
 
         } catch (Exception $e) {
             

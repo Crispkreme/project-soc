@@ -9,7 +9,7 @@ const BarangayEventModal = React.lazy(() => import("@/Components/Forms/BarangayE
 const Table = React.lazy(() => import("@/Components/Table"));
 
 const Activity = ({ barangayEvents, doctors, bhws}) => {
-
+    
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isViewing, setIsViewing] = useState(false);
@@ -25,44 +25,15 @@ const Activity = ({ barangayEvents, doctors, bhws}) => {
     };
 
     const barangayEventColumn = [
-        { 
-            key: "id",
-            label: "ID",
-        },
+        { key: "id", label: "ID" },
         { key: "doctor_name", label: "Doctor Name" },
         { key: "bhw_name", label: "In Charge" },
         { key: "event_name", label: "Event" },
         { key: "event_venue", label: "Venue" },
-        { 
-            key: "event_time", 
-            label: "Time", 
-            render: (row) => {
-                const formatTime = (timeStr) => {
-                    if (!timeStr) return 'N/A';
-                    
-                    const date = new Date(`1970-01-01T${timeStr}Z`);
-                    if (isNaN(date)) return 'Invalid Time';
-                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-                };
-                const start = formatTime(row.event_start || '00:00:00');
-                const end = formatTime(row.event_end || '00:00:00');
-                return `${start} - ${end}`;
-            }
-        },
-        { 
-            key: "event_date", 
-            label: "Date", 
-            render: (row) => {
-                const formatDate = (dateStr) => {
-                    const date = new Date(dateStr);
-                    if (isNaN(date)) return 'Invalid Date';
-                    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
-                };
-                return formatDate(row.event_date);
-            }
-        },
-    ];          
-
+        { key: "event_time", label: "Time" },
+        { key: "created_at", label: "Date" },
+    ];
+              
     const barangayEventAction = [
         {
             label: "View",

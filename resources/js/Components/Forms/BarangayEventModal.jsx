@@ -75,17 +75,19 @@ const BarangayEventModal = ({
 
     post(url, {
       onSuccess: (response) => {
-        console.log(response);
-        // if (response.error) {
-        //   console.log(response.error);
-        //   toast.error(response.error);
-        // } else if (response.success) {
-        //   toast.success(response.success);
-        // }
-        // toggleBarangayEventModal(false);
+        const flash = response.props?.flash;
+        if (flash?.error) {
+          toggleBarangayEventModal(false);
+          toast.error(flash.error);
+        }
+
+        if (flash?.success) {
+          toggleBarangayEventModal(false);
+          toast.success(flash.success);
+        }
       },
-      onError: (error) => {
-        toast.error(error);
+      onError: (errors) => {
+        console.error('Failed to book appointment:', errors);
       },
     });
   };
