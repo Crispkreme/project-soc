@@ -98,14 +98,15 @@ class ActivitiesController extends Controller
                 if ($id) {
                     $data['id'] = $id; 
                     $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+                    Session::flash('success', 'New Edited Event successfully saved!');
                 } else {
                     $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+                    Session::flash('success', 'New Event successfully saved!');
                 }
-
-                Session::flash('success', 'New Event successfully saved!');
             }
             
             DB::commit();
+            
             return redirect()->back();
 
         } catch (Exception $e) {
