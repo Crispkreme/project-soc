@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\AppointmentContract;
+use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
 use App\Contracts\LogContract;
 use App\Contracts\PrescriptionContract;
@@ -17,6 +18,7 @@ use Inertia\Inertia;
 
 class BookingController extends Controller
 {
+    protected $barangayEventContract;
     protected $bookingContract;
     protected $referralContract;
     protected $prescriptionContract;
@@ -24,12 +26,14 @@ class BookingController extends Controller
     protected $logContract;
 
     public function __construct(
+        BarangayEventContract $barangayEventContract,
         BookingContract $bookingContract,
         LogContract $logContract,
         ReferralContract $referralContract,
         PrescriptionContract $prescriptionContract,
         AppointmentContract $appointmentContract,
     ) {
+        $this->barangayEventContract = $barangayEventContract;
         $this->bookingContract = $bookingContract;
         $this->logContract = $logContract;
         $this->prescriptionContract = $prescriptionContract;
@@ -45,8 +49,8 @@ class BookingController extends Controller
             return redirect()->route('login');
         }
         
-        $bookings = $this->bookingContract->getAllBooking();
-        
+        $bookings = $this->barangayEventContract->getBarangayEvent();
+
         return Inertia::render('Admins/Appointments/Schedule', [
             'bookings' => $bookings,
         ]);

@@ -9,11 +9,9 @@ import interactionPlugin from '@fullcalendar/interaction';
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const AppointmentModal = React.lazy(() => import("./AppointmentModal"));
 
-const Schedule = ({ bookings }) => {
+const Schedule = ({ bookings = [] }) => {
 
-    const [showModal, setShowModal] = useState(false);
-    const [selectedAppointment, setSelectedAppointment] = useState(null);
-
+    // const today = new Date().toISOString().split('T')[0];
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
@@ -22,42 +20,78 @@ const Schedule = ({ bookings }) => {
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
     };
 
-    const filteredBookingSchedule = useMemo(() => {
-        return bookings.filter((booking) => {
-            const startTime = new Date(`${booking.appointment_date}T${booking.appointment_start}`);
-            return startTime.getMonth() === currentMonth && startTime.getFullYear() === currentYear;
-        }).map(booking => {
-            const startTime = `${booking.appointment_date}T${booking.appointment_start}`;
-            const endTime = `${booking.appointment_date}T${booking.appointment_end}`;
-        
+    const bookingSchedule = useMemo(() => {
+        return bookings.map((event) => {
+            const eventDateTime = new Date(`${event.event_date}T${event.event_start}`);
+            const todayDateTime = new Date();
+    
             return {
-                title: booking.title,
-                start: startTime,
-                end: endTime,
+                id: event.id,
+                title: event.event_name,
+                start: `${event.event_date}T${event.event_start}`,
+                end: `${event.event_date}T${event.event_end}`,
                 extendedProps: {
-                    date: booking.appointment_date,
-                    status: booking.booking_status,
-                    doctor_name: booking.doctor_name,
-                    patient_name: booking.patient_name,
-                    notes: booking.notes,
-                    formattedStart: formatTime(startTime),
-                    formattedEnd: formatTime(endTime)
-                }
+                    doctor_name: event.doctor_name,
+                    bhw_name: event.bhw_name,
+                    venue: event.event_venue,
+                    time: event.event_time,
+                    status: event.booking_status || "N/A",
+                    isPast: eventDateTime < todayDateTime,
+                },
             };
         });
+    }, [bookings]);
+    
+
+    const filteredBookingSchedule = useMemo(() => {
+        return bookings
+            .filter((event) => {
+                const eventDate = new Date(`${event.event_date}T${event.event_start}`);
+                return (
+                    eventDate.getMonth() === currentMonth &&
+                    eventDate.getFullYear() === currentYear
+                );
+            })
+            .map((event) => ({
+                id: event.id,
+                title: event.event_name,
+                start: `${event.event_date}T${event.event_start}`,
+                end: `${event.event_date}T${event.event_end}`,
+                extendedProps: {
+                    date: event.event_date,
+                    status: event.booking_status || "N/A",
+                    doctor_name: event.doctor_name,
+                    venue: event.event_venue,
+                    time: event.event_time,
+                    formattedStart: formatTime(`${event.event_date}T${event.event_start}`),
+                    formattedEnd: formatTime(`${event.event_date}T${event.event_end}`),
+                },
+            }));
     }, [bookings, currentMonth, currentYear]);
 
+    const [showModal, setShowModal] = useState(false);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
+
     const handleEventClick = (info) => {
-        const { date, status, doctor_name, patient_name, notes } = info.event.extendedProps;
+        const {
+            date,
+            status,
+            doctor_name,
+            venue,
+            time,
+            formattedStart,
+            formattedEnd,
+        } = info.event.extendedProps;
+
         setSelectedAppointment({
             title: info.event.title,
-            start: info.event.start,
-            end: info.event.end,
+            start: formattedStart,
+            end: formattedEnd,
             date: date,
             status: status,
             doctor_name: doctor_name,
-            patient_name: patient_name,
-            notes: notes,
+            venue: venue,
+            time: time,
         });
         setShowModal(true);
     };
@@ -67,47 +101,81 @@ const Schedule = ({ bookings }) => {
         setSelectedAppointment(null);
     };
 
+    const renderEvent = (eventInfo) => {
+        const { status, isPast } = eventInfo.event.extendedProps;
+
+        return (
+            <span className="relative items-center overflow-hidden text-center">
+                <div
+                    className={`absolute top-1 left-1 rounded-full w-2 h-2 ${
+                        status === "Success"
+                            ? "bg-green-500"
+                            : status === "Pending"
+                            ? "bg-yellow-500"
+                            : "bg-gray-500"
+                    }`}
+                ></div>
+                <span
+                    className={`pl-4 ${
+                        isPast ? "text-gray-400 cursor-not-allowed" : "text-black"
+                    }`}
+                >
+                    {eventInfo.event.title}
+                </span>
+            </span>
+        );
+    };
+
     return (
         <Suspense fallback={<div>Loading...</div>}>
             <AdminLayout>
                 <Head title="Scheduling" />
 
                 <div className="grid grid-cols-12 h-screen">
+                    {/* Main Calendar */}
                     <div className="col-span-8">
                         <FullCalendar
                             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                             initialView="dayGridMonth"
+                            eventContent={renderEvent}
                             headerToolbar={{
                                 start: "today, prev, next",
                                 center: "title",
-                                end: ""
+                                end: "dayGridMonth,timeGridWeek,timeGridDay",
                             }}
-                            events={filteredBookingSchedule}
+                            events={bookingSchedule}
                             selectable={true}
-                            height="100vh"
+                            eventClick={handleEventClick}
                             buttonText={{
-                                today: 'Today',
-                                month: 'Month',
-                                week: 'Week',
-                                day: 'Day'
+                                today: "Today",
+                                month: "Month",
+                                week: "Week",
+                                day: "Day",
                             }}
                         />
                     </div>
 
+                    {/* List View */}
                     <div className="col-span-4 flex flex-col gap-4 p-4">
                         <FullCalendar
                             plugins={[listPlugin]}
                             initialView="listMonth"
-                            events={filteredBookingSchedule}
+                            headerToolbar={{
+                                start: "prev, next",
+                                // center: "title",
+                                // end: "dayGridMonth,timeGridWeek,timeGridDay",
+                            }}
+                            events={bookingSchedule}
                             selectable={true}
                             eventClick={handleEventClick}
-                            headerToolbar={false}
+                            // headerToolbar={false}
                             height="100vh"
-                        />            
+                        />
                     </div>
                 </div>
             </AdminLayout>
 
+            {/* Appointment Modal */}
             {showModal && (
                 <AppointmentModal
                     showModal={showModal}

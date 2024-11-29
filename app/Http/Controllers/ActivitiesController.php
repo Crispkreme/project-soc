@@ -117,7 +117,7 @@ class ActivitiesController extends Controller
 
             DB::rollback();
 
-            return redirect()->back()->with('error', 'Error please try again.');
+            return redirect()->back()->with('error', 'Unable to set the event. The date has already passed!');
         }
     }
 }
