@@ -11,7 +11,6 @@ const AppointmentModal = React.lazy(() => import("./AppointmentModal"));
 
 const Schedule = ({ bookings = [] }) => {
 
-    // const today = new Date().toISOString().split('T')[0];
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
@@ -162,13 +161,10 @@ const Schedule = ({ bookings = [] }) => {
                             initialView="listMonth"
                             headerToolbar={{
                                 start: "prev, next",
-                                // center: "title",
-                                // end: "dayGridMonth,timeGridWeek,timeGridDay",
                             }}
                             events={bookingSchedule}
                             selectable={true}
                             eventClick={handleEventClick}
-                            // headerToolbar={false}
                             height="100vh"
                         />
                     </div>

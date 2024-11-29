@@ -11,12 +11,6 @@ const Table = ({
     <table className="w-full text-sm text-left text-gray-500">
       <thead className="text-xs text-gray-700 uppercase bg-gray-50">
         <tr>
-          <th className="p-4">
-            <input
-              type="checkbox"
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-            />
-          </th>
           {columns.map((column) => (
             <th key={column.key} scope="col" className="px-6 py-3">
               {column.label}
@@ -33,12 +27,6 @@ const Table = ({
               className="bg-white border-b hover:bg-gray-50"
               onClick={() => onRowClick(row)}
             >
-              <td className="p-4">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                />
-              </td>
               {columns.map((column) => (
                 <td key={column.key} className="px-6 py-4">
                   {column.render

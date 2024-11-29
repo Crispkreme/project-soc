@@ -99,21 +99,20 @@ class BarangayEventRepository implements BarangayEventContract
                 'doctor_id' => $event->doctor_id,
                 'bhw_id' => $event->bhw_id,
                 'event_name' => $event->event_name,
-                'event_date' => $event->event_date,
                 'event_start' => $event->event_start,
                 'event_end' => $event->event_end,
                 'event_time' => $event->event_start && $event->event_end
                     ? $this->formatEventTime($event->event_start, $event->event_end)
                     : 'N/A',
                 'event_venue' => $event->event_venue,
-                'doctor_name' => $event->doctor 
+                'doctor_name' => $event->doctor
                     ? $this->formatFullName($event->doctor->firstname, $event->doctor->middlename, $event->doctor->lastname)
                     : null,
-                'bhw_name' => $event->bhw 
+                'bhw_name' => $event->bhw
                     ? $this->formatFullName($event->bhw->firstname, $event->bhw->middlename, $event->bhw->lastname)
                     : null,
-                'created_at' => $event->created_at 
-                    ? $event->created_at->format('F j, Y')
+                'event_date' => $event->event_date 
+                    ? Carbon::parse($event->event_date)->format('F j, Y')
                     : null,
             ];
         });

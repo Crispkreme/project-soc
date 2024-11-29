@@ -25,13 +25,12 @@ const Activity = ({ barangayEvents, doctors, bhws}) => {
     };
 
     const barangayEventColumn = [
-        { key: "id", label: "ID" },
         { key: "doctor_name", label: "Doctor Name" },
         { key: "bhw_name", label: "In Charge" },
         { key: "event_name", label: "Event" },
         { key: "event_venue", label: "Venue" },
         { key: "event_time", label: "Time" },
-        { key: "created_at", label: "Date" },
+        { key: "event_date", label: "Date of Event" },
     ];
               
     const barangayEventAction = [
