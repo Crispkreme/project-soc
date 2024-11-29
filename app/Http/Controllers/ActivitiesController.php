@@ -86,21 +86,30 @@ class ActivitiesController extends Controller
                 'event_end' => 'required|date_format:H:i|after:event_start',
                 'event_venue' => 'required|string|max:255',
             ]);   
-            
-            if ($id) {
-                $data['id'] = $id; 
-                $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+
+            $existingEvent = $this->barangayEventContract->getDoctorBarangayEvent($data['doctor_id'], $data['event_date']);
+            $message = '';
+            $isSuccess = 0;
+        
+            if ($existingEvent) {
+                $message = 'The doctor already has a scheduled event on this date.';
             } else {
-                $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+                if ($id) {
+                    $data['id'] = $id; 
+                    $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+                } else {
+                    $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+                }
+
+                $message = 'Success';
             }
-
+            
             DB::commit();
-
-            return redirect()->back()->with('success', 'Baranagy Event added successfully!');
+            return redirect()->back()->with('success', $message);
 
         } catch (Exception $e) {
             
-            Log::error('Error during updateOrCreateSchedule: ' . $e->getMessage(), [
+            Log::error('Error during updateOrCreateBarangayEvent: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);

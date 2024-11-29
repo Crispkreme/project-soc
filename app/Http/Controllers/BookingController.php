@@ -69,7 +69,6 @@ class BookingController extends Controller
 
     public function createBooking(Request $request, $id = null)
     {
-
         $user = Auth::user();
 
         if (!$user) {
@@ -77,42 +76,62 @@ class BookingController extends Controller
         }
 
         try {
-            
             DB::beginTransaction();
 
-            $data = $request->validate([  
+            $data = $request->validate([
                 'approved_date' => 'nullable|date',
                 'booking_status' => 'nullable|in:Approve,Pending,Success,Failed',
-            ]);     
-            $data['approve_by_id'] = null; 
-            $data['patient_id'] = $user->id; 
-            $data['title'] = $request->event_name; 
-            $data['notes'] = "Booking";  
-            $data['appointment_date'] = $request->event_date;  
-            $data['appointment_start'] = $request->event_start;  
-            $data['appointment_end'] = $request->event_end;  
-   
-            if ($id) {
-                $data['id'] = $id; 
-                $this->bookingContract->createOrUpdateBooking($data);
-            } else {
-                $this->bookingContract->createOrUpdateBooking($data);
+            ]);
+
+            $data['approve_by_id'] = null;
+            $data['patient_id'] = $user->id;
+            $data['title'] = $request->event_name;
+            $data['notes'] = "Booking";
+            $data['appointment_date'] = $request->event_date;
+            $data['appointment_start'] = $request->event_start;
+            $data['appointment_end'] = $request->event_end;
+
+            $existingBookings = $this->bookingContract->checkExistingBooking(
+                $request->event_date, 
+                $request->event_start, 
+                $request->event_end
+            );
+
+            if ($existingBookings >= 2) {
+                Session::flash('error', 'The selected time slot is already fully booked. Please select another time.');
             }
 
-            $logData = [  
-                'patient_id' => $user->id,
-                'message' => 'has booked an appointment',
-                'log_status' => 'Pending',
-            ]; 
+            $existingPatientBookings = $this->bookingContract->checkPatientExistingBooking(
+                $user->id, 
+                $request->event_name
+            );
 
-            $this->logContract->updateOrCreateLog($logData);
+            if ($existingPatientBookings >= 1) {
+                Session::flash('error', 'You have already booked for this event.');
+            }
 
+            if ($existingBookings < 2 && $existingPatientBookings < 1) {
+                if ($id) {
+                    $data['id'] = $id;
+                }
+                
+                $this->bookingContract->createOrUpdateBooking($data);
+            
+                $logData = [
+                    'patient_id' => $user->id,
+                    'message' => 'has booked an appointment',
+                    'log_status' => 'Pending',
+                ];
+            
+                $this->logContract->updateOrCreateLog($logData);
+            
+                Session::flash('success', 'Appointment saved successfully!');
+            }
+            
             DB::commit();
-
-            return redirect()->back()->with('success', 'Appointment saved successfully!');
+            return redirect()->back();
 
         } catch (Exception $e) {
-            
             Log::error('Error during createBooking: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),

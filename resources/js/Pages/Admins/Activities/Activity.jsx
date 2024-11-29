@@ -2,12 +2,13 @@ import React, { useState, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { LuClipboardEdit } from "react-icons/lu";
+import { toast } from 'react-hot-toast';
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const BarangayEventModal = React.lazy(() => import("@/Components/Forms/BarangayEventModal"));
 const Table = React.lazy(() => import("@/Components/Table"));
 
-const Activity = ({ barangayEvents, doctors, bhws }) => {
+const Activity = ({ barangayEvents, doctors, bhws}) => {
 
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -21,10 +22,13 @@ const Activity = ({ barangayEvents, doctors, bhws }) => {
         setIsEditing(isEditing);
         setIsViewing(isViewing);
         setShowModal(!showModal);
-    };    
+    };
 
     const barangayEventColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+        { 
+            key: "id",
+            label: "ID",
+        },
         { key: "doctor_name", label: "Doctor Name" },
         { key: "bhw_name", label: "In Charge" },
         { key: "event_name", label: "Event" },
@@ -63,13 +67,19 @@ const Activity = ({ barangayEvents, doctors, bhws }) => {
         {
             label: "View",
             icon: LuClipboardEdit,
-            onClick: (row) => toggleBarangayEventModal(row, false, true),
+            onClick: (row) => {
+                toggleBarangayEventModal(row, false, true);
+                toast.info("Viewing Barangay Event...");
+            },
             style: "bg-yellow-300 text-yellow-800 hover:bg-yellow-400"
         },
         {
             label: "Edit",
             icon: LuClipboardEdit,
-            onClick: (row) => toggleBarangayEventModal(row, true, false),
+            onClick: (row) => {
+                toggleBarangayEventModal(row, true, false);
+                toast.info("Editing Barangay Event...");
+            },
             style: "bg-blue-300 text-blue-800 hover:bg-blue-400"
         },
     ];

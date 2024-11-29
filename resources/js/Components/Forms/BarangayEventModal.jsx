@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useForm } from "@inertiajs/react";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
@@ -29,11 +29,9 @@ const BarangayEventModal = ({
     event_venue: selectedBarangayEvent?.event_venue || "",
   });
 
-  // Use useRef to prevent unnecessary resetting on every render
   const hasDataBeenSet = useRef(false);
 
   useEffect(() => {
-    // Only set data if not already set
     if (showModal && !hasDataBeenSet.current) {
       if (isEditing && selectedBarangayEvent) {
         setData({
@@ -46,7 +44,6 @@ const BarangayEventModal = ({
           event_venue: selectedBarangayEvent.event_venue || "",
         });
       } else {
-        // Reset form data for new event
         setData({
           doctor_id: "",
           bhw_id: "",
@@ -57,12 +54,9 @@ const BarangayEventModal = ({
           event_venue: "",
         });
       }
-
-      // Mark the data as set
       hasDataBeenSet.current = true;
     }
 
-    // Reset the flag when modal is closed
     if (!showModal) {
       hasDataBeenSet.current = false;
     }
@@ -81,22 +75,37 @@ const BarangayEventModal = ({
 
     post(url, {
       onSuccess: (response) => {
-        toggleBarangayEventModal(false);
-        toast.success("Barangay Event added successfully!");
+        console.log(response);
+        // if (response.error) {
+        //   console.log(response.error);
+        //   toast.error(response.error);
+        // } else if (response.success) {
+        //   toast.success(response.success);
+        // }
+        // toggleBarangayEventModal(false);
       },
-      onError: (errors) => {
-        toggleBarangayEventModal(false);
-        toast.error("An error occurred during barangay event creation.");
+      onError: (error) => {
+        toast.error(error);
       },
     });
   };
+
+  const timeSchedule = [
+    { value: "08:00", label: "08:00 AM" },
+    { value: "09:00", label: "09:00 AM" },
+    { value: "10:00", label: "10:00 AM" },
+    { value: "11:00", label: "11:00 AM" },
+    { value: "13:00", label: "01:00 PM" },
+    { value: "14:00", label: "02:00 PM" },
+    { value: "15:00", label: "03:00 PM" },
+    { value: "16:00", label: "04:00 PM" },
+    { value: "17:00", label: "05:00 PM" },
+  ];
 
   return (
     <Modal show={showModal} onClose={toggleBarangayEventModal}>
       <form onSubmit={submit} className="p-6">
         <Title>{isEditing ? "Edit Barangay Event" : "Create Barangay Event"}</Title>
-
-        {/* Doctor Field */}
         <div className="mt-4">
           <InputLabel value="Doctor" />
           <ComboBox
@@ -106,10 +115,8 @@ const BarangayEventModal = ({
             placeholder="Select a Doctor"
             displayKey="name"
           />
-          {errors.doctor_id && <InputError message={errors.doctor_id} />}
+          <InputError message={errors.doctor_id} />
         </div>
-
-        {/* BHW Field */}
         <div className="mt-4">
           <InputLabel value="Bhw" />
           <ComboBox
@@ -119,76 +126,67 @@ const BarangayEventModal = ({
             placeholder="Select a Bhw"
             displayKey="name"
           />
-          {errors.bhw_id && <InputError message={errors.bhw_id} />}
+          <InputError message={errors.bhw_id} />
         </div>
-
-        {/* Barangay Event Name Field */}
         <div className="mt-4">
           <InputLabel value="Barangay Event Name" />
           <TextInput
             value={data.event_name}
             onChange={(e) => setData("event_name", e.target.value)}
             type="text"
-            className="w-full border p-2 rounded"
+            className="w-full"
           />
-          {errors.event_name && <InputError message={errors.event_name} />}
+          <InputError message={errors.event_name} />
         </div>
-
-        {/* Appointment Date Field */}
         <div className="mt-4">
           <InputLabel value="Appointment Date" />
           <TextInput
             value={data.event_date}
             onChange={(e) => setData("event_date", e.target.value)}
             type="date"
-            className="w-full border p-2 rounded"
+            className="w-full"
           />
-          {errors.event_date && <InputError message={errors.event_date} />}
+          <InputError message={errors.event_date} />
         </div>
-
-        {/* Appointment Time Fields */}
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <InputLabel value="Appointment Start" />
-            <TextInput
-              value={data.event_start}
-              onChange={(e) => setData("event_start", e.target.value)}
-              type="time"
-              className="w-full border p-2 rounded"
+            <InputLabel value="Start Time" />
+            <ComboBox
+              items={timeSchedule}
+              value={timeSchedule.find((time) => time.value === data.event_start)}
+              onChange={(selected) => setData("event_start", selected ? selected.value : "")}
+              placeholder="Select Start Time"
+              displayKey="label"
             />
-            {errors.event_start && <InputError message={errors.event_start} />}
+            <InputError message={errors.event_start} />
           </div>
           <div>
-            <InputLabel value="Appointment End" />
-            <TextInput
-              value={data.event_end}
-              onChange={(e) => setData("event_end", e.target.value)}
-              type="time"
-              className="w-full border p-2 rounded"
+            <InputLabel value="End Time" />
+            <ComboBox
+              items={timeSchedule}
+              value={timeSchedule.find((time) => time.value === data.event_end)}
+              onChange={(selected) => setData("event_end", selected ? selected.value : "")}
+              placeholder="Select End Time"
+              displayKey="label"
             />
-            {errors.event_end && <InputError message={errors.event_end} />}
+            <InputError message={errors.event_end} />
           </div>
         </div>
-
-        {/* Notes Field (Event Venue) */}
         <div className="mt-4">
           <InputLabel htmlFor="event_venue" value="Notes (Event Venue)" />
-          <textarea
+          <Textarea
             id="event_venue"
             name="event_venue"
             rows={4}
-            placeholder="Barangay Event Venue"
+            placeholder="Enter event venue notes"
             value={data.event_venue}
             onChange={(e) => setData("event_venue", e.target.value)}
-            className="mt-1 block w-full border p-2 rounded"
           />
-          {errors.event_venue && <InputError message={errors.event_venue} />}
+          <InputError message={errors.event_venue} />
         </div>
-
-        {/* Submit Button */}
         <div className="mt-4 flex justify-center">
-          <PrimaryButton disabled={processing} className="px-8 py-2">
-            {processing ? "Saving..." : isEditing ? "Update Barangay Event" : "Save Barangay Event"}
+          <PrimaryButton disabled={processing}>
+            {processing ? "Saving..." : isEditing ? "Update Event" : "Save Event"}
           </PrimaryButton>
         </div>
       </form>

@@ -105,4 +105,11 @@ class BarangayEventRepository implements BarangayEventContract
             ];
         });
     }
+
+    public function getDoctorBarangayEvent($id, $data)
+    {
+        return $this->model->where('doctor_id', $id)
+        ->whereDate('event_date', $data)
+        ->first();
+    }
 }

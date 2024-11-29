@@ -4,8 +4,16 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { toast } from 'react-hot-toast';
 
 const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
+const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
+const ComboBox = React.lazy(() => import("@/Components/Inputs/ComboBox"));
+const InputLabel = React.lazy(() => import("@/Components/Inputs/InputLabel"));
+const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButton"));
+const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
+const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
+const Title = React.lazy(() => import("@/Components/Headers/Title"));
 
 const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
   const today = new Date().toISOString().split('T')[0];
@@ -37,18 +45,30 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
     event_end: '',
   });
 
+  const timeSchedule = [
+    { value: "08:00", label: "08:00 AM" },
+    { value: "09:00", label: "09:00 AM" },
+    { value: "10:00", label: "10:00 AM" },
+    { value: "11:00", label: "11:00 AM" },
+    { value: "13:00", label: "01:00 PM" },
+    { value: "14:00", label: "02:00 PM" },
+    { value: "15:00", label: "03:00 PM" },
+    { value: "16:00", label: "04:00 PM" },
+    { value: "17:00", label: "05:00 PM" },
+  ];
+
   const handleEventClick = (clickInfo) => {
     const event = clickInfo.event;
     const { extendedProps } = event;
 
-    // Prevent clicking on past events
     if (extendedProps.isPast) {
-      alert('This appointment date has passed and cannot be booked.');
+      toast.error("This appointment date has passed and cannot be booked.");
       return;
     }
 
     setData({
       ...data,
+      event_id: event.id,
       event_name: event.title,
       event_venue: extendedProps.venue,
       event_date: event.start.toISOString().split('T')[0],
@@ -60,7 +80,21 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
   const handleBookAppointment = (e) => {
     e.preventDefault();
     post(route('patient.create.booking'), {
-      onError: (errors) => console.error('Failed to book appointment:', errors),
+      onSuccess: (response) => {
+      const flash = response.props?.flash;
+      if (flash?.error) {
+        console.error('Error:', flash.error);
+        toast.error(flash.error);
+      }
+
+      if (flash?.success) {
+        console.log('Success:', flash.success);
+        toast.success(flash.success);
+      }
+    },
+    onError: (errors) => {
+      console.error('Failed to book appointment:', errors);
+    },
     });
   };
 
@@ -145,24 +179,26 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                   />
                 </div>
                 <div className='mt-2'>
-                  <label>Event Start Time:</label>
-                  <input
-                    type="time"
-                    value={data.event_start}
-                    name="event_start"
-                    onChange={(e) => setData("event_start", e.target.value)}
-                    className="border w-full p-2 rounded"
+                  <InputLabel value="Start Time" />
+                  <ComboBox
+                    items={timeSchedule}
+                    value={timeSchedule.find((time) => time.value === data.event_start)}
+                    onChange={(selected) => setData("event_start", selected ? selected.value : "")}
+                    placeholder="Select Start Time"
+                    displayKey="label"
                   />
+                  <InputError message={errors.event_start} />
                 </div>
                 <div className='mt-2'>
-                  <label>Event End Time:</label>
-                  <input
-                    type="time"
-                    value={data.event_end}
-                    name="event_end"
-                    onChange={(e) => setData("event_end", e.target.value)}
-                    className="border w-full p-2 rounded"
+                  <InputLabel value="End Time" />
+                  <ComboBox
+                    items={timeSchedule}
+                    value={timeSchedule.find((time) => time.value === data.event_end)}
+                    onChange={(selected) => setData("event_end", selected ? selected.value : "")}
+                    placeholder="Select End Time"
+                    displayKey="label"
                   />
+                  <InputError message={errors.event_end} />
                 </div>
                 <div className="mt-4">
                   <button
