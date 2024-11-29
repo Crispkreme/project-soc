@@ -8,4 +8,5 @@ interface BarangayEventContract {
     public function getAllBarangayEvent();
     public function getBarangayEvent();
     public function updateOrCreateBarangayEvent($data);
+    public function getDoctorBarangayEvent($id, $data);
 }

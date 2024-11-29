@@ -10,6 +10,8 @@ import { PiAddressBookBold } from "react-icons/pi";
 import { VscGraph } from "react-icons/vsc";
 import { GoChecklist } from "react-icons/go";
 import { useSelector } from 'react-redux';
+import { RiMedicineBottleLine } from "react-icons/ri";
+import { Toaster } from "react-hot-toast";
 
 const Sidebar = React.lazy(() => import("@/Components/Sidebars/Sidebar"));
 const Header = React.lazy(() => import("@/Components/Headers/Header"));
@@ -50,7 +52,7 @@ const AdminLayout = ({ children }) => {
                 ]}
             />
             <SidebarItem icon={TbTools} label="Activities" link={route('admin.activities')} />
-            <SidebarItem icon={TbTools} label="Medicine Requester" link={route('admin.medicine.requester')} />
+            <SidebarItem icon={RiMedicineBottleLine} label="Medicine Requester" link={route('admin.medicine.requester')} />
             <SidebarItem icon={RiHospitalLine} label="Referral" link={route('admin.referrals')} />
             <SidebarItem icon={GoChecklist} label="Prescription" link={route('admin.prescriptions')} />
             <SidebarItem icon={VscGraph} label="Data" link="#" />
@@ -98,6 +100,7 @@ const AdminLayout = ({ children }) => {
                 <Header userId={user.id} />
 
                 <div className="p-6">
+                    <Toaster position="top-right" reverseOrder={false} />
                     {children}
                 </div>
                 

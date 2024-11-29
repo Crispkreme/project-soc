@@ -4,6 +4,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { toast } from 'react-hot-toast';
 
 const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
 
@@ -41,9 +42,8 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
     const event = clickInfo.event;
     const { extendedProps } = event;
 
-    // Prevent clicking on past events
     if (extendedProps.isPast) {
-      alert('This appointment date has passed and cannot be booked.');
+      toast.error("This appointment date has passed and cannot be booked.");
       return;
     }
 

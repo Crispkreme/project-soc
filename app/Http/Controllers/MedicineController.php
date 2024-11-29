@@ -36,16 +36,19 @@ class MedicineController extends Controller
 
     public function updateOrCreateMedicine(Request $request, $id = null)
     {   
-        DB::beginTransaction();
-
-        $data = $request->validate([
-            'medicine_name' => 'required|string|max:255|unique:'.Medicine::class,
-            'description' => 'nullable|string',
-        ]);
+        
         
         try {
+
+            DB::beginTransaction();
+            dd($request);
+            $data = $request->validate([
+                'medicine_name' => 'required|string|max:255|unique:'.Medicine::class,
+                'description' => 'nullable|string',
+            ]);
             
             if ($id) {
+                
                 $data['id'] = $id; 
                 $this->medicineContract->createOrUpdateMedicine($data);
             } else {
