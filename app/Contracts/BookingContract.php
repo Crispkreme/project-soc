@@ -9,4 +9,6 @@ interface BookingContract {
     public function getBookingById($id);
     public function getPatientIdByBookingId($id);
     public function updateBookingstatus($status, $id, $approverId);
+    public function checkExistingBooking($date, $start, $end);
+    public function checkPatientExistingBooking($id, $event);
 }
