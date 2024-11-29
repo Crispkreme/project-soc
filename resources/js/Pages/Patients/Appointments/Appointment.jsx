@@ -46,15 +46,13 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
   });
 
   const timeSchedule = [
-    { value: "08:00", label: "08:00 AM" },
-    { value: "09:00", label: "09:00 AM" },
-    { value: "10:00", label: "10:00 AM" },
-    { value: "11:00", label: "11:00 AM" },
-    { value: "13:00", label: "01:00 PM" },
-    { value: "14:00", label: "02:00 PM" },
-    { value: "15:00", label: "03:00 PM" },
-    { value: "16:00", label: "04:00 PM" },
-    { value: "17:00", label: "05:00 PM" },
+    { value: "08:00 - 09:00", label: "08:00 AM - 09:00 AM" },
+    { value: "09:00 - 10:00", label: "09:00 AM - 10:00 AM" },
+    { value: "10:00 - 11:00", label: "10:00 AM - 11:00 AM" },
+    { value: "13:00 - 14:00", label: "01:00 PM - 02:00 PM" },
+    { value: "14:00 - 15:00", label: "02:00 PM - 03:00 PM" },
+    { value: "15:00 - 16:00", label: "03:00 PM - 04:00 PM" },
+    { value: "16:00 - 17:00", label: "04:00 PM - 05:00 PM" },
   ];
 
   const handleEventClick = (clickInfo) => {
@@ -106,11 +104,8 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
         <div
           className={`absolute top-1 left-1 rounded-full w-2 h-2 ${
             status === 'Success' ? 'bg-green-500' : status === 'Pending' ? 'bg-yellow-500' : 'bg-gray-500'
-          }`}
-        ></div>
-        <span
-          className={`pl-4 ${isPast ? 'text-gray-400 cursor-not-allowed' : 'text-black'}`}
-        >
+          }`}></div>
+        <span className={`pl-4 ${isPast ? 'text-gray-400 cursor-not-allowed' : 'text-black'}`}>
           {eventInfo.event.title}
         </span>
       </span>
@@ -158,7 +153,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                     className="border w-full p-2 rounded"
                   />
                 </div>
-                <div className='mt-2'>
+                <div className="mt-2">
                   <label>Event Venue:</label>
                   <input
                     type="text"
@@ -168,7 +163,7 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                     className="border w-full p-2 rounded"
                   />
                 </div>
-                <div className='mt-2'>
+                <div className="mt-2">
                   <label>Event Date:</label>
                   <input
                     type="date"
@@ -178,35 +173,27 @@ const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
                     className="border w-full p-2 rounded"
                   />
                 </div>
-                <div className='mt-2'>
-                  <InputLabel value="Start Time" />
+                <div className="mt-2">
+                  <InputLabel value="Time Slot" />
                   <ComboBox
                     items={timeSchedule}
-                    value={timeSchedule.find((time) => time.value === data.event_start)}
-                    onChange={(selected) => setData("event_start", selected ? selected.value : "")}
+                    value={timeSchedule.find((time) => time.value === `${data.event_start} - ${data.event_end}`)}
+                    onChange={(selected) => {
+                      const [start, end] = selected ? selected.value.split(' - ') : [];
+                      setData("event_start", start);
+                      setData("event_end", end);
+                    }}
                     placeholder="Select Start Time"
                     displayKey="label"
                   />
                   <InputError message={errors.event_start} />
-                </div>
-                <div className='mt-2'>
-                  <InputLabel value="End Time" />
-                  <ComboBox
-                    items={timeSchedule}
-                    value={timeSchedule.find((time) => time.value === data.event_end)}
-                    onChange={(selected) => setData("event_end", selected ? selected.value : "")}
-                    placeholder="Select End Time"
-                    displayKey="label"
-                  />
-                  <InputError message={errors.event_end} />
                 </div>
                 <div className="mt-4">
                   <button
                     className={`bg-blue-500 text-white px-4 py-2 rounded ${
                       processing ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
-                    disabled={processing}
-                  >
+                    disabled={processing}>
                     {processing ? 'Processing...' : 'Book Appointment'}
                   </button>
                 </div>
