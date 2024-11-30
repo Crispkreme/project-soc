@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Models\Booking;
 use App\Contracts\BookingContract;
+use App\Models\Booking;
+use Carbon\Carbon;
 
 class BookingRepository implements BookingContract
 {
@@ -13,6 +14,23 @@ class BookingRepository implements BookingContract
     public function __construct(Booking $model)
     {
         $this->model = $model;
+    }
+
+    public function formatDateTime($dateTime, $type = 'date')
+    {
+        if (!$dateTime) {
+            return '';
+        }
+
+        $carbonDate = Carbon::parse($dateTime);
+
+        if ($type == 'date') {
+            return $carbonDate->format('F j, Y');
+        } elseif ($type == 'time') {
+            return $carbonDate->format('h:i A');
+        }
+
+        return $dateTime;
     }
 
     public function getAllBooking()
@@ -35,14 +53,14 @@ class BookingRepository implements BookingContract
                     'patient_name' => $patientName,
                     'title' => $booking->title,
                     'notes' => $booking->notes,
-                    'appointment_date' => $booking->appointment_date,
-                    'appointment_start' => $booking->appointment_start,
-                    'appointment_end' => $booking->appointment_end,
+                    'appointment_date' => $this->formatDateTime($booking->appointment_date, 'date'),
+                    'updated_at' => $this->formatDateTime($booking->updated_at, 'date'),
+                    'appointment_start' => $this->formatDateTime($booking->appointment_start, 'time'),
+                    'appointment_end' => $this->formatDateTime($booking->appointment_end, 'time'),
                     'booking_status' => $booking->booking_status,
                 ];
             });
     }
-
 
     public function createOrUpdateBooking($data)
     {
