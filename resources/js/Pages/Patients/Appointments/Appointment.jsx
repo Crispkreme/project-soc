@@ -16,11 +16,8 @@ const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
 
 const Appointment = ({ barangayEvents }) => {
-  
-  const today = new Date().toISOString().split('T')[0];
-  
   const bookingSchedule = barangayEvents.map((event) => {
-    const parsedDate = new Date(event.event_date); 
+    const parsedDate = new Date(event.event_date);
     const isoDate = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}`;
 
     return {
@@ -37,9 +34,7 @@ const Appointment = ({ barangayEvents }) => {
         isPast: new Date(event.event_date) < new Date(),
       },
     };
-});
-
-  console.log("bookingSchedule", bookingSchedule);
+  });
 
   const { data, setData, post, processing, errors } = useForm({
     approve_by_id: null,
@@ -63,6 +58,15 @@ const Appointment = ({ barangayEvents }) => {
     { value: "16:00 - 17:00", label: "04:00 PM - 05:00 PM" },
   ];
 
+  const filterTimeSlots = (start, end) => {
+    const startHour = parseInt(start.split(":")[0], 10);
+    const endHour = parseInt(end.split(":")[0], 10);
+    return timeSchedule.filter(({ value }) => {
+      const [slotStart, slotEnd] = value.split(" - ").map((time) => parseInt(time.split(":")[0], 10));
+      return slotStart >= startHour && slotEnd <= endHour;
+    });
+  };
+
   const handleEventClick = (clickInfo) => {
     const event = clickInfo.event;
     const { extendedProps } = event;
@@ -81,7 +85,16 @@ const Appointment = ({ barangayEvents }) => {
       event_start: event.start.toTimeString().split(' ')[0],
       event_end: event.end ? event.end.toTimeString().split(' ')[0] : '',
     });
+
+    const filteredSlots = filterTimeSlots(
+      event.start.toTimeString().split(" ")[0],
+      event.end ? event.end.toTimeString().split(" ")[0] : "23:59"
+    );
+
+    setFilteredTimeSchedule(filteredSlots);
   };
+
+  const [filteredTimeSchedule, setFilteredTimeSchedule] = React.useState(timeSchedule);
 
   const handleBookAppointment = (e) => {
     e.preventDefault();
@@ -184,8 +197,10 @@ const Appointment = ({ barangayEvents }) => {
                 <div className="mt-2">
                   <InputLabel value="Time Slot" />
                   <ComboBox
-                    items={timeSchedule}
-                    value={timeSchedule.find((time) => time.value === `${data.event_start} - ${data.event_end}`)}
+                    items={filteredTimeSchedule}
+                    value={filteredTimeSchedule.find(
+                      (time) => time.value === `${data.event_start} - ${data.event_end}`
+                    )}
                     onChange={(selected) => {
                       const [start, end] = selected ? selected.value.split(' - ') : [];
                       setData("event_start", start);
