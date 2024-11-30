@@ -20,8 +20,8 @@ const Appointment = ({ barangayEvents }) => {
   const today = new Date().toISOString().split('T')[0];
   
   const bookingSchedule = barangayEvents.map((event) => {
-    const parsedDate = new Date(event.event_date);
-    const isoDate = parsedDate.toISOString().split('T')[0];
+    const parsedDate = new Date(event.event_date); 
+    const isoDate = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}`;
 
     return {
       id: event.id,

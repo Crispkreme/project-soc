@@ -19,14 +19,17 @@ const Schedule = ({ bookings = [] }) => {
     const filteredBookingSchedule = useMemo(() => {
         return bookings.map((booking) => {
             const parsedDate = new Date(booking.event_date);
+            
             if (isNaN(parsedDate.getTime())) {
                 console.error(`Invalid event_date: ${booking.event_date}`);
                 return null;
             }
-    
-            const startTime = new Date(`${parsedDate.toISOString().split('T')[0]}T${booking.event_start}`);
-            const endTime = new Date(`${parsedDate.toISOString().split('T')[0]}T${booking.event_end}`);
-    
+
+            const startTime = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate(), 
+                ...booking.event_start.split(':').map(Number));
+            const endTime = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate(), 
+                ...booking.event_end.split(':').map(Number));
+
             return {
                 title: booking.event_name,
                 start: startTime.toISOString(),
@@ -42,6 +45,9 @@ const Schedule = ({ bookings = [] }) => {
             };
         }).filter((event) => event !== null);
     }, [bookings]);
+
+    console.log("bookings", bookings);
+    console.log("filteredBookingSchedule", filteredBookingSchedule);
 
     const [showModal, setShowModal] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
