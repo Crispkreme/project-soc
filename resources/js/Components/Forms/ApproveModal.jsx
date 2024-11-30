@@ -24,7 +24,7 @@ const ApproveModal = ({ showModal, toggleModal, selectedAppointment }) => {
                 { description }
             );
             toggleModal(false);
-            toast.success("Account added successfully!");
+            toast.success("Booking Successfully Accepted!");
         } catch (error) {
             toggleModal(false);
             toast.error("Error submitting appointment approval");
