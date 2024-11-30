@@ -15,23 +15,31 @@ const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
 
-const Appointment = ({ barangayEvents, doctors, latestBarangayEvent }) => {
+const Appointment = ({ barangayEvents }) => {
+  
   const today = new Date().toISOString().split('T')[0];
+  
+  const bookingSchedule = barangayEvents.map((event) => {
+    const parsedDate = new Date(event.event_date);
+    const isoDate = parsedDate.toISOString().split('T')[0];
 
-  const bookingSchedule = barangayEvents.map((event) => ({
-    id: event.id,
-    title: event.event_name,
-    start: `${event.event_date}T${event.event_start}`,
-    end: `${event.event_date}T${event.event_end}`,
-    extendedProps: {
-      doctor_name: event.doctor_name,
-      bhw_name: event.bhw_name,
-      venue: event.event_venue,
-      time: event.event_time,
-      status: event.booking_status,
-      isPast: event.event_date < today,
-    },
-  }));
+    return {
+      id: event.id,
+      title: event.event_name,
+      start: `${isoDate}T${event.event_start}`,
+      end: `${isoDate}T${event.event_end}`,
+      extendedProps: {
+        doctor_name: event.doctor_name,
+        bhw_name: event.bhw_name,
+        venue: event.event_venue,
+        time: event.event_time,
+        status: event.booking_status,
+        isPast: new Date(event.event_date) < new Date(),
+      },
+    };
+});
+
+  console.log("bookingSchedule", bookingSchedule);
 
   const { data, setData, post, processing, errors } = useForm({
     approve_by_id: null,

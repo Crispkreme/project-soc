@@ -11,62 +11,37 @@ const AppointmentModal = React.lazy(() => import("./AppointmentModal"));
 
 const Schedule = ({ bookings = [] }) => {
 
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-
     const formatTime = (isoString) => {
         const date = new Date(isoString);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
     };
-
-    const bookingSchedule = useMemo(() => {
-        return bookings.map((event) => {
-            const eventDateTime = new Date(`${event.event_date}T${event.event_start}`);
-            const todayDateTime = new Date();
+    
+    const filteredBookingSchedule = useMemo(() => {
+        return bookings.map((booking) => {
+            const parsedDate = new Date(booking.event_date);
+            if (isNaN(parsedDate.getTime())) {
+                console.error(`Invalid event_date: ${booking.event_date}`);
+                return null;
+            }
+    
+            const startTime = new Date(`${parsedDate.toISOString().split('T')[0]}T${booking.event_start}`);
+            const endTime = new Date(`${parsedDate.toISOString().split('T')[0]}T${booking.event_end}`);
     
             return {
-                id: event.id,
-                title: event.event_name,
-                start: `${event.event_date}T${event.event_start}`,
-                end: `${event.event_date}T${event.event_end}`,
+                title: booking.event_name,
+                start: startTime.toISOString(),
+                end: endTime.toISOString(),
                 extendedProps: {
-                    doctor_name: event.doctor_name,
-                    bhw_name: event.bhw_name,
-                    venue: event.event_venue,
-                    time: event.event_time,
-                    status: event.booking_status || "N/A",
-                    isPast: eventDateTime < todayDateTime,
+                    date: booking.event_date,
+                    doctor_name: booking.doctor_name,
+                    bhw_name: booking.bhw_name,
+                    venue: booking.event_venue,
+                    formattedStart: formatTime(startTime),
+                    formattedEnd: formatTime(endTime),
                 },
             };
-        });
+        }).filter((event) => event !== null);
     }, [bookings]);
-    
-
-    const filteredBookingSchedule = useMemo(() => {
-        return bookings
-            .filter((event) => {
-                const eventDate = new Date(`${event.event_date}T${event.event_start}`);
-                return (
-                    eventDate.getMonth() === currentMonth &&
-                    eventDate.getFullYear() === currentYear
-                );
-            })
-            .map((event) => ({
-                id: event.id,
-                title: event.event_name,
-                start: `${event.event_date}T${event.event_start}`,
-                end: `${event.event_date}T${event.event_end}`,
-                extendedProps: {
-                    date: event.event_date,
-                    status: event.booking_status || "N/A",
-                    doctor_name: event.doctor_name,
-                    venue: event.event_venue,
-                    time: event.event_time,
-                    formattedStart: formatTime(`${event.event_date}T${event.event_start}`),
-                    formattedEnd: formatTime(`${event.event_date}T${event.event_end}`),
-                },
-            }));
-    }, [bookings, currentMonth, currentYear]);
 
     const [showModal, setShowModal] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -142,7 +117,7 @@ const Schedule = ({ bookings = [] }) => {
                                 center: "title",
                                 end: "dayGridMonth,timeGridWeek,timeGridDay",
                             }}
-                            events={bookingSchedule}
+                            events={filteredBookingSchedule}
                             selectable={true}
                             eventClick={handleEventClick}
                             buttonText={{
@@ -162,7 +137,7 @@ const Schedule = ({ bookings = [] }) => {
                             headerToolbar={{
                                 start: "prev, next",
                             }}
-                            events={bookingSchedule}
+                            events={filteredBookingSchedule}
                             selectable={true}
                             eventClick={handleEventClick}
                             height="100vh"
@@ -171,7 +146,6 @@ const Schedule = ({ bookings = [] }) => {
                 </div>
             </AdminLayout>
 
-            {/* Appointment Modal */}
             {showModal && (
                 <AppointmentModal
                     showModal={showModal}
