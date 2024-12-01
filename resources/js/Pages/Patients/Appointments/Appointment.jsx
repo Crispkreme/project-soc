@@ -15,8 +15,9 @@ const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
 
-const Appointment = ({ barangayEvents }) => {
-  const bookingSchedule = barangayEvents.map((event) => {
+const Appointment = ({ bookings = [], doctors, bhws }) => {
+  
+  const bookingSchedule = bookings.map((event) => {
     const parsedDate = new Date(event.event_date);
     const isoDate = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}`;
 

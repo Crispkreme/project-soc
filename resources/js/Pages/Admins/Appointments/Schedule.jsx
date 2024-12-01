@@ -122,7 +122,7 @@ const Schedule = ({ bookings = [] }) => {
                             }}
                             events={filteredBookingSchedule}
                             selectable={true}
-                            eventClick={handleEventClick}
+                            eventClick=""
                             buttonText={{
                                 today: "Today",
                                 month: "Month",
@@ -142,7 +142,7 @@ const Schedule = ({ bookings = [] }) => {
                             }}
                             events={filteredBookingSchedule}
                             selectable={true}
-                            eventClick={handleEventClick}
+                            eventClick=""
                             height="100vh"
                         />
                     </div>
