@@ -88,16 +88,25 @@ class ActivitiesController extends Controller
                 'event_venue' => 'required|string|max:255',
             ]);   
 
-            $existingEvent = $this->barangayEventContract->getDoctorBarangayEvent($data['doctor_id'], $data['event_date']);
+            if($user->role === 'Practitioner') {
+                $existingEvent = $this->barangayEventContract->getDoctorBarangayEvent($user->id, $data['event_date']);
+            } else {
+                $existingEvent = $this->barangayEventContract->getDoctorBarangayEvent($data['doctor_id'], $data['event_date']);
+            }
         
             if ($existingEvent) {
-                
                 Session::flash('error', 'The doctor already has a scheduled event on this date.');
-
             } else {
                 if ($id) {
                     $data['id'] = $id; 
-                    $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+
+                    if($user->role === 'Practitioner') {
+                        $data['doctor_id'] = $user->id; 
+                        $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+                    } else {
+                        $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+                    }
+                    
                     Session::flash('success', 'New Edited Event successfully saved!');
                 } else {
                     $this->barangayEventContract->updateOrCreateBarangayEvent($data);
