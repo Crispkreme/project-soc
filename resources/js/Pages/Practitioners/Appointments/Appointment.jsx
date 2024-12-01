@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useState, useMemo } from "react";
 import { Head } from "@inertiajs/react";
 
 import FullCalendar from "@fullcalendar/react";
@@ -7,29 +7,66 @@ import interactionPlugin from "@fullcalendar/interaction";
 import GenericButton from "../../../Components/Buttons/GenericButton";
 
 const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
-const AppointmentModal = React.lazy(() => import("@/Components/Forms/AppointmentModal"));
+const BarangayEventModal = React.lazy(() => import("@/Components/Forms/BarangayEventModal"));
 
-const Appointment = ({ barangayEvents }) => {
+const Appointment = ({ bookings = [], doctors, bhws }) => {
+
   const [showModal, setShowModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isViewing, setIsViewing] = useState(false);
+  const [filteredBarangayEvents, setFilteredBarangayEvents] = useState(bookings);
+  const [selectedBarangayEvent, setSelectedBarangayEvent] = useState(null);
 
-  // Format barangayEvents to FullCalendar-friendly format
-  const events = barangayEvents.map((event) => ({
-    id: event.id,
-    title: event.event_name,
-    start: `${event.event_date}T${event.event_start}`,
-    end: `${event.event_date}T${event.event_end}`,
-    extendedProps: {
-      venue: event.event_venue,
-      doctor_id: event.doctor_id,
-      bhw_id: event.bhw_id,
-    },
-  }));
+  const formatTime = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
-  // Toggle modal
+  const filteredBookingSchedule = useMemo(() => {
+    return bookings
+      .map((booking) => {
+        const parsedDate = new Date(booking.event_date);
+
+        if (isNaN(parsedDate.getTime())) {
+          console.error(`Invalid event_date: ${booking.event_date}`);
+          return null;
+        }
+
+        const startTime = new Date(
+          parsedDate.getFullYear(),
+          parsedDate.getMonth(),
+          parsedDate.getDate(),
+          ...booking.event_start.split(":").map(Number)
+        );
+        const endTime = new Date(
+          parsedDate.getFullYear(),
+          parsedDate.getMonth(),
+          parsedDate.getDate(),
+          ...booking.event_end.split(":").map(Number)
+        );
+
+        return {
+          title: booking.event_name,
+          start: startTime.toISOString(),
+          end: endTime.toISOString(),
+          extendedProps: {
+            date: booking.event_date,
+            doctor_name: booking.doctor_name,
+            bhw_name: booking.bhw_name,
+            venue: booking.event_venue,
+            formattedStart: formatTime(startTime),
+            formattedEnd: formatTime(endTime),
+          },
+        };
+      })
+      .filter((event) => event !== null);
+  }, [bookings]);
+
   const toggleModal = () => setShowModal((prev) => !prev);
-  const closeModal = () => setShowModal(false);
-
-  // Render event details
   const renderEvent = (eventInfo) => {
     const { venue } = eventInfo.event.extendedProps;
     return (
@@ -40,13 +77,17 @@ const Appointment = ({ barangayEvents }) => {
     );
   };
 
+  const toggleBarangayEventModal = (barangayEvent = null, isEditing = false, isViewing = false) => {
+    setSelectedBarangayEvent(barangayEvent);
+    setIsEditing(isEditing);
+    setIsViewing(isViewing);
+    setShowModal(!showModal);
+};  
+
   // Handle event click
   const handleEventClick = (info) => {
     console.log("Event clicked:", info.event);
   };
-
-  // Debugging: Log formatted events
-  console.log("Formatted Events:", events);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -62,25 +103,34 @@ const Appointment = ({ barangayEvents }) => {
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
-          headerToolbar={{
-            left: "today prev next",
-            center: "title",
-            right: "dayGridMonth",
-          }}
-          events={events} // Pass the correctly formatted events
           eventContent={renderEvent}
+          headerToolbar={{
+            start: "today, prev, next",
+            center: "title",
+            end: "dayGridMonth,timeGridWeek,timeGridDay",
+          }}
+          events={filteredBookingSchedule}
+          selectable={true}
           eventClick={handleEventClick}
-          height="100vh"
+          buttonText={{
+              today: "Today",
+              month: "Month",
+              week: "Week",
+              day: "Day",
+          }}
         />
       </PatientLayout>
 
-      {showModal && (
-        <AppointmentModal
-          showModal={showModal}
-          toggleModal={closeModal}
-          barangayEvents={barangayEvents}
-        />
-      )}
+      {showModal && <BarangayEventModal 
+        showModal={showModal} 
+        toggleBarangayEventModal={toggleBarangayEventModal} 
+        doctors={doctors} 
+        barangayEvents={bookings}
+        bhws={bhws}
+        isEditing={isEditing}
+        isViewing={isViewing}
+        selectedBarangayEvent={selectedBarangayEvent}
+      />}
     </Suspense>
   );
 };

@@ -87,16 +87,18 @@ class AppointmentController extends Controller
             default => 'login'
         }; 
 
-        $barangayEvents = $this->barangayEventContract->getBarangayEvent();
+        $bookings = $this->barangayEventContract->getBarangayEvent();
         $latestBarangayEvent = $this->barangayEventContract->getLatestBarangayEvent();
-        $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', 'Active');
+        $doctors = $this->userDetailContract->getAllUserNameByRole('Practitioner', 'Active');
+        $bhws = $this->userDetailContract->getAllUserNameByRole('Bhw', 'Active');
         $consultations = $this->appointmentContract->getAllAppointmentByMonth();
         $schedules = $this->scheduleContract->getDoctorScheduleByID();
 
         return Inertia::render($viewPath, [
             'latestBarangayEvent' => $latestBarangayEvent,
-            'barangayEvents' => $barangayEvents,
+            'bookings' => $bookings,
             'doctors' => $doctors,
+            'bhws' => $bhws,
             'consultations' => $consultations,
             'schedules' => $schedules,
         ]);

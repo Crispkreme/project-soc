@@ -46,9 +46,6 @@ const Schedule = ({ bookings = [] }) => {
         }).filter((event) => event !== null);
     }, [bookings]);
 
-    console.log("bookings", bookings);
-    console.log("filteredBookingSchedule", filteredBookingSchedule);
-
     const [showModal, setShowModal] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
 
