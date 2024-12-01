@@ -61,13 +61,13 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
             label: "View",
             icon: LuClipboardEdit,
             onClick: (row) => console.log("View clicked", row),
-            style: "bg-blue-300 text-blue-800 hover:bg-blue-400",
+            style: "bg-teal-300 text-teal-800 hover:bg-teal-400",
         },
         {
             label: "Edit",
             icon: LuClipboardEdit,
             onClick: (row) => console.log("Edit clicked", row),
-            style: "bg-blue-300 text-blue-800 hover:bg-blue-400",
+            style: "bg-teal-300 text-teal-800 hover:bg-teal-400",
         },
     ];
 
@@ -76,7 +76,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
             label: "Prescription",
             icon: LuClipboardEdit,
             onClick: (row) => handlePrescriptionClick(row),
-            style: "bg-blue-300 text-blue-800 hover:bg-blue-400",
+            style: "bg-sky-300 text-sky-800 hover:bg-sky-400",
         },
     ];
 
@@ -85,7 +85,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
             label: "Referral",
             icon: LuClipboardEdit,
             onClick: (row) => handleReferralClick(row),
-            style: "bg-blue-300 text-blue-800 hover:bg-blue-400",
+            style: "bg-sky-300 text-sky-800 hover:bg-sky-400",
         },
     ];
 
