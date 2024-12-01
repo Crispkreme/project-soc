@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Laravolt\Avatar\Facade as Avatar;
@@ -51,60 +52,70 @@ class UserController extends Controller
 
     public function storeUser(Request $request)
     {
-        
         DB::beginTransaction();
 
-        try {
-            $data = $request->validate([
-                'username' => ['required', 'string', 'max:255', 'unique:' . User::class],
-                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-                'password' => ['required', 'confirmed', Password::defaults()],
-            ]);
-            $data['role'] = 'Patient';
-            $user = $this->userContract->createOrUpdateUser($data);
+        if ($request->address && Str::contains(strtolower($request->address), 'lapay')) {
+            try {
+                $data = $request->validate([
+                    'username' => ['required', 'string', 'max:255', 'unique:' . User::class],
+                    'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+                    'password' => ['required', 'confirmed', Password::defaults()],
+                ]);
+                $data['role'] = 'Patient';
 
-            $userDetailData = [
-                'user_id' => $user->id,
-                'firstname' => '',
-                'middlename' => null,
-                'lastname' => '',
-                'gender' => null,
-                'birthday' => null,
-                'civil_status' => null,
-                'religion' => '',
-                'status' => 'Active',
-                'address' => null,
-                'profile' => null,
-            ];
+                $user = $this->userContract->createOrUpdateUser($data);
+                
+                $userDetailData = [
+                    'user_id' => $user->id,
+                    'firstname' => $request->firstname,
+                    'middlename' => $request->middlename,
+                    'lastname' => $request->lastname,
+                    'gender' => $request->gender,
+                    'birthday' => $request->birthday,
+                    'civil_status' => $request->civil_status,
+                    'religion' => $request->religion,
+                    'status' => 'Active',
+                    'address' => $request->firstname,
+                    'profile' => null,
+                ];
+    
+                $this->userDetailContract->createOrUpdateUserDetail($userDetailData);
+    
+                event(new Registered($user));
+    
+                Auth::login($user);
+    
+                $viewPath = match ($user->role) {
+                    'Administration' => 'admin.dashboard',
+                    'Patient' => 'patient.dashboard',
+                    'Practitioner' => 'practitioner.dashboard',
+                    'Bhw' => 'bhw.dashboard',
+                    default => 'login',
+                };
+    
+                DB::commit();
+                
+                Session::flash('success', 'User saved successfully!');
+                
+                return redirect()->route($viewPath)->with('success', '');
+    
+            } catch (Exception $e) {
+                
+                Log::error('Error during storeUser: ' . $e->getMessage(), [
+                    'exception' => $e,
+                    'trace' => $e->getTraceAsString(),
+                ]);
+    
+                DB::rollback();
+                
+                Session::flash('error', 'Error please try again.');
 
-            $this->userDetailContract->createOrUpdateUserDetail($userDetailData);
+                return redirect()->back();
+            }
 
-            event(new Registered($user));
-
-            Auth::login($user);
-
-            $viewPath = match ($user->role) {
-                'Administration' => 'admin.dashboard',
-                'Patient' => 'patient.dashboard',
-                'Practitioner' => 'practitioner.dashboard',
-                'Bhw' => 'bhw.dashboard',
-                default => 'login',
-            };
-
-            DB::commit();
-
-            return redirect()->route($viewPath)->with('success', 'User saved successfully!');
-
-        } catch (Exception $e) {
-            
-            Log::error('Error during storeUser: ' . $e->getMessage(), [
-                'exception' => $e,
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            DB::rollback();
-
-            return redirect()->back()->with('error', 'Error please try again.');
+        } else {
+            // return back()->withErrors(['message' => 'Residence only.']);
+            dd('You are not eligible to proceed due to certian restrictions of address');
         }
     }
 
