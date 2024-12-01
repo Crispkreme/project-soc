@@ -51,7 +51,6 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
     };
 
     const BookingColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "patient_name", label: "Patient" },
         { key: "title", label: "Appointment" },
         { key: "booking_status", label: "Status" },
@@ -62,7 +61,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
             label: "View",
             icon: LuClipboardEdit,
             onClick: (row) => console.log("View clicked", row),
-            style: "bg-yellow-300 text-yellow-800 hover:bg-yellow-400",
+            style: "bg-blue-300 text-blue-800 hover:bg-blue-400",
         },
         {
             label: "Edit",
@@ -76,8 +75,8 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
         {
             label: "Prescription",
             icon: LuClipboardEdit,
-            onClick: (row) => handlePrescriptionClick(row), // Handle click for Prescription Modal
-            style: "bg-green-300 text-green-800 hover:bg-green-400",
+            onClick: (row) => handlePrescriptionClick(row),
+            style: "bg-blue-300 text-blue-800 hover:bg-blue-400",
         },
     ];
 
@@ -86,7 +85,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
             label: "Referral",
             icon: LuClipboardEdit,
             onClick: (row) => handleReferralClick(row),
-            style: "bg-purple-300 text-purple-800 hover:bg-purple-400",
+            style: "bg-blue-300 text-blue-800 hover:bg-blue-400",
         },
     ];
 
