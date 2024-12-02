@@ -12,6 +12,7 @@ class Medication extends Model
     protected $fillable = [
         'patient_id', 
         'medicine_id', 
+        'dosage', 
         'quantity', 
         'reason', 
         'medication_status'

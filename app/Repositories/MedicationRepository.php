@@ -46,6 +46,7 @@ class MedicationRepository implements MedicationContract
                     'reason' => $medication->reason,
                     'medication_status' => $medication->medication_status,
                     'quantity' => $medication->quantity,
+                    'dosage' => $medication->dosage,
                     'created_at' => $medication->created_at,
                     'updated_at' => $medication->updated_at,
                 ];

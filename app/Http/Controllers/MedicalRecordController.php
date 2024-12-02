@@ -73,7 +73,13 @@ class MedicalRecordController extends Controller
         $accountType = 'Patient';
         $userDetails = $this->userDetailContract->getAllUserByRole($accountType, true);
 
-        return Inertia::render('Admins/Medicals/Record', [
+        $roleRoutes = [
+            'Administration' => 'Admins/Medicals/Record',
+            'Bhw' => 'Bhws/Medicals/Record',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+
+        return Inertia::render($redirectInertia, [
             'userDetails' => $userDetails,
         ]);
     }
@@ -136,8 +142,14 @@ class MedicalRecordController extends Controller
                     'doctor_name' => trim("{$doctor['firstname']} {$doctor['middlename']} {$doctor['lastname']}"), // Combine names into a single field
                 ];
             });
+        
+        $roleRoutes = [
+            'Administration' => 'Admins/Medicals/PatientRecord',
+            'Bhw' => 'Bhws/Medicals/PatientRecord',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
 
-        return Inertia::render('Admins/Medicals/PatientRecord', [
+        return Inertia::render($redirectInertia, [
             'patient' => $patient,
             'hospitals' => $hospitals,
             'testResults' => $testResults,
@@ -174,10 +186,10 @@ class MedicalRecordController extends Controller
 
         $roleRoutes = [
             'Administration' => 'Admins/Medicals/PatientHistory',
-            'Bhw' => 'Admins/Medicals/PatientHistory',
+            'Bhw' => 'Bhws/Medicals/PatientHistory',
         ];
         $redirectInertia = $roleRoutes[$user->role] ?? 'login';
-        dd($medicationRecords);
+
         return Inertia::render($redirectInertia, [
             'medicines' => $medicines,
             'patients' => $patients,
@@ -335,14 +347,16 @@ class MedicalRecordController extends Controller
                 'patient_id' => 'nullable|exists:users,id',
                 'medicine_id' => 'nullable|exists:medicines,id',
                 'reason' => 'nullable|string',  
+                'dosage' => 'nullable|string',  
+                'quantity' => 'nullable|string',  
             ]);
+            $data['quantity'] = null; 
 
             $id = $request->id;
             if ($id) {
                 $data['id'] = $id; 
                 $this->medicationContract->createOrUpdateMedication($data);
             } else {
-                $data['patient_id'] = $user->id; 
                 $this->medicationContract->createOrUpdateMedication($data);
             }
 

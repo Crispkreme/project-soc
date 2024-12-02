@@ -13,7 +13,7 @@ const FamilyMedicalRecordModal = React.lazy(() => import("@/Components/Forms/Fam
 const MedicationRecordModal = React.lazy(() => import("@/Components/Forms/MedicationRecordModal"));
 
 const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords }) => {
-    console.log('medicationRecords', medicationRecords);
+    console.log("medicationRecords", medicationRecords)
     const transformedDoctors = doctors.map(doctor => ({
         value: doctor.id,
         option: `${doctor.firstname} ${doctor.middlename} ${doctor.lastname}`
