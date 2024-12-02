@@ -20,8 +20,10 @@ class DashboardController extends Controller
 
     public function dashboard()
     {
-        $user = Auth::user();
 
+        $user = Auth::user();
+        $message = session('message');
+        
         if (!$user) {
             return redirect()->route('login');
         }
@@ -31,7 +33,9 @@ class DashboardController extends Controller
         } else if($user->role === 'Practitioner') {
             return Inertia::render('Practitioners/Dashboard');
         } else if($user->role === 'Bhw') {
-            return Inertia::render('Bhws/Dashboard');
+            return Inertia::render('Bhws/Dashboard', [
+                'message' => $message
+            ]);
         } else {
             return Inertia::render('Patients/Dashboard');
         }

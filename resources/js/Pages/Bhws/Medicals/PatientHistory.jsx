@@ -13,7 +13,7 @@ const FamilyMedicalRecordModal = React.lazy(() => import("@/Components/Forms/Fam
 const MedicationRecordModal = React.lazy(() => import("@/Components/Forms/MedicationRecordModal"));
 
 const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords }) => {
-    
+    console.log('medicationRecords', medicationRecords);
     const transformedDoctors = doctors.map(doctor => ({
         value: doctor.id,
         option: `${doctor.firstname} ${doctor.middlename} ${doctor.lastname}`
@@ -80,7 +80,6 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
     ];
 
     const healthRecordColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "name", label: "Illness" },
         { key: "description", label: "Illness Description" },
         {
@@ -90,7 +89,6 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
         },
     ];
     const surgicalRecordColumn = [
-        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
         { key: "procedure", label: "Surgery" },
         { key: "description", label: "Procedure" },
         { key: "doctor_name", label: "Doctor" },
@@ -101,8 +99,7 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
         },
     ];
     const medicationRecordColumn = [
-        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
-        { key: "medicine.medicine_name", label: "Medicine Name" },
+        { key: "medicine_name", label: "Medicine Name" },
         { key: "dosage", label: "Dosage" },
         { key: "reason", label: "Reason/For:" },
         {
@@ -112,7 +109,6 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
         },
     ];
     const familyMedicalRecordColumn = [
-        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
         { key: "disease", label: "Desease" },
         { key: "relationship_disease", label: "Relationship" },
         {

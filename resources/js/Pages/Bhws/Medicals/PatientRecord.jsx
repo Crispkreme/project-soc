@@ -15,15 +15,11 @@ const TestResultModal = React.lazy(() => import("@/Components/Forms/TestResultMo
 
 const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords, hospitalizations, immunizations, testResults }) => {
  
-  console.log(hospitalizations);
-  
-  // Correcting state initialization
   const [showTestResultModal, setShowTestResultModal] = useState(false);
   const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
   const [showImmunizationModal, setShowImmunizationModal] = useState(false);
   const [showHospitalizationModal, setShowHospitalizationModal] = useState(false);
 
-  // Correcting the state setter functions
   const [selectedTestResult, setSelectedTestResult] = useState(null);
   const [selectedMedicalRecord, setSelectedMedicalRecord] = useState(null);
   const [selectedImmunization, setSelectedImmunization] = useState(null);
@@ -47,7 +43,6 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
   };
 
   const testResultColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
     { key: "name", label: "Test" },
     { key: "result", label: "Result" },
     {
@@ -57,7 +52,6 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
     },
   ];
   const medicalRecordColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
     { key: "diagnosis", label: "Diagnosis" },
     { key: "medicine.medicine_name", label: "Medication" },
     {
@@ -67,7 +61,6 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
     },
   ];
   const immunizationColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
     { key: "immunization", label: "Immunization" },
     { key: "doctor_name", label: "Doctor" },
     {
@@ -77,7 +70,6 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
     },
   ];
   const hospitalizationColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
     { key: "diagnosis", label: "Diagnosis" },
     { key: "hospital_name", label: "Hospital" },
     { key: "doctor_name", label: "Doctor" },

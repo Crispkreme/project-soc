@@ -1,7 +1,18 @@
 import { Head } from '@inertiajs/react';
+import { useEffect } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { toast } from 'react-hot-toast';
 
-export default function Dashboard() {
+export default function Dashboard({ message }) {
+    
+    useEffect(() => {
+        if (message) {
+            toast.success(message);
+        }
+    }, [message]);
+
+    console.log("message", message);
+
     return (
 
         <AdminLayout>

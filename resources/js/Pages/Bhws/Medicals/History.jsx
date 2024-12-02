@@ -44,7 +44,7 @@ const History = ({ userDetails }) => {
                         <div className="flex items-center">
                           <img src="https://placehold.co/32x32" alt="" className="w-8 h-8 rounded object-cover block" />
                           <a 
-                            href={route('admin.medical.patient.history', { id: userDetail.id })} 
+                            href={route('bhw.medical.patient.history', { id: userDetail.id })} 
                             className="text-gray-600 text-sm font-medium hover:text-blue-500 ml-2 truncate"
                           >
                             {userDetail.firstname} {userDetail.middlename} {userDetail.lastname}

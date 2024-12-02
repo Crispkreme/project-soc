@@ -20,6 +20,7 @@ const SurgicalHistoryModal = ({
   doctors,
   onClose,
 }) => {
+  
   const { data, setData, post, processing, errors } = useForm({
     patient_id: patient_id,
     procedure: "",
@@ -51,10 +52,9 @@ const SurgicalHistoryModal = ({
     e.preventDefault();
 
     const isUpdating = isEditing && selectedSurgicalRecord;
-    const SurgicalId = selectedSurgicalRecord.id;
-
+    
     const url = isUpdating 
-    ? route("surgical.record.update", { id: SurgicalId }) 
+    ? route("surgical.record.update", { id: selectedSurgicalRecord.id }) 
     : route("surgical.record.create");
 
     post(url, {

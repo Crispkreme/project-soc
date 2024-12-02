@@ -85,10 +85,28 @@ class MedicalRecordController extends Controller
         if (!$user) {
             return redirect()->route('login');
         }
-        $accountType = 'Patient';
-        $userDetails = $this->userDetailContract->getAllUserByRole($accountType, true);
 
-        return Inertia::render('Admins/Medicals/History', [
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'admin.medical.history' => 'Administration',
+            'bhw.medical.history' => 'Bhw',
+            default => 'login',
+        };
+        
+        if (!$accountType) {
+            return redirect()->route('login');
+        }
+
+        $accountTypes = 'Patient';
+        $userDetails = $this->userDetailContract->getAllUserByRole($accountTypes, true);
+
+        $viewPath = match ($accountType) {
+            'Administration' => 'Admins/Medicals/History',
+            'Bhw' => 'Bhws/Medicals/History',
+            default => 'login'
+        };
+
+        return Inertia::render($viewPath, [
             'userDetails' => $userDetails,
         ]);
     }
@@ -153,8 +171,14 @@ class MedicalRecordController extends Controller
                     'lastname' => $doctor['lastname'],
                 ];
             });
-            
-        return Inertia::render('Admins/Medicals/PatientHistory', [
+
+        $roleRoutes = [
+            'Administration' => 'Admins/Medicals/PatientHistory',
+            'Bhw' => 'Admins/Medicals/PatientHistory',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+        dd($medicationRecords);
+        return Inertia::render($redirectInertia, [
             'medicines' => $medicines,
             'patients' => $patients,
             'healthRecords' => $healthRecords,
@@ -187,7 +211,6 @@ class MedicalRecordController extends Controller
                 $data['id'] = $id; 
                 $this->healthContract->createOrUpdateHealth($data);
             } else {
-                $data['patient_id'] = $user->id; 
                 $this->healthContract->createOrUpdateHealth($data);
             }
 
@@ -232,7 +255,6 @@ class MedicalRecordController extends Controller
                 $data['id'] = $id; 
                 $this->surgicalContract->createOrUpdateSurgical($data);
             } else {
-                $data['patient_id'] = $user->id; 
                 $this->surgicalContract->createOrUpdateSurgical($data);
             }
 
