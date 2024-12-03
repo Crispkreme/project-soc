@@ -83,7 +83,7 @@ export default function Dashboard({ appointments, message }) {
       }),
     };
     const appointmentColumns = [
-      { key: "approver_name", label: "Approvers Name" },
+      { key: "patient_name", label: "Patient Name" },
       { key: "title", label: "Appointment" },
       { key: "appointment_date", label: "Event Date" },
       { key: "appointment_time", label: "Time" },
@@ -135,7 +135,7 @@ export default function Dashboard({ appointments, message }) {
                   data={filteredAppointments
                     .filter(appointment => appointment.booking_status !== "Approve")
                     .map(appointment => ({
-                      approver_name: appointment.approver_name,
+                      patient_name: appointment.patient_name,
                       title: appointment.title,
                       appointment_date: appointment.appointment_date,
                       appointment_time: `${appointment.appointment_start} - ${appointment.appointment_end}`,
