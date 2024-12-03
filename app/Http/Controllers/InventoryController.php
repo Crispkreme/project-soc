@@ -87,8 +87,10 @@ class InventoryController extends Controller
                 'medicine_id' => $data['medicine_id'],
                 'sold' => $sold,
                 'in_stock' => $inStock,
+                'expiration_date' => $request->expiration_date,
+                'dosage' => $request->dosage,
             ];
-
+            
             if ($id) {
                 $data['id'] = $id; 
                 $this->ledgerContract->createOrUpdateLedger($ledgerData);
@@ -97,18 +99,14 @@ class InventoryController extends Controller
             }
 
             DB::commit();
-
             return redirect()->back()->with('success', 'Inventory saved successfully!');
 
         } catch (Exception $e) {
-
             DB::rollback();
-
             Log::error('Error during updateOrCreateInventory: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);
-
             return redirect()->back()->with('error', 'Error please try again.');
         }
     }

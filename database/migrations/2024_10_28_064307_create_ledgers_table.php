@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('medicine_id')->nullable()->constrained('medicines')->onDelete('cascade');
             $table->integer('sold')->default(0);
             $table->integer('in_stock');
+            $table->date('expiration_date')->nullable();
+            $table->text('dosage')->nullable();
             $table->timestamps();
         });
     }

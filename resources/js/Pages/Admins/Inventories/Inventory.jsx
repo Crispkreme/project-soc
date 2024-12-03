@@ -9,6 +9,9 @@ const Table = React.lazy(() => import("@/Components/Table"));
 const InventoryModal = React.lazy(() => import("@/Components/Forms/InventoryModal"));
 
 const Inventory = ({ inventories, medicines }) => {
+
+    console.log("inventories", inventories);
+
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isViewing, setIsViewing] = useState(false);
@@ -25,11 +28,12 @@ const Inventory = ({ inventories, medicines }) => {
     };
 
     const InventoryColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "medicine_name", label: "Medicine Name" },
         { key: "description", label: "Description" },
+        { key: "dosage", label: "Dosage" },
+        { key: "expiration_date", label: "Expiration" },
         { key: "sold", label: "Dispense" },
-        { key: "in_stock", label: "In-Stock" },
+        { key: "in_stock", label: "Quantity" },
     ];
 
     const inventoryAction = [

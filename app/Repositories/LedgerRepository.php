@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Models\Ledger;
 use App\Contracts\LedgerContract;
+use App\Models\Ledger;
+use Carbon\Carbon;
 
 class LedgerRepository implements LedgerContract
 {
@@ -16,7 +17,7 @@ class LedgerRepository implements LedgerContract
     }
 
     public function createOrUpdateLedger($data)
-    {        
+    {   
         return $this->model->updateOrCreate(
             [
                 'medicine_id' => $data['medicine_id'],
@@ -24,6 +25,8 @@ class LedgerRepository implements LedgerContract
             [
                 'sold' => $data['sold'],
                 'in_stock' => $data['in_stock'],
+                'expiration_date' => $data['expiration_date'],
+                'dosage' => $data['dosage'],
             ]
         );
     }
@@ -47,11 +50,27 @@ class LedgerRepository implements LedgerContract
         return $this->model
             ->join('medicines', 'ledgers.medicine_id', '=', 'medicines.id')
             ->select(
-                'ledgers.*',
+                'ledgers.sold',
+                'ledgers.in_stock',
+                'ledgers.expiration_date',
+                'ledgers.dosage',
                 'medicines.medicine_name',
-                'medicines.description',
+                'medicines.description'
             )
-            ->get();
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'medicine_name' => $record->medicine_name,
+                    'description' => $record->description,
+                    'sold' => $record->sold,
+                    'in_stock' => $record->in_stock,
+                    'expiration_date' => Carbon::parse($record->expiration_date)->format('F d, Y'),
+                    'dosage' => $record->dosage,
+                ];
+            })
+            ->filter(function ($record) {
+                return $record['in_stock'] > 0;
+            });
     }
 
     public function updateLedgerQuantity($id, $quantity)
