@@ -90,7 +90,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
     ];
 
     const getActionButtons = (row) => {
-        const isDisabled = row.booking_status === "Success" || row.booking_status === "Approve";
+        const isDisabled = row.booking_status === "Success" || row.booking_status === "Approve" || row.booking_status === "Failed" || row.booking_status === "Cancel";
     
         return {
             bookingActions: bookingAction.map((action) => (
@@ -106,8 +106,8 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
             prescriptionActions: prescriptionAction.map((action) => (
                 <button
                     key={action.label}
-                    onClick={() => !isDisabled && action.onClick(row)} // Prevent click if disabled
-                    disabled={isDisabled} // Disable the button
+                    onClick={() => !isDisabled && action.onClick(row)}
+                    disabled={isDisabled}
                     className={`inline-flex items-center px-4 py-2 mr-2 rounded-md text-sm font-medium ${
                         isDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : action.style
                     }`}
@@ -119,8 +119,8 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
             referralActions: referralAction.map((action) => (
                 <button
                     key={action.label}
-                    onClick={() => !isDisabled && action.onClick(row)} // Prevent click if disabled
-                    disabled={isDisabled} // Disable the button
+                    onClick={() => !isDisabled && action.onClick(row)}
+                    disabled={isDisabled}
                     className={`inline-flex items-center px-4 py-2 mr-2 rounded-md text-sm font-medium ${
                         isDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : action.style
                     }`}
