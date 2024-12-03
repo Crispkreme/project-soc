@@ -3,10 +3,15 @@ import PatientLayout from "@/Layouts/PatientLayout";
 import { LuClipboardEdit } from "react-icons/lu";
 import Table from "@/Components/Table";
 
-const ReferralModal = React.lazy(() => import("@/Components/Forms/ReferralModal"));
-const PrescriptionModal = React.lazy(() => import("@/Components/Forms/PrescriptionModal"));
+const ReferralModal = React.lazy(() =>
+    import("@/Components/Forms/ReferralModal")
+);
+const PrescriptionModal = React.lazy(() =>
+    import("@/Components/Forms/PrescriptionModal")
+);
 
 const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
+    console.log(bookings);
     const [filteredBookings, setFilteredBookings] = useState(bookings);
     const [searchQuery, setSearchQuery] = useState("");
     const [showReferralModal, setShowReferralModal] = useState(false);
@@ -14,17 +19,13 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
     const [selectedReferral, setSelectedReferral] = useState(null);
 
     const handleSearch = (e) => {
-        const query = e.target.value;
+        const query = e.target.value.toLowerCase();
         setSearchQuery(query);
 
         const filtered = bookings.filter(
             (booking) =>
-                booking.medicine_name
-                    ?.toLowerCase()
-                    .includes(query.toLowerCase()) ||
-                booking.description
-                    ?.toLowerCase()
-                    .includes(query.toLowerCase())
+                booking.medicine_name?.toLowerCase().includes(query) ||
+                booking.description?.toLowerCase().includes(query)
         );
 
         setFilteredBookings(filtered);
@@ -54,86 +55,85 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
         { key: "patient_name", label: "Patient" },
         { key: "title", label: "Appointment" },
         { key: "booking_status", label: "Status" },
-    ];
-
-    const bookingAction = [
-        {
-            label: "View",
-            icon: LuClipboardEdit,
-            onClick: (row) => console.log("View clicked", row),
-            style: "bg-teal-300 text-teal-800 hover:bg-teal-400",
-        },
-        {
-            label: "Edit",
-            icon: LuClipboardEdit,
-            onClick: (row) => console.log("Edit clicked", row),
-            style: "bg-teal-300 text-teal-800 hover:bg-teal-400",
-        },
-    ];
-
-    const prescriptionAction = [
-        {
-            label: "Prescription",
-            icon: LuClipboardEdit,
-            onClick: (row) => handlePrescriptionClick(row),
-            style: "bg-sky-300 text-sky-800 hover:bg-sky-400",
-        },
-    ];
-
-    const referralAction = [
-        {
-            label: "Referral",
-            icon: LuClipboardEdit,
-            onClick: (row) => handleReferralClick(row),
-            style: "bg-sky-300 text-sky-800 hover:bg-sky-400",
-        },
+        { key: "time", label: "Time" },
     ];
 
     const getActionButtons = (row) => {
-        const isDisabled = row.booking_status === "Success" || row.booking_status === "Approve" || row.booking_status === "Failed" || row.booking_status === "Cancel";
-    
+        const isDisabled =
+            ["Success", "Approve", "Failed", "Cancel"].includes(row.booking_status);
+
+        const createButton = (action, disabled) => (
+            <button
+                key={action.label}
+                onClick={() => !disabled && action.onClick(row)}
+                disabled={disabled}
+                className={`inline-flex items-center px-4 py-2 mr-2 rounded-md text-sm font-medium ${
+                    disabled
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : action.style
+                }`}
+            >
+                <action.icon className="mr-2" />
+                {action.label}
+            </button>
+        );
+
+        const bookingActions = [
+            {
+                label: "View",
+                icon: LuClipboardEdit,
+                onClick: (row) => console.log("View clicked", row),
+                style: "bg-teal-300 text-teal-800 hover:bg-teal-400",
+            },
+            {
+                label: "Edit",
+                icon: LuClipboardEdit,
+                onClick: (row) => console.log("Edit clicked", row),
+                style: "bg-teal-300 text-teal-800 hover:bg-teal-400",
+            },
+        ];
+
+        const prescriptionActions = [
+            {
+                label: "Prescription",
+                icon: LuClipboardEdit,
+                onClick: handlePrescriptionClick,
+                style: "bg-sky-300 text-sky-800 hover:bg-sky-400",
+            },
+        ];
+
+        const referralActions = [
+            {
+                label: "Referral",
+                icon: LuClipboardEdit,
+                onClick: handleReferralClick,
+                style: "bg-sky-300 text-sky-800 hover:bg-sky-400",
+            },
+        ];
+
         return {
-            bookingActions: bookingAction.map((action) => (
-                <button
-                    key={action.label}
-                    onClick={() => action.onClick(row)}
-                    className={`inline-flex items-center px-4 py-2 mr-2 rounded-md text-sm font-medium ${action.style}`}
-                >
-                    <action.icon className="mr-2" />
-                    {action.label}
-                </button>
-            )),
-            prescriptionActions: prescriptionAction.map((action) => (
-                <button
-                    key={action.label}
-                    onClick={() => !isDisabled && action.onClick(row)}
-                    disabled={isDisabled}
-                    className={`inline-flex items-center px-4 py-2 mr-2 rounded-md text-sm font-medium ${
-                        isDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : action.style
-                    }`}
-                >
-                    <action.icon className="mr-2" />
-                    {action.label}
-                </button>
-            )),
-            referralActions: referralAction.map((action) => (
-                <button
-                    key={action.label}
-                    onClick={() => !isDisabled && action.onClick(row)}
-                    disabled={isDisabled}
-                    className={`inline-flex items-center px-4 py-2 mr-2 rounded-md text-sm font-medium ${
-                        isDisabled ? "bg-gray-300 text-gray-500 cursor-not-allowed" : action.style
-                    }`}
-                >
-                    <action.icon className="mr-2" />
-                    {action.label}
-                </button>
-            )),
+            bookingActions: bookingActions.map((action) =>
+                createButton(action, false)
+            ),
+            prescriptionActions: prescriptionActions.map((action) =>
+                createButton(action, isDisabled)
+            ),
+            referralActions: referralActions.map((action) =>
+                createButton(action, isDisabled)
+            ),
         };
-    };   
+    };
+
+    const tableData = filteredBookings.map((row) => ({
+        ...row,
+        referralAction: getActionButtons(row).referralActions,
+        prescriptionAction: getActionButtons(row).prescriptionActions,
+        action: getActionButtons(row).bookingActions,
+        time: `${row.appointment_start} - ${row.appointment_end}`,
+    }));
 
     return (
-        <Suspense>
+        <Suspense fallback={<div>Loading...</div>}>
             <PatientLayout>
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <div className="grid grid-cols-1 gap-6 mb-6">
@@ -157,27 +157,16 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
                                 <Table
                                     columns={[
                                         ...BookingColumn,
-                                        {
-                                            key: "referralAction",
-                                            label: "Referral Action",
-                                        },
-                                        {
-                                            key: "prescriptionAction",
-                                            label: "Prescription Action",
-                                        },
+                                        { key: "referralAction", label: "Referral Action" },
+                                        { key: "prescriptionAction", label: "Prescription Action" },
                                         { key: "action", label: "Action" },
                                     ]}
-                                    data={filteredBookings.map((row) => ({
-                                        ...row,
-                                        referralAction: getActionButtons(row).referralActions,
-                                        prescriptionAction: getActionButtons(row).prescriptionActions,
-                                        action: getActionButtons(row).bookingActions,
-                                    }))}
+                                    data={tableData}
                                     renderRow={(row) => (
                                         <tr key={row.id}>
-                                            <td className="px-6 py-3">{row.id}</td>
                                             <td className="px-6 py-3">{row.patient_name}</td>
                                             <td className="px-6 py-3">{row.title}</td>
+                                            <td className="px-6 py-3">{row.time}</td>
                                             <td className="px-6 py-3">{row.booking_status}</td>
                                             <td className="px-6 py-3">{row.referralAction}</td>
                                             <td className="px-6 py-3">{row.prescriptionAction}</td>
