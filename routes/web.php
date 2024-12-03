@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ActivitiesController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MedicalRecordController;
@@ -13,9 +14,6 @@ use App\Models\FamilyMedical;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-
-
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -77,9 +75,10 @@ Route::post('/medications', [InventoryController::class, 'updateOrCreateMedicati
 Route::put('/medications/{id}', [InventoryController::class, 'updateOrCreateMedication'])->name('medications.update');
 Route::post('/medication/approve/{id}', [InventoryController::class, 'approveMedication'])->name('medication.approve');
 
-
 Route::post('/barangay/event/create', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.create');
 Route::post('/barangay/event/update/{id}', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.update');
+
+Route::post('/cancel/booking/appointment/{id}', [BookingController::class, 'cancelBookingAppointment'])->name('cancel.booking.appointment');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';

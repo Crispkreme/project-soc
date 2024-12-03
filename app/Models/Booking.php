@@ -12,7 +12,8 @@ class Booking extends Model
     protected $fillable = [
         'approve_by_id', 
         'patient_id', 
-        'title', 
+        'title',
+        'reason', 
         'notes', 
         'appointment_date', 
         'appointment_start', 

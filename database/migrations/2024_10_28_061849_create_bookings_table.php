@@ -27,7 +27,8 @@ return new class extends Migration
             $table->time('appointment_start')->nullable();
             $table->time('appointment_end')->nullable();
             $table->dateTime('approved_date')->nullable();
-            $table->enum('booking_status', ['Approve', 'Pending', 'Success', 'Failed'])
+            $table->string('reason')->nullable();
+            $table->enum('booking_status', ['Approve', 'Pending', 'Success', 'Failed', 'Cancel'])
                   ->nullable()
                   ->default('Approve');
             $table->timestamps();

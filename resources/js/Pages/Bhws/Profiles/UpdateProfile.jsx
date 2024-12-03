@@ -33,6 +33,7 @@ const UpdateProfile = ({ userDetail }) => {
         religion: '',
         address: '',
         civil_status: '',
+        profile: '',
     });
 
     useEffect(() => {
@@ -47,6 +48,7 @@ const UpdateProfile = ({ userDetail }) => {
                 religion: userDetail.religion || '',
                 address: userDetail.address || '',
                 civil_status: userDetail.civil_status || '',
+                profile: userDetail.profile || '',
             });
         }
         
@@ -60,7 +62,7 @@ const UpdateProfile = ({ userDetail }) => {
           id: userDetail?.id ?? undefined, 
         }));
         
-        post(route("admin.profile.update", userDetail.user_id), {
+        post(route("bhw.profile.update", userDetail.user_id), {
             data: {
                 ...data,
             },
@@ -133,6 +135,7 @@ const UpdateProfile = ({ userDetail }) => {
 
                             <div className="flex lg:flex-row md:flex-col sm:flex-col xs:flex-col gap-2 justify-center w-full">
                                 <div className="w-full mb-4 mt-6">
+                                    <input type="hidden" value={data.profile} onChange={(e) => handleChange('profile', e.target.value)} />
                                     <InputLabel htmlFor="firstname" value="Firstname" />
                                     <TextInput
                                         id="firstname"
@@ -276,7 +279,14 @@ const UpdateProfile = ({ userDetail }) => {
                         <div className="px-4 pb-6">
                             <div className="text-center my-4">
 
-                                <UpdateAvatar userDetail={userDetail}/>
+                                <div
+                                    className="mx-auto flex justify-center w-[141px] h-[141px] rounded-full"
+                                    style={{
+                                        backgroundImage: `url("/storage/${data.profile}")`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                    }}
+                                />
 
                                 <div className="py-2">
                                     <h3 className="font-bold text-2xl text-gray-800 dark:text-white mb-1">{data.firstname} {data.middlename} {data.lastname}</h3>

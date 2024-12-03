@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\BookingContract;
 use App\Contracts\LogContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,16 +12,18 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     protected $logContract;
+    protected $bookingContract;
 
     public function __construct(
         LogContract $logContract,
+        BookingContract $bookingContract,
     ) {
         $this->logContract = $logContract;
+        $this->bookingContract = $bookingContract;
     }
 
     public function dashboard()
     {
-
         $user = Auth::user();
         $message = session('message');
         
@@ -37,7 +40,10 @@ class DashboardController extends Controller
                 'message' => $message
             ]);
         } else {
-            return Inertia::render('Patients/Dashboard');
+            return Inertia::render('Patients/Dashboard', [
+                'message' => $message,
+                'appointments' => $this->bookingContract->getPatientBooking($user->id),
+            ]);
         }
     }
 

@@ -65,7 +65,6 @@ class UserDetailController extends Controller
 
     public function updateProfile(Request $request, $id = null)
     {
-
         $user = Auth::user();
 
         if (!$user) {
@@ -85,6 +84,7 @@ class UserDetailController extends Controller
                 'civil_status' => 'nullable|string|in:Single,Married,Divorce,Separated',
                 'religion' => 'required|string',
                 'address' => 'nullable|string',
+                'profile' => 'nullable|string',
             ]);
             $data['user_id'] = $user->id; 
 
@@ -100,7 +100,7 @@ class UserDetailController extends Controller
             Session::flash('success', 'Account updated successfully!');
 
         } catch (Exception $e) {
-            dd($e);
+
             Log::error('Error during updateProfile: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),

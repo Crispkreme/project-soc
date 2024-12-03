@@ -1,6 +1,4 @@
-import StandardLayout from '@/Layouts/StandardLayout';
 import { Head } from '@inertiajs/react';
-import Chart from "chart.js/auto";
 import { Bar } from 'react-chartjs-2';
 import PatientLayout from '../../Layouts/PatientLayout';
 

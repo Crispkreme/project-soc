@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
@@ -41,6 +42,28 @@ class BookingController extends Controller
         $this->referralContract = $referralContract;
     }
 
+    public function cancelBookingAppointment(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $this->bookingContract->cancelBooking($id, $request->reason);
+
+        $logData = [  
+            'doctor_id' => $user->id,
+            'patient_id' => $request->patient_id,
+            'message' => 'has cancel your book appointment',
+            'log_status' => 'Success',
+        ]; 
+
+        $this->logContract->updateOrCreateLog($logData);
+
+        return redirect()->back()->with('success', 'Appointment cancel.');
+    }
+
     public function getSchedules()
     {
         $user = Auth::user();
@@ -60,13 +83,26 @@ class BookingController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) {
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'admin.appointments' => 'Administration',
+            'bhw.appointments' => 'Bhw',
+            default => 'login',
+        };
+
+        if (!$accountType) {
             return redirect()->route('login');
         }
-        
+
         $appointments = $this->bookingContract->getAllBooking();
         
-        return Inertia::render('Admins/Appointments/Appointment', [
+        $viewPath = match ($accountType) {
+            'Administration' => 'Admins/Appointments/Appointment',
+            'Bhw' => 'Bhws/Appointments/Appointment',
+            default => 'login'
+        };
+
+        return Inertia::render($viewPath, [
             'appointments' => $appointments,
         ]);
     }
@@ -84,6 +120,7 @@ class BookingController extends Controller
 
             $data = $request->validate([
                 'approved_date' => 'nullable|date',
+                'reason' => 'nullable|string',
                 'booking_status' => 'nullable|in:Approve,Pending,Success,Failed',
             ]);
 

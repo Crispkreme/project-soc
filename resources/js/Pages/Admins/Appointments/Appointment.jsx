@@ -1,5 +1,6 @@
 import React, { Suspense, useState } from 'react';
 import { Head } from '@inertiajs/react';
+import CancelAppointmentModal from '../../../Components/Forms/CancelAppointmentModal';
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const StatusButton = React.lazy(() => import("@/Components/Buttons/StatusButton"));
@@ -7,18 +8,22 @@ const ApproveModal = React.lazy(() => import("@/Components/Forms/ApproveModal"))
 const Table = React.lazy(() => import("@/Components/Table"));
 
 const Appointment = ({ appointments }) => {
+    
     const [filteredAppointments, setFilteredAppointments] = useState(appointments);
     const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState("");
     const [selectedAppointment, setSelectedAppointment] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
 
-    const toggleModal = (appointment = null) => {
+    const toggleModal = (appointment = null, type = "") => {
         setSelectedAppointment(appointment);
+        setModalType(type);
         setShowModal(!showModal);
     };
 
     const closeModal = () => {
         setShowModal(false);
+        setModalType("");
         setSelectedAppointment(null);
     };
 
@@ -42,6 +47,7 @@ const Appointment = ({ appointments }) => {
         { key: "title", label: "Appointment" },
         { key: "appointment_date", label: "Event Date" },
         { key: "appointment_time", label: "Time" },
+        { key: "reason", label: "Reason" },
         { key: "updated_at", label: "Updated" },
         { key: "actions", label: "Action" },
     ];
@@ -71,13 +77,23 @@ const Appointment = ({ appointments }) => {
                                     title: appointment.title,
                                     appointment_date: appointment.appointment_date,
                                     appointment_time: `${appointment.appointment_start} - ${appointment.appointment_end}`,
+                                    reason: appointment.reason,
                                     updated_at: appointment.updated_at,
-                                    actions: (
+                                    actions: [
                                         <StatusButton
+                                            key="approve"
                                             status={appointment.booking_status}
-                                            onClick={() => toggleModal(appointment)}
-                                        />
-                                    ),
+                                            onClick={() => toggleModal(appointment, "approve")}
+                                        />,
+                                        appointment.booking_status === 'Pending' && (
+                                            <StatusButton
+                                                key="cancel"
+                                                status="Failed"
+                                                onClick={() => toggleModal(appointment, "cancel")}
+                                            />
+                                        )
+                                    ],
+                                    
                                 }))}
                                 noDataMessage="No Appointments Available."
                             />
@@ -85,8 +101,16 @@ const Appointment = ({ appointments }) => {
                     </div>
                 </div>
 
-                {showModal && selectedAppointment && (
+                {showModal && modalType === "approve" && selectedAppointment && (
                     <ApproveModal
+                        showModal={showModal}
+                        toggleModal={closeModal}
+                        selectedAppointment={selectedAppointment}
+                    />
+                )}
+
+                {showModal && modalType === "cancel" && selectedAppointment && (
+                    <CancelAppointmentModal
                         showModal={showModal}
                         toggleModal={closeModal}
                         selectedAppointment={selectedAppointment}

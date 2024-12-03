@@ -49,10 +49,13 @@ class BookingRepository implements BookingContract
 
                 return [
                     'id' => $booking->id,
+                    'patient_id' => $booking->patient_id,
+                    'doctor_id' => $booking->doctor_id,
                     'doctor_name' => $doctorName,
                     'patient_name' => $patientName,
                     'title' => $booking->title,
                     'notes' => $booking->notes,
+                    'reason' => $booking->reason,
                     'appointment_date' => $this->formatDateTime($booking->appointment_date, 'date'),
                     'updated_at' => $this->formatDateTime($booking->updated_at, 'date'),
                     'appointment_start' => $this->formatDateTime($booking->appointment_start, 'time'),
@@ -62,6 +65,40 @@ class BookingRepository implements BookingContract
             });
     }
 
+    public function getPatientBooking($id)
+    {
+        return $this->model
+            ->with(['approver:id,firstname,middlename,lastname'])
+            ->where('patient_id', $id)
+            ->get()
+            ->map(function ($booking) {
+                $approverName = $booking->approver
+                    ? implode(' ', array_filter([
+                        $booking->approver->firstname,
+                        $booking->approver->middlename,
+                        $booking->approver->lastname,
+                    ]))
+                    : 'N/A';
+
+                $appointmentDate = $this->formatDateTime($booking->appointment_date, 'date');
+                $updatedAt = $this->formatDateTime($booking->updated_at, 'date');
+                $appointmentStart = $this->formatDateTime($booking->appointment_start, 'time');
+                $appointmentEnd = $this->formatDateTime($booking->appointment_end, 'time');
+
+                return [
+                    'id' => $booking->id,
+                    'approver_name' => $approverName,
+                    'title' => $booking->title,
+                    'notes' => $booking->notes,
+                    'reason' => $booking->reason,
+                    'appointment_date' => $appointmentDate,
+                    'updated_at' => $updatedAt,
+                    'appointment_start' => $appointmentStart,
+                    'appointment_end' => $appointmentEnd,
+                    'booking_status' => $booking->booking_status,
+                ];
+            });
+    }
     public function createOrUpdateBooking($data)
     {
         return $this->model->updateOrCreate(
@@ -73,6 +110,7 @@ class BookingRepository implements BookingContract
                 'patient_id' => $data['patient_id'],
                 'title' => $data['title'],
                 'notes' => $data['notes'],
+                'reason' => $data['reason'] ?? null,
                 'appointment_date' => $data['appointment_date'],
                 'appointment_start' => $data['appointment_start'],
                 'appointment_end' => $data['appointment_end'],
@@ -101,6 +139,16 @@ class BookingRepository implements BookingContract
             'approve_by_id' => $approverId,
             'booking_status' => $status,
             'approved_date' => now(),
+        ]);
+        return $booking;
+    }
+
+    public function cancelBooking($id, $data)
+    {
+        $booking = $this->model->findOrFail($id);
+        $booking->update([
+            'reason' => $data,
+            'booking_status' => 'Cancel',
         ]);
         return $booking;
     }
