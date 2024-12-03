@@ -20,7 +20,7 @@ const ApproveModal = ({ showModal, toggleModal, selectedAppointment }) => {
 
         try {
             await Inertia.post(
-                route('admin.approve.appointments', { id: selectedAppointment?.id }),
+                route('approve.appointments', { id: selectedAppointment?.id }),
                 { description }
             );
             toggleModal(false);

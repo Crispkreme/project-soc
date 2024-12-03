@@ -133,7 +133,7 @@ export default function Dashboard({ appointments, message }) {
                 <Table
                   columns={appointmentColumns}
                   data={filteredAppointments
-                    .filter(appointment => appointment.booking_status !== "Approve")
+                    .filter(appointment => appointment.booking_status)
                     .map(appointment => ({
                       patient_name: appointment.patient_name,
                       title: appointment.title,

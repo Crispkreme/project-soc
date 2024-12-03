@@ -79,7 +79,7 @@ Route::post('/barangay/event/create', [ActivitiesController::class, 'updateOrCre
 Route::post('/barangay/event/update/{id}', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.update');
 
 Route::post('/cancel/booking/appointment/{id}', [BookingController::class, 'cancelBookingAppointment'])->name('cancel.booking.appointment');
-
+Route::post('/approve/appointments/{id}', [BookingController::class, 'approveAppointments'])->name('approve.appointments');
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
 require __DIR__.'/practitioner.php';

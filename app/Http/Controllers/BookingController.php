@@ -188,10 +188,22 @@ class BookingController extends Controller
     public function approveAppointments($id = null)
     {
         $user = Auth::user();
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'practitioner.dashboard' => 'practitioner',
+            'patient.dashboard' => 'patient',
+            default => 'login',
+        };
 
-        if (!$user) {
+        if (!$accountType) {
             return redirect()->route('login');
         }
+        
+        $viewPath = match ($accountType) {
+            'Practitioner' => 'Practitioners/Dashboard',
+            'Patient' => 'Patients/Dashboard',
+            default => 'login'
+        };
 
         $data = $this->bookingContract->updateBookingstatus('Pending', $id, $user->id);
 
@@ -204,7 +216,9 @@ class BookingController extends Controller
 
         $this->logContract->updateOrCreateLog($logData);
 
-        return redirect()->back()->with('success', 'Appointment successfully aprroved.');
+        Session::flash('success', 'Appointment successfully aprroved.');
+
+        return Inertia::render($viewPath);
     }
 
     public function getReferral()
