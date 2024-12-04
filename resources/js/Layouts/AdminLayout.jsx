@@ -4,12 +4,10 @@ import SidebarItem from '../Components/Sidebars/SidebarItem';
 import { RiHome2Line, RiCalendarTodoLine } from "react-icons/ri";
 import { AiOutlineSkin } from "react-icons/ai";
 import { TbReportMedical, TbTools } from "react-icons/tb";
-import { RiHospitalLine } from "react-icons/ri";
 import { MdOutlineInventory2 } from "react-icons/md";
 import { PiAddressBookBold } from "react-icons/pi";
-import { VscGraph } from "react-icons/vsc";
-import { GoChecklist } from "react-icons/go";
 import { useSelector } from 'react-redux';
+import { HiOutlineDocumentReport } from "react-icons/hi";
 import { RiMedicineBottleLine } from "react-icons/ri";
 import { Toaster } from "react-hot-toast";
 
@@ -51,11 +49,27 @@ const AdminLayout = ({ children }) => {
                     { label: 'Appointment', link: route('admin.appointments') },
                 ]}
             />
-            <SidebarItem icon={TbTools} label="Activities" link={route('admin.activities')} />
             <SidebarItem icon={RiMedicineBottleLine} label="Medicine Requester" link={route('admin.medicine.requester')} />
-            <SidebarItem icon={RiHospitalLine} label="Referral" link={route('admin.referrals')} />
-            <SidebarItem icon={GoChecklist} label="Prescription" link={route('admin.prescriptions')} />
-            <SidebarItem icon={VscGraph} label="Data" link="#" />
+            <SidebarItem icon={TbTools} label="Activities" link={route('admin.activities')} />
+            <SidebarItem
+                icon={HiOutlineDocumentReport}
+                label="Report"
+                dropdownItems={[
+                    { label: 'Data', link: "#" },
+                    { label: 'Referral', link: route('admin.referrals') },
+                    { label: 'Referral', link: route('admin.referrals') },
+                    { label: 'Prescription', link: route('admin.prescriptions') },
+                    { label: 'Medicine', link: route('admin.reports.medicine') },
+                    { label: 'Inventory', link: route('admin.reports.inventory') },
+                    { label: 'Appointment', link: route('admin.reports.appointment') },
+                    { label: 'Activity', link: route('admin.reports.activity') },
+                    { label: 'Medicine Requester', link: route('admin.reports.medicine.request') },
+                    { label: 'Administrator', link: route('admin.reports.administrator.account') },
+                    { label: 'Doctor', link: route('admin.reports.doctor.account') },
+                    { label: 'Patient', link: route('admin.reports.patient.account') },
+                    { label: 'Bwh', link: route('admin.reports.bhw.account') },
+                ]}
+            />
         </>
     );
 
@@ -81,29 +95,45 @@ const AdminLayout = ({ children }) => {
                 ]}
             />
             <SidebarItem icon={TbTools} label="Activities" link={route('bhw.activities')} />
-            <SidebarItem icon={RiHospitalLine} label="Referral" link={route('bhw.referrals')} />
-            <SidebarItem icon={GoChecklist} label="Prescription" link={route('bhw.prescriptions')} />
-            <SidebarItem icon={VscGraph} label="Data" link="#" />
+            <SidebarItem
+                icon={HiOutlineDocumentReport}
+                label="Report"
+                dropdownItems={[
+                    { label: 'Data', link: "#" },
+                    { label: 'Referral', link: route('bhw.referrals') },
+                    { label: 'Referral', link: route('bhw.referrals') },
+                    { label: 'Prescription', link: route('bhw.prescriptions') },
+                    { label: 'Medicine', link: route('bhw.reports.medicine') },
+                    { label: 'Inventory', link: route('bhw.reports.inventory') },
+                    { label: 'Appointment', link: route('bhw.reports.appointment') },
+                    { label: 'Activity', link: route('bhw.reports.activity') },
+                    { label: 'Medicine Requester', link: route('bhw.reports.medicine.request') },
+                    { label: 'Administrator', link: route('bhw.reports.administrator.account') },
+                    { label: 'Doctor', link: route('bhw.reports.doctor.account') },
+                    { label: 'Patient', link: route('bhw.reports.patient.account') },
+                    { label: 'Bwh', link: route('bhw.reports.bhw.account') },
+                ]}
+            />
         </>
     );
 
     return (
         <>
             <Sidebar user={user}>
-                <ul className="mt-4">
-                    {user.role === "Administration" ? adminMenu : userMenu}
-                </ul>
+                <div className="mt-4 overflow-y-auto max-h-screen"> {/* Added scroll functionality */}
+                    <ul>
+                        {user.role === "Administration" ? adminMenu : userMenu}
+                    </ul>
+                </div>
             </Sidebar>
 
             <main className={`w-full ${open ? 'md:ml-64 md:w-[calc(100%-256px)]' : ''} bg-gray-50 min-h-screen transition-all main`}>
-            
                 <Header userId={user.id} />
 
                 <div className="p-6">
                     <Toaster position="top-right" reverseOrder={false} />
                     {children}
                 </div>
-                
             </main>
         </>
     );

@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\BarangayEventContract;
+use App\Contracts\BookingContract;
 use App\Contracts\FamilyMedicalContract;
 use App\Contracts\HealthContract;
 use App\Contracts\HospitalContract;
 use App\Contracts\HospitalizationContract;
 use App\Contracts\ImmunizationContract;
+use App\Contracts\LedgerContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
@@ -31,12 +34,18 @@ class MedicalRecordController extends Controller
     protected $medicationContract;
     protected $familyMedicalContract;
     protected $testResultContract;
+    protected $ledgerContract;
+    protected $barangayEventContract;
     protected $immunizationContract;
     protected $hospitalizationContract;
     protected $medicalRecordContract;
+    protected $bookingContract;
     protected $hospitalContract;
 
     public function __construct(
+        BarangayEventContract $barangayEventContract,
+        BookingContract $bookingContract,
+        LedgerContract $ledgerContract,
         HospitalContract $hospitalContract,
         UserDetailContract $userDetailContract,
         MedicineContract $medicineContract,
@@ -51,6 +60,9 @@ class MedicalRecordController extends Controller
         MedicalRecordContract $medicalRecordContract,
     ) {
         $this->hospitalContract = $hospitalContract;
+        $this->bookingContract = $bookingContract;
+        $this->barangayEventContract = $barangayEventContract;
+        $this->ledgerContract = $ledgerContract;
         $this->userDetailContract = $userDetailContract;
         $this->medicineContract = $medicineContract;
         $this->medicationContract = $medicationContract;
@@ -536,6 +548,197 @@ class MedicalRecordController extends Controller
         return Inertia::render($viewPath, [
             'medicineRequesters' => $medicineRequesters,
             'medicines' => $medicines,
+        ]);
+    }
+
+    public function getReport()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $roleRoutes = [
+            'Administration' => 'Admins/Reports/MedicineReport',
+            'Bhw' => 'Bhws/Reports/MedicineReport',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+
+        $medicines = $this->medicineContract->getAllMedicine();
+
+        return Inertia::render($redirectInertia, [
+            'medicines' => $medicines,
+        ]);
+    }
+
+    public function getInventory()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $roleRoutes = [
+            'Administration' => 'Admins/Reports/InventoryReport',
+            'Bhw' => 'Bhws/Reports/InventoryReport',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+
+        $inventories = $this->ledgerContract->getAllLedger();
+
+        return Inertia::render($redirectInertia, [
+            'inventories' => $inventories,
+        ]);
+    }
+
+    public function getAppointment()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $roleRoutes = [
+            'Administration' => 'Admins/Reports/AppointmentRecord',
+            'Bhw' => 'Bhws/Reports/AppointmentRecord',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+
+        $appointments = $this->bookingContract->getAllBooking();
+
+        return Inertia::render($redirectInertia, [
+            'appointments' => $appointments,
+        ]);
+    }
+
+    public function getActivity()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $roleRoutes = [
+            'Administration' => 'Admins/Reports/ActivityReport',
+            'Bhw' => 'Bhws/Reports/ActivityReport',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+
+        $barangayEvents = $this->barangayEventContract->getBarangayEvent();
+
+        return Inertia::render($redirectInertia, [
+            'barangayEvents' => $barangayEvents,
+        ]);
+    }
+
+    public function getMedicineRequest()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $roleRoutes = [
+            'Administration' => 'Admins/Reports/MedicineRequesterRecord',
+            'Bhw' => 'Bhws/Reports/MedicineRequesterRecord',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+
+        $medicineRequesters = $user->role === 'Administration'
+            ? $this->medicationContract->getAllMedication()
+            : $this->medicationContract->getMedicationById($user->id);
+
+        return Inertia::render($redirectInertia, [
+            'medicineRequesters' => $medicineRequesters,
+        ]);
+    }
+
+    public function getDoctorAccount()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $roleRoutes = [
+            'Administration' => 'Admins/Reports/DoctorAccountRecord',
+            'Bhw' => 'Bhws/Reports/DoctorAccountRecord',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+
+        $accounts = $this->userDetailContract->getAllUserByRole($user->role, true);
+
+        return Inertia::render($redirectInertia, [
+            'accounts' => $accounts,
+        ]);
+    }
+    
+    public function getAdministratorAccount()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $roleRoutes = [
+            'Administration' => 'Admins/Reports/AdminAccountReport',
+            'Bhw' => 'Bhws/Reports/AdminAccountReport',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+
+        $accounts = $this->userDetailContract->getAllUserByRole($user->role, true);
+
+        return Inertia::render($redirectInertia, [
+            'accounts' => $accounts,
+        ]);
+    }
+
+    public function getPatientAccount()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $roleRoutes = [
+            'Administration' => 'Admins/Reports/PatientAccountReport',
+            'Bhw' => 'Bhws/Reports/PatientAccountReport',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+
+        $accounts = $this->userDetailContract->getAllUserByRole($user->role, true);
+
+        return Inertia::render($redirectInertia, [
+            'accounts' => $accounts,
+        ]);
+    }
+
+    public function getBhwAccount()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $roleRoutes = [
+            'Administration' => 'Admins/Reports/BhwAccountReport',
+            'Bhw' => 'Bhws/Reports/BhwAccountReport',
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+
+        $accounts = $this->userDetailContract->getAllUserByRole($user->role, true);
+
+        return Inertia::render($redirectInertia, [
+            'accounts' => $accounts,
         ]);
     }
 }

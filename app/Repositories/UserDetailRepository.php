@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Contracts\UserDetailContract;
 use App\Models\UserDetail;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -67,8 +68,17 @@ class UserDetailRepository implements UserDetailContract
                 'users.role'
             )
             ->where('users.role', '=', $role)
-            // ->where('user_details.status', '=', $status)
-            ->get();
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'name' => "{$user->firstname} {$user->middlename} {$user->lastname}",
+                    'gender' => $user->gender,
+                    'birthday' => Carbon::parse($user->birthday)->format('F d, Y'),
+                    'age' => Carbon::parse($user->birthday)->age,
+                    'role' => $user->role,
+                    'status' => $user->status,
+                ];
+            });
     }
 
     public function getSpecificUserDetailsById($id, $role, $status)

@@ -53,4 +53,13 @@ Route::middleware(['auth', 'verified', 'admin'])
     Route::get('/activities', [ActivitiesController::class, 'getActivities'])->name('activities');
 
     Route::get('/medicine/requester', [MedicalRecordController::class, 'getMedicineRequester'])->name('medicine.requester');
+    Route::get('/reports/medicine', [MedicalRecordController::class, 'getReport'])->name('reports.medicine');
+    Route::get('/reports/inventory', [MedicalRecordController::class, 'getInventory'])->name('reports.inventory');
+    Route::get('/reports/appointment', [MedicalRecordController::class, 'getAppointment'])->name('reports.appointment');
+    Route::get('/reports/activity', [MedicalRecordController::class, 'getActivity'])->name('reports.activity');
+    Route::get('/reports/medicine/request', [MedicalRecordController::class, 'getMedicineRequest'])->name('reports.medicine.request');
+    Route::get('/reports/administrator/account', [MedicalRecordController::class, 'getAdministratorAccount'])->name('reports.administrator.account');
+    Route::get('/reports/doctor/account', [MedicalRecordController::class, 'getDoctorAccount'])->name('reports.doctor.account');
+    Route::get('/reports/bhw/account', [MedicalRecordController::class, 'getBhwAccount'])->name('reports.bhw.account');
+    Route::get('/reports/patient/account', [MedicalRecordController::class, 'getPatientAccount'])->name('reports.patient.account');
 });
