@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
-import dashboard from '../../../public/assets/svg/dashboard-svg.svg';
+import dashboard from '../../../public/assets/svg/dashboard.svg';
 
-export default function HomeLayout({ children }) {
+export default function LoginLayout({ children }) {
     return (
         <main className='flex overflow-hidden'>
             <nav className='absolute w-full z-50'>

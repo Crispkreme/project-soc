@@ -1,190 +1,280 @@
-import React, { Suspense } from 'react';
-import { Head } from '@inertiajs/react';
-import { format } from 'date-fns';
+import React, { Suspense, useState } from "react";
+import { Head } from "@inertiajs/react";
+import { format } from "date-fns";
+import { LuClipboardEdit } from "react-icons/lu";
+import { HiOutlinePlusSm } from "react-icons/hi";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const Accordion = React.lazy(() => import("@/Components/Accordion"));
+const Table = React.lazy(() => import("@/Components/Table"));
 
-const PatientRecord = ({ medicalRecords, hospitalizations, immunizations, testResults }) => {
+const HospitalizationModal = React.lazy(() => import("@/Components/Forms/HospitalizationModal"));
+const ImmunizationModal = React.lazy(() => import("@/Components/Forms/ImmunizationModal"));
+const MedicalRecordModal = React.lazy(() => import("@/Components/Forms/MedicalRecordModal"));
+const TestResultModal = React.lazy(() => import("@/Components/Forms/TestResultModal"));
+
+const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords, hospitalizations, immunizations, testResults }) => {
+ 
+  const [showTestResultModal, setShowTestResultModal] = useState(false);
+  const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
+  const [showImmunizationModal, setShowImmunizationModal] = useState(false);
+  const [showHospitalizationModal, setShowHospitalizationModal] = useState(false);
+
+  const [selectedTestResult, setSelectedTestResult] = useState(null);
+  const [selectedMedicalRecord, setSelectedMedicalRecord] = useState(null);
+  const [selectedImmunization, setSelectedImmunization] = useState(null);
+  const [selectedHospitalization, setSelectedHospitalization] = useState(null);
+
+  const toggleTestResultModal = (testResult = null) => {
+    setSelectedTestResult(testResult);
+    setShowTestResultModal(prev => !prev);
+  };
+  const toggleMedicalRecordModal = (medicalRecord = null) => {
+    setSelectedMedicalRecord(medicalRecord);
+    setShowMedicalRecordModal(prev => !prev);
+  };
+  const toggleImmunizationModal = (immunization = null) => {
+    setSelectedImmunization(immunization);
+    setShowImmunizationModal(prev => !prev);
+  };
+  const toggleHospitalizationModal = (hospitalization = null) => {
+    setSelectedHospitalization(hospitalization);
+    setShowHospitalizationModal(prev => !prev);
+  };
+
+  const testResultColumn = [
+    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+    { key: "name", label: "Test" },
+    { key: "result", label: "Result" },
+    {
+      key: "created_at",
+      label: "Date",
+      render: (value) => format(new Date(value), "MMMM d, yyyy"),
+    },
+  ];
+  const medicalRecordColumn = [
+    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+    { key: "diagnosis", label: "Diagnosis" },
+    { key: "medicine.medicine_name", label: "Medication" },
+    {
+      key: "created_at",
+      label: "Date",
+      render: (value) => format(new Date(value), "MMMM d, yyyy"),
+    },
+  ];
+  const immunizationColumn = [
+    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+    { key: "immunization", label: "Immunization" },
+    { key: "doctor_name", label: "Doctor" },
+    {
+      key: "created_at",
+      label: "Date",
+      render: (value) => format(new Date(value), "MMMM d, yyyy"),
+    },
+  ];
+  const hospitalizationColumn = [
+    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
+    { key: "diagnosis", label: "Diagnosis" },
+    { key: "hospital_name", label: "Hospital" },
+    { key: "doctor_name", label: "Doctor" },
+    {
+      key: "created_at",
+      label: "Date",
+      render: (value) => format(new Date(value), "MMMM d, yyyy"),
+    },
+  ];
+
+  const immunizationAction = [
+    {
+      label: "Edit",
+      icon: LuClipboardEdit,
+      onClick: (row) => toggleImmunizationModal(row, true, false, row.id),
+    },
+  ];
+
+  const hospitalizationAction = [
+    {
+      label: "Edit",
+      icon: LuClipboardEdit,
+      onClick: (row) => toggleHospitalizationModal(row, true, false, row.id),
+    },
+  ];
+
+  const testResultAction = [
+    {
+      label: "Edit",
+      icon: LuClipboardEdit,
+      onClick: (row) => toggleTestResultModal(row, true, false, row.id),
+    },
+  ];
+
+  const medicalRecordAction = [
+    {
+      label: "Edit",
+      icon: LuClipboardEdit,
+      onClick: (row) => toggleMedicalRecordModal(row, true, false, row.id),
+    },
+  ];
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <AdminLayout>
-
         <Head title="Patient Record" />
 
         <div className='grid grid-cols-1 gap-6 mb-6'>
           <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+            <div className="flex justify-between mb-4 items-start">
+              <div className="font-medium">Manage Patient Record</div>
+            </div>
 
-          <div className="flex justify-between mb-4 items-start">
-            <div className="font-medium">Manage Patient Record</div>
-          </div>
-
-          <div className='p-4 bg-gray-200 rounded-lg mb-4'>
-            <Accordion title='Test Result'>
-              <div className='grid grid-cols-1 gap-6 mb-6'>
-                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                      <thead>
-                        <tr>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Test</th>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Result</th>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {testResults.length > 0 ? testResults.map((testResult) => (
-                          <tr key={testResults.id}>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{testResult.name}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{testResult.result}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{format(new Date(testResult.created_at), "MMMM d, yyyy")}</span>
-                            </td>
-                          </tr>
-                        )) : (
-                          <tr>
-                            <td colSpan={4} className="text-center py-4 text-gray-500">No Test Result Available.</td>
-                          </tr>
-                        )}      
-                      </tbody>
-                      </table>
+            <div className='p-4 bg-gray-200 rounded-lg mb-4'>
+              <Accordion title='Test Result'>
+                <div className='grid grid-cols-1 gap-6 mb-6'>
+                  <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                    <div className="overflow-x-auto">
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="font-medium">Manage Test Result</h2>
+                        <button
+                          type="button"
+                          className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                          onClick={() => toggleTestResultModal(null)}
+                        >
+                          <HiOutlinePlusSm className="mr-1" /> Add Test Result
+                        </button>
+                      </div>
+                      <Table
+                        columns={testResultColumn}
+                        data={testResults}
+                        actions={testResultAction}
+                        noDataMessage="No Test Result Available."
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Accordion>
-          </div>
+              </Accordion>
+            </div>
 
-          <div className='p-4 bg-gray-200 rounded-lg mb-4'>
-            <Accordion title='Immunization Records'>
-              <div className='grid grid-cols-1 gap-6 mb-6'>
-                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                      <thead>
-                        <tr>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Immunization</th>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Doctor</th>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {immunizations.length > 0 ? immunizations.map((immunization) => (
-                          <tr key={immunization.id}>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{immunization.immunization}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{immunization.doctor_name}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{format(new Date(immunization.created_at), "MMMM d, yyyy")}</span>
-                            </td>
-                          </tr>
-                        )) : (
-                          <tr>
-                            <td colSpan={4} className="text-center py-4 text-gray-500">No Immunization Available.</td>
-                          </tr>
-                        )}      
-                      </tbody>
-                      </table>
+            <div className='p-4 bg-gray-200 rounded-lg mb-4'>
+              <Accordion title='Immunization Records'>
+                <div className='grid grid-cols-1 gap-6 mb-6'>
+                  <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                    <div className="overflow-x-auto">
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="font-medium">Manage Immunization Records</h2>
+                        <button
+                          type="button"
+                          className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                          onClick={() => toggleImmunizationModal(null)}
+                        >
+                          <HiOutlinePlusSm className="mr-1" /> Add Immunization Record
+                        </button>
+                      </div>
+                      <Table
+                        columns={immunizationColumn}
+                        data={immunizations}
+                        actions={immunizationAction}
+                        noDataMessage="No Immunization Available."
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Accordion>
-          </div>
-          
-          <div className='p-4 bg-gray-200 rounded-lg mb-4'>
-            <Accordion title='Hospitalization Records'>
-              <div className='grid grid-cols-1 gap-6 mb-6'>
-                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                      <thead>
-                        <tr>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Diagnosis</th>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Hospital</th>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Doctor</th>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {hospitalizations.length > 0 ? hospitalizations.map((hospitalization) => (
-                          <tr key={hospitalization.id}>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{hospitalization.diagnosis}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{hospitalization.hospital_name}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{hospitalization.doctor_name}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{format(new Date(hospitalization.created_at), "MMMM d, yyyy")}</span>
-                            </td>
-                          </tr>
-                        )) : (
-                          <tr>
-                            <td colSpan={4} className="text-center py-4 text-gray-500">No Hospitalization Available.</td>
-                          </tr>
-                        )}      
-                      </tbody>
-                      </table>
+              </Accordion>
+            </div>
+
+            <div className='p-4 bg-gray-200 rounded-lg mb-4'>
+              <Accordion title='Hospitalization Records'>
+                <div className='grid grid-cols-1 gap-6 mb-6'>
+                  <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                    <div className="overflow-x-auto">
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="font-medium">Manage Hospitalization Records</h2>
+                        <button
+                          type="button"
+                          className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                          onClick={() => toggleHospitalizationModal(null)}
+                        >
+                          <HiOutlinePlusSm className="mr-1" /> Add Hospitalization Records
+                        </button>
+                      </div>
+                      <Table
+                        columns={hospitalizationColumn}
+                        data={hospitalizations}
+                        actions={hospitalizationAction}
+                        noDataMessage="No Hospitalization Available."
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Accordion>
-          </div>
+              </Accordion>
+            </div>
 
-          <div className='p-4 bg-gray-200 rounded-lg'>
-            <Accordion title='Personal Medical Records'>
-              <div className='grid grid-cols-1 gap-6 mb-6'>
-                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                      <thead>
-                        <tr>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Diagnosis</th>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Medication</th>
-                          <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {medicalRecords.length > 0 ? medicalRecords.map((medicalRecord) => (
-                          <tr key={medicalRecord.id}>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{medicalRecord.diagnosis}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{medicalRecord.medicine.medicine_name}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                              <span className="text-[13px] font-medium text-gray-400">{format(new Date(medicalRecord.created_at), "MMMM d, yyyy")}</span>
-                            </td>
-                          </tr>
-                        )) : (
-                          <tr>
-                            <td colSpan={4} className="text-center py-4 text-gray-500">No Medical Available.</td>
-                          </tr>
-                        )}      
-                      </tbody>
-                      </table>
+            <div className='p-4 bg-gray-200 rounded-lg'>
+              <Accordion title='Personal Medical Records'>
+                <div className='grid grid-cols-1 gap-6 mb-6'>
+                  <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                    <div className="overflow-x-auto">
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="font-medium">Manage Personal Medical Records</h2>
+                        <button
+                          type="button"
+                          className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                          onClick={() => toggleMedicalRecordModal(null)}
+                        >
+                          <HiOutlinePlusSm className="mr-1" /> Add Personal Medical Records
+                        </button>
+                      </div>
+                      <Table
+                        columns={medicalRecordColumn}
+                        data={medicalRecords}
+                        actions={medicalRecordAction}
+                        noDataMessage="No Medical Record Available."
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Accordion>
-          </div>
-
+              </Accordion>
+            </div>
           </div>
         </div>
-
       </AdminLayout>
-    </Suspense>
-  )
-}
 
-export default PatientRecord
+      <HospitalizationModal
+        showModal={showHospitalizationModal}
+        toggleHospitalizationModal={toggleHospitalizationModal} 
+        selectedHospitalization={selectedHospitalization}
+        patient_id={patients[0]?.id}
+        patients={patients}
+        doctors={doctors}
+        hospitals={hospitals}
+        isEditing={!!selectedHospitalization}
+      />
+      <ImmunizationModal
+        showModal={showImmunizationModal}
+        toggleImmunizationModal={toggleImmunizationModal} 
+        selectedImmunization={selectedImmunization}
+        patient_id={patients[0]?.id}
+        doctors={doctors}
+        isEditing={!!selectedImmunization}
+      />
+      <MedicalRecordModal
+        showModal={showMedicalRecordModal}
+        toggleMedicalRecordModal={toggleMedicalRecordModal} 
+        selectedMedicalRecord={selectedMedicalRecord}
+        patient_id={patients[0]?.id}
+        patients={patients}
+        medicines={medicines}
+        isEditing={!!selectedMedicalRecord}
+      />
+      <TestResultModal
+        showModal={showTestResultModal}
+        toggleTestResultModal={toggleTestResultModal} 
+        selectedTestResult={selectedTestResult}
+        patient_id={patients[0]?.id}
+        patients={patients}
+        isEditing={!!selectedTestResult}
+      />
+    </Suspense>
+  );
+};
+
+export default PatientRecord;

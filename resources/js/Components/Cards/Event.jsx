@@ -15,8 +15,8 @@ const Event = ({ event }) => {
     };
 
     return (
-        <div className="flex gap-3 bg-white border border-gray-300 rounded-xl overflow-hidden items-center justify-start">
-            <div className="flex items-center justify-center w-32 h-32 flex-shrink-0 bg-blue-100 text-4xl font-bold text-blue-600">
+        <div className="flex flex-col md:flex-row gap-3 bg-white border border-gray-300 rounded-xl overflow-hidden items-center justify-start">
+            <div className="flex items-center justify-center w-full md:w-32 h-32 flex-shrink-0 bg-blue-100 text-4xl font-bold text-blue-600">
                 {day}
             </div>
             <div className="flex flex-col gap-2 py-2">

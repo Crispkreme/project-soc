@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
+use App\Contracts\LedgerContract;
+use App\Contracts\MedicineContract;
 use App\Contracts\UserDetailContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,15 +17,21 @@ class ServiceController extends Controller
     protected $barangayEventContract;
     protected $userDetailContract;
     protected $appointmentContract;
+    protected $ledgerContract;
+    protected $medicineContract;
 
     public function __construct(
         BarangayEventContract $barangayEventContract,
         UserDetailContract $userDetailContract,
         AppointmentContract $appointmentContract,
+        LedgerContract $ledgerContract,
+        MedicineContract $medicineContract,
     ) {
         $this->userDetailContract = $userDetailContract;
         $this->barangayEventContract = $barangayEventContract;
         $this->appointmentContract = $appointmentContract;
+        $this->ledgerContract = $ledgerContract;
+        $this->medicineContract = $medicineContract;
     }
     
     public function getAllServiceAvailable()
@@ -97,7 +105,7 @@ class ServiceController extends Controller
 
         $routeName = Route::currentRouteName();
         $accountType = match ($routeName) {
-            'practitioner.show.medicine.available' => 'Practitioner',
+            'practitioner.show.report.medicine.available' => 'Practitioner',
             'patient.show.medicine.available' => 'Patient',
             default => 'login',
         };
@@ -107,12 +115,16 @@ class ServiceController extends Controller
         }
 
         $viewPath = match ($accountType) {
-            'Practitioner' => 'Practitioners/Services/Medicine',
+            'Practitioner' => 'Practitioners/Reports/Medicine',
             'Patient' => 'Patients/Services/Medicine',
             default => 'login'
         };
 
-        return Inertia::render($viewPath);
+        $inventories = $this->ledgerContract->getAllLedger();
+
+        return Inertia::render($viewPath, [
+            'inventories' => $inventories,
+        ]);
     }
 
     public function getAllDataAnalysis()

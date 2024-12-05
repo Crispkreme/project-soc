@@ -2,8 +2,6 @@ import React, { useState, Suspense, useEffect, useRef } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { usePage } from '@inertiajs/react';
 import { TbUserHexagon } from "react-icons/tb";
-import axios from 'axios';
-import { IoCameraOutline } from "react-icons/io5";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
@@ -13,9 +11,10 @@ const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButton"));
-const ChangePasswordModal = React.lazy(() => import("./ChangePasswordModal"));
-const ChangeEmailModal = React.lazy(() => import("./ChangeEmailModal"));
-const DeactivateAccountModal = React.lazy(() => import("./DeactivateAccountModal"));
+const ChangePasswordModal = React.lazy(() => import("@/Components/Forms/ChangePasswordModal"));
+const ChangeEmailModal = React.lazy(() => import("@/Components/Forms/ChangeEmailModal"));
+const DeactivateAccountModal = React.lazy(() => import("@/Components/Forms/DeactivateAccountModal"));
+const UpdateAvatar = React.lazy(() => import("@/Components/Profiles/UpdateAvatar"));
 
 const UpdateProfile = ({ userDetail }) => {
 
@@ -23,7 +22,6 @@ const UpdateProfile = ({ userDetail }) => {
     const username = user.username;
     const profile = userDetail.profile;
 
-    const [avatar, setAvatar] = useState(null);
     const [activeModal, setActiveModal] = useState(null);
     const selectRef = useRef(null);
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -35,19 +33,8 @@ const UpdateProfile = ({ userDetail }) => {
         religion: '',
         address: '',
         civil_status: '',
+        profile: '',
     });
-
-    useEffect(() => {
-        async function fetchAvatar() {
-            try {
-                const response = await axios.get(`/user/avatar/${username}`);
-                setAvatar(response.data.avatar);
-            } catch (error) {
-                console.error('Error fetching avatar:', error);
-            }
-        }
-        fetchAvatar();
-    }, [username]);
 
     useEffect(() => {
         if (userDetail) {
@@ -61,6 +48,7 @@ const UpdateProfile = ({ userDetail }) => {
                 religion: userDetail.religion || '',
                 address: userDetail.address || '',
                 civil_status: userDetail.civil_status || '',
+                profile: userDetail.profile || '',
             });
         }
         
@@ -139,31 +127,15 @@ const UpdateProfile = ({ userDetail }) => {
                     <div className="bg-white p-8 m-4 rounded-lg shadow-md flex-1 md:w-9/12">
                         <Title>Account Details</Title>
 
+                        <UpdateAvatar userDetail={userDetail}/>
+                        
                         <form onSubmit={submit}>
                             <input type="hidden" name="id" value={data.id} />
                             <input type="hidden" name="user_id" value={data.user_id} />
-                            
-                            <div className="w-full rounded-sm">
-                                <div
-                                    className="mx-auto flex justify-center w-[141px] h-[141px] rounded-full"
-                                    style={{ 
-                                        backgroundImage: `url(${profile ? profile : avatar})`, 
-                                        backgroundSize: 'cover', 
-                                        backgroundPosition: 'center' 
-                                    }}
-                                >
-                                    <div className="bg-white/90 rounded-full w-6 h-6 text-center ml-28 mt-4">
-                                        <input type="file" name="profile" id="upload_profile" hidden />
-                                        <label htmlFor="upload_profile">
-                                            <IoCameraOutline className="w-6 h-5 text-blue-700" />
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <h2 className="text-center mt-1 font-semibold dark:text-gray-300">Upload Profile</h2>
 
                             <div className="flex lg:flex-row md:flex-col sm:flex-col xs:flex-col gap-2 justify-center w-full">
                                 <div className="w-full mb-4 mt-6">
+                                    <input type="hidden" value={data.profile} onChange={(e) => handleChange('profile', e.target.value)} />
                                     <InputLabel htmlFor="firstname" value="Firstname" />
                                     <TextInput
                                         id="firstname"
@@ -306,11 +278,16 @@ const UpdateProfile = ({ userDetail }) => {
                     <div className="bg-white p-8 m-4 rounded-lg shadow-md md:w-3/12">
                         <div className="px-4 pb-6">
                             <div className="text-center my-4">
-                                <img 
-                                    className="h-32 w-32 rounded-full border-4 border-white dark:border-gray-800 mx-auto my-4" 
-                                    src={`${profile ? profile : avatar}`} 
-                                    alt="" 
+
+                                <div
+                                    className="mx-auto flex justify-center w-[141px] h-[141px] rounded-full"
+                                    style={{
+                                        backgroundImage: `url("/storage/${data.profile}")`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                    }}
                                 />
+
                                 <div className="py-2">
                                     <h3 className="font-bold text-2xl text-gray-800 dark:text-white mb-1">{data.firstname} {data.middlename} {data.lastname}</h3>
                                     <div className="inline-flex text-gray-700 dark:text-gray-300 items-center">
@@ -321,22 +298,22 @@ const UpdateProfile = ({ userDetail }) => {
                             </div>
                             <div className="flex flex-col gap-2 px-2 h-full">
                                 <button
-                                    className="rounded-full bg-blue-600 dark:bg-blue-800 text-white dark:text-white antialiased font-bold hover:bg-blue-800 dark:hover:bg-blue-900 active:bg-blue-900 active:border-blue-500 active:text-white dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    className="rounded-full bg-blue-900 text-white hover:text-white antialiased font-bold hover:bg-blue-800 active:bg-blue-900 active:border-blue-500 px-4 py-2">
                                     Account Details
                                 </button>
                                 <button
                                     onClick={openChangePasswordModal}
-                                    className="mt-auto rounded-full border-2 border-gray-400 dark:border-gray-700 font-semibold text-black dark:text-white hover:border-blue-600 hover:bg-blue-100 active:bg-blue-600 active:border-blue-600 active:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    className="mt-auto rounded-full border-2 border-black-400 font-semibold text-black hover:text-white hover:border-blue-600 hover:bg-blue-900 active:bg-blue-600 active:border-blue-600 active:text-white px-4 py-2">
                                     Change Password
                                 </button>
                                 <button
                                     onClick={openChangeEmailModal}
-                                    className="mt-auto rounded-full border-2 border-gray-400 dark:border-gray-700 font-semibold text-black dark:text-white hover:border-blue-600 hover:bg-blue-100 active:bg-blue-600 active:border-blue-600 active:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    className="mt-auto rounded-full border-2 border-black-400 font-semibold text-black hover:text-white hover:border-blue-600 hover:bg-blue-900 active:bg-blue-600 active:border-blue-600 active:text-white px-4 py-2">
                                     Change Email
                                 </button>
                                 <button 
                                     onClick={openDeactivateAccountModal}
-                                    className="mt-auto rounded-full border-2 border-gray-400 dark:border-gray-700 font-semibold text-black dark:text-white hover:border-blue-600 hover:bg-blue-100 active:bg-blue-600 active:border-blue-600 active:text-white dark:hover:border-blue-500 dark:hover:bg-blue-600 dark:active:bg-blue-700 dark:active:border-blue-500 dark:active:text-white px-4 py-2">
+                                    className="mt-auto rounded-full border-2 border-black-400 font-semibold text-black hover:text-white hover:border-blue-600 hover:bg-blue-900 active:bg-blue-600 active:border-blue-600 active:text-white px-4 py-2">
                                     Deactivate Account
                                 </button>
                             </div>

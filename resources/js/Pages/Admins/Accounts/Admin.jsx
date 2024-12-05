@@ -1,145 +1,190 @@
-import React, { useState, Suspense } from 'react';
-import { Head } from '@inertiajs/react';
+import React, { useState, Suspense } from "react";
+import { Head, router } from "@inertiajs/react";
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { TbUserShield, TbUserExclamation } from "react-icons/tb";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
-const AccountModal = React.lazy(() => import("./AccountModal"));
+const AccountModal = React.lazy(() => import("@/Components/Forms/AccountModal"));
+const DialogBox = React.lazy(() => import("@/Components/Modals/DialogBox"));
 
 const Admin = ({ userDetails }) => {
+  const [showModal, setShowModal] = useState(false);
 
-    const [showModal, setShowModal] = useState(false);
-    const calculateAge = (birthday) => {
-        const today = new Date();
-        const birthDate = new Date(birthday);
+  const toggleModal = (value = null) => {
+    setShowModal(value === null ? !showModal : value);
+  };
 
-        let ageYears = today.getFullYear() - birthDate.getFullYear();
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    message: "",
+    onConfirm: null,
+  });
 
-        return `${ageYears}`;
+  const handleDeactivate = (status, userId) => {
+    const action = status === "Active" ? "deactivate" : "activate";
+
+    setConfirmDialog({
+      isOpen: true,
+      message: `Are you sure you want to ${action} this account?`,
+      onConfirm: () => {
+        const route = `/accounts/${action}`;
+        router.post(route, { id: userId }, {
+          onSuccess: () => {
+            setConfirmDialog({ isOpen: false, message: "", onConfirm: null });
+          },
+          onError: (error) => {
+            console.error("Error updating account status:", error);
+            setConfirmDialog({ isOpen: false, message: "", onConfirm: null });
+          },
+        });
+      },
+    });
+  };
+
+  const calculateAge = (birthday) => {
+    const today = new Date();
+    const birthDate = new Date(birthday);
+    let ageYears = today.getFullYear() - birthDate.getFullYear();
+    if (
+      today.getMonth() < birthDate.getMonth() ||
+      (today.getMonth() === birthDate.getMonth() &&
+        today.getDate() < birthDate.getDate())
+    ) {
+      ageYears--;
     }
+    return `${ageYears}`;
+  };
 
-    const toggleModal = () => {
-        setShowModal(!showModal);
-    };
+  return (
+    <Suspense fallback={<div className="text-center py-4">Loading layout...</div>}>
+      <AdminLayout>
+        <Head title="Accounts" />
+        <div className="grid grid-cols-1 gap-6 mb-6">
+          <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="font-medium">Manage Administration Accounts</h2>
+              <button
+                type="button"
+                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                onClick={() => toggleModal(true)}
+              >
+                <HiOutlinePlusSm className="mr-1" /> Account
+              </button>
+            </div>
 
-    const closeModal = () => {
-        setShowModal(false); 
-    };
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left text-gray-500">
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                  <tr>
+                    <th scope="col" className="p-4">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                    </th>
+                    <th scope="col" className="px-6 py-3">ID</th>
+                    <th scope="col" className="px-6 py-3">Name</th>
+                    <th scope="col" className="px-6 py-3">Gender</th>
+                    <th scope="col" className="px-6 py-3">Birthdate</th>
+                    <th scope="col" className="px-6 py-3">Age</th>
+                    <th scope="col" className="px-6 py-3">Role</th>
+                    <th scope="col" className="px-6 py-3">Status</th>
+                    <th scope="col" className="px-6 py-3">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userDetails.length > 0 ? (
+                    userDetails.map((userDetail, index) => (
+                      <tr
+                        key={userDetail.id}
+                        className="bg-white border-b hover:bg-gray-50"
+                      >
+                        <td className="p-4">
+                          <input
+                            type="checkbox"
+                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                        </td>
+                        <th
+                          scope="row"
+                          className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                        >
+                          {index + 1}
+                        </th>
+                        <td className="px-6 py-4">
+                          {userDetail.firstname} {userDetail.middlename}{" "}
+                          {userDetail.lastname}
+                        </td>
+                        <td className="px-6 py-4">{userDetail.gender}</td>
+                        <td className="px-6 py-4">
+                          {new Date(userDetail.birthday).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "2-digit",
+                              year: "numeric",
+                            }
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          {calculateAge(userDetail.birthday)}
+                        </td>
+                        <td className="px-6 py-4">{userDetail.role}</td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-block p-1 rounded font-medium text-[12px] leading-none ${
+                              userDetail.status === "Active"
+                                ? "bg-emerald-500/10 text-emerald-500"
+                                : "bg-red-500/10 text-red-500"
+                            }`}
+                          >
+                            {userDetail.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            type="button"
+                            className={`${
+                              userDetail.status === "Active"
+                                ? "bg-red-50 text-red-400 hover:text-red-600"
+                                : "bg-green-50 text-green-400 hover:text-green-600"
+                            } text-xs font-medium py-1 px-2 flex items-center`}
+                            onClick={() => handleDeactivate(userDetail.status, userDetail.id)}
+                          >
+                            {userDetail.status === "Active" ? (
+                              <TbUserExclamation className="mr-1 text-sm" />
+                            ) : (
+                              <TbUserShield className="mr-1 text-sm" />
+                            )}
+                            {userDetail.status === "Active" ? "Deactivate" : "Activate"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={9} className="text-center py-4 text-gray-500">
+                        No Account Available.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <AdminLayout>
-                
-                <Head title="Accounts" />
+        {showModal && <AccountModal showModal={showModal} toggleModal={toggleModal} isPage="Administration"/>}
+      </AdminLayout>
 
-                <div className='grid grid-cols-1 gap-6 mb-6'>
-                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                        <div className="flex justify-between mb-4 items-start">
-                            <div className="font-medium">Manage Accounts</div>
-                        </div>
-                        <div className="flex items-center mb-4 order-tab justify-between">
-                            <div className="flex">
-                                <button type="button" data-tab="order" data-tab-page="active" className="bg-gray-50 text-sm font-medium text-gray-400 py-2 px-4 rounded-tl-md rounded-bl-md hover:text-gray-600 active">
-                                    Active
-                                </button>
-                                <button type="button" data-tab="order" data-tab-page="deactive" className="bg-gray-50 text-sm font-medium text-gray-400 py-2 px-4 hover:text-gray-600">
-                                    Deactivate
-                                </button>
-                            </div>
+      <DialogBox
+        isOpen={confirmDialog.isOpen}
+        message={confirmDialog.message}
+        onClose={() => setConfirmDialog({ isOpen: false, message: "", onConfirm: null })}
+        onConfirm={confirmDialog.onConfirm}
+      />
+    </Suspense>
+  );
+};
 
-                            <button 
-                                type="button" 
-                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
-                                onClick={() => { toggleModal(); }}
-                            >
-                                <HiOutlinePlusSm className="mr-1" /> Account
-                            </button>
-
-                        </div>
-
-                        <div className="overflow-x-auto">
-                            <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                                <thead>
-                                    <tr>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tl-md rounded-bl-md">Name</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Gender</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Birthdate</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Age</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Role</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tr-md rounded-br-md">Status</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tr-md rounded-br-md">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                {userDetails.length > 0 ? userDetails.map((userDetail) => (
-                                    <tr key={`${userDetail.id}-${userDetail.firstname}`}>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <div className="flex items-center">
-                                                <img src="https://placehold.co/32x32" alt="" className="w-8 h-8 rounded object-cover block" />
-                                                <a 
-                                                    href="#" 
-                                                    className="text-gray-600 text-sm font-medium hover:text-blue-500 ml-2 truncate"
-                                                >
-                                                    {userDetail.firstname} {userDetail.middlename} {userDetail.lastname}
-                                                </a>
-                                            </div>
-                                        </td>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="text-[13px] font-medium text-gray-400">{userDetail.gender}</span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="text-[13px] font-medium text-gray-400">{userDetail.birthday}</span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="text-[13px] font-medium text-gray-400">{calculateAge(userDetail.birthday)}</span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="text-[13px] font-medium text-gray-400">{userDetail.role}</span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="inline-block p-1 rounded bg-emerald-500/10 text-emerald-500 font-medium text-[12px] leading-none">{userDetail.status}</span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            {userDetail.status ? (
-                                                <button 
-                                                    type="button" 
-                                                    className="bg-red-50 text-sm font-medium text-red-400 py-2 px-4 hover:text-red-600 flex items-center"
-                                                    onClick={() => { toggleModal(); }}
-                                                >
-                                                    <TbUserExclamation className="mr-1" /> Deactive
-                                                </button>
-                                            ) : (
-                                                <button 
-                                                    type="button" 
-                                                    className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
-                                                    onClick={() => { toggleModal(); }}
-                                                >
-                                                    <TbUserShield className="mr-1" /> Active
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                )) : (
-                                    <tr>
-                                        <td colSpan={7} className="text-center py-4 text-gray-500">{t('No Account Available')}.</td>
-                                    </tr>
-                                )}      
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                {showModal && (
-                    <AccountModal
-                        showModal={showModal}
-                        toggleModal={closeModal}
-                    />
-                )}
-
-            </AdminLayout>
-        </Suspense>
-    )
-}
-
-export default Admin
+export default Admin;

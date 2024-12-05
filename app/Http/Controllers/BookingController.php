@@ -3,26 +3,65 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\AppointmentContract;
+use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
+use App\Contracts\LogContract;
+use App\Contracts\PrescriptionContract;
+use App\Contracts\ReferralContract;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
 class BookingController extends Controller
 {
+    protected $barangayEventContract;
     protected $bookingContract;
+    protected $referralContract;
+    protected $prescriptionContract;
     protected $appointmentContract;
+    protected $logContract;
 
     public function __construct(
+        BarangayEventContract $barangayEventContract,
         BookingContract $bookingContract,
+        LogContract $logContract,
+        ReferralContract $referralContract,
+        PrescriptionContract $prescriptionContract,
         AppointmentContract $appointmentContract,
     ) {
+        $this->barangayEventContract = $barangayEventContract;
         $this->bookingContract = $bookingContract;
+        $this->logContract = $logContract;
+        $this->prescriptionContract = $prescriptionContract;
         $this->appointmentContract = $appointmentContract;
+        $this->referralContract = $referralContract;
+    }
+
+    public function cancelBookingAppointment(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $this->bookingContract->cancelBooking($id, $request->reason);
+
+        $logData = [  
+            'doctor_id' => $user->id,
+            'patient_id' => $request->patient_id,
+            'message' => 'has cancel your book appointment',
+            'log_status' => 'Success',
+        ]; 
+
+        $this->logContract->updateOrCreateLog($logData);
+
+        return redirect()->back()->with('success', 'Appointment cancel.');
     }
 
     public function getSchedules()
@@ -33,8 +72,8 @@ class BookingController extends Controller
             return redirect()->route('login');
         }
         
-        $bookings = $this->bookingContract->getAllBooking();
-        
+        $bookings = $this->barangayEventContract->getBarangayEvent();
+
         return Inertia::render('Admins/Appointments/Schedule', [
             'bookings' => $bookings,
         ]);
@@ -44,13 +83,26 @@ class BookingController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) {
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'admin.appointments' => 'Administration',
+            'bhw.appointments' => 'Bhw',
+            default => 'login',
+        };
+
+        if (!$accountType) {
             return redirect()->route('login');
         }
-        
+
         $appointments = $this->bookingContract->getAllBooking();
-  
-        return Inertia::render('Admins/Appointments/Appointment', [
+        
+        $viewPath = match ($accountType) {
+            'Administration' => 'Admins/Appointments/Appointment',
+            'Bhw' => 'Bhws/Appointments/Appointment',
+            default => 'login'
+        };
+
+        return Inertia::render($viewPath, [
             'appointments' => $appointments,
         ]);
     }
@@ -64,34 +116,63 @@ class BookingController extends Controller
         }
 
         try {
-            
             DB::beginTransaction();
 
-            $data = $request->validate([  
-                'title' => 'required|string|max:255',
-                'notes' => 'nullable|string',
-                'appointment_date' => 'nullable|date',
-                'appointment_start' => 'nullable|date_format:H:i',
-                'appointment_end' => 'nullable|date_format:H:i',
+            $data = $request->validate([
                 'approved_date' => 'nullable|date',
-                'booking_status' => 'nullable|in:Inprogress,Pending,Success,Failed',
-            ]);     
-            $data['approve_by_id'] = null; 
-            $data['patient_id'] = $user->id; 
+                'reason' => 'nullable|string',
+                'booking_status' => 'nullable|in:Approve,Pending,Success,Failed',
+            ]);
 
-            if ($id) {
-                $data['id'] = $id; 
-                $this->bookingContract->createOrUpdateBooking($data);
-            } else {
-                $this->bookingContract->createOrUpdateBooking($data);
+            $data['approve_by_id'] = null;
+            $data['patient_id'] = $user->id;
+            $data['title'] = $request->event_name;
+            $data['notes'] = "Booking";
+            $data['appointment_date'] = $request->event_date;
+            $data['appointment_start'] = $request->event_start;
+            $data['appointment_end'] = $request->event_end;
+
+            $existingBookings = $this->bookingContract->checkExistingBooking(
+                $request->event_date, 
+                $request->event_start, 
+                $request->event_end
+            );
+
+            if ($existingBookings >= 2) {
+                Session::flash('error', 'The selected time slot is already fully booked. Please select another time.');
             }
 
-            DB::commit();
+            $existingPatientBookings = $this->bookingContract->checkPatientExistingBooking(
+                $user->id, 
+                $request->event_name
+            );
+
+            if ($existingPatientBookings >= 1) {
+                Session::flash('error', 'You have already booked for this event.');
+            }
+
+            if ($existingBookings < 2 && $existingPatientBookings < 1) {
+                if ($id) {
+                    $data['id'] = $id;
+                }
+                
+                $this->bookingContract->createOrUpdateBooking($data);
             
-            Session::flash('success', 'Booking updated successfully!');
+                $logData = [
+                    'patient_id' => $user->id,
+                    'message' => 'has booked an appointment',
+                    'log_status' => 'Pending',
+                ];
+            
+                $this->logContract->updateOrCreateLog($logData);
+            
+                Session::flash('success', 'Appointment saved successfully!');
+            }
+            
+            DB::commit();
+            return redirect()->back();
 
         } catch (Exception $e) {
-            
             Log::error('Error during createBooking: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
@@ -106,6 +187,67 @@ class BookingController extends Controller
 
     public function approveAppointments($id = null)
     {
-        dd($id);
+        $user = Auth::user();
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'practitioner.dashboard' => 'practitioner',
+            'patient.dashboard' => 'patient',
+            default => 'login',
+        };
+
+        if (!$accountType) {
+            return redirect()->route('login');
+        }
+        
+        $viewPath = match ($accountType) {
+            'Practitioner' => 'Practitioners/Dashboard',
+            'Patient' => 'Patients/Dashboard',
+            default => 'login'
+        };
+
+        $data = $this->bookingContract->updateBookingstatus('Pending', $id, $user->id);
+
+        $logData = [  
+            'doctor_id' => $user->id,
+            'patient_id' => $data->patient_id,
+            'message' => 'has approved booked your appointment',
+            'log_status' => 'Success',
+        ]; 
+
+        $this->logContract->updateOrCreateLog($logData);
+
+        Session::flash('success', 'Appointment successfully aprroved.');
+
+        return Inertia::render($viewPath);
+    }
+
+    public function getReferral()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+        
+        $referrals = $this->referralContract->getAllReferral();
+
+        return Inertia::render('Admins/Referrals/Referral', [
+            'referrals' => $referrals,
+        ]);
+    }
+
+    public function getPrescription()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+        
+        $prescriptions = $this->prescriptionContract->getAllPrescription();
+
+        return Inertia::render('Admins/Prescriptions/Prescription', [
+            'prescriptions' => $prescriptions,
+        ]);
     }
 }

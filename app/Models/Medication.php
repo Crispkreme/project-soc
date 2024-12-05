@@ -8,8 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Medication extends Model
 {
     use HasFactory;
-
-    protected $fillable = ['patient_id', 'medicine_id', 'dosage', 'reason'];
+    protected $primaryKey = 'id';
+    protected $fillable = [
+        'patient_id', 
+        'medicine_id', 
+        'dosage', 
+        'quantity', 
+        'reason', 
+        'medication_status'
+    ];
 
     public function patient()
     {

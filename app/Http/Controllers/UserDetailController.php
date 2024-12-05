@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class UserDetailController extends Controller
@@ -37,9 +38,8 @@ class UserDetailController extends Controller
         $routeName = Route::currentRouteName();
         $accountType = match ($routeName) {
             'admin.view.profile' => 'Administration',
-            // 'admin.accounts.doctor' => 'Practitioner',
-            // 'admin.accounts.bhw' => 'Bhw',
-            // 'admin.accounts.patient' => 'Patient',
+            'practitioner.view.profile' => 'Practitioner',
+            'patient.view.profile' => 'Patient',
             default => 'login',
         };
 
@@ -51,9 +51,8 @@ class UserDetailController extends Controller
 
         $viewPath = match ($accountType) {
             'Administration' => 'Admins/Profiles/UpdateProfile',
-            // 'Practitioner' => 'Admins/Accounts/Doctor',
-            // 'Bhw' => 'Admins/Accounts/Bhw',
-            // 'Patient' => 'Admins/Accounts/Patient',
+            'Practitioner' => 'Practitioners/Profiles/UpdateProfile',
+            'Patient' => 'Patients/Profiles/UpdateProfile',
             default => 'login'
         };
 
@@ -66,7 +65,6 @@ class UserDetailController extends Controller
 
     public function updateProfile(Request $request, $id = null)
     {
-
         $user = Auth::user();
 
         if (!$user) {
@@ -86,6 +84,7 @@ class UserDetailController extends Controller
                 'civil_status' => 'nullable|string|in:Single,Married,Divorce,Separated',
                 'religion' => 'required|string',
                 'address' => 'nullable|string',
+                'profile' => 'nullable|string',
             ]);
             $data['user_id'] = $user->id; 
 
@@ -101,7 +100,7 @@ class UserDetailController extends Controller
             Session::flash('success', 'Account updated successfully!');
 
         } catch (Exception $e) {
-            dd($e);
+
             Log::error('Error during updateProfile: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
@@ -127,5 +126,151 @@ class UserDetailController extends Controller
         return Inertia::render('Patients/Profiles/Password', [
             'user' => $user,
         ]);
+    }
+
+    public function storeProfileDetail(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $userDetailData = $request->validate([
+                'user_id' => 'nullable|exists:users,id|unique:user_details,user_id',
+                'firstname' => 'required|string|max:255',
+                'middlename' => 'nullable|string|max:255',
+                'lastname' => 'required|string|max:255',
+                'gender' => 'nullable|in:Male,Female',
+                'birthday' => 'nullable|date',
+                'civil_status' => 'nullable|in:Single,Married,Divorce,Separated',
+                'religion' => 'required|string|max:255',
+                'address' => 'nullable|string|max:1000',
+                'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+            $userDetailData['status'] = 'Active'; 
+
+            $fullName = $userDetailData['firstname'] . ' ' . ($userDetailData['middlename'] ?? '') . ' ' . $userDetailData['lastname'];
+            $slug = Str::slug($fullName);
+            
+            $username = strtolower(Str::slug($userDetailData['firstname'] . $userDetailData['lastname'] . rand(100, 999)));
+            $email = strtolower(Str::slug($userDetailData['firstname'] . '.' . $userDetailData['lastname'] . rand(100, 999))) . '@example.com';
+
+            $userDetailData['slug'] = $slug;
+            $userData['email'] = $email;
+            $userData['username'] = $username;
+            $userData['password'] = 'password';
+            $userData['role'] = $request->isPage;
+
+            $user = $this->userContract->createOrUpdateUser($userData);
+
+            $userDetailData['user_id'] = $user->id;
+
+            $this->userDetailContract->createOrUpdateUserDetail($userDetailData);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Account added successfully!');
+
+        } catch (Exception $e) {
+
+            Log::error('Error during storeProfileDetail: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            Session::flash('error', '');
+
+            return redirect()->back()->with('success', 'An error occurred during account creation.');
+        }
+    }
+
+    public function activateAccount(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $this->userDetailContract->updateUserDetailStatus('Active', $request->id);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Account activated successfully!');
+
+        } catch (Exception $e) {
+
+            Log::error('Error during activateAccount: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return redirect()->back()->with('error', 'Error please try again.');
+        }
+    }
+
+    public function deactivateAccount(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $this->userDetailContract->updateUserDetailStatus('Deactivate', $request->id);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Account deactivated successfully!');
+
+        } catch (Exception $e) {
+
+            Log::error('Error during deactivateAccount: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return redirect()->back()->with('error', 'Error please try again.');
+        }
+    }
+
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate([
+            'profile' => 'required|image|max:2048',
+        ]);
+
+        $path = $request->file('profile')->store('profiles', 'public');
+        $this->userDetailContract->createOrUpdateUserAvatar($path);
+
+        return response()->json(['profile' => asset("storage/$path")]);
+    }
+
+    public function getAllUsers()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $users = $this->userDetailContract->getAllUserDetails();
+        return response()->json(['users' => $users ]);
     }
 }

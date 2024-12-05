@@ -5,6 +5,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
+import { Toaster } from 'react-hot-toast';
 import store from './store';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -21,6 +22,7 @@ createInertiaApp({
 
         root.render(
             <Provider store={store}>
+                <Toaster position="top-right" reverseOrder={false} />
                 <App {...props} />
             </Provider>
         );

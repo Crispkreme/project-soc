@@ -1,229 +1,293 @@
-import React, { Suspense } from 'react';
-import { Head } from '@inertiajs/react';
-import { format } from 'date-fns';
+import React, { Suspense, useState } from "react";
+import { Head } from "@inertiajs/react";
+import { format } from "date-fns";
+import { HiOutlinePlusSm } from "react-icons/hi";
+import { LuClipboardEdit } from "react-icons/lu";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const Accordion = React.lazy(() => import("@/Components/Accordion"));
+const Table = React.lazy(() => import("@/Components/Table"));
+const HealthHistoryModal = React.lazy(() => import("@/Components/Forms/HealthHistoryModal"));
+const SurgicalHistoryModal = React.lazy(() => import("@/Components/Forms/SurgicalHistoryModal"));
+const FamilyMedicalRecordModal = React.lazy(() => import("@/Components/Forms/FamilyMedicalRecordModal"));
+const MedicationRecordModal = React.lazy(() => import("@/Components/Forms/MedicationRecordModal"));
 
-const PatientHistory = ({ healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords }) => {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AdminLayout>
+const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords }) => {
+    
+    const transformedDoctors = doctors.map(doctor => ({
+        value: doctor.id,
+        option: `${doctor.firstname} ${doctor.middlename} ${doctor.lastname}`
+    }));
 
-        <Head title="Patient Record" />
+    const [showFamilyMedicalModal, setShowFamilyModal] = useState(false);
+    const [showMedicationModal, setShowMedicationModal] = useState(false);
+    const [showHealthModal, setShowHealthModal] = useState(false);
+    const [showSurgicalModal, setShowSurgicalModal] = useState(false);
 
-        <div className='grid grid-cols-1 gap-6 mb-6'>
-          <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+    const [selectedFamilyMedicalRecord, setSelectedFamilyMedicalRecord] = useState(null);
+    const [selectedMedicationRecord, setSelectedMedicationRecord] = useState(null);
+    const [selectedHealthRecord, setSelectedHealthRecord] = useState(null);
+    const [selectedSurgicalRecord, setSelectedSurgicalRecord] = useState(null);
 
-            <div className="flex justify-between mb-4 items-start">
-              <div className="font-medium">Manage Patient History</div>
-            </div>
+    const toggleHealthModal = (healthRecord = null) => {
+        setSelectedHealthRecord(healthRecord);
+        setShowHealthModal(!!healthRecord || !showHealthModal);
+    };
+    const toggleSurgicalModal = (surgicalRecord = null) => {
+        setSelectedSurgicalRecord(surgicalRecord);
+        setShowSurgicalModal(!!surgicalRecord || !showSurgicalModal);
+    };
+    const toggleFamilyMedicalModal = (familyMedical = null) => {
+        setSelectedFamilyMedicalRecord(familyMedical);
+        setShowFamilyModal(!!familyMedical || !showFamilyMedicalModal);
+    };
+    const toggleMedicationModal = (medication = null) => {
+        setSelectedMedicationRecord(medication);
+        setShowMedicationModal(!!medication || !showMedicationModal);
+    };    
 
-            <div className='p-4 bg-gray-200 rounded-lg mb-4'> 
-                <Accordion title='Health History'>
-                    <div className='grid grid-cols-1 gap-6 mb-6'>
+    const healthRecordAction = [
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) => {
+                toggleHealthModal(row);
+              },
+        },
+    ];
+    const surgicalRecordAction = [
+        {
+          label: "Edit",
+          icon: LuClipboardEdit,
+          onClick: (row) => {
+            toggleSurgicalModal(row);
+          },
+        },
+    ];
+    const familyMedicalRecordAction = [
+        {
+          label: "Edit",
+          icon: LuClipboardEdit,
+          onClick: (row) => toggleFamilyMedicalModal(row, true, false, row.id),
+        },
+    ];
+    const medicationRecordAction = [
+        {
+          label: "Edit",
+          icon: LuClipboardEdit,
+          onClick: (row) => toggleMedicationModal(row, true, false, row.id),
+        },
+    ];
+
+    const healthRecordColumn = [
+        { key: "name", label: "Illness" },
+        { key: "description", label: "Illness Description" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const surgicalRecordColumn = [
+        { key: "procedure", label: "Surgery" },
+        { key: "description", label: "Procedure" },
+        { key: "doctor_name", label: "Doctor" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const medicationRecordColumn = [
+        { key: "medicine.medicine_name", label: "Medicine Name" },
+        { key: "dosage", label: "Dosage" },
+        { key: "reason", label: "Reason/For:" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const familyMedicalRecordColumn = [
+        { key: "disease", label: "Desease" },
+        { key: "relationship_disease", label: "Relationship" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <AdminLayout>
+                <Head title="Patient Record" />
+
+                <div className="grid grid-cols-1 gap-6 mb-6">
                     <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                        <div className="overflow-x-auto">
-                        <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                            <thead>
-                            <tr>
-                                <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Illness</th>
-                                <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Illness Description</th>
-                                <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Date</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {healthRecords.length > 0 ? healthRecords.map((healthRecord) => (
-                                <tr key={healthRecord.id}>
-                                <td className="py-2 px-4 border-b border-b-gray-50">
-                                    <span className="text-[13px] font-medium text-gray-400">{healthRecord.name}</span>
-                                </td>
-                                <td className="py-2 px-4 border-b border-b-gray-50">
-                                    <span className="text-[13px] font-medium text-gray-400">{healthRecord.description}</span>
-                                </td>
-                                <td className="py-2 px-4 border-b border-b-gray-50">
-                                    <span className="text-[13px] font-medium text-gray-400">{format(new Date(healthRecord.created_at), "MMMM d, yyyy")}</span>
-                                </td>
-                                <td className="py-2 px-2 border-b border-b-gray-50">
-                                    <div className="flex space-x-2">
-                                    {/* <WarningButton onClick={() => openViewModal(inventory)}>
-                                        <SlEyeglass />
-                                    </WarningButton>
-                                    <SecondaryButton onClick={() => openEditModal(inventory)}>
-                                        <LuClipboardEdit />
-                                    </SecondaryButton>
-                                    <DangerButton>
-                                        <RiDeleteBin5Line />
-                                    </DangerButton> */}
+                        <div className="flex justify-between mb-4 items-start">
+                            <div className="font-medium">
+                                Manage Patient History
+                            </div>
+                        </div>
+
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Manage Health History">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="font-medium">
+                                                Manage Health History
+                                            </h2>
+                                            <button
+                                                type="button"
+                                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                onClick={() => toggleHealthModal(null)}
+                                            >
+                                                <HiOutlinePlusSm className="mr-1" />{" "}
+                                                Add Health History
+                                            </button>
+                                        </div>
+
+                                        <div className="overflow-x-auto mt-4">
+                                            <Table
+                                                columns={healthRecordColumn}
+                                                data={healthRecords}
+                                                actions={healthRecordAction}
+                                                noDataMessage="No Medication History Available."
+                                            />
+                                        </div>
                                     </div>
-                                </td>
-                                </tr>
-                            )) : (
-                                <tr>
-                                <td colSpan={5} className="text-center py-4 text-gray-500">No Health History Available.</td>
-                                </tr>
-                            )}      
-                            </tbody>
-                            </table>
+                                </div>
+                            </Accordion>
+                        </div>
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Manage Surgical History">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="font-medium">
+                                                Manage Surgical History
+                                            </h2>
+                                            <button
+                                                type="button"
+                                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                onClick={() => toggleSurgicalModal(null)}
+                                            >
+                                                <HiOutlinePlusSm className="mr-1" />{" "}
+                                                Add Surgical History
+                                            </button>
+                                        </div>
+                                        <div className="overflow-x-auto mt-4">
+                                            <Table
+                                                columns={surgicalRecordColumn}
+                                                data={surgicalRecords}
+                                                actions={surgicalRecordAction}
+                                                noDataMessage="No Surgical Record Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
+                        </div>
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Manage Medication History">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="font-medium">
+                                                Manage Medication History
+                                            </h2>
+                                            <button
+                                                type="button"
+                                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                onClick={() => toggleMedicationModal(null,false,false)}
+                                            >
+                                                <HiOutlinePlusSm className="mr-1" />{" "}
+                                                Add Medication History
+                                            </button>
+                                        </div>
+                                        <div className="overflow-x-auto mt-4">
+                                            <Table
+                                                columns={medicationRecordColumn}
+                                                data={medicationRecords}
+                                                actions={medicationRecordAction}
+                                                noDataMessage="No Surgical Record Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
+                        </div>
+                        <div className="p-4 bg-gray-200 rounded-lg mb-4">
+                            <Accordion title="Family Medical History">
+                                <div className="grid grid-cols-1 gap-6 mb-6">
+                                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h2 className="font-medium">
+                                                Family Medical History
+                                            </h2>
+                                            <button
+                                                type="button"
+                                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                                onClick={() => toggleFamilyMedicalModal(null,false,false)}
+                                            >
+                                                <HiOutlinePlusSm className="mr-1" />{" "}
+                                                Add Family Medical History
+                                            </button>
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <Table
+                                                columns={familyMedicalRecordColumn}
+                                                data={familyMedicalRecords}
+                                                actions={familyMedicalRecordAction}
+                                                noDataMessage="No Surgical Record Available."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </Accordion>
                         </div>
                     </div>
-                    </div>
-                </Accordion>
-            </div>
-
-            <div className='p-4 bg-gray-200 rounded-lg mb-4'>
-            <Accordion title='Surgical History'>
-                <div className='grid grid-cols-1 gap-6 mb-6'>
-                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                    <div className="overflow-x-auto">
-                    <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                        <thead>
-                        <tr>
-                            <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Surgery</th>
-                            <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Procedure</th>
-                            <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Doctor</th>
-                            <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Date</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {surgicalRecords.length > 0 ? surgicalRecords.map((surgicalRecord) => (
-                            <tr key={surgicalRecord.id}>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                <span className="text-[13px] font-medium text-gray-400">{surgicalRecord.procedure}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                <span className="text-[13px] font-medium text-gray-400">{surgicalRecord.description}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                <span className="text-[13px] font-medium text-gray-400">{surgicalRecord.doctor_name}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                <span className="text-[13px] font-medium text-gray-400">{format(new Date(surgicalRecord.created_at), "MMMM d, yyyy")}</span>
-                            </td>
-                            <td className="py-2 px-2 border-b border-b-gray-50">
-                                <div className="flex space-x-2">
-                                {/* <WarningButton onClick={() => openViewModal(inventory)}>
-                                    <SlEyeglass />
-                                </WarningButton>
-                                <SecondaryButton onClick={() => openEditModal(inventory)}>
-                                    <LuClipboardEdit />
-                                </SecondaryButton>
-                                <DangerButton>
-                                    <RiDeleteBin5Line />
-                                </DangerButton> */}
-                                </div>
-                            </td>
-                            </tr>
-                        )) : (
-                            <tr>
-                            <td colSpan={4} className="text-center py-4 text-gray-500">No Surgical History Available.</td>
-                            </tr>
-                        )}      
-                        </tbody>
-                        </table>
-                    </div>
                 </div>
-                </div>
-            </Accordion>
-            </div>
+            </AdminLayout>
 
-            <div className='p-4 bg-gray-200 rounded-lg mb-4'>
-            <Accordion title='Medication History'>
-                <div className='grid grid-cols-1 gap-6 mb-6'>
-                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                    <div className="overflow-x-auto">
-                    <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                        <thead>
-                        <tr>
-                            <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Medicine Name</th>
-                            <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Dosage</th>
-                            <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Reason/For:</th>
-                            <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Date</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {medicationRecords.length > 0 ? medicationRecords.map((medicationRecord) => (
-                            <tr key={medicationRecord.id}>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                <span className="text-[13px] font-medium text-gray-400">{medicationRecord.medicine.medicine_name}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                <span className="text-[13px] font-medium text-gray-400">{medicationRecord.dosage}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                <span className="text-[13px] font-medium text-gray-400">{medicationRecord.reason}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                <span className="text-[13px] font-medium text-gray-400">{format(new Date(medicationRecord.created_at), "MMMM d, yyyy")}</span>
-                            </td>
-                            <td className="py-2 px-2 border-b border-b-gray-50">
-                                <div className="flex space-x-2">
-                                {/* <WarningButton onClick={() => openViewModal(inventory)}>
-                                    <SlEyeglass />
-                                </WarningButton>
-                                <SecondaryButton onClick={() => openEditModal(inventory)}>
-                                    <LuClipboardEdit />
-                                </SecondaryButton>
-                                <DangerButton>
-                                    <RiDeleteBin5Line />
-                                </DangerButton> */}
-                                </div>
-                            </td>
-                            </tr>
-                        )) : (
-                            <tr>
-                            <td colSpan={4} className="text-center py-4 text-gray-500">No Medication History Available.</td>
-                            </tr>
-                        )}      
-                        </tbody>
-                        </table>
-                    </div>
-                </div>
-                </div>
-            </Accordion>
-            </div>
+            <HealthHistoryModal
+                showModal={showHealthModal}
+                toggleHealthModal={toggleHealthModal} 
+                selectedHealthRecord={selectedHealthRecord}
+                patient_id={patients[0]?.id}
+                patients={patients}
+                isEditing={!!selectedHealthRecord}
+            />
 
-            <div className='p-4 bg-gray-200 rounded-lg mb-4'>
-            <Accordion title='Family Medical History'>
-                <div className='grid grid-cols-1 gap-6 mb-6'>
-                <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                    <div className="overflow-x-auto">
-                    <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                        <thead>
-                        <tr>
-                            <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Desease</th>
-                            <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Relationship</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {familyMedicalRecords.length > 0 ? familyMedicalRecords.map((familyMedicalRecord) => (
-                            <tr key={familyMedicalRecords.id}>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                <span className="text-[13px] font-medium text-gray-400">{familyMedicalRecord.disease}</span>
-                            </td>
-                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                <span className="text-[13px] font-medium text-gray-400">{familyMedicalRecord.relationship_disease}</span>
-                            </td>
-                            </tr>
-                        )) : (
-                            <tr>
-                            <td colSpan={4} className="text-center py-4 text-gray-500">No Family Medical History Available.</td>
-                            </tr>
-                        )}      
-                        </tbody>
-                        </table>
-                    </div>
-                </div>
-                </div>
-            </Accordion>
-            </div>
+            <SurgicalHistoryModal
+                showModal={showSurgicalModal}
+                toggleSurgicalModal={toggleSurgicalModal}
+                selectedSurgicalRecord={selectedSurgicalRecord}
+                patient_id={patients[0]?.id}
+                isEditing={!!selectedSurgicalRecord}
+                doctors={transformedDoctors}
+            />
+            <FamilyMedicalRecordModal
+                showModal={showFamilyMedicalModal}
+                toggleFamilyMedicalModal={toggleFamilyMedicalModal}
+                selectedRecord={selectedFamilyMedicalRecord}
+                patient_id={patients[0]?.id}
+                patients={patients}
+                isEditing={!!selectedFamilyMedicalRecord}
+            />
+            <MedicationRecordModal
+                showModal={showMedicationModal}
+                toggleMedicationModal={toggleMedicationModal}
+                selectedMedication={selectedMedicationRecord}
+                patient_id={patients[0]?.id}
+                patients={patients}
+                medicines={medicines}
+                isEditing={!!selectedMedicationRecord}
+            />
+        </Suspense>
+    );
+};
 
-          </div>
-        </div>
-
-      </AdminLayout>
-    </Suspense>
-  )
-}
-
-export default PatientHistory
+export default PatientHistory;

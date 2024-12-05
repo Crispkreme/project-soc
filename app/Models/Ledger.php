@@ -9,7 +9,13 @@ class Ledger extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['medicine_id', 'sold', 'in_stock'];
+    protected $fillable = [
+        'medicine_id', 
+        'sold', 
+        'in_stock',
+        'expiration_date', 
+        'dosage'
+    ];
 
     public function medicine() {
         return $this->belongsTo(Medicine::class);

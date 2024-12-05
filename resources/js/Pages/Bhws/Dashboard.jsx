@@ -1,26 +1,33 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import { useEffect } from 'react';
+import AdminLayout from '@/Layouts/AdminLayout';
+import { toast } from 'react-hot-toast';
 
-export default function Dashboard() {
+export default function Dashboard({ message }) {
+    
+    useEffect(() => {
+        if (message) {
+            toast.success(message);
+        }
+    }, [message]);
+
+    console.log("message", message);
+
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
-                </h2>
-            }
-        >
+
+        <AdminLayout>
+            
             <Head title="Dashboard" />
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
-                            You're logged in! as Bwhs
+                            You're logged in! as Admin
                         </div>
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </AdminLayout>
     );
 }

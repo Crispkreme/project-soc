@@ -3,12 +3,16 @@
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
+
+
 
 
 
@@ -20,8 +24,11 @@ Route::middleware(['auth', 'verified', 'patient'])
 ->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
     Route::get('/view/profile/{id}', [UserDetailController::class, 'viewProfile'])->name('view.profile');
-    Route::patch('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/update/profile/{id}', [UserDetailController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/update/user/password/{id}', [UserController::class, 'updatePassword'])->name('update.user.password');
     Route::get('/view/password/{id}', [UserDetailController::class, 'viewPassword'])->name('view.password');
+    Route::get('/profile/details/{id}', [UserController::class, 'getUserDetail'])->name('profile.details');
+    Route::get('logout', [UserController::class, 'loginDestroy'])->name('logout');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // APPOINTMENTS
@@ -45,4 +52,12 @@ Route::middleware(['auth', 'verified', 'patient'])
     // RECORDS
     Route::get('/show/record/medicals', [RecordController::class, 'getAllMedical'])->name('show.record.medicals');
     Route::get('/show/record/histories', [RecordController::class, 'getAllHistory'])->name('show.record.histories');
+    Route::get('/medical/history/{id}', [MedicalRecordController::class, 'getPatientMedicalHistory'])->name('medical.history');
+    Route::get('/medical/record/{id}', [MedicalRecordController::class, 'getPatientMedicalRecord'])->name('medical.record');
+
+    Route::get('/medicine/requester', [MedicalRecordController::class, 'getMedicineRequester'])->name('medicine.requester');
+    Route::get('/logs', [DashboardController::class, 'getUserLogs'])->name('logs');
+
+    Route::get('/messages', [MessageController::class, 'getMessage'])->name('messages');
+    Route::get('/message/user/{id}', [MessageController::class, 'getUserMessage'])->name('message.user');
 });

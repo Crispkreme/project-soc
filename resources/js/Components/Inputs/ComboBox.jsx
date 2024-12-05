@@ -5,15 +5,16 @@ import clsx from 'clsx';
 import { useState } from 'react';
 
 function ComboBox({
-  items,
+  items = [],
   onChange,
+  value,
   placeholder = '',
-  displayKey = 'name',
+  displayKey = 'option',
   ariaLabel = 'Select an option'
 }) {
-
   const [query, setQuery] = useState('');
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [defaultItem] = (Array.isArray(items) ? items : []).filter(i => String(i.value) === String(value)) || [null];
+  const [selectedItem, setSelectedItem] = useState(defaultItem ? defaultItem : null);
 
   const filteredItems =
     query === ''
@@ -54,7 +55,7 @@ function ComboBox({
       >
         {filteredItems.map((item) => (
           <ComboboxOption
-            key={item.id} 
+            key={item.value}
             value={item}
             className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
           >

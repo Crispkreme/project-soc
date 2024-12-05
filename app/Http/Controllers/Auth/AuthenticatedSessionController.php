@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Contracts\UserDetailContract;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
@@ -13,6 +14,14 @@ use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
+    protected $userDetailContract;
+
+    public function __construct(
+        UserDetailContract $userDetailContract,
+    ) {
+        $this->userDetailContract = $userDetailContract;
+    }
+
     /**
      * Display the login view.
      */
@@ -27,20 +36,38 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
         $request->authenticate();
         $request->session()->regenerate();
 
-        if(Auth::user()->role == 'Administration') {
-            return redirect()->intended(route('admin.dashboard', absolute: false));
-        } else if(Auth::user()->role == 'Practitioner') {
-            return redirect()->intended(route('practitioner.dashboard', absolute: false));
-        } else if(Auth::user()->role == 'Bhw') {
-            return redirect()->intended(route('bhw.dashboard', absolute: false));
-        } else {
-            return redirect()->intended(route('patient.dashboard', absolute: false));
+        $user = $request->user();        
+        $userDetail = $this->userDetailContract->getUserDetailById($user->id);
+
+        if (!$userDetail) {
+            return redirect()->back()->with('error', 'User details not found.');
         }
+
+        $userStatus = $userDetail->status;
+
+        if ($userStatus === 'Deactivate') {
+
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->with('error', 'Account Deactivated');
+        }
+
+        $roleRoutes = [
+            'Administration' => 'admin.dashboard',
+            'Practitioner' => 'practitioner.dashboard',
+            'Patient' => 'patient.dashboard',
+            'Bhw' => 'bhw.dashboard',
+        ];
+        $redirectRoute = $roleRoutes[$user->role] ?? 'login';
+
+        return redirect()->route($redirectRoute)->with('message', 'Login successful');
     }
 
     /**

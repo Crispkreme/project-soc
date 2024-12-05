@@ -17,21 +17,21 @@ class MedicineRepository implements MedicineContract
 
     public function getAllMedicine()
     {
-        return $this->model->get();
+        return $this->model->orderBy('id', 'desc')->get();
     }
 
     public function createOrUpdateMedicine($data)
     {
+        dd($data);
         return $this->model->updateOrCreate(
             [
                 'id' => $data['id'] ?? null,
             ],
             [
                 'medicine_name' => $data['medicine_name'],
-                'description' => $data['description'],
+                'description' => $data['description'], 
             ]
         );
-
     }
 
     public function getMedicineById($id)

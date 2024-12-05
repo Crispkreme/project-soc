@@ -16,6 +16,36 @@ class BarangayEventRepository implements BarangayEventContract
         $this->model = $model;
     }
 
+    private function formatFullName($firstname, $middlename, $lastname)
+    {
+        return trim(implode(' ', array_filter([$firstname, $middlename, $lastname])));
+    }
+
+    private function formatEventTime($startTime, $endTime)
+    {
+        $start = Carbon::parse($startTime)->format('h:i a');
+        $end = Carbon::parse($endTime)->format('h:i a');
+        return "{$start} - {$end}";
+    }
+
+    public function updateOrCreateBarangayEvent($data)
+    {
+        return $this->model->updateOrCreate(
+            [
+                'id' => $data['id'] ?? null,
+            ],
+            [
+                'doctor_id' => $data['doctor_id'] ?? null,
+                'bhw_id' => $data['bhw_id'] ?? null,
+                'event_name' => $data['event_name'],
+                'event_start' => $data['event_start'],
+                'event_date' => $data['event_date'],
+                'event_end' => $data['event_end'],
+                'event_venue' => $data['event_venue'],
+            ]
+        );
+    }
+
     public function getLatestBarangayEvent()
     {
         $event = $this->model
@@ -30,8 +60,13 @@ class BarangayEventRepository implements BarangayEventContract
             return null;
         }
 
-        $doctorName = trim("{$event->doctor->firstname} {$event->doctor->middlename} {$event->doctor->lastname}");
-        $bhwName = trim("{$event->bhw->firstname} {$event->bhw->middlename} {$event->bhw->lastname}");
+        $doctorName = isset($event->doctor)
+            ? trim("{$event->doctor->firstname} {$event->doctor->middlename} {$event->doctor->lastname}")
+            : 'N/A';
+
+        $bhwName = isset($event->bhw)
+            ? trim("{$event->bhw->firstname} {$event->bhw->middlename} {$event->bhw->lastname}")
+            : 'N/A';
 
         return [
             'id' => $event->id,
@@ -54,5 +89,39 @@ class BarangayEventRepository implements BarangayEventContract
         });
     
         return $groupedEvents;
+    }
+
+    public function getBarangayEvent()
+    {
+        return $this->model->with(['doctor', 'bhw'])->get()->map(function ($event) {
+            return [
+                'id' => $event->id,
+                'doctor_id' => $event->doctor_id,
+                'bhw_id' => $event->bhw_id,
+                'event_name' => $event->event_name,
+                'event_start' => $event->event_start,
+                'event_end' => $event->event_end,
+                'event_time' => $event->event_start && $event->event_end
+                    ? $this->formatEventTime($event->event_start, $event->event_end)
+                    : 'N/A',
+                'event_venue' => $event->event_venue,
+                'doctor_name' => $event->doctor
+                    ? $this->formatFullName($event->doctor->firstname, $event->doctor->middlename, $event->doctor->lastname)
+                    : null,
+                'bhw_name' => $event->bhw
+                    ? $this->formatFullName($event->bhw->firstname, $event->bhw->middlename, $event->bhw->lastname)
+                    : null,
+                'event_date' => $event->event_date 
+                    ? Carbon::parse($event->event_date)->format('F j, Y')
+                    : null,
+            ];
+        });
+    }
+
+    public function getDoctorBarangayEvent($id, $data)
+    {
+        return $this->model->where('doctor_id', $id)
+        ->whereDate('event_date', $data)
+        ->first();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicineContract;
 use App\Models\Medicine;
 use Exception;
@@ -14,11 +15,14 @@ use Inertia\Inertia;
 class MedicineController extends Controller
 {
     protected $medicineContract;
+    protected $medicalRecordContract;
 
     public function __construct(
         MedicineContract $medicineContract,
+        MedicalRecordContract $medicalRecordContract,
     ) {
         $this->medicineContract = $medicineContract;
+        $this->medicalRecordContract = $medicalRecordContract;
     }
 
     public function getAllMedicine()
@@ -32,16 +36,19 @@ class MedicineController extends Controller
 
     public function updateOrCreateMedicine(Request $request, $id = null)
     {   
-        DB::beginTransaction();
-
-        $data = $request->validate([
-            'medicine_name' => 'required|string|max:255|unique:'.Medicine::class,
-            'description' => 'nullable|string',
-        ]);
+        
         
         try {
+
+            DB::beginTransaction();
+            dd($request);
+            $data = $request->validate([
+                'medicine_name' => 'required|string|max:255|unique:'.Medicine::class,
+                'description' => 'nullable|string',
+            ]);
             
             if ($id) {
+                
                 $data['id'] = $id; 
                 $this->medicineContract->createOrUpdateMedicine($data);
             } else {
@@ -50,7 +57,7 @@ class MedicineController extends Controller
 
             DB::commit();
             
-            Session::flash('success', 'Medicine saved successfully!');
+            return redirect()->back()->with('success', 'Medicine saved successfully!');
 
         } catch (Exception $e) {
 
@@ -61,8 +68,7 @@ class MedicineController extends Controller
 
             DB::rollback();
 
-            Session::flash('error', 'An error occurred during updateOrCreateMedicine.');
-            return redirect()->back();
+            return redirect()->back()->with('error', 'Error please try again.');
         }
     }
 
@@ -76,7 +82,7 @@ class MedicineController extends Controller
 
             DB::commit();
             
-            Session::flash('success', 'Medicine deleted successfully!');
+            return redirect()->back()->with('success', 'Medicine deleted successfully!');
 
         } catch (Exception $e) {
 
@@ -87,8 +93,14 @@ class MedicineController extends Controller
 
             DB::rollback();
 
-            Session::flash('error', 'An error occurred during deleteMedicine.');
-            return redirect()->back();
+            return redirect()->back()->with('error', 'An error occurred during deleteMedicine.');
         }
     }
+
+    public function searchMedicine(Request $request)
+    {
+        $query = $request->input('query');
+        $medicines = $this->medicalRecordContract->searchMedicine($query);
+        return response()->json($medicines);
+    }   
 }

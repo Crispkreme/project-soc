@@ -2,131 +2,128 @@ import React, { useState, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { LuClipboardEdit } from "react-icons/lu";
-import { RiDeleteBin5Line } from "react-icons/ri";
-import { SlEyeglass } from "react-icons/sl";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
-const StockModal = React.lazy(() => import("./StockModal"));
-const SecondaryButton = React.lazy(() => import("@/Components/Buttons/SecondaryButton"));
-const SuccessButton = React.lazy(() => import("@/Components/Buttons/SuccessButton"));
-const DangerButton = React.lazy(() => import("@/Components/Buttons/DangerButton"));
-const WarningButton = React.lazy(() => import("@/Components/Buttons/WarningButton"));
+const StockModal = React.lazy(() => import("@/Components/Forms/StockModal"));
+const Table = React.lazy(() => import("@/Components/Table"));
+const InventoryModal = React.lazy(() => import("@/Components/Forms/InventoryModal"));
 
-const Medicine = ({ inventories, medicines }) => {
+const Inventory = ({ inventories, medicines }) => {
+
+    console.log("inventories", inventories);
 
     const [showModal, setShowModal] = useState(false);
-    const [selectedInventory, setSelectedInventory] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isViewing, setIsViewing] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredInventories, setFilteredInventories] = useState(inventories);
 
-    const toggleModal = () => {
+    const [selectedInventory, setSelectedInventory] = useState(null);
+
+    const toggleInventoryModal = (inventory = null, isEditing = false, isViewing = false) => {
+        setSelectedInventory(inventory);
+        setIsEditing(isEditing);
+        setIsViewing(isViewing);
         setShowModal(!showModal);
     };
 
-    const closeModal = () => {
-        setShowModal(false); 
-    };
+    const InventoryColumn = [
+        { key: "medicine_name", label: "Medicine Name" },
+        { key: "description", label: "Description" },
+        { key: "dosage", label: "Dosage" },
+        { key: "expiration_date", label: "Expiration" },
+        { key: "sold", label: "Dispense" },
+        { key: "in_stock", label: "Quantity" },
+    ];
 
-    const openViewModal = (inventory) => {
-        setSelectedInventory(inventory); 
-        setIsEditing(false); 
-        setIsViewing(true); 
-        setShowModal(true); 
-    };
+    const inventoryAction = [
+        {
+            label: "View",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleInventoryModal(row, false, true),
+            style: "bg-yellow-300 text-yellow-800 hover:bg-yellow-400"
+        },
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleInventoryModal(row, true, false),
+            style: "bg-blue-300 text-blue-800 hover:bg-blue-400"
+        },
+    ];
 
-    const openEditModal = (inventory) => {
-        setSelectedInventory(inventory); 
-        setIsEditing(true); 
-        setIsViewing(false); 
-        setShowModal(true);  
+    const handleSearch = (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+
+        const filtered = inventories.filter((inventory) =>
+            inventory.medicine_name.toLowerCase().includes(query.toLowerCase()) ||
+            inventory.description.toLowerCase().includes(query.toLowerCase())
+        );
+
+        setFilteredInventories(filtered);
     };
 
     return (
         <Suspense fallback={<div>Loading...</div>}>
             <AdminLayout>
                 <Head title="Inventory" />
-                <div className='grid grid-cols-1 gap-6 mb-6'>
-                    <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-                        <div className="flex justify-between mb-4 items-start">
-                            <div className="font-medium">Manage Stocks</div>
+                <div className="grid grid-cols-1 gap-6 mb-6">
+                    <div className="bg-white border border-gray-100 shadow-md p-6 rounded-md">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="font-medium">Manage Inventory</h2>
+                            <button
+                                type="button"
+                                className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
+                                onClick={() => toggleInventoryModal(null)}
+                            >
+                                <HiOutlinePlusSm className="mr-1" />{" "}
+                                Add Inventory
+                            </button>
                         </div>
-                        <div className="flex items-center mb-4 order-tab justify-between">
-                            <div className="flex">
-                                <button type="button" className="bg-gray-50 text-sm font-medium text-gray-400 py-2 px-4 rounded-tl-md rounded-bl-md hover:text-gray-600 active">
-                                    Out of Stock
-                                </button>
-                                <button type="button" className="bg-gray-50 text-sm font-medium text-gray-400 py-2 px-4 hover:text-gray-600">
-                                    On Hand
-                                </button>
+                        <div className="pb-4">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    id="table-search"
+                                    className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Search for inventory"
+                                    value={searchQuery}
+                                    onChange={handleSearch}
+                                />
                             </div>
-                            <SuccessButton onClick={toggleModal}>
-                                <HiOutlinePlusSm className="mr-1" /> Medicine
-                            </SuccessButton>
                         </div>
                         <div className="overflow-x-auto">
-                            <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
-                                <thead>
-                                    <tr>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Medicine Name</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Medicine Description</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Sold</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">In-Stock</th>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                {inventories.length > 0 ? inventories.map((inventory) => (
-                                    <tr key={inventory.id}>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="text-[13px] font-medium text-gray-400">{inventory.medicine_name}</span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="text-[13px] font-medium text-gray-400">{inventory.description}</span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="text-[13px] font-medium text-gray-400">{inventory.sold}</span>
-                                        </td>
-                                        <td className="py-2 px-4 border-b border-b-gray-50">
-                                            <span className="text-[13px] font-medium text-gray-400">{inventory.in_stock}</span>
-                                        </td>
-                                        <td className="py-2 px-2 border-b border-b-gray-50">
-                                            <div className="flex space-x-2">
-                                                <WarningButton onClick={() => openViewModal(inventory)}>
-                                                    <SlEyeglass />
-                                                </WarningButton>
-                                                <SecondaryButton onClick={() => openEditModal(inventory)}>
-                                                    <LuClipboardEdit />
-                                                </SecondaryButton>
-                                                <DangerButton>
-                                                    <RiDeleteBin5Line />
-                                                </DangerButton>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )) : (
-                                    <tr>
-                                        <td colSpan={5} className="text-center py-4 text-gray-500">No Medicine Available.</td>
-                                    </tr>
-                                )}      
-                                </tbody>
-                            </table>
+                            <Table
+                                columns={InventoryColumn}
+                                data={filteredInventories}
+                                actions={inventoryAction}
+                                renderActions={(action, row) => (
+                                    <button
+                                        key={action.label}
+                                        onClick={() => action.onClick(row)}
+                                        className={`inline-flex items-center px-4 py-2 mr-2 rounded-md text-sm font-medium ${action.style}`}
+                                    >
+                                        <action.icon className="mr-2" />
+                                        {action.label}
+                                    </button>
+                                )}
+                                noDataMessage="No Surgical Record Available."
+                            />
                         </div>
                     </div>
                 </div>
 
-                {showModal && (
-                    <StockModal
-                        showModal={showModal}
-                        toggleModal={closeModal}
-                        selectedInventory={selectedInventory}
-                        medicines={medicines}
-                        isEditing={isEditing}
-                        isViewing={isViewing}
-                    />
-                )}
+                <InventoryModal
+                    showModal={showModal}
+                    toggleInventoryModal={toggleInventoryModal}
+                    selectedInventory={selectedInventory}
+                    isEditing={isEditing}
+                    isViewing={isViewing}
+                    medicines={medicines}
+                />
             </AdminLayout>
         </Suspense>
     );
 };
 
-export default Medicine;
+export default Inventory;

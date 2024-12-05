@@ -24,7 +24,8 @@ class MedicationSeeder extends Seeder
             Medication::create([
                 'patient_id' => $patient->id,
                 'medicine_id' => $medicines->random()->id,
-                'dosage' => '500mg',
+                'dosage' => '5',
+                'quantity' => '5',
                 'reason' => 'Headache',
             ]);
         }

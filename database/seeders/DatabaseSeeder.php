@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             HospitalizationSeeder::class,
             BarangayEventSeeder::class,
             AppointmentSeeder::class,
+            MessageSeeder::class,
         ]);
     }
 }

@@ -24,8 +24,9 @@ class MedicationRepository implements MedicationContract
             [
                 'patient_id' => $data['patient_id'],
                 'medicine_id' => $data['medicine_id'],
-                'dosage' => $data['dosage'],
+                'quantity' => $data['quantity'],
                 'reason' => $data['reason'],
+                'medication_status' => $data['medication_status'] ?? 'Pending',
             ]
         );
     }
@@ -35,12 +36,61 @@ class MedicationRepository implements MedicationContract
         return $this->model
             ->with(['medicine'])
             ->where('medications.patient_id', '=', $id)
-            ->get();
+            ->get()
+            ->map(function ($medication) {
+                return [
+                    'id' => $medication->id,
+                    'patient_id' => $medication->patient_id,
+                    'medicine_id' => $medication->medicine_id,
+                    'medicine_name' => $medication->medicine->medicine_name ?? null,
+                    'reason' => $medication->reason,
+                    'medication_status' => $medication->medication_status,
+                    'quantity' => $medication->quantity,
+                    'dosage' => $medication->dosage,
+                    'created_at' => $medication->created_at,
+                    'updated_at' => $medication->updated_at,
+                ];
+            });
     }
 
     public function getAllMedication()
     {
         return $this->model
-            ->get();
+            ->with(['medicine', 'patient.details'])
+            ->get()
+            ->map(function ($medication) {
+                $patientDetails = $medication->patient->details ?? null;
+                $patientName = $patientDetails 
+                    ? $patientDetails->firstname . ' ' . $patientDetails->lastname 
+                    : null;
+
+                return [
+                    'id' => $medication->id,
+                    'patient_id' => $medication->patient_id,
+                    'patient_name' => $patientName,
+                    'medicine_id' => $medication->medicine_id,
+                    'medicine_name' => $medication->medicine->medicine_name ?? null,
+                    'reason' => $medication->reason,
+                    'medication_status' => $medication->medication_status,
+                    'quantity' => $medication->quantity,
+                    'created_at' => $medication->created_at,
+                    'updated_at' => $medication->updated_at,
+                ];
+            });
+    }
+
+    public function updateMedicationStatusById($status, $id)
+    {
+        $appointment = $this->model->where('id', $id)->first();
+        if ($appointment) {
+            $appointment->update(['medication_status' => $status]);
+            return $appointment;
+        }
+    }
+
+    public function getSpecificMedicationById($id)
+    {
+        
+        return $this->model->where('id', $id)->first();
     }
 }
