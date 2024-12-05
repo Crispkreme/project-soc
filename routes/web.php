@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicineController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDetailController;
@@ -80,6 +81,11 @@ Route::post('/barangay/event/update/{id}', [ActivitiesController::class, 'update
 
 Route::post('/cancel/booking/appointment/{id}', [BookingController::class, 'cancelBookingAppointment'])->name('cancel.booking.appointment');
 Route::post('/approve/appointments/{id}', [BookingController::class, 'approveAppointments'])->name('approve.appointments');
+
+Route::get('/get/all/users', [UserDetailController::class, 'getAllUsers'])->name('get.all.users');
+Route::get('/get/user/conversation/{id}', [MessageController::class, 'getUserConversation'])->name('get.user.conversation');
+Route::post('/sent/user/message/{receiverId}', [MessageController::class, 'sentUserMessage'])->name('sent.user.message');
+
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
 require __DIR__.'/practitioner.php';

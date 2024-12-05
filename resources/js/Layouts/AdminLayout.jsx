@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { RiMedicineBottleLine } from "react-icons/ri";
 import { Toaster } from "react-hot-toast";
+import { LuMessagesSquare } from "react-icons/lu";
 
 const Sidebar = React.lazy(() => import("@/Components/Sidebars/Sidebar"));
 const Header = React.lazy(() => import("@/Components/Headers/Header"));
@@ -70,6 +71,7 @@ const AdminLayout = ({ children }) => {
                     { label: 'Bwh', link: route('admin.reports.bhw.account') },
                 ]}
             />
+            <SidebarItem icon={LuMessagesSquare} label="Message" link={route('admin.messages')} />
         </>
     );
 
@@ -101,7 +103,6 @@ const AdminLayout = ({ children }) => {
                 dropdownItems={[
                     { label: 'Data', link: "#" },
                     { label: 'Referral', link: route('bhw.referrals') },
-                    { label: 'Referral', link: route('bhw.referrals') },
                     { label: 'Prescription', link: route('bhw.prescriptions') },
                     { label: 'Medicine', link: route('bhw.reports.medicine') },
                     { label: 'Inventory', link: route('bhw.reports.inventory') },
@@ -114,6 +115,7 @@ const AdminLayout = ({ children }) => {
                     { label: 'Bwh', link: route('bhw.reports.bhw.account') },
                 ]}
             />
+            <SidebarItem icon={LuMessagesSquare} label="Message" link={route('bhw.messages')} />
         </>
     );
 

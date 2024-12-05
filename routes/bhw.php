@@ -7,9 +7,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicineController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
+
 
 // BHWS
 Route::middleware(['auth', 'verified', 'bhw'])
@@ -66,4 +68,6 @@ Route::middleware(['auth', 'verified', 'bhw'])
     Route::get('/reports/bhw/account', [MedicalRecordController::class, 'getBhwAccount'])->name('reports.bhw.account');
     Route::get('/reports/patient/account', [MedicalRecordController::class, 'getPatientAccount'])->name('reports.patient.account');
     
+    Route::get('/messages', [MessageController::class, 'getMessage'])->name('messages');
+    Route::get('/message/user/{id}', [MessageController::class, 'getUserMessage'])->name('message.user');
 });

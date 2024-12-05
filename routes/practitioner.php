@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
+
 
 
 // PRACTITIONERS
@@ -51,4 +53,6 @@ Route::middleware(['auth', 'verified', 'practitioner'])
     Route::get('/show/reports/analytics', [RecordController::class, 'getAllDataAnalytics'])->name('show.report.analytics');
     Route::get('/show/reports/released', [RecordController::class, 'getAllReleasedReports'])->name('show.report.released');
 
+    Route::get('/messages', [MessageController::class, 'getMessage'])->name('messages');
+    Route::get('/message/user/{id}', [MessageController::class, 'getUserMessage'])->name('message.user');
 });

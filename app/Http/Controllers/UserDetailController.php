@@ -261,4 +261,16 @@ class UserDetailController extends Controller
 
         return response()->json(['profile' => asset("storage/$path")]);
     }
+
+    public function getAllUsers()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $users = $this->userDetailContract->getAllUserDetails();
+        return response()->json(['users' => $users ]);
+    }
 }

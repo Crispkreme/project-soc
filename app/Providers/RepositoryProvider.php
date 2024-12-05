@@ -16,14 +16,15 @@ use App\Contracts\LogContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
+use App\Contracts\MessageContract;
 use App\Contracts\PrescriptionContract;
 use App\Contracts\ReferralContract;
 use App\Contracts\ScheduleContract;
 use App\Contracts\SurgicalContract;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserContract;
-use App\Contracts\UserDetailContract;
 
+use App\Contracts\UserDetailContract;
 use App\Repositories\AppointmentRepository;
 use App\Repositories\BarangayEventRepository;
 use App\Repositories\BookingRepository;
@@ -38,6 +39,7 @@ use App\Repositories\LogRepository;
 use App\Repositories\MedicalRecordRepository;
 use App\Repositories\MedicationRepository;
 use App\Repositories\MedicineRepository;
+use App\Repositories\MessageRepository;
 use App\Repositories\PrescriptionRepository;
 use App\Repositories\ReferralRepository;
 use App\Repositories\ScheduleRepository;
@@ -71,6 +73,7 @@ class RepositoryProvider extends ServiceProvider
         ReferralContract::class => ReferralRepository::class,
         PrescriptionContract::class => PrescriptionRepository::class,
         LogContract::class => LogRepository::class,
+        MessageContract::class => MessageRepository::class,
     ];
 
     /**

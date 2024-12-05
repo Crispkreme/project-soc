@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { closeSidebar } from '../reducers/sidebarSlice';
 import { LuBookMarked } from "react-icons/lu";
 import { IoSearch } from "react-icons/io5";
+import { LuMessagesSquare } from "react-icons/lu";
 
 const logo = "/assets/svg/logo.svg";
 const header = "/assets/svg/header.svg";
@@ -56,6 +57,7 @@ export default function PatientLayout({ children }) {
             ]
         },
         {icon: <LuBookMarked />,text: "Logs", href: route(`patient.logs`), route: '/patient/logs', sublinks: []},
+        {icon: <LuMessagesSquare />,text: "Message", href: route(`patient.messages`), route: '/patient/messages', sublinks: []},
     ] : [
         {icon: <PiAddressBookBold />,text: "Schedules", href: route('practitioner.book.appointments'), route: '/practitioner/book/appointments',
         sublinks: [
@@ -78,6 +80,7 @@ export default function PatientLayout({ children }) {
                 {text: "Released", href: route('practitioner.show.report.released'), route: '/practitioner/show/reports/released'},
             ]
         },
+        {icon: <LuMessagesSquare />,text: "Message", href: route(`practitioner.messages`), route: '/practitioner/messages', sublinks: []},
     ];
 
     useEffect(() => {

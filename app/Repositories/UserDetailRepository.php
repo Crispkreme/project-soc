@@ -50,14 +50,35 @@ class UserDetailRepository implements UserDetailContract
 
     public function getAllUserDetails()
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
         return $this->model
             ->join('users', 'user_details.user_id', '=', 'users.id')
             ->select(
-                'user_details.*',
-                'users.role'
+                'user_details.firstname',
+                'user_details.middlename',
+                'user_details.lastname',
+                'user_details.status',
+                'users.role',
+                'users.id',
             )
-            ->get();
+            ->where('users.id', '!=', $user->id)
+            ->where('user_details.status', '!=', 'Deactivate')
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'name' => trim("{$user->firstname} {$user->middlename} {$user->lastname}"),
+                    'status' => $user->status,
+                    'role' => $user->role,
+                    'id' => $user->id,
+                ];
+            });
     }
+
 
     public function getAllUserByRole($role, $status)
     {

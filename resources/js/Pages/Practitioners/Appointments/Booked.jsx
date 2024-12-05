@@ -11,7 +11,6 @@ const PrescriptionModal = React.lazy(() =>
 );
 
 const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
-    console.log(bookings);
     const [filteredBookings, setFilteredBookings] = useState(bookings);
     const [searchQuery, setSearchQuery] = useState("");
     const [showReferralModal, setShowReferralModal] = useState(false);

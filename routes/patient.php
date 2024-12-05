@@ -4,12 +4,14 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -55,4 +57,7 @@ Route::middleware(['auth', 'verified', 'patient'])
 
     Route::get('/medicine/requester', [MedicalRecordController::class, 'getMedicineRequester'])->name('medicine.requester');
     Route::get('/logs', [DashboardController::class, 'getUserLogs'])->name('logs');
+
+    Route::get('/messages', [MessageController::class, 'getMessage'])->name('messages');
+    Route::get('/message/user/{id}', [MessageController::class, 'getUserMessage'])->name('message.user');
 });
