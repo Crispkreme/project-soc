@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "@inertiajs/react";
-import { toast } from 'react-hot-toast';
+import axios from "axios"; // Import Axios for form submission
+import { toast } from "react-hot-toast";
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
 const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
-const ComboBox = React.lazy(() => import("@/Components/Inputs/ComboBox"));
 const InputLabel = React.lazy(() => import("@/Components/Inputs/InputLabel"));
 const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButton"));
 const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
@@ -21,11 +20,15 @@ const HealthHistoryModal = ({
   isViewing,
   onClose,
 }) => {
-  const { data, setData, post, processing, errors } = useForm({
+  console.log(patient_id);
+  const [data, setData] = useState({
     patient_id: patient_id,
     name: "",
     description: "",
+    pdf_file: null,
   });
+  const [errors, setErrors] = useState({});
+  const [processing, setProcessing] = useState(false);
 
   const [selectedPatient, setSelectedPatient] = useState(null);
 
@@ -36,25 +39,34 @@ const HealthHistoryModal = ({
           patient_id: patient_id,
           name: selectedHealthRecord.name || "",
           description: selectedHealthRecord.description || "",
+          pdf_file: null, // Reset file input
         });
 
-        const patient = patients.find(
-          (p) => p.id === patient_id
-        );
+        const patient = patients.find((p) => p.id === patient_id);
         setSelectedPatient(patient || null);
       } else {
         setData({
           patient_id: patient_id,
           name: "",
           description: "",
+          pdf_file: null,
         });
         setSelectedPatient(null);
       }
     }
   }, [showModal, selectedHealthRecord, patients]);
 
-  const submit = (e) => {
+  const handleFileChange = (e) => {
+    setData((prevState) => ({
+      ...prevState,
+      pdf_file: e.target.files[0],
+    }));
+  };
+
+  const submit = async (e) => {
     e.preventDefault();
+    setProcessing(true);
+    setErrors({});
 
     const isUpdating = isEditing && selectedHealthRecord;
     const url = route(
@@ -62,25 +74,55 @@ const HealthHistoryModal = ({
       isUpdating ? selectedHealthRecord.id : null
     );
 
-    post(url, {
-      onSuccess: (response) => {
-        toggleHealthModal(false);
-        toast.success("Health history record added successfully!");
-      },
-      onError: (errors) => {
-        toggleHealthModal(false);
-        toast.error("An error occurred during health history creation.");
-      },
-    });
+    // Create FormData object
+    const formData = new FormData();
+    formData.append("patient_id", data.patient_id || "");
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    if (data.pdf_file) {
+      formData.append("pdf_file", data.pdf_file); // Append file if selected
+    }
+
+    try {
+      // Send request with Axios
+      await axios.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toggleHealthModal(false);
+      toast.success(isUpdating ? "Health record updated successfully!" : "Health record added successfully!");
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        setErrors(error.response.data.errors);
+      } else {
+        toast.error("An error occurred while processing the request.");
+      }
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
-    <Modal show={showModal} onClose={() => { 
-      toggleHealthModal(null, false, false); 
-      if (onClose) onClose();
-    }}>
-      <form onSubmit={submit} className="p-6">
-        <input type="hidden" value={data.patient_id} name="patient_id" onChange={(e) => setData("patient_id", e.target.value)} />
+    <Modal
+      show={showModal}
+      onClose={() => {
+        toggleHealthModal(null, false, false);
+        if (onClose) onClose();
+      }}
+    >
+      <form onSubmit={submit} className="p-6" encType="multipart/form-data">
+        <input
+          type="hidden"
+          value={data.patient_id}
+          name="patient_id"
+          onChange={(e) =>
+            setData((prevState) => ({
+              ...prevState,
+              patient_id: e.target.value,
+            }))
+          }
+        />
         <Title>
           {isViewing
             ? "View Health Record"
@@ -93,7 +135,12 @@ const HealthHistoryModal = ({
           <InputLabel value="Health Record Name" />
           <TextInput
             value={data.name}
-            onChange={(e) => setData("name", e.target.value)}
+            onChange={(e) =>
+              setData((prevState) => ({
+                ...prevState,
+                name: e.target.value,
+              }))
+            }
             type="text"
             className="w-full border p-2 rounded"
             disabled={isViewing}
@@ -106,13 +153,31 @@ const HealthHistoryModal = ({
           <InputLabel value="Description" />
           <Textarea
             value={data.description}
-            onChange={(e) => setData("description", e.target.value)}
+            onChange={(e) =>
+              setData((prevState) => ({
+                ...prevState,
+                description: e.target.value,
+              }))
+            }
             rows={5}
             className="w-full border p-2 rounded"
             disabled={isViewing}
             placeholder="Provide a description (optional)"
           />
           {errors.description && <InputError message={errors.description} />}
+        </div>
+
+        <div className="mt-4">
+          <InputLabel value="Upload PDF File (optional)" />
+          <input
+            type="file"
+            name="pdf_file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            className="w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+            disabled={isViewing}
+          />
+          {errors.pdf_file && <InputError message={errors.pdf_file} />}
         </div>
 
         <div className="mt-4">

@@ -3,26 +3,33 @@ import { Head } from "@inertiajs/react";
 import { format } from "date-fns";
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { LuClipboardEdit } from "react-icons/lu";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const Accordion = React.lazy(() => import("@/Components/Accordion"));
+const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Table = React.lazy(() => import("@/Components/Table"));
 const HealthHistoryModal = React.lazy(() => import("@/Components/Forms/HealthHistoryModal"));
 const SurgicalHistoryModal = React.lazy(() => import("@/Components/Forms/SurgicalHistoryModal"));
 const FamilyMedicalRecordModal = React.lazy(() => import("@/Components/Forms/FamilyMedicalRecordModal"));
 const MedicationRecordModal = React.lazy(() => import("@/Components/Forms/MedicationRecordModal"));
 
-const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords }) => {
-    
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
+const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords, patient_id }) => {
+
     const transformedDoctors = doctors.map(doctor => ({
         value: doctor.id,
-        option: `${doctor.firstname} ${doctor.middlename} ${doctor.lastname}`
+        option: `${doctor.name}`
     }));
 
     const [showFamilyMedicalModal, setShowFamilyModal] = useState(false);
     const [showMedicationModal, setShowMedicationModal] = useState(false);
     const [showHealthModal, setShowHealthModal] = useState(false);
     const [showSurgicalModal, setShowSurgicalModal] = useState(false);
+
+    const [showPdfModal, setShowPdfModal] = useState(false);
+    const [selectedPdf, setSelectedPdf] = useState(null);
 
     const [selectedFamilyMedicalRecord, setSelectedFamilyMedicalRecord] = useState(null);
     const [selectedMedicationRecord, setSelectedMedicationRecord] = useState(null);
@@ -46,13 +53,22 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
         setShowMedicationModal(!!medication || !showMedicationModal);
     };    
 
+    const handlePreviewClick = (pdfUrl) => {
+        setSelectedPdf(pdfUrl);
+        setShowPdfModal(true);
+    };
+    const closePdfModal = () => {
+        setShowPdfModal(false);
+        setSelectedPdf(null);
+    };
+
     const healthRecordAction = [
         {
             label: "Edit",
             icon: LuClipboardEdit,
             onClick: (row) => {
                 toggleHealthModal(row);
-              },
+            },
         },
     ];
     const surgicalRecordAction = [
@@ -82,6 +98,18 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
     const healthRecordColumn = [
         { key: "name", label: "Illness" },
         { key: "description", label: "Illness Description" },
+        {
+            key: "pdf_file",
+            label: "Reports",
+            render: (value) => (
+              <button
+                className="text-blue-500 underline"
+                onClick={() => handlePreviewClick(value)}
+              >
+                Preview
+              </button>
+            ),
+        },
         {
           key: "created_at",
           label: "Date",
@@ -256,7 +284,7 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
                 showModal={showHealthModal}
                 toggleHealthModal={toggleHealthModal} 
                 selectedHealthRecord={selectedHealthRecord}
-                patient_id={patients[0]?.id}
+                patient_id={patient_id}
                 patients={patients}
                 isEditing={!!selectedHealthRecord}
             />
@@ -265,7 +293,7 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
                 showModal={showSurgicalModal}
                 toggleSurgicalModal={toggleSurgicalModal}
                 selectedSurgicalRecord={selectedSurgicalRecord}
-                patient_id={patients[0]?.id}
+                patient_id={patient_id}
                 isEditing={!!selectedSurgicalRecord}
                 doctors={transformedDoctors}
             />
@@ -273,7 +301,7 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
                 showModal={showFamilyMedicalModal}
                 toggleFamilyMedicalModal={toggleFamilyMedicalModal}
                 selectedRecord={selectedFamilyMedicalRecord}
-                patient_id={patients[0]?.id}
+                patient_id={patient_id}
                 patients={patients}
                 isEditing={!!selectedFamilyMedicalRecord}
             />
@@ -281,11 +309,31 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
                 showModal={showMedicationModal}
                 toggleMedicationModal={toggleMedicationModal}
                 selectedMedication={selectedMedicationRecord}
-                patient_id={patients[0]?.id}
+                patient_id={patient_id}
                 patients={patients}
                 medicines={medicines}
                 isEditing={!!selectedMedicationRecord}
             />
+
+            {showPdfModal && (
+                <Modal
+                    show={showPdfModal}
+                    onClose={closePdfModal}
+                    className="max-w-3xl mx-auto"
+                >
+                    <h2 className="text-lg font-semibold mb-4">PDF Preview</h2>
+                    {selectedPdf ? (
+                    <div className="border rounded-md">
+                        <Document file={selectedPdf} className="p-4">
+                        <Page pageNumber={1} />
+                        </Document>
+                    </div>
+                    ) : (
+                    <p>No PDF file available for preview.</p>
+                    )}
+                </Modal>
+                )}
+
         </Suspense>
     );
 };

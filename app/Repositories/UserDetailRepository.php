@@ -92,6 +92,7 @@ class UserDetailRepository implements UserDetailContract
             ->get()
             ->map(function ($user) {
                 return [
+                    'id' => $user->id,
                     'name' => "{$user->firstname} {$user->middlename} {$user->lastname}",
                     'gender' => $user->gender,
                     'birthday' => Carbon::parse($user->birthday)->format('F d, Y'),
