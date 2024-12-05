@@ -8,6 +8,7 @@ const AccountModal = React.lazy(() => import("@/Components/Forms/AccountModal"))
 const DialogBox = React.lazy(() => import("@/Components/Modals/DialogBox"));
 
 const Bhw = ({ userDetails }) => {
+
   const [showModal, setShowModal] = useState(false);
 
   const toggleModal = (value = null) => {
@@ -76,13 +77,6 @@ const Bhw = ({ userDetails }) => {
               <table className="w-full text-sm text-left text-gray-500">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                   <tr>
-                    <th scope="col" className="p-4">
-                      <input
-                        type="checkbox"
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                    </th>
-                    <th scope="col" className="px-6 py-3">ID</th>
                     <th scope="col" className="px-6 py-3">Name</th>
                     <th scope="col" className="px-6 py-3">Gender</th>
                     <th scope="col" className="px-6 py-3">Birthdate</th>
@@ -99,21 +93,8 @@ const Bhw = ({ userDetails }) => {
                         key={userDetail.id}
                         className="bg-white border-b hover:bg-gray-50"
                       >
-                        <td className="p-4">
-                          <input
-                            type="checkbox"
-                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                          />
-                        </td>
-                        <th
-                          scope="row"
-                          className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-                        >
-                          {index + 1}
-                        </th>
                         <td className="px-6 py-4">
-                          {userDetail.firstname} {userDetail.middlename}{" "}
-                          {userDetail.lastname}
+                          {userDetail.name}
                         </td>
                         <td className="px-6 py-4">{userDetail.gender}</td>
                         <td className="px-6 py-4">
