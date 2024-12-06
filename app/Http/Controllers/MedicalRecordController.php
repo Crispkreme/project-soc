@@ -84,7 +84,7 @@ class MedicalRecordController extends Controller
             return redirect()->route('login');
         }
 
-        $userDetails = $this->userDetailContract->getAllUserByRole($user->role, true);
+        $userDetails = $this->userDetailContract->getAllUserByRole('Patient', true);
 
         $roleRoutes = [
             'Administration' => 'Admins/Medicals/Record',
@@ -105,10 +105,11 @@ class MedicalRecordController extends Controller
             return redirect()->route('login');
         }
 
-        $userDetails = $this->userDetailContract->getAllUserByRole($user->role, true);
+        $userDetails = $this->userDetailContract->getAllUserByRole('Patient', true);
         $roleRoutes = [
             'Administration' => 'Admins/Medicals/History',
             'Bhw' => 'Bhws/Medicals/History',
+            'Practitioner' => 'Practitioners/Medicals/History',
         ];
         $redirectInertia = $roleRoutes[$user->role] ?? 'login';
 
@@ -119,6 +120,7 @@ class MedicalRecordController extends Controller
 
     public function getPatientMedicalRecord($id)
     {
+        dd($id);
         $user = Auth::user();
 
         if (!$user) {
@@ -128,24 +130,19 @@ class MedicalRecordController extends Controller
         $role = 'Patient';
         $status = 'Active';
         $patient = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
-        $testResults = $this->testResultContract->getTestResultById($id);
-        $immunizations = $this->immunizationContract->getImmunizationById($id);
+        $testResults = $this->testResultContract->getAllTestResultById($id);
+        $immunizations = $this->immunizationContract->getAllImmunizationById($id);
         $hospitalizations = $this->hospitalizationContract->getHospitalizationById($id);
         $medicalRecords = $this->medicalRecordContract->getMedicalRecordById($id);
         $patients = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
         $medicines = $this->medicineContract->getAllMedicine();
         $hospitals = $this->hospitalContract->getAllHospital();
-        $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true)
-            ->map(function ($doctor) {
-                return [
-                    'id' => $doctor['id'],
-                    'doctor_name' => trim("{$doctor['firstname']} {$doctor['middlename']} {$doctor['lastname']}"), // Combine names into a single field
-                ];
-            });
+        $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true);
         
         $roleRoutes = [
             'Administration' => 'Admins/Medicals/PatientRecord',
             'Bhw' => 'Bhws/Medicals/PatientRecord',
+            'Practitioner' => 'Practitioners/Medicals/PatientHistory',
         ];
         $redirectInertia = $roleRoutes[$user->role] ?? 'login';
 
@@ -174,18 +171,12 @@ class MedicalRecordController extends Controller
         $surgicalRecords = $this->surgicalContract->getAllSurgicalById($id);
         $medicationRecords = $this->medicationContract->getMedicationById($id);
         $familyMedicalRecords = $this->familyMedicalContract->getFamilyMedicalById($id);
-
-        $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true)
-            ->map(function ($doctor) {
-                return [ 
-                    'id' => $doctor['id'],
-                    'name' => $doctor['name'],
-                ];
-            });
+        $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true);
 
         $roleRoutes = [
             'Administration' => 'Admins/Medicals/PatientHistory',
             'Bhw' => 'Bhws/Medicals/PatientHistory',
+            'Practitioner' => 'Practitioners/Medicals/PatientHistory',
         ];
         $redirectInertia = $roleRoutes[$user->role] ?? 'login';
         $patient_id = $id;
@@ -248,7 +239,7 @@ class MedicalRecordController extends Controller
             return redirect()->back()->with('success', 'Health Record saved successfully!');
 
         } catch (Exception $e) {
-            
+
             Log::error('Error during updateOrCreateHealthRecord: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
@@ -459,14 +450,29 @@ class MedicalRecordController extends Controller
                 'patient_id' => 'nullable|exists:users,id',
                 'name'       => 'required|string|max:255',
                 'result'     => 'nullable|string',
+                'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
 
             $id = $request->id;
             if ($id) {
                 $data['id'] = $id; 
+                $testResult = $this->testResultContract->getTestResultById($id);
+                if ($request->hasFile('pdf_file')) {
+                    if ($testResult->pdf_file) {
+                        Storage::disk('public')->delete($testResult->pdf_file);
+                    }
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                    $testResult->pdf_file = $filePath;
+                }
                 $this->testResultContract->createOrUpdateTestResult($data);
             } else {
-                $data['patient_id'] = $user->id; 
+
+                $filePath = null;
+                if ($request->hasFile('pdf_file')) {
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                }
+
+                $data['pdf_file'] = $filePath;
                 $this->testResultContract->createOrUpdateTestResult($data);
             }
 
@@ -503,13 +509,29 @@ class MedicalRecordController extends Controller
                 'doctor_id' => 'nullable|exists:users,id',
                 'patient_id' => 'required|exists:users,id',
                 'immunization' => 'required|string|max:255',
+                'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
 
             $id = $request->id;
             if ($id) {
                 $data['id'] = $id; 
+                $immunization = $this->immunizationContract->getImmunizationById($id);
+                if ($request->hasFile('pdf_file')) {
+                    if ($immunization->pdf_file) {
+                        Storage::disk('public')->delete($immunization->pdf_file);
+                    }
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                    $immunization->pdf_file = $filePath;
+                }
                 $this->immunizationContract->createOrUpdateImmunization($data);
             } else {
+
+                $filePath = null;
+                if ($request->hasFile('pdf_file')) {
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                }
+
+                $data['pdf_file'] = $filePath;
                 $data['patient_id'] = $user->id; 
                 $this->immunizationContract->createOrUpdateImmunization($data);
             }

@@ -74,6 +74,7 @@ export default function PatientLayout({ children }) {
         },
         {icon: <PiAddressBookBold />,text: "Reports", href: route('practitioner.show.report.appointment'), route: '/practitioner/show/reports/appointment',
             sublinks: [
+                {text: "History", href: route('practitioner.medical.history'), route: '/practitioner/medical/history'},
                 {text: "Appointment", href: route('practitioner.show.report.appointment'), route: '/practitioner/show/reports/appointment'},
                 {text: "Medical Available", href: route('practitioner.show.report.medicine.available'), route: '/practitioner/show/reports/medicine/available'},
                 {text: "Data Analytics", href: route('practitioner.show.report.analytics'), route: '/practitioner/show/reports/analytics'},

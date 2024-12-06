@@ -1,9 +1,9 @@
 import React, { Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 
-const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
+const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
 
-const Record = ({ userDetails }) => {
+const History = ({ userDetails }) => {
 
   const calculateAge = (birthday) => {
     const today = new Date();
@@ -16,14 +16,14 @@ const Record = ({ userDetails }) => {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <AdminLayout>
+      <PatientLayout>
 
-        <Head title="Medical" />
+        <Head title="Medical History" />
 
         <div className='grid grid-cols-1 gap-6 mb-6'>
           <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
             <div className="flex justify-between mb-4 items-start">
-              <div className="font-medium">Manage Accounts</div>
+              <div className="font-medium">Manage History</div>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
@@ -39,13 +39,14 @@ const Record = ({ userDetails }) => {
                   </thead>
                   <tbody>
                   {userDetails.length > 0 ? userDetails.map((userDetail) => (
+      
                     <tr key={`${userDetail.id}-${userDetail.firstname}`}>
                       <td className="py-2 px-4 border-b border-b-gray-50">
                         <div className="flex items-center">
                           <img src="https://placehold.co/32x32" alt="" className="w-8 h-8 rounded object-cover block" />
                           <a 
-                            href={route('admin.medical.patient.record', { id: userDetail.id })} 
-                            className="text-gray-600 text-sm font-medium hover:text-blue-500 ml-2 truncate"
+                            href={route('practitioner.medical.patient.history', { id: userDetail.id })} 
+                            className="text-gray-600medical/history text-sm font-medium hover:text-blue-500 ml-2 truncate"
                           >
                             {userDetail.name}
                           </a>
@@ -78,9 +79,9 @@ const Record = ({ userDetails }) => {
           </div>
         </div>
 
-      </AdminLayout>
+      </PatientLayout>
     </Suspense>
   )
 }
 
-export default Record
+export default History

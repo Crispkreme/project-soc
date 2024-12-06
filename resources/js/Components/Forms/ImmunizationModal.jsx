@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { toast } from 'react-hot-toast';
-import { useForm } from "@inertiajs/react";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import axios from 'axios';
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
@@ -20,58 +20,86 @@ const ImmunizationModal = ({
   isViewing = false,
   onClose,
 }) => {
-  const { data, setData, post, processing, errors } = useForm({
+  const [data, setData] = useState({
     patient_id: patient_id || "",
     immunization: "",
-    doctor_id: selectedImmunization ? selectedImmunization.doctor_id : "",
+    doctor_id: "",
+    pdf_file: null,
   });
 
-  useEffect(() => {
+  const [errors, setErrors] = useState({});
+  const [processing, setProcessing] = useState(false);
 
+  useEffect(() => {
     if (showModal) {
-      if (selectedImmunization) {
-        setData({
-          doctor_id: selectedImmunization.doctor_id,
-          patient_id: selectedImmunization.patient_id || patient_id || "",
-          immunization: selectedImmunization.immunization || "",
-        });
-      } else {
-        setData({
-          doctor_id: "",
-          patient_id: patient_id || "",
-          immunization: "",
-        });
-      }
+      setData({
+        patient_id: selectedImmunization?.patient_id || patient_id || "",
+        immunization: selectedImmunization?.immunization || "",
+        doctor_id: selectedImmunization?.doctor_id || "",
+        pdf_file: null,
+      });
+    } else {
+      setData({
+        patient_id: patient_id || "",
+        immunization: "",
+        doctor_id: "",
+        pdf_file: null,
+      });
     }
   }, [showModal, selectedImmunization, patient_id]);
+
+  const handleFileChange = (e) => {
+    setData((prevState) => ({
+      ...prevState,
+      pdf_file: e.target.files[0],
+    }));
+  };
 
   const handleClose = () => {
     toggleImmunizationModal(false);
     if (onClose) onClose();
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
+    setProcessing(true);
+    setErrors({});
 
+    const isUpdating = isEditing && selectedImmunization;
     const url = route(
-      isEditing ? "immunization.update" : "immunization.create",
-      isEditing ? selectedImmunization?.id : null
+      isUpdating ? "immunization.update" : "immunization.create",
+      isUpdating ? selectedImmunization.id : null
     );
 
-    post(url, {
-      onSuccess: (response) => {
-        toggleImmunizationModal(false);
-        toast.success("Immunization added successfully!");
-      },
-      onError: (errors) => {
-        toggleImmunizationModal(false);
-        toast.error("An error occurred during immunization creation.");
-      },
-    });
-  };
+    const formData = new FormData();
+    formData.append("patient_id", data.patient_id || "");
+    formData.append("immunization", data.immunization || "");
+    formData.append("doctor_id", data.doctor_id || "");
+    if (data.pdf_file) {
+      formData.append("pdf_file", data.pdf_file);
+    }
 
-  const doctorChange = (selectedDoctor) => {
-    setData("doctor_id", selectedDoctor?.value || selectedDoctor?.id);
+    try {
+      await axios.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toggleImmunizationModal(false);
+      toast.success(
+        isUpdating
+          ? "Immunization updated successfully!"
+          : "Immunization added successfully!"
+      );
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        setErrors(error.response.data.errors);
+      } else {
+        toast.error("An error occurred while processing the request.");
+      }
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
@@ -82,8 +110,9 @@ const ImmunizationModal = ({
           type="hidden"
           value={data.patient_id}
           name="patient_id"
-          onChange={(e) => setData("patient_id", e.target.value)}
+          readOnly
         />
+
         <Title>
           {isViewing
             ? "View Immunization Record"
@@ -97,7 +126,9 @@ const ImmunizationModal = ({
           <InputLabel value="Immunization" />
           <TextInput
             value={data.immunization}
-            onChange={(e) => setData("immunization", e.target.value)}
+            onChange={(e) =>
+              setData((prevState) => ({ ...prevState, immunization: e.target.value }))
+            }
             type="text"
             className="w-full border p-2 rounded"
             disabled={isViewing}
@@ -113,23 +144,41 @@ const ImmunizationModal = ({
             items={doctors}
             value={data.doctor_id}
             onChange={(selected) => {
-              setData("doctor_id", selected ? selected.id : ""); 
+              setData((prevState) => ({
+                ...prevState,
+                doctor_id: selected ? selected.id : "",
+              }));
             }}
             placeholder="Select a doctor"
-            displayKey="doctor_name"
+            displayKey="name"
             ariaLabel="Select doctor"
+            disabled={isViewing}
           />
           {errors.doctor_id && <InputError message={errors.doctor_id} />}
         </div>
 
-        {/* Submit Button */}
+        {/* File Upload Field */}
         <div className="mt-4">
-          {!isViewing && (
+          <InputLabel value="Upload PDF File (optional)" />
+          <input
+            type="file"
+            name="pdf_file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            className="w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+            disabled={isViewing}
+          />
+          {errors.pdf_file && <InputError message={errors.pdf_file} />}
+        </div>
+
+        {/* Submit Button */}
+        {!isViewing && (
+          <div className="mt-4">
             <PrimaryButton type="submit" disabled={processing}>
               {isEditing ? "Update" : "Save"}
             </PrimaryButton>
-          )}
-        </div>
+          </div>
+        )}
       </form>
     </Modal>
   );
