@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class MedicalRecordController extends Controller
@@ -82,8 +83,8 @@ class MedicalRecordController extends Controller
         if (!$user) {
             return redirect()->route('login');
         }
-        $accountType = 'Patient';
-        $userDetails = $this->userDetailContract->getAllUserByRole($accountType, true);
+
+        $userDetails = $this->userDetailContract->getAllUserByRole($user->role, true);
 
         $roleRoutes = [
             'Administration' => 'Admins/Medicals/Record',
@@ -104,27 +105,14 @@ class MedicalRecordController extends Controller
             return redirect()->route('login');
         }
 
-        $routeName = Route::currentRouteName();
-        $accountType = match ($routeName) {
-            'admin.medical.history' => 'Administration',
-            'bhw.medical.history' => 'Bhw',
-            default => 'login',
-        };
-        
-        if (!$accountType) {
-            return redirect()->route('login');
-        }
-
-        $accountTypes = 'Patient';
-        $userDetails = $this->userDetailContract->getAllUserByRole($accountTypes, true);
-
-        $viewPath = match ($accountType) {
+        $userDetails = $this->userDetailContract->getAllUserByRole($user->role, true);
+        $roleRoutes = [
             'Administration' => 'Admins/Medicals/History',
             'Bhw' => 'Bhws/Medicals/History',
-            default => 'login'
-        };
+        ];
+        $redirectInertia = $roleRoutes[$user->role] ?? 'login';
 
-        return Inertia::render($viewPath, [
+        return Inertia::render($redirectInertia, [
             'userDetails' => $userDetails,
         ]);
     }
@@ -182,17 +170,16 @@ class MedicalRecordController extends Controller
         $patients = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
         $medicines = $this->medicineContract->getAllMedicine();
         $healthRecords = $this->healthContract->getHealthById($id);
+
         $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
         $medicationRecords = $this->medicationContract->getMedicationById($id);
         $familyMedicalRecords = $this->familyMedicalContract->getFamilyMedicalById($id);
 
         $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true)
             ->map(function ($doctor) {
-                return [
+                return [ 
                     'id' => $doctor['id'],
-                    'firstname' => $doctor['firstname'],
-                    'middlename' => $doctor['middlename'],
-                    'lastname' => $doctor['lastname'],
+                    'name' => $doctor['name'],
                 ];
             });
 
@@ -201,6 +188,7 @@ class MedicalRecordController extends Controller
             'Bhw' => 'Bhws/Medicals/PatientHistory',
         ];
         $redirectInertia = $roleRoutes[$user->role] ?? 'login';
+        $patient_id = $id;
 
         return Inertia::render($redirectInertia, [
             'medicines' => $medicines,
@@ -210,6 +198,7 @@ class MedicalRecordController extends Controller
             'medicationRecords' => $medicationRecords,
             'familyMedicalRecords' => $familyMedicalRecords,
             'doctors' => $doctors,
+            'patient_id' => $patient_id,
         ]);
     }
 
@@ -229,12 +218,28 @@ class MedicalRecordController extends Controller
                 'patient_id' => 'nullable|exists:users,id',
                 'name' => 'required|string|max:255',         
                 'description' => 'nullable|string|max:1000',
+                'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
             
             if ($id) {
                 $data['id'] = $id; 
+                $health = $this->healthContract->getHealthById($id);
+                if ($request->hasFile('pdf_file')) {
+                    if ($health->pdf_file) {
+                        Storage::disk('public')->delete($health->pdf_file);
+                    }
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                    $health->pdf_file = $filePath;
+                }
                 $this->healthContract->createOrUpdateHealth($data);
             } else {
+
+                $filePath = null;
+                if ($request->hasFile('pdf_file')) {
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                }
+
+                $data['pdf_file'] = $filePath;
                 $this->healthContract->createOrUpdateHealth($data);
             }
 

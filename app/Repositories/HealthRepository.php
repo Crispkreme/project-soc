@@ -25,6 +25,7 @@ class HealthRepository implements HealthContract
                 'patient_id' => $data['patient_id'],
                 'name' => $data['name'],
                 'description' => $data['description'],
+                'pdf_file' => $data['pdf_file'],
             ]
         );
     }

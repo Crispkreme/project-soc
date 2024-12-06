@@ -7,6 +7,8 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import store from './store';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
