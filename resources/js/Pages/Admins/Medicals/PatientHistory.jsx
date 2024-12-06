@@ -16,7 +16,6 @@ const MedicationRecordModal = React.lazy(() => import("@/Components/Forms/Medica
 import { Viewer, Worker } from '@react-pdf-viewer/core';
 
 const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords, patient_id }) => {
-
     const transformedDoctors = doctors.map(doctor => ({
         value: doctor.id,
         option: `${doctor.name}`
@@ -26,12 +25,10 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
     const [showMedicationModal, setShowMedicationModal] = useState(false);
     const [showHealthModal, setShowHealthModal] = useState(false);
     const [showSurgicalModal, setShowSurgicalModal] = useState(false);
-
     const [selectedFamilyMedicalRecord, setSelectedFamilyMedicalRecord] = useState(null);
     const [selectedMedicationRecord, setSelectedMedicationRecord] = useState(null);
     const [selectedHealthRecord, setSelectedHealthRecord] = useState(null);
     const [selectedSurgicalRecord, setSelectedSurgicalRecord] = useState(null);
-
     const [selectedPdf, setSelectedPdf] = useState(null);
     const [showPdfModal, setShowPdfModal] = useState(false);
 
@@ -124,7 +121,6 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
         { key: "procedure", label: "Surgery" },
         { key: "description", label: "Procedure" },
         { key: "doctor_name", label: "Doctor" },
-        { key: "pdf_file", label: "Reports" },
         {
             key: "pdf_file",
             label: "Reports",
@@ -158,16 +154,11 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
         setShowPdfModal(true);
     };
 
+    // MEDICATION FUNCTIONALITY
     const toggleMedicationModal = (medication = null) => {
         setSelectedMedicationRecord(medication);
         setShowMedicationModal(!!medication || !showMedicationModal);
-    };    
-
-    const closePdfModal = () => {
-        setShowPdfModal(false);
-        setSelectedPdf(null);
     };
-
     const medicationRecordAction = [
         {
           label: "Edit",
@@ -175,18 +166,38 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
           onClick: (row) => toggleMedicationModal(row, true, false, row.id),
         },
     ];
-
     const medicationRecordColumn = [
-        { key: "medicine.medicine_name", label: "Medicine Name" },
+        { key: "medicine_name", label: "Medicine Name" },
         { key: "dosage", label: "Dosage" },
         { key: "reason", label: "Reason/For:" },
+        {
+            key: "pdf_file",
+            label: "Reports",
+            render: (value) => (
+                <button
+                    className="text-blue-500 underline"
+                    onClick={() => handleMedicationPdfPreview(value)}
+                >
+                    Preview
+                </button>
+            ),
+        },
         {
           key: "created_at",
           label: "Date",
           render: (value) => format(new Date(value), "MMMM d, yyyy"),
         },
     ];
-    
+    const handleMedicationPdfPreview = (pdfPath) => {
+        const fullPdfUrl = `http://localhost:8000/storage/${pdfPath}`;
+        setSelectedPdf(fullPdfUrl);
+        setShowPdfModal(true);
+    };
+
+    const closePdfModal = () => {
+        setShowPdfModal(false);
+        setSelectedPdf(null);
+    };
 
     return (
         <Suspense fallback={<div>Loading...</div>}>
