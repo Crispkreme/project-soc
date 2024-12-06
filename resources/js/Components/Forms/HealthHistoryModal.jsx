@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; // Import Axios for form submission
+import axios from "axios";
 import { toast } from "react-hot-toast";
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
@@ -10,26 +10,17 @@ const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButto
 const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 
-const HealthHistoryModal = ({
-  showModal,
-  toggleHealthModal,
-  selectedHealthRecord,
-  patient_id,
-  patients,
-  isEditing,
-  isViewing,
-  onClose,
-}) => {
-  console.log(patient_id);
+const HealthHistoryModal = ({ showModal, toggleHealthModal, selectedHealthRecord, patient_id, patients, isEditing, isViewing, onClose }) => {
+
   const [data, setData] = useState({
     patient_id: patient_id,
     name: "",
     description: "",
     pdf_file: null,
   });
+  
   const [errors, setErrors] = useState({});
   const [processing, setProcessing] = useState(false);
-
   const [selectedPatient, setSelectedPatient] = useState(null);
 
   useEffect(() => {
@@ -39,7 +30,7 @@ const HealthHistoryModal = ({
           patient_id: patient_id,
           name: selectedHealthRecord.name || "",
           description: selectedHealthRecord.description || "",
-          pdf_file: null, // Reset file input
+          pdf_file: null,
         });
 
         const patient = patients.find((p) => p.id === patient_id);
@@ -74,17 +65,15 @@ const HealthHistoryModal = ({
       isUpdating ? selectedHealthRecord.id : null
     );
 
-    // Create FormData object
     const formData = new FormData();
     formData.append("patient_id", data.patient_id || "");
     formData.append("name", data.name);
     formData.append("description", data.description);
     if (data.pdf_file) {
-      formData.append("pdf_file", data.pdf_file); // Append file if selected
+      formData.append("pdf_file", data.pdf_file);
     }
 
     try {
-      // Send request with Axios
       await axios.post(url, formData, {
         headers: {
           "Content-Type": "multipart/form-data",

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('disease')->nullable();
             $table->enum('relationship_disease', ['Mother Family Disease', 'Father Family Disease'])->nullable();
+            $table->string('pdf_file')->nullable(); 
             $table->timestamps();
         });
     }

@@ -15,6 +15,7 @@ class Medication extends Model
         'dosage', 
         'quantity', 
         'reason', 
+        'pdf_file',
         'medication_status'
     ];
 
