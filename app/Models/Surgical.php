@@ -9,7 +9,7 @@ class Surgical extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['patient_id', 'doctor_id', 'procedure', 'description'];
+    protected $fillable = ['patient_id', 'doctor_id', 'procedure', 'description', 'pdf_file'];
 
     public function patient()
     {

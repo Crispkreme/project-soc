@@ -26,6 +26,7 @@ class SurgicalRepository implements SurgicalContract
                 'doctor_id' => $data['doctor_id'],
                 'procedure' => $data['procedure'],
                 'description' => $data['description'],
+                'pdf_file' => $data['pdf_file'],
             ]
         );
     }
@@ -50,6 +51,7 @@ class SurgicalRepository implements SurgicalContract
                                     optional($surgical->patient->details)->middlename . ' ' .
                                     optional($surgical->patient->details)->lastname,
                     'procedure' => $surgical->procedure,
+                    'pdf_file' => $surgical->pdf_file,
                     'description' => $surgical->description,
                     'created_at' => $surgical->created_at,
                 ];
@@ -60,6 +62,13 @@ class SurgicalRepository implements SurgicalContract
     public function getAllSurgical()
     {
         return $this->model
+            ->get();
+    }
+
+    public function getSurgicaById($id)
+    {
+        return $this->model
+            ->where('id', $id)
             ->get();
     }
 }

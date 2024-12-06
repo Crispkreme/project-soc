@@ -276,14 +276,30 @@ class MedicalRecordController extends Controller
                 'patient_id' => 'nullable|exists:users,id',      
                 'doctor_id'  => 'nullable|exists:users,id',      
                 'procedure'  => 'required|string|max:255',       
-                'description'=> 'nullable|string',  
+                'description'=> 'nullable|string', 
+                'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
-            
+
             $id = $request->id;
             if ($id) {
                 $data['id'] = $id; 
+                $surgical = $this->surgicalContract->getSurgicaById($id);
+                if ($request->hasFile('pdf_file')) {
+                    if ($surgical->pdf_file) {
+                        Storage::disk('public')->delete($surgical->pdf_file);
+                    }
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                    $surgical->pdf_file = $filePath;
+                }
                 $this->surgicalContract->createOrUpdateSurgical($data);
             } else {
+
+                $filePath = null;
+                if ($request->hasFile('pdf_file')) {
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                }
+
+                $data['pdf_file'] = $filePath;
                 $this->surgicalContract->createOrUpdateSurgical($data);
             }
 
@@ -305,7 +321,7 @@ class MedicalRecordController extends Controller
     }
 
     public function updateOrCreateFamilyMedical(Request $request, $id = null)
-    {
+    {   
         $user = Auth::user();
 
         if (!$user) {
@@ -320,13 +336,29 @@ class MedicalRecordController extends Controller
                 'patient_id' => 'nullable|exists:users,id',
                 'disease' => 'nullable|string|max:255',
                 'relationship_disease' => 'nullable|in:Mother Family Disease,Father Family Disease',
+                'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
 
             $id = $request->id;
             if ($id) {
                 $data['id'] = $id; 
+                $familyMedical = $this->familyMedicalContract->getFamilyMedicalById($id);
+                if ($request->hasFile('pdf_file')) {
+                    if ($familyMedical->pdf_file) {
+                        Storage::disk('public')->delete($familyMedical->pdf_file);
+                    }
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                    $familyMedical->pdf_file = $filePath;
+                }
                 $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
             } else {
+
+                $filePath = null;
+                if ($request->hasFile('pdf_file')) {
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                }
+
+                $data['pdf_file'] = $filePath;
                 $data['patient_id'] = $user->id; 
                 $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
             }

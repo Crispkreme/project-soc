@@ -32,23 +32,14 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
     const [selectedHealthRecord, setSelectedHealthRecord] = useState(null);
     const [selectedSurgicalRecord, setSelectedSurgicalRecord] = useState(null);
 
+    const [selectedPdf, setSelectedPdf] = useState(null);
+    const [showPdfModal, setShowPdfModal] = useState(false);
+
+    // HEALTH FUNCTIONALITY
     const toggleHealthModal = (healthRecord = null) => {
         setSelectedHealthRecord(healthRecord);
         setShowHealthModal(!!healthRecord || !showHealthModal);
     };
-    const toggleSurgicalModal = (surgicalRecord = null) => {
-        setSelectedSurgicalRecord(surgicalRecord);
-        setShowSurgicalModal(!!surgicalRecord || !showSurgicalModal);
-    };
-    const toggleFamilyMedicalModal = (familyMedical = null) => {
-        setSelectedFamilyMedicalRecord(familyMedical);
-        setShowFamilyModal(!!familyMedical || !showFamilyMedicalModal);
-    };
-    const toggleMedicationModal = (medication = null) => {
-        setSelectedMedicationRecord(medication);
-        setShowMedicationModal(!!medication || !showMedicationModal);
-    };    
-
     const healthRecordColumn = [
         { key: "name", label: "Illness" },
         { key: "description", label: "Illness Description" },
@@ -58,7 +49,7 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
             render: (value) => (
                 <button
                     className="text-blue-500 underline"
-                    onClick={() => handlePreviewClick(value)}
+                    onClick={() => handleHealthPdfPreview(value)}
                 >
                     Preview
                 </button>
@@ -70,7 +61,6 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
             render: (value) => format(new Date(value), "MMMM d, yyyy"),
         },
     ];
-
     const healthRecordAction = [
         {
             label: "Edit",
@@ -80,32 +70,79 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
             },
         },
     ];
-
-    const [selectedPdf, setSelectedPdf] = useState(null);
-    const [showPdfModal, setShowPdfModal] = useState(false);
-
-    const handlePreviewClick = (pdfPath) => {
+    const handleHealthPdfPreview = (pdfPath) => {
         const fullPdfUrl = `http://localhost:8000/storage/${pdfPath}`;
         setSelectedPdf(fullPdfUrl);
         setShowPdfModal(true);
     };
 
-    const closePdfModal = () => {
-        setShowPdfModal(false);
-        setSelectedPdf(null);
+    // FAMILY FUNCTIONALITY
+    const toggleFamilyMedicalModal = (familyMedical = null) => {
+        setSelectedFamilyMedicalRecord(familyMedical);
+        setShowFamilyModal(!!familyMedical || !showFamilyMedicalModal);
     };
-
-    const surgicalRecordColumn = [
-        { key: "procedure", label: "Surgery" },
-        { key: "description", label: "Procedure" },
-        { key: "doctor_name", label: "Doctor" },
+    const familyMedicalRecordColumn = [
+        { key: "disease", label: "Desease" },
+        { key: "relationship_disease", label: "Relationship" },
+        {
+            key: "pdf_file",
+            label: "Reports",
+            render: (value) => (
+                <button
+                    className="text-blue-500 underline"
+                    onClick={() => handleFamilyMedicalPdfPreview(value)}
+                >
+                    Preview
+                </button>
+            ),
+        },
         {
           key: "created_at",
           label: "Date",
           render: (value) => format(new Date(value), "MMMM d, yyyy"),
         },
     ];
+    const familyMedicalRecordAction = [
+        {
+          label: "Edit",
+          icon: LuClipboardEdit,
+          onClick: (row) => toggleFamilyMedicalModal(row, true, false, row.id),
+        },
+    ];
+    const handleFamilyMedicalPdfPreview = (pdfPath) => {
+        const fullPdfUrl = `http://localhost:8000/storage/${pdfPath}`;
+        setSelectedPdf(fullPdfUrl);
+        setShowPdfModal(true);
+    };
 
+    // SURGICAL FUNCTIONALITY
+    const toggleSurgicalModal = (surgicalRecord = null) => {
+        setSelectedSurgicalRecord(surgicalRecord);
+        setShowSurgicalModal(!!surgicalRecord || !showSurgicalModal);
+    };
+    const surgicalRecordColumn = [
+        { key: "procedure", label: "Surgery" },
+        { key: "description", label: "Procedure" },
+        { key: "doctor_name", label: "Doctor" },
+        { key: "pdf_file", label: "Reports" },
+        {
+            key: "pdf_file",
+            label: "Reports",
+            render: (value) => (
+                <button
+                    className="text-blue-500 underline"
+                    onClick={() => handleSurgicalPdfPreview(value)}
+                >
+                    Preview
+                </button>
+            ),
+        },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
     const surgicalRecordAction = [
         {
           label: "Edit",
@@ -115,14 +152,22 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
           },
         },
     ];
+    const handleSurgicalPdfPreview = (pdfPath) => {
+        const fullPdfUrl = `http://localhost:8000/storage/${pdfPath}`;
+        setSelectedPdf(fullPdfUrl);
+        setShowPdfModal(true);
+    };
 
-    const familyMedicalRecordAction = [
-        {
-          label: "Edit",
-          icon: LuClipboardEdit,
-          onClick: (row) => toggleFamilyMedicalModal(row, true, false, row.id),
-        },
-    ];
+    const toggleMedicationModal = (medication = null) => {
+        setSelectedMedicationRecord(medication);
+        setShowMedicationModal(!!medication || !showMedicationModal);
+    };    
+
+    const closePdfModal = () => {
+        setShowPdfModal(false);
+        setSelectedPdf(null);
+    };
+
     const medicationRecordAction = [
         {
           label: "Edit",
@@ -141,15 +186,7 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
           render: (value) => format(new Date(value), "MMMM d, yyyy"),
         },
     ];
-    const familyMedicalRecordColumn = [
-        { key: "disease", label: "Desease" },
-        { key: "relationship_disease", label: "Relationship" },
-        {
-          key: "created_at",
-          label: "Date",
-          render: (value) => format(new Date(value), "MMMM d, yyyy"),
-        },
-    ];
+    
 
     return (
         <Suspense fallback={<div>Loading...</div>}>
@@ -186,6 +223,7 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
                                             <Table
                                                 columns={healthRecordColumn}
                                                 data={healthRecords}
+                                                actions={healthRecordAction}
                                                 noDataMessage="No Medication History Available."
                                             />
                                         </div>

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('reason')->nullable();
             $table->string('dosage');
             $table->integer('quantity');
+            $table->string('pdf_file')->nullable(); 
             $table->enum('medication_status', ['Pending', 'Approve', 'Success', 'Failed'])
                   ->nullable()
                   ->default('Pending');

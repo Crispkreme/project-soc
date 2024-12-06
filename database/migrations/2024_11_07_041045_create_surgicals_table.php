@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('doctor_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('procedure');
             $table->text('description')->nullable();
+            $table->string('pdf_file')->nullable(); 
             $table->timestamps();
         });
     }
