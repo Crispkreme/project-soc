@@ -171,7 +171,7 @@ class MedicalRecordController extends Controller
         $medicines = $this->medicineContract->getAllMedicine();
         $healthRecords = $this->healthContract->getHealthById($id);
 
-        $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
+        $surgicalRecords = $this->surgicalContract->getAllSurgicalById($id);
         $medicationRecords = $this->medicationContract->getMedicationById($id);
         $familyMedicalRecords = $this->familyMedicalContract->getFamilyMedicalById($id);
 
@@ -283,7 +283,7 @@ class MedicalRecordController extends Controller
             $id = $request->id;
             if ($id) {
                 $data['id'] = $id; 
-                $surgical = $this->surgicalContract->getSurgicaById($id);
+                $surgical = $this->surgicalContract->getSurgicalById($id);
                 if ($request->hasFile('pdf_file')) {
                     if ($surgical->pdf_file) {
                         Storage::disk('public')->delete($surgical->pdf_file);
@@ -398,14 +398,31 @@ class MedicalRecordController extends Controller
                 'reason' => 'nullable|string',  
                 'dosage' => 'nullable|string',  
                 'quantity' => 'nullable|string',  
+                'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
             $data['quantity'] = null; 
-
+            
             $id = $request->id;
             if ($id) {
                 $data['id'] = $id; 
+                $medication = $this->medicationContract->getSpecificMedicationById($id);
+                if ($request->hasFile('pdf_file')) {
+                    if ($medication->pdf_file) {
+                        Storage::disk('public')->delete($medication->pdf_file);
+                    }
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                    $medication->pdf_file = $filePath;
+                }
                 $this->medicationContract->createOrUpdateMedication($data);
             } else {
+
+                $filePath = null;
+                if ($request->hasFile('pdf_file')) {
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                }
+
+                $data['pdf_file'] = $filePath;
+                $data['patient_id'] = $user->id; 
                 $this->medicationContract->createOrUpdateMedication($data);
             }
 
