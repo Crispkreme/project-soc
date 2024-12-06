@@ -248,7 +248,7 @@ class MedicalRecordController extends Controller
             return redirect()->back()->with('success', 'Health Record saved successfully!');
 
         } catch (Exception $e) {
-            
+
             Log::error('Error during updateOrCreateHealthRecord: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),

@@ -61,7 +61,7 @@ const HealthHistoryModal = ({ showModal, toggleHealthModal, selectedHealthRecord
 
     const isUpdating = isEditing && selectedMedication;
     const url = route(
-      isUpdating ? "medication.update" : "medication.create",
+      isUpdating ? "health.record.update" : "health.record.create",
       isUpdating ? selectedMedication.id : null
     );
 
@@ -83,6 +83,7 @@ const HealthHistoryModal = ({ showModal, toggleHealthModal, selectedHealthRecord
       toast.success(isUpdating ? "Medication Record updated successfully!" : "Medication Record added successfully!");
     } catch (error) {
       if (error.response && error.response.data.errors) {
+        console.log(error.response);
         setErrors(error.response.data.errors);
       } else {
         toast.error("An error occurred while processing the request.");
