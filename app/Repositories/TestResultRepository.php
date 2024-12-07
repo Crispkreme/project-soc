@@ -25,11 +25,19 @@ class TestResultRepository implements TestResultContract
                 'patient_id' => $data['patient_id'],
                 'name' => $data['name'],
                 'result' => $data['result'],
+                'pdf_file' => $data['pdf_file'],
             ]
         );
     }
 
     public function getTestResultById($id)
+    {
+        return $this->model
+            ->where('id', $id)
+            ->get();
+    }
+
+    public function getAllTestResultById($id)
     {
         return $this->model
             ->where('patient_id', $id)

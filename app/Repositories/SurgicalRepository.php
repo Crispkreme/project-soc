@@ -31,13 +31,13 @@ class SurgicalRepository implements SurgicalContract
         );
     }
 
-    public function getSurgicalById($id)
+    public function getAllSurgicalById($id)
     {
         return Surgical::with([
                 'doctor.details',
                 'patient.details'
             ])
-            ->select('id', 'procedure', 'description', 'doctor_id', 'patient_id')
+            ->select('id', 'procedure', 'description', 'doctor_id', 'patient_id', 'pdf_file')
             ->where('patient_id', $id)
             ->get()
             ->map(function ($surgical) {
@@ -65,7 +65,7 @@ class SurgicalRepository implements SurgicalContract
             ->get();
     }
 
-    public function getSurgicaById($id)
+    public function getSurgicalById($id)
     {
         return $this->model
             ->where('id', $id)

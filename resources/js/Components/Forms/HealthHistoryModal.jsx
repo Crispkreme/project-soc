@@ -59,16 +59,16 @@ const HealthHistoryModal = ({ showModal, toggleHealthModal, selectedHealthRecord
     setProcessing(true);
     setErrors({});
 
-    const isUpdating = isEditing && selectedHealthRecord;
+    const isUpdating = isEditing && selectedMedication;
     const url = route(
       isUpdating ? "health.record.update" : "health.record.create",
-      isUpdating ? selectedHealthRecord.id : null
+      isUpdating ? selectedMedication.id : null
     );
 
     const formData = new FormData();
     formData.append("patient_id", data.patient_id || "");
-    formData.append("name", data.name);
-    formData.append("description", data.description);
+    formData.append("name", data.name || "");
+    formData.append("description", data.description || "");
     if (data.pdf_file) {
       formData.append("pdf_file", data.pdf_file);
     }
@@ -79,10 +79,11 @@ const HealthHistoryModal = ({ showModal, toggleHealthModal, selectedHealthRecord
           "Content-Type": "multipart/form-data",
         },
       });
-      toggleHealthModal(false);
-      toast.success(isUpdating ? "Health record updated successfully!" : "Health record added successfully!");
+      toggleMedicationModal(false);
+      toast.success(isUpdating ? "Medication Record updated successfully!" : "Medication Record added successfully!");
     } catch (error) {
       if (error.response && error.response.data.errors) {
+        console.log(error.response);
         setErrors(error.response.data.errors);
       } else {
         toast.error("An error occurred while processing the request.");

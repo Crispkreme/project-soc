@@ -24,7 +24,9 @@ class MedicationRepository implements MedicationContract
             [
                 'patient_id' => $data['patient_id'],
                 'medicine_id' => $data['medicine_id'],
-                'quantity' => $data['quantity'],
+                'quantity' => $data['quantity'] ?? 0,
+                'pdf_file' => $data['pdf_file'],
+                'dosage' => $data['dosage'],
                 'reason' => $data['reason'],
                 'medication_status' => $data['medication_status'] ?? 'Pending',
             ]
@@ -47,6 +49,7 @@ class MedicationRepository implements MedicationContract
                     'medication_status' => $medication->medication_status,
                     'quantity' => $medication->quantity,
                     'dosage' => $medication->dosage,
+                    'pdf_file' => $medication->pdf_file,
                     'created_at' => $medication->created_at,
                     'updated_at' => $medication->updated_at,
                 ];

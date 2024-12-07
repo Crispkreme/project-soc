@@ -39,15 +39,16 @@ const History = ({ userDetails }) => {
                   </thead>
                   <tbody>
                   {userDetails.length > 0 ? userDetails.map((userDetail) => (
+      
                     <tr key={`${userDetail.id}-${userDetail.firstname}`}>
                       <td className="py-2 px-4 border-b border-b-gray-50">
                         <div className="flex items-center">
                           <img src="https://placehold.co/32x32" alt="" className="w-8 h-8 rounded object-cover block" />
                           <a 
                             href={route('bhw.medical.patient.history', { id: userDetail.id })} 
-                            className="text-gray-600 text-sm font-medium hover:text-blue-500 ml-2 truncate"
+                            className="text-gray-600medical/history text-sm font-medium hover:text-blue-500 ml-2 truncate"
                           >
-                            {userDetail.firstname} {userDetail.middlename} {userDetail.lastname}
+                            {userDetail.name}
                           </a>
                         </div>
                       </td>

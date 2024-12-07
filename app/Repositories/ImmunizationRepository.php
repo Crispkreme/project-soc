@@ -25,17 +25,31 @@ class ImmunizationRepository implements ImmunizationContract
                 'doctor_id' => $data['doctor_id'],
                 'patient_id' => $data['patient_id'],
                 'immunization' => $data['immunization'],
+                'pdf_file' => $data['pdf_file'],
             ]
         );
     }
 
     public function getImmunizationById($id)
     {
+        return $this->model
+            ->where('id', $id)
+            ->get();
+    }
+
+    public function getAllImmunization()
+    {
+        return $this->model
+            ->get();
+    }
+
+    public function getAllImmunizationById($id)
+    {
         return $this->model->with([
             'doctor.details',
             'patient.details'
         ])
-        ->select('id', 'immunization', 'doctor_id', 'patient_id')
+        ->select('id', 'immunization', 'doctor_id', 'patient_id', 'pdf_file')
         ->where('patient_id', $id)
         ->get()
         ->map(function ($immunizations) {
@@ -48,14 +62,9 @@ class ImmunizationRepository implements ImmunizationContract
                                 optional($immunizations->patient->details)->middlename . ' ' .
                                 optional($immunizations->patient->details)->lastname,
                 'immunization' => $immunizations->immunization,
+                'pdf_file' => $immunizations->pdf_file,
                 'created_at' => $immunizations->created_at,
             ];
         });
-    }
-
-    public function getAllImmunization()
-    {
-        return $this->model
-            ->get();
     }
 }

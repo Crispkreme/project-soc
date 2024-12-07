@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { LuClipboardEdit } from "react-icons/lu";
 
-const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
+const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
 const Accordion = React.lazy(() => import("@/Components/Accordion"));
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Table = React.lazy(() => import("@/Components/Table"));
@@ -201,7 +201,7 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
 
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <AdminLayout>
+            <PatientLayout>
                 <Head title="Patient Record" />
 
                 <div className="grid grid-cols-1 gap-6 mb-6">
@@ -331,7 +331,7 @@ const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalR
                         </div>
                     </div>
                 </div>
-            </AdminLayout>
+            </PatientLayout>
 
             <HealthHistoryModal
                 showModal={showHealthModal}

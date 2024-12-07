@@ -9,7 +9,7 @@ class TestResult extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['patient_id', 'name', 'result'];
+    protected $fillable = ['patient_id', 'name', 'result', 'pdf_file'];
 
     public function patient()
     {
