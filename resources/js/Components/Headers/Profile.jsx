@@ -74,21 +74,24 @@ const Profile = ({ username, userId }) => {
     switch (user.role) {
         case "Administration":
             menuItems = [
-                { label: "Profile", link: route("admin.view.profile", userId) },
                 { label: "Settings", link: route("admin.view.profile", userId) },
                 { label: "Logout", link: route("admin.logout") },
             ];
             break;
+        case "Bhw":
+            menuItems = [
+                { label: "Settings", link: route("bhw.view.profile", userId) },
+                { label: "Logout", link: route("bhw.logout") },
+            ];
+            break;
         case "Patient":
             menuItems = [
-                { label: "Profile", link: route("patient.view.profile", userId) },
                 { label: "Settings", link: route("patient.view.profile", userId) },
                 { label: "Logout", link: route("patient.logout") },
             ];
             break;
         case "Practitioner":
             menuItems = [
-                { label: "Profile", link: route("practitioner.view.profile", userId) },
                 { label: "Settings", link: route("practitioner.view.profile", userId) },
                 { label: "Logout", link: route("practitioner.logout") },
             ];
@@ -128,17 +131,17 @@ const Profile = ({ username, userId }) => {
         </div>
     );
 
-    return user.role === "Administration" ? (
+    return user.role === "Administration" || user.role === "Bhw" ? (
         <li className="dropdown ml-3 relative">
-            <button
-                type="button"
-                className="dropdown-toggle flex items-center"
-                onClick={toggleDropdown}
-            >
-                {renderAvatar()}
-                {renderUserInfo()}
-            </button>
-            <ProfileItem isOpen={isOpen} items={menuItems} />
+            <div className="relative ms-3">
+                <button onClick={toggleDropdown}>
+                    <div className="flex items-center gap-4">
+                        {renderAvatar()}
+                        {renderUserInfo()}
+                    </div>
+                </button>
+                <ProfileItem isOpen={isOpen} items={menuItems} />
+            </div>
         </li>
     ) : (
         <div className="flex justify-between items-center">
