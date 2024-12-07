@@ -43,7 +43,7 @@ class AccountController extends Controller
             return redirect()->route('login');
         }
 
-        $userDetails = $this->userDetailContract->getAllUserByRole($accountType, true);
+        $accounts = $this->userDetailContract->getAllUserByRole($accountType, true);
 
         $viewPath = match ($accountType) {
             'Administration' => 'Admins/Accounts/Admin',
@@ -54,7 +54,7 @@ class AccountController extends Controller
         };
 
         return Inertia::render($viewPath, [
-            'userDetails' => $userDetails,
+            'accounts' => $accounts,
         ]);
     }
 

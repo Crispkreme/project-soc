@@ -7,7 +7,7 @@ const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const AccountModal = React.lazy(() => import("@/Components/Forms/AccountModal"));
 const DialogBox = React.lazy(() => import("@/Components/Modals/DialogBox"));
 
-const Doctor = ({ userDetails }) => {
+const Doctor = ({ accounts }) => {
   const [showModal, setShowModal] = useState(false);
 
   const toggleModal = (value = null) => {
