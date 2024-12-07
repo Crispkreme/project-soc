@@ -94,13 +94,6 @@ const Medicine = ({ medicines }) => {
                         <table className="w-full text-sm text-left text-gray-500">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
-                                    <th className="p-4">
-                                        <input
-                                            type="checkbox"
-                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                        />
-                                    </th>
-                                    <th className="px-6 py-3">ID</th>
                                     <th className="px-6 py-3">Medicine Name</th>
                                     <th className="px-6 py-3">Description</th>
                                     <th className="px-6 py-3">Actions</th>
@@ -110,15 +103,6 @@ const Medicine = ({ medicines }) => {
                                 {filteredMedicines.length > 0 ? (
                                     filteredMedicines.map((medicine, index) => (
                                         <tr key={medicine.id} className="bg-white border-b hover:bg-gray-50">
-                                            <td className="p-4">
-                                                <input
-                                                    type="checkbox"
-                                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                                />
-                                            </td>
-                                            <th className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                                {index + 1}
-                                            </th>
                                             <td className="px-6 py-4">{medicine.medicine_name}</td>
                                             <td className="px-6 py-4">{medicine.description}</td>
                                             <td className="px-6 py-4 flex space-x-2">

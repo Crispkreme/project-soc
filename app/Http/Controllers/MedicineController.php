@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
@@ -36,19 +37,21 @@ class MedicineController extends Controller
 
     public function updateOrCreateMedicine(Request $request, $id = null)
     {   
-        
-        
         try {
 
             DB::beginTransaction();
-            dd($request);
+
             $data = $request->validate([
-                'medicine_name' => 'required|string|max:255|unique:'.Medicine::class,
+                'medicine_name' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('medicines', 'medicine_name')->ignore($id),
+                ],
                 'description' => 'nullable|string',
             ]);
             
             if ($id) {
-                
                 $data['id'] = $id; 
                 $this->medicineContract->createOrUpdateMedicine($data);
             } else {
