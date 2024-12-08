@@ -19,12 +19,11 @@ const Requester = ({ medicineRequesters, medicines }) => {
   };
 
   const medicineRequesterColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
     { key: "medicine_name", label: "Medicine" },
     { key: "quantity", label: "Quantity" },
     { key: "reason", label: "Reason" },
     { key: "medication_status", label: "Status" },
-    { key: "created_at", label: "Created At", render: (date) => formatDate(date) },
+    { key: "created_at", label: "Requested Date", render: (date) => formatDate(date) },
   ];
 
   const handleSearch = (e) => {
@@ -40,8 +39,8 @@ const Requester = ({ medicineRequesters, medicines }) => {
   };
 
   const toggleModal = (referral = null) => {
-    setSelectedReferral(referral);
-    setShowModal((prev) => !prev);
+    setSelectedReferral(referral); // Set the selected referral (if any)
+    setShowModal(true); // Set showModal to true to display the modal
   };
 
   return (
@@ -53,22 +52,22 @@ const Requester = ({ medicineRequesters, medicines }) => {
             <button
               type="button"
               className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
-              onClick={() => toggleModal()}
+              onClick={() => toggleModal()} // Open modal with no referral by default
             >
               <HiOutlinePlusSm className="mr-1" /> Request Medicine
             </button>
           </div>
           <div className="pb-4">
-              <div className="relative">
-                  <input
-                    type="text"
-                    id="table-search"
-                    className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Search for inventory"
-                    value={searchQuery}
-                    onChange={handleSearch}
-                  />
-              </div>
+            <div className="relative">
+              <input
+                type="text"
+                id="table-search"
+                className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Search for inventory"
+                value={searchQuery}
+                onChange={handleSearch}
+              />
+            </div>
           </div>
           <div className="overflow-x-auto">
             <Table
@@ -87,9 +86,8 @@ const Requester = ({ medicineRequesters, medicines }) => {
             medicines={medicines}
           />
         )}
-       </Suspense>
+      </Suspense>
     </PatientLayout>
-  
   );
 };
 

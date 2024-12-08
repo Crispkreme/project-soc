@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('medicine_id')->nullable()->constrained('medicines')->onDelete('cascade');
             $table->text('reason')->nullable();
-            $table->string('dosage');
+            $table->string('dosage')->nullable();
             $table->integer('quantity');
             $table->string('pdf_file')->nullable(); 
             $table->enum('medication_status', ['Pending', 'Approve', 'Success', 'Failed'])

@@ -111,26 +111,28 @@ export default function Dashboard({ appointments, message }) {
       fetchUpcomingBarangayEvents();
   }, []);
   
-  if (loading) {
-      return <p>Loading...</p>;
-  }
+    let event_name, event_date, event_start, event_end, doctor_name;
+    if (barangayEvents) {
+      ({ event_name, event_date, event_start, event_end, doctor_name } = barangayEvents);
+    }
 
-  if (!barangayEvents) {
-      return <p>No upcoming events found.</p>;
-  }
-
-  const { event_name, event_date, event_start, event_end, doctor_name } = barangayEvents;
     return (
       <Suspense>
         <PatientLayout>
           <Head title="Dashboard" />
 
           <div className="w-full md:w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
-            <h5 className="text-lg font-semibold text-gray-800">{event_name}</h5>
-            <p className="text-gray-600">Dr. {doctor_name} MD</p>
-            <p className="text-gray-600">
-              {event_date} {event_start} - {event_end}
-            </p>
+            {!barangayEvents ? (
+              <p>No upcoming events found.</p>
+            ) : (
+              <>
+                <h5 className="text-lg font-semibold text-gray-800">{event_name}</h5>
+                <p className="text-gray-600">Dr. {doctor_name} MD</p>
+                <p className="text-gray-600">
+                  {event_date} {event_start} - {event_end}
+                </p>
+              </>
+            )}
           </div>
 
           <div className="container mx-auto flex flex-col md:flex-row justify-around items-start mt-6 space-y-4 md:space-y-0 md:space-x-4">

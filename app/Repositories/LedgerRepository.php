@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\LedgerContract;
 use App\Models\Ledger;
 use Carbon\Carbon;
+use Exception;
 
 class LedgerRepository implements LedgerContract
 {
@@ -78,7 +79,7 @@ class LedgerRepository implements LedgerContract
         $medicine = $this->model->where('medicine_id', $id)->firstOrFail();
 
         if ($quantity > $medicine->in_stock) {
-            throw new \Exception('Quantity to deduct exceeds available stock.');
+            throw new Exception('Quantity to deduct exceeds available stock.');
         }
 
         $newInStock = $medicine->in_stock - $quantity;
@@ -92,4 +93,8 @@ class LedgerRepository implements LedgerContract
         return $medicine;
     }
 
+    public function checkLedgerQuantity($id)
+    {
+        return $this->model->where('medicine_id', $id)->firstOrFail();
+    }
 }
