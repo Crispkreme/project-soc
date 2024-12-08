@@ -20,11 +20,11 @@ const ApproveMedicineRequesterModal = ({ showModal, toggleModal, selectedMedicin
       await Inertia.post(
         route('medication.approve', { id: selectedMedicineRequester?.id })
       );
-      toggleModal(false);
+      toggleModal(true);
       toast.success("Medicine Request added successfully!");
     } catch (error) {
-      toggleModal(false);
-      toast.Error("Please try again");
+      toggleModal(true);
+      toast.error("Please try again");
     } finally {
       setProcessing(false);
     }

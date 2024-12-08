@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('doctor_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('patient_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->text('message');
-            $table->enum('log_status', ['Pending', 'Approve', 'Success', 'Failed'])
+            $table->enum('log_status', ['Accept', 'Pending', 'Approve', 'Success', 'Failed'])
                   ->nullable()
                   ->default('Pending');
             $table->timestamps();

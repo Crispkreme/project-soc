@@ -48,7 +48,7 @@ class InventoryController extends Controller
         
         $inventories = $this->ledgerContract->getAllLedger();
         $medicines = $this->medicineContract->getAllMedicineName();
-  
+
         return Inertia::render('Admins/Inventories/Inventory', [
             'inventories' => $inventories,
             'medicines' => $medicines,
@@ -179,7 +179,7 @@ class InventoryController extends Controller
             ]);   
             $data['pdf_file'] = null; 
             $data['patient_id'] = $user->id; 
-            $data['medication_status'] = "Pending"; 
+            $data['medication_status'] = "Accept"; 
              
             foreach ($request->medicines as $medicine) {
 

@@ -26,8 +26,8 @@ class LedgerRepository implements LedgerContract
             [
                 'sold' => $data['sold'],
                 'in_stock' => $data['in_stock'],
-                'expiration_date' => $data['expiration_date'],
-                'dosage' => $data['dosage'],
+                'expiration_date' => $data['expiration_date'] ?? null,
+                'dosage' => $data['dosage'] ?? null,
             ]
         );
     }
