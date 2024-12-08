@@ -38,6 +38,7 @@ class UserDetailController extends Controller
         $routeName = Route::currentRouteName();
         $accountType = match ($routeName) {
             'admin.view.profile' => 'Administration',
+            'bhw.view.profile' => 'Bhw',
             'practitioner.view.profile' => 'Practitioner',
             'patient.view.profile' => 'Patient',
             default => 'login',
@@ -51,6 +52,7 @@ class UserDetailController extends Controller
 
         $viewPath = match ($accountType) {
             'Administration' => 'Admins/Profiles/UpdateProfile',
+            'Bhw' => 'Bhws/Profiles/UpdateProfile',
             'Practitioner' => 'Practitioners/Profiles/UpdateProfile',
             'Patient' => 'Patients/Profiles/UpdateProfile',
             default => 'login'

@@ -22,7 +22,6 @@ class MedicineRepository implements MedicineContract
 
     public function createOrUpdateMedicine($data)
     {
-        dd($data);
         return $this->model->updateOrCreate(
             [
                 'id' => $data['id'] ?? null,

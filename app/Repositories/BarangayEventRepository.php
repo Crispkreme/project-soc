@@ -124,4 +124,30 @@ class BarangayEventRepository implements BarangayEventContract
         ->whereDate('event_date', $data)
         ->first();
     }
+
+    public function getUpcomingBarangayEvent()
+    {
+        $today = now()->startOfDay();
+
+        $event = $this->model
+            ->where('event_date', '>=', $today)
+            ->with(['doctor:id,firstname,middlename,lastname'])
+            ->orderBy('event_date', 'asc')
+            ->first();
+
+        if ($event) {
+            if ($event->doctor) {
+                $doctor = $event->doctor;
+                $event->doctor_name = trim("{$doctor->firstname} {$doctor->middlename} {$doctor->lastname}");
+            }
+
+            $event->event_date = \Carbon\Carbon::parse($event->event_date)->format('l, F d, Y');
+            $event->event_start = \Carbon\Carbon::parse($event->event_start)->format('h:i a');
+            $event->event_end = \Carbon\Carbon::parse($event->event_end)->format('h:i a');
+
+            unset($event->doctor);
+        }
+
+        return $event;
+    }
 }

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { IoCameraOutline } from "react-icons/io5";
 import { TbUsersPlus } from "react-icons/tb";
 import { useForm } from "@inertiajs/react";
 import Modal from "@/Components/Modals/Modal";
@@ -57,7 +56,6 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
     address: "",
     civil_status: "",
     isPage: isPage || "",
-    profile: null,
   });
 
   useEffect(() => {
@@ -80,14 +78,6 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
     setData((prevData) => ({ ...prevData, [field]: value }));
   };
 
-  const handleFileChange = (e) => {
-    const uploadedFile = e.target.files[0];
-    if (uploadedFile) {
-      setFile(uploadedFile);
-      setAvatar(URL.createObjectURL(uploadedFile));
-    }
-  };
-
   const submit = (e) => {
     e.preventDefault();
 
@@ -95,11 +85,7 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
     });
- 
-    if (file) {
-      formData.append("profile", file);
-    }
-
+    console.log("formData", formData);
     post(route("store.profile.detail"), {
       data: formData,
       onSuccess: (response) => {
@@ -123,44 +109,20 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
         </Title>
 
         <form onSubmit={submit}>
-          <div className="w-full rounded-sm text-center mb-5">
-            <div
-              className="mx-auto flex justify-center w-[141px] h-[141px] rounded-full bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${
-                  avatar || "https://via.placeholder.com/141"
-                })`,
-              }}
-            >
-              <div className="bg-white/90 rounded-full w-6 h-6 text-center ml-28 mt-4">
-                <input
-                  type="file"
-                  name="profile"
-                  id="upload_profile"
-                  hidden
-                  onChange={handleFileChange}
-                />
-                <label htmlFor="upload_profile">
-                  <IoCameraOutline className="w-6 h-5 text-blue-700" />
-                </label>
-              </div>
-            </div>
-            <h2 className="text-center mt-2 font-semibold">Upload Profile</h2>
-          </div>
-
           {/* Personal Information */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div>
+          <div className="grid grid-cols-3 gap-4 mb-4 mt-4">
+            <div className="col-span-1">
               <InputLabel htmlFor="firstname" value="Firstname" />
               <TextInput
                 id="firstname"
                 value={data.firstname}
                 onChange={(e) => handleChange("firstname", e.target.value)}
-                required
               />
-              <InputError message={errors.firstname} />
+              {data.firstname === "" && (
+                <InputError message="Firstname is required" />
+              )}
             </div>
-            <div>
+            <div className="col-span-1">
               <InputLabel htmlFor="middlename" value="Middlename" />
               <TextInput
                 id="middlename"
@@ -169,7 +131,7 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
               />
               <InputError message={errors.middlename} />
             </div>
-            <div>
+            <div className="col-span-1">
               <InputLabel htmlFor="lastname" value="Lastname" />
               <TextInput
                 id="lastname"
@@ -177,13 +139,15 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
                 onChange={(e) => handleChange("lastname", e.target.value)}
                 required
               />
-              <InputError message={errors.lastname} />
+              {data.lastname === "" && (
+                <InputError message="Lastname is required" />
+              )}
             </div>
           </div>
 
           {/* Additional Information */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 justify-center w-full mb-4">
-            <div className="col-span-12 md:col-span-4">
+          <div className="grid grid-cols-5 gap-4 justify-center w-full mb-4">
+            <div className="col-span-2">
               <InputLabel htmlFor="birthday" value="Date of Birth" />
               <TextInput
                 id="birthday"
@@ -192,21 +156,25 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
                 value={data.birthday}
                 className="mt-1 block w-full"
                 onChange={(e) => handleChange("birthday", e.target.value)}
-                required
               />
-              <InputError message={errors.birthday} />
+              {data.birthday === "" && (
+                <InputError message="Birthday is required" />
+              )}
             </div>
-            <div className="col-span-12 md:col-span-1">
+            <div className="col-span-1">
               <InputLabel htmlFor="age" value="Age" />
               <TextInput
                 id="age"
                 type="text"
                 value={calculateAge(data.birthday)}
-                className="mt-1 block w-full"
+                className={`mt-1 block w-full ${calculateAge(data.birthday) === 0 ? "border-red-500" : ""}`}
                 disabled
               />
+              {calculateAge(data.birthday) === 0 && (
+                <InputError message="Age must be greater than 0." />
+              )}
             </div>
-            <div className="col-span-12 md:col-span-3">
+            <div className="col-span-2">
               <InputLabel htmlFor="gender" value="Gender" />
               <Select
                 options={genderOptions}
@@ -214,36 +182,43 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
                 value={data.gender}
                 onChange={(e) => handleChange("gender", e.target.value)}
                 className="w-full mt-1"
+                required
               />
-              <InputError message={errors.gender} />
+              {data.gender === "" && (
+                <InputError message="Gender is required" />
+              )}
             </div>
-            <div className="col-span-12 md:col-span-3 md:ml-4">
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-4 w-full">
+            <div className="col-span-1">
+              <InputLabel htmlFor="religion" value="Religion" />
+              <TextInput
+                id="religion"
+                type="text"
+                className="w-full mt-1"
+                name="religion"
+                value={data.religion}
+                onChange={(e) => handleChange("religion", e.target.value)}
+                required
+              />
+              {data.religion === "" && (
+                <InputError message="Religion is required" />
+              )}
+            </div>
+            <div className="col-span-1">
               <InputLabel htmlFor="civil_status" value="Civil Status" />
               <Select
                 options={civilStatusOptions}
                 name="civil_status"
                 value={data.civil_status}
-                onChange={(e) =>
-                  handleChange("civil_status", e.target.value)
-                }
+                onChange={(e) => handleChange("civil_status", e.target.value)}
                 className="w-full mt-1"
               />
-              <InputError message={errors.civil_status} />
+              {data.civil_status === "" && (
+                <InputError message="Civil Status is required" />
+              )}
             </div>
-          </div>
-
-          {/* Religion and Address */}
-          <div className="w-full mb-4">
-            <InputLabel htmlFor="religion" value="Religion" />
-            <TextInput
-              id="religion"
-              type="text"
-              name="religion"
-              value={data.religion}
-              onChange={(e) => handleChange("religion", e.target.value)}
-              required
-            />
-            <InputError message={errors.religion} />
           </div>
           <div className="w-full">
             <InputLabel htmlFor="address" value="Address" />
@@ -253,12 +228,19 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
               rows={5}
               placeholder="Address"
               value={data.address}
+              required
               onChange={(e) => handleChange("address", e.target.value)}
-              className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block w-full"
+              className={`rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1 block w-full ${
+                data.address && !data.address.toLowerCase().includes("lapay")
+                  ? "border-red-500"
+                  : ""
+              }`}
             />
-            <InputError message={errors.address} />
+            {data.address === "" && <InputError message="Address is required" />}
+            {data.address !== "" && !data.address.toLowerCase().includes("lapay") && (
+              <InputError message="You must be a resident of Lapay" />
+            )}
           </div>
-
           <div className="mt-6 text-right">
             <PrimaryButton processing={processing}>Add Account</PrimaryButton>
           </div>

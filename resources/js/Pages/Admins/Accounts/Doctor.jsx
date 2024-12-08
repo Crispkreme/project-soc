@@ -7,7 +7,7 @@ const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const AccountModal = React.lazy(() => import("@/Components/Forms/AccountModal"));
 const DialogBox = React.lazy(() => import("@/Components/Modals/DialogBox"));
 
-const Doctor = ({ userDetails }) => {
+const Doctor = ({ accounts }) => {
   const [showModal, setShowModal] = useState(false);
 
   const toggleModal = (value = null) => {
@@ -86,18 +86,18 @@ const Doctor = ({ userDetails }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {userDetails.length > 0 ? (
-                    userDetails.map((userDetail, index) => (
+                  {accounts.length > 0 ? (
+                    accounts.map((account, index) => (
                       <tr
-                        key={userDetail.id}
+                        key={account.id}
                         className="bg-white border-b hover:bg-gray-50"
                       >
                         <td className="px-6 py-4">
-                          {userDetail.name}
+                          {account.name}
                         </td>
-                        <td className="px-6 py-4">{userDetail.gender}</td>
+                        <td className="px-6 py-4">{account.gender}</td>
                         <td className="px-6 py-4">
-                          {new Date(userDetail.birthday).toLocaleDateString(
+                          {new Date(account.birthday).toLocaleDateString(
                             "en-US",
                             {
                               month: "short",
@@ -107,36 +107,36 @@ const Doctor = ({ userDetails }) => {
                           )}
                         </td>
                         <td className="px-6 py-4">
-                          {calculateAge(userDetail.birthday)}
+                          {calculateAge(account.birthday)}
                         </td>
-                        <td className="px-6 py-4">{userDetail.role}</td>
+                        <td className="px-6 py-4">{account.role}</td>
                         <td className="px-6 py-4">
                           <span
                             className={`inline-block p-1 rounded font-medium text-[12px] leading-none ${
-                              userDetail.status === "Active"
+                              account.status === "Active"
                                 ? "bg-emerald-500/10 text-emerald-500"
                                 : "bg-red-500/10 text-red-500"
                             }`}
                           >
-                            {userDetail.status}
+                            {account.status}
                           </span>
                         </td>
                         <td className="px-6 py-4">
                           <button
                             type="button"
                             className={`${
-                              userDetail.status === "Active"
+                              account.status === "Active"
                                 ? "bg-red-50 text-red-400 hover:text-red-600"
                                 : "bg-green-50 text-green-400 hover:text-green-600"
                             } text-xs font-medium py-1 px-2 flex items-center`}
-                            onClick={() => handleDeactivate(userDetail.status, userDetail.id)}
+                            onClick={() => handleDeactivate(account.status, account.id)}
                           >
-                            {userDetail.status === "Active" ? (
+                            {account.status === "Active" ? (
                               <TbUserExclamation className="mr-1 text-sm" />
                             ) : (
                               <TbUserShield className="mr-1 text-sm" />
                             )}
-                            {userDetail.status === "Active" ? "Deactivate" : "Activate"}
+                            {account.status === "Active" ? "Deactivate" : "Activate"}
                           </button>
                         </td>
                       </tr>
