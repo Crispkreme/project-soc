@@ -1,6 +1,7 @@
 import PatientLayout from "@/Layouts/PatientLayout";
 import { Bar } from 'react-chartjs-2';
 import React, { Suspense, useState, useEffect } from "react";
+import { toast } from 'react-hot-toast';
 import { Head } from "@inertiajs/react";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 
@@ -12,6 +13,7 @@ const CancelAppointmentModal = React.lazy(() =>import("@/Components/Forms/Cancel
 const Table = React.lazy(() => import("@/Components/Table"));
 
 export default function Dashboard({ appointments, message }) {
+  console.log("appointments", appointments);
   const [filteredAppointments, setFilteredAppointments] = useState(appointments);
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("");
@@ -82,7 +84,7 @@ export default function Dashboard({ appointments, message }) {
       }),
   };
   const appointmentColumns = [
-      { key: "approver_name", label: "Approvers Name" },
+      { key: "doctor_name", label: "Approvers Name" },
       { key: "title", label: "Appointment" },
       { key: "appointment_date", label: "Event Date" },
       { key: "appointment_time", label: "Time" },
@@ -112,99 +114,105 @@ export default function Dashboard({ appointments, message }) {
   }, []);
   
   if (loading) {
-      return <p>Loading...</p>;
+    return <p>Loading...</p>;
   }
 
-  if (!barangayEvents) {
-      return <p>No upcoming events found.</p>;
+  let event_name, event_date, event_start, event_end, doctor_name;
+  if (barangayEvents) {
+    ({ event_name, event_date, event_start, event_end, doctor_name } = barangayEvents);
   }
 
-  const { event_name, event_date, event_start, event_end, doctor_name } = barangayEvents;
-    return (
-      <Suspense>
-        <PatientLayout>
-          <Head title="Dashboard" />
+  return (
+    <Suspense>
+      <PatientLayout>
+        <Head title="Dashboard" />
 
-          <div className="w-full md:w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
-            <h5 className="text-lg font-semibold text-gray-800">{event_name}</h5>
-            <p className="text-gray-600">Dr. {doctor_name} MD</p>
-            <p className="text-gray-600">
-              {event_date} {event_start} - {event_end}
-            </p>
+        <div className="w-full md:w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
+          {barangayEvents ? (
+            <>
+              <h5 className="text-lg font-semibold text-gray-800">{event_name}</h5>
+              <p className="text-gray-600">Dr. {doctor_name} MD</p>
+              <p className="text-gray-600">
+                {event_date} {event_start} - {event_end}
+              </p>
+            </>
+          ) : (
+            <p>No upcoming events found.</p>
+          )}
+        </div>
+
+        <div className="container mx-auto flex flex-col md:flex-row justify-around items-start mt-6 space-y-4 md:space-y-0 md:space-x-4">
+          <div className="chart-card bg-gray-50 rounded-lg p-6 text-center shadow-lg w-full md:w-1/2">
+            <Bar data={data} />
           </div>
-
-          <div className="container mx-auto flex flex-col md:flex-row justify-around items-start mt-6 space-y-4 md:space-y-0 md:space-x-4">
-            <div className="chart-card bg-gray-50 rounded-lg p-6 text-center shadow-lg w-full md:w-1/2">
-              <Bar data={data} />
-            </div>
-            <div className="chart-card bg-gray-50 rounded-lg p-6 text-center shadow-lg w-full md:w-1/2">
-              <Bar data={medecineData} />
-            </div>
+          <div className="chart-card bg-gray-50 rounded-lg p-6 text-center shadow-lg w-full md:w-1/2">
+            <Bar data={medecineData} />
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 gap-6 mb-6 mt-4">
-            <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
-              <div className="flex justify-between mb-4 items-start">
-                <div className="font-medium">
-                  Manage Appointments
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search appointments"
-                  value={searchQuery}
-                  onChange={handleSearch}
-                  className="border p-2 rounded text-sm w-64"
-                />
+        <div className="grid grid-cols-1 gap-6 mb-6 mt-4">
+          <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
+            <div className="flex justify-between mb-4 items-start">
+              <div className="font-medium">
+                Manage Appointments
               </div>
-              <div className="overflow-x-auto">
-                <Table
-                  columns={appointmentColumns}
-                  data={filteredAppointments
-                    .filter(appointment => appointment.booking_status)
-                    .map(appointment => ({
-                      patient_name: appointment.patient_name,
-                      title: appointment.title,
-                      appointment_date: appointment.appointment_date,
-                      appointment_time: `${appointment.appointment_start} - ${appointment.appointment_end}`,
-                      reason: appointment.reason,
-                      updated_at: appointment.updated_at,
-                      actions: [
+              <input
+                type="text"
+                placeholder="Search appointments"
+                value={searchQuery}
+                onChange={handleSearch}
+                className="border p-2 rounded text-sm w-64"
+              />
+            </div>
+            <div className="overflow-x-auto">
+              <Table
+                columns={appointmentColumns}
+                data={filteredAppointments
+                  .filter(appointment => appointment.booking_status)
+                  .map(appointment => ({
+                    doctor_name: appointment.doctor_name,
+                    title: appointment.title,
+                    appointment_date: appointment.appointment_date,
+                    appointment_time: `${appointment.appointment_start} - ${appointment.appointment_end}`,
+                    reason: appointment.reason,
+                    updated_at: appointment.updated_at,
+                    actions: [
+                      <StatusButton
+                        key="approve"
+                        status={appointment.booking_status}
+                        onClick={() => toggleModal(appointment, "approve")}
+                      />,
+                      appointment.booking_status === 'Pending' && (
                         <StatusButton
-                          key="approve"
-                          status={appointment.booking_status}
-                          onClick={() => toggleModal(appointment, "approve")}
-                        />,
-                        appointment.booking_status === 'Pending' && (
-                          <StatusButton
-                            key="cancel"
-                            status="Failed"
-                            onClick={() => toggleModal(appointment, "cancel")}
-                          />
-                        )
-                      ].filter(Boolean),
-                    }))}
-                  noDataMessage="No Appointments Available."
-                />
-              </div>
+                          key="cancel"
+                          status="Failed"
+                          onClick={() => toggleModal(appointment, "cancel")}
+                        />
+                      )
+                    ].filter(Boolean),
+                  }))}
+                noDataMessage="No Appointments Available."
+              />
             </div>
           </div>
+        </div>
 
-          {showModal && modalType === "approve" && selectedAppointment && (
-            <ApproveModal
-              showModal={showModal}
-              toggleModal={closeModal}
-              selectedAppointment={selectedAppointment}
-            />
-          )}
+        {showModal && modalType === "approve" && selectedAppointment && (
+          <ApproveModal
+            showModal={showModal}
+            toggleModal={closeModal}
+            selectedAppointment={selectedAppointment}
+          />
+        )}
 
-          {showModal && modalType === "cancel" && selectedAppointment && (
-            <CancelAppointmentModal
-              showModal={showModal}
-              toggleModal={closeModal}
-              selectedAppointment={selectedAppointment}
-            />
-          )}
-        </PatientLayout>
-      </Suspense>
-    );
+        {showModal && modalType === "cancel" && selectedAppointment && (
+          <CancelAppointmentModal
+            showModal={showModal}
+            toggleModal={closeModal}
+            selectedAppointment={selectedAppointment}
+          />
+        )}
+      </PatientLayout>
+    </Suspense>
+  );
 }

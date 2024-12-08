@@ -79,6 +79,7 @@ Route::post('/medication/approve/{id}', [InventoryController::class, 'approveMed
 Route::post('/barangay/event/create', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.create');
 Route::post('/barangay/event/update/{id}', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.update');
 Route::get('/get/upcoming/barangay/event', [ActivitiesController::class, 'getUpcomingBarangayEvent'])->name('get.upcoming.barangay.event');
+Route::get('/get/notification', [ActivitiesController::class, 'getNotification'])->name('get.notification');
 
 Route::post('/cancel/booking/appointment/{id}', [BookingController::class, 'cancelBookingAppointment'])->name('cancel.booking.appointment');
 Route::post('/approve/appointments/{id}', [BookingController::class, 'approveAppointments'])->name('approve.appointments');

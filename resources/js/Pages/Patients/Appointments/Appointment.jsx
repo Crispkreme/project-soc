@@ -72,35 +72,42 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
   const handleEventClick = (clickInfo) => {
     const event = clickInfo.event;
     const { extendedProps } = event;
-
+  
+    console.log("Event clicked:", event);
+    console.log("Extended props:", extendedProps);
+  
     if (extendedProps.isPast) {
       toast.error("This appointment date has passed and cannot be booked.");
       return;
     }
-
-    setData({
-      ...data,
+  
+    const eventStart = event.start.toTimeString().split(" ")[0] || "08:00";
+    const eventEnd = event.end ? event.end.toTimeString().split(" ")[0] : "05:00";
+  
+    setData((prevData) => ({
+      ...prevData,
       event_id: event.id,
       event_name: event.title,
       event_venue: extendedProps.venue,
-      event_date: event.start.toISOString().split('T')[0],
-      event_start: event.start.toTimeString().split(' ')[0],
-      event_end: event.end ? event.end.toTimeString().split(' ')[0] : '',
-    });
-
-    const filteredSlots = filterTimeSlots(
-      event.start.toTimeString().split(" ")[0],
-      event.end ? event.end.toTimeString().split(" ")[0] : "23:59"
-    );
-
+      event_date: event.start.toISOString().split("T")[0],
+      event_start: eventStart,
+      event_end: eventEnd,
+    }));
+  
+    const filteredSlots = filterTimeSlots(eventStart, eventEnd);
+    console.log("Filtered time slots:", filteredSlots);
+  
     setFilteredTimeSchedule(filteredSlots);
   };
 
   const [filteredTimeSchedule, setFilteredTimeSchedule] = React.useState(timeSchedule);
 
   const handleBookAppointment = (e) => {
+
     e.preventDefault();
+    
     post(route('patient.create.booking'), {
+
       onSuccess: (response) => {
         const flash = response.props?.flash;
         if (flash?.error) {
@@ -204,15 +211,21 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
                       (time) => time.value === `${data.event_start} - ${data.event_end}`
                     )}
                     onChange={(selected) => {
-                      const [start, end] = selected ? selected.value.split(' - ') : [];
-                      setData("event_start", start);
-                      setData("event_end", end);
+                      const [start, end] = selected ? selected.value.split(" - ") : [];
+                      console.log("ComboBox selected:", start, end);
+
+                      setData((prevData) => ({
+                        ...prevData,
+                        event_start: start,
+                        event_end: end,
+                      }));
                     }}
                     placeholder="Select Start Time"
                     displayKey="label"
                   />
                   <InputError message={errors.event_start} />
                 </div>
+
                 <div className="mt-4">
                   <button
                     className={`bg-blue-500 text-white px-4 py-2 rounded ${

@@ -2,42 +2,11 @@ import React, { useState } from "react";
 import Profile from "./Profile";
 import Breadcrumb from "./Breadcrumb";
 import NotificationList from "./NotificationList";
-import MessageList from "./MessageList";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { FaBars, FaX } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
 import { closeSidebar, openSidebar } from "../../reducers/sidebarSlice";
 import { usePage } from '@inertiajs/react';
-
-const notificationsData = [
-    {
-        title: 'New order',
-        message: 'from a user',
-        image: 'https://placehold.co/32x32',
-        link: '#'
-    },
-    {
-        title: 'Payment received',
-        message: 'from a customer',
-        image: 'https://placehold.co/32x32',
-        link: '#'
-    },
-];
-
-const messagesData = [
-    {
-        sender: 'John Doe',
-        content: 'Hello there!',
-        image: 'https://placehold.co/32x32',
-        link: '#'
-    },
-    {
-        sender: 'Jane Smith',
-        content: 'New updates available.',
-        image: 'https://placehold.co/32x32',
-        link: '#'
-    },
-];
 
 const Header = ({ userId }) => {
 
@@ -93,24 +62,7 @@ const Header = ({ userId }) => {
 
                     <div className={`dropdown-menu shadow-md shadow-black/5 z-30 ${isHeaderNotificationsOpen ? 'block' : 'hidden'} max-w-xs w-full bg-white rounded-md border border-gray-100 absolute right-0`}>
                         <div className="flex items-center px-4 pt-4 border-b border-b-gray-100 notification-tab">
-                            <button 
-                                type="button" 
-                                className="text-gray-400 font-medium text-[13px] hover:text-gray-600 border-b-2 border-b-transparent mr-4 pb-1 active"
-                                onClick={toggleNotifications}
-                            >
-                                Notifications
-                            </button>
-                            <button 
-                                type="button" 
-                                className="text-gray-400 font-medium text-[13px] hover:text-gray-600 border-b-2 border-b-transparent mr-4 pb-1"
-                                onClick={toggleMessages}
-                            >
-                                Messages
-                            </button>
-                        </div>
-                        <div className="my-2">
-                            {isNotificationsOpen && <NotificationList notifications={notificationsData} />}
-                            {isMessagesOpen && <MessageList messages={messagesData} />}
+                            {isNotificationsOpen && <NotificationList />}
                         </div>
                     </div>
                 </li>

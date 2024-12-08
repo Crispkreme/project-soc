@@ -6,6 +6,7 @@ use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
 use App\Contracts\LogContract;
+use App\Contracts\NotificationContract;
 use App\Contracts\PrescriptionContract;
 use App\Contracts\ReferralContract;
 use Exception;
@@ -25,15 +26,18 @@ class BookingController extends Controller
     protected $prescriptionContract;
     protected $appointmentContract;
     protected $logContract;
+    protected $notificationContract;
 
     public function __construct(
         BarangayEventContract $barangayEventContract,
         BookingContract $bookingContract,
         LogContract $logContract,
+        NotificationContract $notificationContract,
         ReferralContract $referralContract,
         PrescriptionContract $prescriptionContract,
         AppointmentContract $appointmentContract,
     ) {
+        $this->notificationContract = $notificationContract;
         $this->barangayEventContract = $barangayEventContract;
         $this->bookingContract = $bookingContract;
         $this->logContract = $logContract;
@@ -155,7 +159,6 @@ class BookingController extends Controller
                 if ($id) {
                     $data['id'] = $id;
                 }
-                
                 $this->bookingContract->createOrUpdateBooking($data);
             
                 $logData = [
@@ -165,6 +168,13 @@ class BookingController extends Controller
                 ];
             
                 $this->logContract->updateOrCreateLog($logData);
+
+                $notification = [
+                    'user_id' => $user->id,
+                    'message' => 'Patient has book an appointment',
+                ];
+
+                $this->notificationContract->createOrUpdateNotification($notification);
             
                 Session::flash('success', 'Appointment saved successfully!');
             }

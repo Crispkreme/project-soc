@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\BarangayEventContract;
+use App\Contracts\NotificationContract;
 use App\Contracts\UserDetailContract;
 use Exception;
 use Illuminate\Http\Request;
@@ -17,11 +18,14 @@ class ActivitiesController extends Controller
 {
     protected $barangayEventContract;
     protected $userDetailContract;
+    protected $notificationContract;
 
     public function __construct(
         BarangayEventContract $barangayEventContract,
         UserDetailContract $userDetailContract,
+        NotificationContract $notificationContract,
     ) {
+        $this->notificationContract = $notificationContract;
         $this->barangayEventContract = $barangayEventContract;
         $this->userDetailContract = $userDetailContract;
     }
@@ -103,13 +107,35 @@ class ActivitiesController extends Controller
                     if($user->role === 'Practitioner') {
                         $data['doctor_id'] = $user->id; 
                         $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+
+                        $notification = [
+                            'user_id' => $user->id,
+                            'message' => 'Doctor has created new events',
+                        ];
+                        $this->notificationContract->createOrUpdateNotification($notification);
+
                     } else {
+
+                        $notification = [
+                            'user_id' => $user->id,
+                            'message' => $user->role . ' has updated new events',
+                        ];
+                        $this->notificationContract->createOrUpdateNotification($notification);
+
                         $this->barangayEventContract->updateOrCreateBarangayEvent($data);
                     }
                     
                     Session::flash('success', 'New Edited Event successfully saved!');
                 } else {
+
+                    $notification = [
+                        'user_id' => $user->id,
+                        'message' => $user->role . ' has created new events',
+                    ];
+
+                    $this->notificationContract->createOrUpdateNotification($notification);
                     $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+
                     Session::flash('success', 'New Event successfully saved!');
                 }
             }
@@ -141,5 +167,25 @@ class ActivitiesController extends Controller
 
         $barangayEvents = $this->barangayEventContract->getUpcomingBarangayEvent();
         return response()->json(['barangayEvents' => $barangayEvents ]);
+    }
+
+    public function getNotification()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $notifications = $this->notificationContract->getNotificationByRole($user->role);
+
+        $formattedNotifications = $notifications->map(function ($notification) {
+            return [
+                'id' => $notification->id,
+                'message' => $notification->message,
+                'created_at' => $notification->created_at->toFormattedDateString(),
+            ];
+        });
+
+        return response()->json(['notifications' => $formattedNotifications]);
     }
 }
