@@ -130,4 +130,16 @@ class ActivitiesController extends Controller
             return redirect()->back()->with('error', 'Unable to set the event. The date has already passed!');
         }
     }
+
+    public function getUpcomingBarangayEvent()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $barangayEvents = $this->barangayEventContract->getUpcomingBarangayEvent();
+        return response()->json(['barangayEvents' => $barangayEvents ]);
+    }
 }

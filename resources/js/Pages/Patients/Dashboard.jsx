@@ -1,15 +1,15 @@
 import PatientLayout from "@/Layouts/PatientLayout";
 import { Bar } from 'react-chartjs-2';
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
 } from "chart.js";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -23,7 +23,9 @@ export default function Dashboard({ appointments, message }) {
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState("");
     const [selectedAppointment, setSelectedAppointment] = useState(null);
+    const [barangayEvents, setBarangayEvents] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [loading, setLoading] = useState(true);
     
     const toggleModal = (appointment = null, type = "") => {
       setSelectedAppointment(appointment);
@@ -35,11 +37,9 @@ export default function Dashboard({ appointments, message }) {
       setModalType("");
       setSelectedAppointment(null);
     };
-
     const handleSearch = (e) => {
         const query = e.target.value.toLowerCase();
         setSearchQuery(query);
-
         const filtered = appointments.filter((appointment) => {
             const patientName = appointment.patient_name?.toLowerCase() || "";
             return (
@@ -47,10 +47,8 @@ export default function Dashboard({ appointments, message }) {
                 patientName.includes(query)
             );
         });
-
         setFilteredAppointments(filtered);
     };
-
     function getRandomColor() {
         var letters = "0123456789ABCDEF";
         var color = "#";
@@ -59,18 +57,15 @@ export default function Dashboard({ appointments, message }) {
         }
         return color;
     }
-
     const commonIlness = [
         { name: "Cough", percent: 46 },
         { name: "Flu", percent: 23 },
         { name: "Fever", percent: 38 },
     ];
-
     const medecine = [
         { name: "Biogesic", sold: 53 },
         { name: "BioFlu", sold: 23 },
     ];
-
     const data = {
         labels: ["Common Ilness"],
         datasets: commonIlness.map((c) => {
@@ -82,7 +77,6 @@ export default function Dashboard({ appointments, message }) {
             };
         }),
     };
-
     const medecineData = {
         labels: ["In-Demand Medecine"],
         datasets: medecine.map((c) => {
@@ -94,7 +88,6 @@ export default function Dashboard({ appointments, message }) {
             };
         }),
     };
-
     const appointmentColumns = [
         { key: "approver_name", label: "Approvers Name" },
         { key: "title", label: "Appointment" },
@@ -104,18 +97,45 @@ export default function Dashboard({ appointments, message }) {
         { key: "updated_at", label: "Updated" },
         { key: "actions", label: "Action" },
     ];
+    useEffect(() => {
+        if (message) {
+            toast.success(message);
+        }
+    }, [message]);
 
+    useEffect(() => {
+        const fetchUpcomingBarangayEvents = async () => {
+          try {
+            const response = await axios.get("/get/upcoming/barangay/event");
+            setBarangayEvents(response.data.barangayEvents);
+          } catch (error) {
+            console.error("Error fetching barangayEvents:", error);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchUpcomingBarangayEvents();
+    }, []);
+    
+    if (loading) {
+        return <p>Loading...</p>;
+    }
+
+    if (!barangayEvents) {
+        return <p>No upcoming events found.</p>;
+    }
+
+    const { event_name, event_date, event_start, event_end, doctor_name } = barangayEvents;
     return (
         <Suspense>
             <PatientLayout>
                 <Head title="Dashboard" />
                 <div className="w-full md:w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
-                    <h5 className="text-lg font-semibold text-gray-800">
-                        Dental and General Check-Up
-                    </h5>
-                    <p className="text-gray-600">Dr. Sam Gonzales MD</p>
+                    <h5 className="text-lg font-semibold text-gray-800">{event_name}</h5>
+                    <p className="text-gray-600">Dr. {doctor_name} MD</p>
                     <p className="text-gray-600">
-                        April 29, 2024 Mon 8AM - 3PM
+                        {event_date} {event_start} - {event_end}
                     </p>
                 </div>
 
