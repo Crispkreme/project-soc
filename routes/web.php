@@ -75,10 +75,12 @@ Route::post('/prescriptions/update/{id}', [AppointmentController::class, 'update
 Route::post('/medications', [InventoryController::class, 'updateOrCreateMedication'])->name('medications.store');
 Route::put('/medications/{id}', [InventoryController::class, 'updateOrCreateMedication'])->name('medications.update');
 Route::post('/medication/approve/{id}', [InventoryController::class, 'approveMedication'])->name('medication.approve');
+Route::get('/get/medicines/quantity/{id}', [InventoryController::class, 'getMedicineQuantity'])->name('get.medicines.quantity');
 
 Route::post('/barangay/event/create', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.create');
 Route::post('/barangay/event/update/{id}', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.update');
 Route::get('/get/upcoming/barangay/event', [ActivitiesController::class, 'getUpcomingBarangayEvent'])->name('get.upcoming.barangay.event');
+Route::get('/get/notification', [ActivitiesController::class, 'getNotification'])->name('get.notification');
 
 Route::post('/cancel/booking/appointment/{id}', [BookingController::class, 'cancelBookingAppointment'])->name('cancel.booking.appointment');
 Route::post('/approve/appointments/{id}', [BookingController::class, 'approveAppointments'])->name('approve.appointments');

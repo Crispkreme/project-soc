@@ -9,4 +9,5 @@ interface LedgerContract {
     public function getAllLedger();
     public function getLedgerByMedicineId($id);
     public function updateLedgerQuantity($id, $data);
+    public function checkLedgerQuantity($id);
 }

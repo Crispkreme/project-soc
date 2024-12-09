@@ -48,7 +48,7 @@ class InventoryController extends Controller
         
         $inventories = $this->ledgerContract->getAllLedger();
         $medicines = $this->medicineContract->getAllMedicineName();
-  
+
         return Inertia::render('Admins/Inventories/Inventory', [
             'inventories' => $inventories,
             'medicines' => $medicines,
@@ -175,9 +175,11 @@ class InventoryController extends Controller
             $data = $request->validate([  
                 'medicines' => 'required|array|min:1',
                 'reason' => 'nullable|string|max:255',
+                'pdf_file' => 'nullable|string',
             ]);   
+            $data['pdf_file'] = null; 
             $data['patient_id'] = $user->id; 
-            $data['medication_status'] = "Approve"; 
+            $data['medication_status'] = "Accept"; 
              
             foreach ($request->medicines as $medicine) {
 
@@ -185,13 +187,12 @@ class InventoryController extends Controller
                 $data['quantity'] = $medicine['quantity'];
 
                 $this->medicationContract->createOrUpdateMedication($data);
-
-                // $this->ledgerContract->updateLedgerQuantity($data['medicine_id'], $data['quantity']);
+                $this->ledgerContract->updateLedgerQuantity($data['medicine_id'], $data['quantity']);
             }
             
             DB::commit();
         
-            return redirect()->back()->with('success', 'Request successfully added.');
+            return redirect()->back()->with('success', 'Medicination Request successfully added.');
 
         } catch (Exception $e) {
             
@@ -286,5 +287,11 @@ class InventoryController extends Controller
             return redirect()->back()->with('error', 'An error occurred during approveMedication.');
 
         }
+    }
+
+    public function getMedicineQuantity($id)
+    {
+        $medicines = $this->ledgerContract->checkLedgerQuantity($id);
+        return response()->json(['medicines' => $medicines]);
     }
 }

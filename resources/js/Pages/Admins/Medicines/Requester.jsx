@@ -34,7 +34,6 @@ const Requester = ({ medicineRequesters, medicines }) => {
                             <table className="w-full min-w-[540px]" data-tab-for="medicineRequesters" data-page="active">
                                 <thead>
                                     <tr>
-                                        <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left rounded-tl-md rounded-bl-md">ID</th>
                                         <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Patient Name</th>
                                         <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Medicine</th>
                                         <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left">Quantity</th>
@@ -46,9 +45,6 @@ const Requester = ({ medicineRequesters, medicines }) => {
                                 <tbody>
                                     {medicineRequesters.length > 0 ? medicineRequesters.map((requester, index) => (
                                         <tr key={`${requester.id}-${requester.medicine_name}`}>
-                                            <td className="py-2 px-4 border-b border-b-gray-50">
-                                                <span className="text-[13px] font-medium text-gray-400">{index + 1}</span>
-                                            </td>
                                             <td className="py-2 px-4 border-b border-b-gray-50">
                                                 <span className="text-[13px] font-medium text-gray-400">{requester.patient_name}</span>
                                             </td>
