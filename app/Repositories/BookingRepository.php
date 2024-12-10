@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\BookingContract;
 use App\Models\Booking;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class BookingRepository implements BookingContract
 {
@@ -50,7 +51,7 @@ class BookingRepository implements BookingContract
                 return [
                     'id' => $booking->id,
                     'patient_id' => $booking->patient_id,
-                    'doctor_id' => $booking->doctor_id,
+                    'doctor_id' => $booking->approve_by_id,
                     'doctor_name' => $doctorName,
                     'patient_name' => $patientName,
                     'title' => $booking->title,
@@ -143,11 +144,12 @@ class BookingRepository implements BookingContract
         return $booking;
     }
 
-    public function cancelBooking($id, $data)
+    public function cancelBooking($id, $approverId, $reason)
     {
         $booking = $this->model->findOrFail($id);
         $booking->update([
-            'reason' => $data,
+            'approve_by_id' => $approverId,
+            'reason' => $reason,
             'booking_status' => 'Cancel',
         ]);
         return $booking;
@@ -161,10 +163,13 @@ class BookingRepository implements BookingContract
             ->count();
     }
 
-    public function checkPatientExistingBooking($id, $event)
+    public function checkPatientExistingBooking($id, $appointment_start, $appointment_end)
     {
         return $this->model->where('patient_id', $id)
-        ->where('title', $event)
+        ->where('appointment_start', $appointment_start)
+        ->where('appointment_end', $appointment_end)
         ->count();
     }
+
+    // maka booked before not same time
 }

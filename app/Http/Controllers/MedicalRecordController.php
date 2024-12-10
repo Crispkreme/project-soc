@@ -10,12 +10,15 @@ use App\Contracts\HospitalContract;
 use App\Contracts\HospitalizationContract;
 use App\Contracts\ImmunizationContract;
 use App\Contracts\LedgerContract;
+use App\Contracts\LogContract;
+use App\Contracts\MedicalCertificateContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
 use App\Contracts\SurgicalContract;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserDetailContract;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,13 +44,15 @@ class MedicalRecordController extends Controller
     protected $hospitalizationContract;
     protected $medicalRecordContract;
     protected $bookingContract;
+    protected $logContract;
     protected $hospitalContract;
+    protected $medicalCertificateContract;
 
     public function __construct(
         BarangayEventContract $barangayEventContract,
         BookingContract $bookingContract,
         LedgerContract $ledgerContract,
-        HospitalContract $hospitalContract,
+        MedicalCertificateContract $medicalCertificateContract,
         UserDetailContract $userDetailContract,
         MedicineContract $medicineContract,
         MedicationContract $MedicationContract,
@@ -59,7 +64,11 @@ class MedicalRecordController extends Controller
         ImmunizationContract $immunizationContract,
         HospitalizationContract $hospitalizationContract,
         MedicalRecordContract $medicalRecordContract,
+        HospitalContract $hospitalContract,
+        LogContract $logContract
     ) {
+        $this->logContract = $logContract;
+        $this->medicalCertificateContract = $medicalCertificateContract;
         $this->hospitalContract = $hospitalContract;
         $this->bookingContract = $bookingContract;
         $this->barangayEventContract = $barangayEventContract;
@@ -89,6 +98,7 @@ class MedicalRecordController extends Controller
         $roleRoutes = [
             'Administration' => 'Admins/Medicals/Record',
             'Bhw' => 'Bhws/Medicals/Record',
+            'Practitioner' => 'Practitioners/Medicals/Record',
         ];
         $redirectInertia = $roleRoutes[$user->role] ?? 'login';
 
@@ -120,7 +130,6 @@ class MedicalRecordController extends Controller
 
     public function getPatientMedicalRecord($id)
     {
-        dd($id);
         $user = Auth::user();
 
         if (!$user) {
@@ -816,5 +825,55 @@ class MedicalRecordController extends Controller
         return Inertia::render($redirectInertia, [
             'accounts' => $accounts,
         ]);
+    }
+
+    public function updateOrCreateMedicalCertificate(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $data = $request->validate([
+                'issue_date' => 'nullable|date',
+                'examin_date' => 'nullable|date',
+                'patient_id' => 'required|exists:user_details,id',
+                'doctor_id' => 'required|exists:user_details,id',
+                'purpose' => 'nullable|string|max:1000',
+            ]);
+            $data['issue_date'] = Carbon::now();
+            $data['examin_date'] = Carbon::now();
+            
+            $this->medicalCertificateContract->createOrUpdateMedicalCertificate($data);
+
+            $logData = [  
+                'doctor_id' => $data['doctor_id'],
+                'patient_id' => $data['patient_id'],
+                'message' => 'has requested a medical certificate',
+                'log_status' => 'Success',
+            ]; 
+    
+            $this->logContract->updateOrCreateLog($logData);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Medical Record saved successfully!');
+
+        } catch (Exception $e) {
+
+            Log::error('Error during updateOrCreateMedicalCertificate: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            
+            return redirect()->back()->with('error', 'An error occurred during the process.');
+        }
     }
 }

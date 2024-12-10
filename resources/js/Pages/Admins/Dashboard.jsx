@@ -21,7 +21,7 @@ const CancelAppointmentModal = React.lazy(() =>import("@/Components/Forms/Cancel
 const Table = React.lazy(() => import("@/Components/Table"));
 
 export default function Dashboard({ appointments, message }) {
-
+    
     const [filteredAppointments, setFilteredAppointments] = useState(appointments);
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState("");

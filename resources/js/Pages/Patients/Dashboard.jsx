@@ -2,6 +2,7 @@ import PatientLayout from "@/Layouts/PatientLayout";
 import { Bar } from 'react-chartjs-2';
 import React, { Suspense, useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
+import { toast } from 'react-hot-toast';
 import {
     Chart as ChartJS,
     CategoryScale,

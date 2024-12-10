@@ -13,6 +13,7 @@ use App\Contracts\ImmunizationContract;
 use App\Contracts\InventoryContract;
 use App\Contracts\LedgerContract;
 use App\Contracts\LogContract;
+use App\Contracts\MedicalCertificateContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
@@ -36,6 +37,7 @@ use App\Repositories\ImmunizationRepository;
 use App\Repositories\InventoryRepository;
 use App\Repositories\LedgerRepository;
 use App\Repositories\LogRepository;
+use App\Repositories\MedicalCertificateRepository;
 use App\Repositories\MedicalRecordRepository;
 use App\Repositories\MedicationRepository;
 use App\Repositories\MedicineRepository;
@@ -74,6 +76,7 @@ class RepositoryProvider extends ServiceProvider
         PrescriptionContract::class => PrescriptionRepository::class,
         LogContract::class => LogRepository::class,
         MessageContract::class => MessageRepository::class,
+        MedicalCertificateContract::class => MedicalCertificateRepository::class,
     ];
 
     /**

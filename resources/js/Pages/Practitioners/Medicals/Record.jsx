@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 
-const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
+const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
 
 const Record = ({ userDetails }) => {
 
@@ -16,7 +16,7 @@ const Record = ({ userDetails }) => {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <AdminLayout>
+      <PatientLayout>
 
         <Head title="Medical" />
 
@@ -44,10 +44,10 @@ const Record = ({ userDetails }) => {
                         <div className="flex items-center">
                           <img src="https://placehold.co/32x32" alt="" className="w-8 h-8 rounded object-cover block" />
                           <a 
-                            href={route('admin.medical.patient.record', { id: userDetail.id })} 
+                            href={route('practitioner.medical.patient.record', { id: userDetail.id })} 
                             className="text-gray-600 text-sm font-medium hover:text-blue-500 ml-2 truncate"
                           >
-                            {userDetail.firstname} {userDetail.middlename} {userDetail.lastname}
+                            {userDetail.name}
                           </a>
                         </div>
                       </td>
@@ -78,7 +78,7 @@ const Record = ({ userDetails }) => {
           </div>
         </div>
 
-      </AdminLayout>
+      </PatientLayout>
     </Suspense>
   )
 }

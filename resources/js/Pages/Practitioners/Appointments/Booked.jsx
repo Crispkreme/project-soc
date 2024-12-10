@@ -3,18 +3,19 @@ import PatientLayout from "@/Layouts/PatientLayout";
 import { LuClipboardEdit } from "react-icons/lu";
 import Table from "@/Components/Table";
 
-const ReferralModal = React.lazy(() =>
-    import("@/Components/Forms/ReferralModal")
-);
-const PrescriptionModal = React.lazy(() =>
-    import("@/Components/Forms/PrescriptionModal")
-);
+const ReferralModal = React.lazy(() => import("@/Components/Forms/ReferralModal"));
+const PrescriptionModal = React.lazy(() => import("@/Components/Forms/PrescriptionModal"));
+const MedicalModal = React.lazy(() => import("@/Components/Forms/MedicalModal"));
 
 const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
+
+    console.log("bookings", bookings);
+
     const [filteredBookings, setFilteredBookings] = useState(bookings);
     const [searchQuery, setSearchQuery] = useState("");
     const [showReferralModal, setShowReferralModal] = useState(false);
     const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+    const [showMedicalModal, setShowMedicalModal] = useState(false);
     const [selectedReferral, setSelectedReferral] = useState(null);
 
     const handleSearch = (e) => {
@@ -40,6 +41,11 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
         setShowPrescriptionModal(true);
     };
 
+    const handleMedicalClick = (row) => {
+        setSelectedReferral(row);
+        setShowMedicalModal(true);
+    };
+
     const toggleReferralModal = () => {
         setShowReferralModal(false);
         setSelectedReferral(null);
@@ -47,6 +53,11 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
 
     const togglePrescriptionModal = () => {
         setShowPrescriptionModal(false);
+        setSelectedReferral(null);
+    };
+
+    const toggleMedicalModal = () => {
+        setShowMedicalModal(false);
         setSelectedReferral(null);
     };
 
@@ -101,6 +112,15 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
             },
         ];
 
+        const medicalActions = [
+            {
+                label: "Med-Cert",
+                icon: LuClipboardEdit,
+                onClick: handleMedicalClick,
+                style: "bg-sky-300 text-sky-800 hover:bg-sky-400",
+            },
+        ];
+
         const referralActions = [
             {
                 label: "Referral",
@@ -117,6 +137,9 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
             prescriptionActions: prescriptionActions.map((action) =>
                 createButton(action, isDisabled)
             ),
+            medicalActions: medicalActions.map((action) =>
+                createButton(action, isDisabled)
+            ),
             referralActions: referralActions.map((action) =>
                 createButton(action, isDisabled)
             ),
@@ -127,6 +150,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
         ...row,
         referralAction: getActionButtons(row).referralActions,
         prescriptionAction: getActionButtons(row).prescriptionActions,
+        medicalAction: getActionButtons(row).medicalActions,
         action: getActionButtons(row).bookingActions,
         time: `${row.appointment_start} - ${row.appointment_end}`,
     }));
@@ -158,6 +182,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
                                         ...BookingColumn,
                                         { key: "referralAction", label: "Referral Action" },
                                         { key: "prescriptionAction", label: "Prescription Action" },
+                                        { key: "medicalAction", label: "Medical Action" },
                                         { key: "action", label: "Action" },
                                     ]}
                                     data={tableData}
@@ -189,13 +214,21 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
                         hospitals={hospitals}
                     />
                 )}
-
                 {showPrescriptionModal && (
                     <PrescriptionModal
                         showModal={showPrescriptionModal}
                         toggleReferralModal={togglePrescriptionModal}
                         selectedReferral={selectedReferral}
                         medicines={medicines}
+                    />
+                )}
+                {showMedicalModal && (
+                    <MedicalModal
+                        showModal={showMedicalModal}
+                        toggleMedicalModal={toggleMedicalModal}
+                        selectedReferral={selectedReferral}
+                        doctors={doctors}
+                        patients={patients}
                     />
                 )}
             </PatientLayout>
