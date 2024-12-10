@@ -2,8 +2,10 @@
 
 namespace App\Repositories;
 
-use App\Models\MedicalCertificate;
 use App\Contracts\MedicalCertificateContract;
+use App\Models\MedicalCertificate;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class MedicalCertificateRepository implements MedicalCertificateContract
 {
@@ -30,4 +32,31 @@ class MedicalCertificateRepository implements MedicalCertificateContract
             ]
         );
     }
+
+    public function getAllMedicalCertificate()
+    {
+        return $this->model
+            ->select(
+                'medical_certificates.id',
+                'medical_certificates.purpose',
+                'medical_certificates.examin_date',
+                'medical_certificates.issue_date',
+                DB::raw("CONCAT(doctor_details.firstname, ' ', doctor_details.lastname) as doctor_name"),
+                DB::raw("CONCAT(patient_details.firstname, ' ', patient_details.lastname) as patient_name")
+            )
+            ->join('user_details as doctor_details', 'medical_certificates.doctor_id', '=', 'doctor_details.id')
+            ->join('user_details as patient_details', 'medical_certificates.patient_id', '=', 'patient_details.id')
+            ->orderBy('medical_certificates.id', 'desc')
+            ->get()
+            ->map(function ($certificate) {
+                return [
+                    'doctor_name' => $certificate->doctor_name,
+                    'patient_name' => $certificate->patient_name,
+                    'purpose' => $certificate->purpose,
+                    'examin_date' => $certificate->examin_date ? Carbon::parse($certificate->examin_date)->format('F d, Y') : null,
+                    'issue_date' => $certificate->issue_date ? Carbon::parse($certificate->issue_date)->format('F d, Y') : null,
+                ];
+            });
+    }
+
 }

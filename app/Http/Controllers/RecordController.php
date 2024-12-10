@@ -7,6 +7,7 @@ use App\Contracts\HealthContract;
 use App\Contracts\HospitalContract;
 use App\Contracts\HospitalizationContract;
 use App\Contracts\ImmunizationContract;
+use App\Contracts\MedicalCertificateContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
@@ -30,9 +31,11 @@ class RecordController extends Controller
     protected $hospitalizationContract;
     protected $medicalRecordContract;
     protected $medicineContract;
+    protected $medicalCertificateContract;
     protected $hospitalContract;
     
     public function __construct(
+        MedicalCertificateContract $medicalCertificateContract,
         HospitalContract $hospitalContract,
         UserDetailContract $userDetailContract,
         HealthContract $healthContract,
@@ -45,6 +48,7 @@ class RecordController extends Controller
         MedicalRecordContract $medicalRecordContract,
         MedicineContract $medicineContract,
     ) {
+        $this->medicalCertificateContract = $medicalCertificateContract;
         $this->medicineContract = $medicineContract;
         $this->hospitalContract = $hospitalContract;
         $this->userDetailContract = $userDetailContract;
@@ -279,5 +283,37 @@ class RecordController extends Controller
         };
 
         return Inertia::render($viewPath);
+    }
+
+    public function getAllMedicalCertificate()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'practitioner.show.medical.certificate' => 'Practitioner',
+            'patient.show.medical.certificate' => 'Patient',
+            default => 'login',
+        };
+
+        if (!$accountType) {
+            return redirect()->route('login');
+        }
+
+        $medicalCertificates = $this->medicalCertificateContract->getAllMedicalCertificate();
+
+        $viewPath = match ($accountType) {
+            'Practitioner' => 'Practitioners/Reports/MedicalCertificate',
+            'Patient' => 'Patients/Reports/MedicalCertificate',
+            default => 'login'
+        };
+
+        return Inertia::render($viewPath, [
+            'medicalCertificates' => $medicalCertificates,
+        ]);
     }
 }

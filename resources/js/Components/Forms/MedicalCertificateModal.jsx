@@ -9,7 +9,7 @@ import PrimaryButton from "@/Components/Buttons/PrimaryButton";
 import Textarea from "@/Components/Inputs/Textarea";
 import TextInput from "@/Components/Inputs/TextInput";
 
-const MedicalModal = ({
+const MedicalCertificateModal = ({
   showModal,
   toggleMedicalModal,
   selectedReferral = null,
@@ -106,4 +106,4 @@ const MedicalModal = ({
   );
 };
 
-export default MedicalModal;
+export default MedicalCertificateModal;

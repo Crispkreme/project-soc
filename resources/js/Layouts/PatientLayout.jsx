@@ -90,6 +90,7 @@ export default function PatientLayout({ children }) {
                 {text: "Medical Available", href: route('practitioner.show.report.medicine.available'), route: '/practitioner/show/reports/medicine/available'},
                 {text: "Data Analytics", href: route('practitioner.show.report.analytics'), route: '/practitioner/show/reports/analytics'},
                 {text: "Released", href: route('practitioner.show.report.released'), route: '/practitioner/show/reports/released'},
+                {text: "Medical Certificate", href: route('practitioner.show.medical.certificate'), route: '/practitioner/show/medical/certificate'},
             ]
         },
         {icon: <LuMessagesSquare />,text: "Message", href: route(`practitioner.messages`), route: '/practitioner/messages', sublinks: []},
