@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\DataAnalyticContract;
 use App\Contracts\FamilyMedicalContract;
 use App\Contracts\HealthContract;
 use App\Contracts\HospitalContract;
@@ -37,6 +38,7 @@ class RecordController extends Controller
     protected $medicineContract;
     protected $medicalCertificateContract;
     protected $hospitalContract;
+    protected $dataAnalyticContract;
     
     public function __construct(
         MedicalCertificateContract $medicalCertificateContract,
@@ -51,7 +53,9 @@ class RecordController extends Controller
         HospitalizationContract $hospitalizationContract,
         MedicalRecordContract $medicalRecordContract,
         MedicineContract $medicineContract,
+        DataAnalyticContract $dataAnalyticContract,
     ) {
+        $this->dataAnalyticContract = $dataAnalyticContract;
         $this->medicalCertificateContract = $medicalCertificateContract;
         $this->medicineContract = $medicineContract;
         $this->hospitalContract = $hospitalContract;
@@ -253,12 +257,16 @@ class RecordController extends Controller
             return redirect()->route('login');
         }
 
+        $dataAnalytic = $this->dataAnalyticContract->getAllDataAnalyticByMonth();
+
         $viewPath = match ($accountType) {
             'Practitioner' => 'Practitioners/Reports/Analytics',
             default => 'login'
         };
 
-        return Inertia::render($viewPath);
+        return Inertia::render($viewPath, [
+            'dataAnalytic' => $dataAnalytic,
+        ]);
     }
 
     public function getAllReleasedReports()

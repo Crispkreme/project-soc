@@ -17,6 +17,7 @@ const PrescriptionModal = ({ showModal, toggleModal, medicines, selectedReferral
     patient_id: '',
     medicines: [{ medicine_id: '', quantity: '' }], 
     instruction: '',
+    diagnosis: '',
   });
 
   const addMedicineRow = () => {
@@ -38,23 +39,22 @@ const PrescriptionModal = ({ showModal, toggleModal, medicines, selectedReferral
 
   const submit = (e) => {
     e.preventDefault();
-
+  
     const url = selectedReferral
       ? route("prescription.update", { id: selectedReferral.id })
       : route("prescription.create");
-
+  
     post(url, {
-      onSuccess: (response) => {
-        toggleMedicationModal(false);
+      onSuccess: () => {
+        toggleModal(false);
         toast.success("Prescription added successfully!");
       },
-      onError: (errors) => {
-        toggleMedicationModal(false);
+      onError: () => {
         toast.error("An error occurred during prescription creation.");
       },
     });
   };
-
+  
   return (
     <Modal show={showModal} onClose={toggleModal}>
       <form onSubmit={submit} className="p-6">
@@ -124,6 +124,18 @@ const PrescriptionModal = ({ showModal, toggleModal, medicines, selectedReferral
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-4">
+          <InputLabel value="Diagnosis" />
+          <Textarea
+            value={data.diagnosis}
+            onChange={(e) => setData("diagnosis", e.target.value)}
+            rows={5}
+            className="w-full border p-2 rounded"
+            placeholder="Enter prescription diagnosiss"
+          />
+          {errors.diagnosis && <InputError message={errors.diagnosis} />}
         </div>
 
         <div className="mt-4">

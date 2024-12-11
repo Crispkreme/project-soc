@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
+use App\Contracts\DataAnalyticContract;
 use App\Contracts\FamilyMedicalContract;
 use App\Contracts\HealthContract;
 use App\Contracts\HospitalContract;
@@ -29,6 +30,7 @@ use App\Contracts\UserDetailContract;
 use App\Repositories\AppointmentRepository;
 use App\Repositories\BarangayEventRepository;
 use App\Repositories\BookingRepository;
+use App\Repositories\DataAnalyticRepository;
 use App\Repositories\FamilyMedicalRepository;
 use App\Repositories\HealthRepository;
 use App\Repositories\HospitalizationRepository;
@@ -77,6 +79,7 @@ class RepositoryProvider extends ServiceProvider
         LogContract::class => LogRepository::class,
         MessageContract::class => MessageRepository::class,
         MedicalCertificateContract::class => MedicalCertificateRepository::class,
+        DataAnalyticContract::class => DataAnalyticRepository::class,
     ];
 
     /**

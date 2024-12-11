@@ -9,7 +9,7 @@ class Prescription extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['doctor_id', 'patient_id', 'medicine_id', 'instruction', 'quantity'];
+    protected $fillable = ['doctor_id', 'patient_id', 'medicine_id', 'diagnosis', 'instruction', 'quantity'];
 
     public function doctor() {
         return $this->belongsTo(User::class, 'doctor_id');
