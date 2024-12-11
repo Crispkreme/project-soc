@@ -90,6 +90,8 @@ Route::post('medical/certificate/update/{id}', [MedicalRecordController::class, 
 
 Route::post('/cancel/booking/appointment/{id}', [BookingController::class, 'cancelBookingAppointment'])->name('cancel.booking.appointment');
 Route::post('/approve/appointments/{id}', [BookingController::class, 'approveAppointments'])->name('approve.appointments');
+Route::post('medical/certificate/request', [MedicalRecordController::class, 'requestMedicalCertificate'])->name('medical.certificate.request');
+
 
 Route::get('/get/all/users', [UserDetailController::class, 'getAllUsers'])->name('get.all.users');
 Route::get('/get/user/conversation/{id}', [MessageController::class, 'getUserConversation'])->name('get.user.conversation');

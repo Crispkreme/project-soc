@@ -303,33 +303,39 @@ class RecordController extends Controller
             'patient.show.medical.certificate' => 'Patient',
             'admin.show.medical.certificate' => 'Administrator',
             'bhw.show.medical.certificate' => 'Bhw',
-            default => 'login',
+            default => null,
         };
 
         if (!$accountType) {
             return redirect()->route('login');
         }
-
         $userDetail = $this->userDetailContract->getUserDetailById($user->id);
+        
+        if (!$userDetail) {
+            return redirect()->route('login')->with('error', 'User details not found.');
+        }
+        
         $userID = $userDetail->id;
 
-        if($user->role === 'Practition' || $user->role === 'Administration' || $user->role === 'Bhw')
-        {
+        if (in_array($user->role, ['Practitioner', 'Administrator', 'Bhw'])) {
             $medicalCertificates = $this->medicalCertificateContract->getAllMedicalCertificate();
         } else {
             $medicalCertificates = $this->medicalCertificateContract->getAllMedicalCertificateById($userID);
         }
+
+        $doctors = $this->userDetailContract->getAllUserNameByRole('Practitioner', 'Active');
 
         $viewPath = match ($accountType) {
             'Practitioner' => 'Practitioners/Reports/MedicalCertificate',
             'Patient' => 'Patients/Records/MedicalCertificate',
             'Administrator' => 'Admins/Reports/MedicalCertificate',
             'Bhw' => 'Bhws/Reports/MedicalCertificate',
-            default => 'Auth/Login',
+            default => 'Auth/Login', 
         };
 
         return Inertia::render($viewPath, [
             'medicalCertificates' => $medicalCertificates,
+            'doctors' => $doctors,
         ]);
     }
 

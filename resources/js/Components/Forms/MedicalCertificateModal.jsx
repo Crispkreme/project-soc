@@ -98,7 +98,7 @@ const MedicalCertificateModal = ({
         {/* Submit Button */}
         <div className="mt-4">
           <PrimaryButton type="submit" disabled={processing}>
-            {selectedReferral ? "Update Medical Certificate" : "Create Medical Certificate"}
+            {selectedReferral ? "Create Medical Certificate" : "Create Medical Certificate"}
           </PrimaryButton>
         </div>
       </form>

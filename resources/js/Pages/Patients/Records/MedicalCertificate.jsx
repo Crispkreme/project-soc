@@ -1,13 +1,16 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { Head } from "@inertiajs/react";
 import { Inertia } from "@inertiajs/inertia";
 import { PiEyeBold } from "react-icons/pi";
 import { FaDownload } from "react-icons/fa";
+import { HiOutlinePlusSm } from "react-icons/hi";
 
 const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
+const RequestMedicalCertificateModal = React.lazy(() => import("@/Components/Forms/RequestMedicalCertificateModal"));
 const ConfirmDeleteModal = React.lazy(() => import("@/Components/Modals/ConfirmDeleteModal"));
 
-const MedicalCertificate = ({ medicalCertificates }) => {
+const MedicalCertificate = ({ medicalCertificates, doctors }) => {
+    const [showModal, setShowModal] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [certificateToDelete, setCertificateToDelete] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
@@ -22,21 +25,21 @@ const MedicalCertificate = ({ medicalCertificates }) => {
         };
     };
 
-    // Filter certificates based on search query
-    const handleSearch = (query) => {
-        const filtered = medicalCertificates.filter((certificate) =>
-            [certificate.purpose, certificate.patient_name, certificate.doctor_name, certificate.issue_date, certificate.examin_date]
-                .filter(Boolean) // Ignore null or undefined values
-                .some((field) => field.toLowerCase().includes(query.toLowerCase()))
-        );
-        setFilteredCertificates(filtered);
-    };
-
-    const debouncedSearch = debounce(handleSearch, 300);
+    const handleSearch = useCallback(
+        debounce((query) => {
+            const filtered = medicalCertificates.filter((certificate) =>
+                [certificate.purpose, certificate.patient_name, certificate.doctor_name, certificate.issue_date, certificate.examin_date]
+                    .filter(Boolean)
+                    .some((field) => field.toLowerCase().includes(query.toLowerCase()))
+            );
+            setFilteredCertificates(filtered);
+        }, 300),
+        [medicalCertificates]
+    );
 
     useEffect(() => {
-        debouncedSearch(searchQuery);
-    }, [searchQuery]);
+        handleSearch(searchQuery);
+    }, [searchQuery, handleSearch]);
 
     const confirmDeleteHandler = () => {
         if (certificateToDelete) {
@@ -58,6 +61,12 @@ const MedicalCertificate = ({ medicalCertificates }) => {
         window.location.href = route("medical.certificate.download", { id: certificateId });
     };
 
+    const toggleMedicalCertificateRequestModal = () => {
+        setShowModal((prev) => {
+            return !prev;
+        });
+    };
+
     return (
         <Suspense fallback={<div>Loading...</div>}>
             <PatientLayout>
@@ -66,6 +75,13 @@ const MedicalCertificate = ({ medicalCertificates }) => {
                 <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="font-medium">Manage Medical Certificates</h2>
+                        <button
+                            onClick={toggleMedicalCertificateRequestModal}
+                            className="bg-green-50 text-green-400 hover:text-green-600 py-2 px-4 rounded"
+                        >
+                            <HiOutlinePlusSm className="inline-block mr-2" />
+                            Request Medical Certificate
+                        </button>
                     </div>
 
                     <div className="pb-4">
@@ -140,6 +156,14 @@ const MedicalCertificate = ({ medicalCertificates }) => {
                     title="Confirm Deletion"
                     message={`Are you sure you want to delete the certificate for "${certificateToDelete?.patient_name}"?`}
                 />
+
+                {showModal && (
+                    <RequestMedicalCertificateModal
+                        isOpen={showModal}
+                        onClose={toggleMedicalCertificateRequestModal}
+                        doctors={doctors}
+                    />
+                )}
             </PatientLayout>
         </Suspense>
     );

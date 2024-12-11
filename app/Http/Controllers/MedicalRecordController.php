@@ -854,6 +854,54 @@ class MedicalRecordController extends Controller
             $logData = [  
                 'doctor_id' => $data['doctor_id'],
                 'patient_id' => $data['patient_id'],
+                'message' => 'has created a medical certificate',
+                'log_status' => 'Success',
+            ]; 
+    
+            $this->logContract->updateOrCreateLog($logData);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Medical Record saved successfully!');
+
+        } catch (Exception $e) {
+
+            Log::error('Error during updateOrCreateMedicalCertificate: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            
+            return redirect()->back()->with('error', 'An error occurred during the process.');
+        }
+    }
+
+    public function requestMedicalCertificate(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            $data = $request->validate([
+                'doctor_id' => 'required|exists:user_details,id',
+                'purpose' => 'nullable|string|max:1000',
+            ]);
+            $data['patient_id'] = $user->id;
+            $data['issue_date'] = Carbon::now();
+            $data['examin_date'] = Carbon::now();
+            
+            $this->medicalCertificateContract->createOrUpdateMedicalCertificate($data);
+
+            $logData = [  
+                'doctor_id' => $data['doctor_id'],
+                'patient_id' => $data['patient_id'],
                 'message' => 'has requested a medical certificate',
                 'log_status' => 'Success',
             ]; 

@@ -5,7 +5,7 @@ import Table from "@/Components/Table";
 
 const ReferralModal = React.lazy(() => import("@/Components/Forms/ReferralModal"));
 const PrescriptionModal = React.lazy(() => import("@/Components/Forms/PrescriptionModal"));
-const MedicalModal = React.lazy(() => import("@/Components/Forms/MedicalModal"));
+const MedicalCertificateModal = React.lazy(() => import("@/Components/Forms/MedicalCertificateModal"));
 
 const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
 
@@ -223,7 +223,7 @@ const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
                     />
                 )}
                 {showMedicalModal && (
-                    <MedicalModal
+                    <MedicalCertificateModal
                         showModal={showMedicalModal}
                         toggleMedicalModal={toggleMedicalModal}
                         selectedReferral={selectedReferral}
