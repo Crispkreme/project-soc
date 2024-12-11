@@ -69,6 +69,8 @@ const AdminLayout = ({ children }) => {
                     { label: 'Doctor', link: route('admin.reports.doctor.account') },
                     { label: 'Patient', link: route('admin.reports.patient.account') },
                     { label: 'Bwh', link: route('admin.reports.bhw.account') },
+                    { label: 'Medical Certificate', link: route('admin.show.medical.certificate') },
+
                 ]}
             />
             <SidebarItem icon={LuMessagesSquare} label="Message" link={route('admin.messages')} />
@@ -113,6 +115,7 @@ const AdminLayout = ({ children }) => {
                     { label: 'Doctor', link: route('bhw.reports.doctor.account') },
                     { label: 'Patient', link: route('bhw.reports.patient.account') },
                     { label: 'Bwh', link: route('bhw.reports.bhw.account') },
+                    { label: 'Medical Certificate', link: route('bhw.show.medical.certificate') },
                 ]}
             />
             <SidebarItem icon={LuMessagesSquare} label="Message" link={route('bhw.messages')} />

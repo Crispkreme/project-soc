@@ -58,6 +58,7 @@ export default function PatientLayout({ children }) {
             sublinks: [
                 {text: "My Medical Records", href: route('patient.show.record.medicals'), route: '/patient/show/record/medicals'},
                 {text: "My Medical History", href: route('patient.show.record.histories'), route: '/patient/show/record/histories'},
+                {text: "Medical Certificate", href: route('patient.show.medical.certificate'), route: '/patient/show/medical/certificate'},
             ]
         },
         {icon: <LuBookMarked />,text: "Logs", href: route(`patient.logs`), route: '/patient/logs', sublinks: []},

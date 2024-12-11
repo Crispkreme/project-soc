@@ -112,7 +112,7 @@ class RecordController extends Controller
             ->map(function ($doctor) {
                 return [
                     'id' => $doctor['id'],
-                    'doctor_name' => trim("{$doctor['firstname']} {$doctor['middlename']} {$doctor['lastname']}"), // Combine names into a single field
+                    'doctor_name' => trim("{$doctor['name']}"),
                 ];
             });
 
@@ -301,6 +301,8 @@ class RecordController extends Controller
         $accountType = match ($routeName) {
             'practitioner.show.medical.certificate' => 'Practitioner',
             'patient.show.medical.certificate' => 'Patient',
+            'admin.show.medical.certificate' => 'Administrator',
+            'bhw.show.medical.certificate' => 'Bhw',
             default => 'login',
         };
 
@@ -308,12 +310,22 @@ class RecordController extends Controller
             return redirect()->route('login');
         }
 
-        $medicalCertificates = $this->medicalCertificateContract->getAllMedicalCertificate();
+        $userDetail = $this->userDetailContract->getUserDetailById($user->id);
+        $userID = $userDetail->id;
+
+        if($user->role === 'Practition' || $user->role === 'Administration' || $user->role === 'Bhw')
+        {
+            $medicalCertificates = $this->medicalCertificateContract->getAllMedicalCertificate();
+        } else {
+            $medicalCertificates = $this->medicalCertificateContract->getAllMedicalCertificateById($userID);
+        }
 
         $viewPath = match ($accountType) {
             'Practitioner' => 'Practitioners/Reports/MedicalCertificate',
-            'Patient' => 'Patients/Reports/MedicalCertificate',
-            default => 'login'
+            'Patient' => 'Patients/Records/MedicalCertificate',
+            'Administrator' => 'Admins/Reports/MedicalCertificate',
+            'Bhw' => 'Bhws/Reports/MedicalCertificate',
+            default => 'Auth/Login',
         };
 
         return Inertia::render($viewPath, [
