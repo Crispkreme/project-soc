@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PatientLayout from '@/Layouts/PatientLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 
 const DataAnalysis = ({ dataAnalytic }) => {
   const [visibleSection, setVisibleSection] = useState(null);
@@ -9,7 +9,7 @@ const DataAnalysis = ({ dataAnalytic }) => {
   };
 
   return (
-    <PatientLayout>
+    <AdminLayout>
       <div className="p-4 md:p-8 relative">
         {Object.entries(dataAnalytic).map(([month, records], idx) => {
           const isVisible = visibleSection === idx;
@@ -69,7 +69,7 @@ const DataAnalysis = ({ dataAnalytic }) => {
           );
         })}
       </div>
-    </PatientLayout>
+    </AdminLayout>
   );
 };
 

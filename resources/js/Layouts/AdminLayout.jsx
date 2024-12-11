@@ -56,7 +56,7 @@ const AdminLayout = ({ children }) => {
                 icon={HiOutlineDocumentReport}
                 label="Report"
                 dropdownItems={[
-                    { label: 'Data', link: "#" },
+                    { label: 'Data', link: route('admin.show.data.analysis') },
                     { label: 'Referral', link: route('admin.referrals') },
                     { label: 'Referral', link: route('admin.referrals') },
                     { label: 'Prescription', link: route('admin.prescriptions') },
@@ -103,7 +103,7 @@ const AdminLayout = ({ children }) => {
                 icon={HiOutlineDocumentReport}
                 label="Report"
                 dropdownItems={[
-                    { label: 'Data', link: "#" },
+                    { label: 'Data', link: route('bhw.show.data.analysis') },
                     { label: 'Referral', link: route('bhw.referrals') },
                     { label: 'Prescription', link: route('bhw.prescriptions') },
                     { label: 'Medicine', link: route('bhw.reports.medicine') },
