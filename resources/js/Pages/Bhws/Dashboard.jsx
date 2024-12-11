@@ -85,22 +85,36 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
     };
 
     const processDataAnalytics = (data) => {
+        if (!Array.isArray(data) || data.length === 0) {
+            console.warn("No valid data provided.");
+            return {
+                illnesses: {
+                    labels: ["No data available"],
+                    data: [0],
+                },
+                medicines: {
+                    labels: ["No data available"],
+                    data: [0],
+                },
+            };
+        }
+    
         const illnessesCount = {};
         const medicinesCount = {};
-
+    
         data.forEach((record) => {
             illnessesCount[record.illness] = (illnessesCount[record.illness] || 0) + 1;
             medicinesCount[record.medicine] = (medicinesCount[record.medicine] || 0) + record.total_quantity;
         });
-
+    
         const sortedIllnesses = Object.entries(illnessesCount)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 3);
-
+    
         const sortedMedicines = Object.entries(medicinesCount)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 3);
-
+    
         return {
             illnesses: {
                 labels: sortedIllnesses.map((item) => item[0]),
@@ -111,7 +125,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                 data: sortedMedicines.map((item) => item[1]),
             },
         };
-    };
+    };    
 
     const { illnesses, medicines } = processDataAnalytics(dataAnalytic["December 2024"]);
 

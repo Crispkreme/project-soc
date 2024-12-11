@@ -1,4 +1,4 @@
-import PatientLayout from '../../Layouts/PatientLayout';
+import AdminLayout from '../../Layouts/AdminLayout';
 import { Bar } from 'react-chartjs-2';
 import React, { Suspense, useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
@@ -85,22 +85,36 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
     };
 
     const processDataAnalytics = (data) => {
+        if (!Array.isArray(data) || data.length === 0) {
+            console.warn("No valid data provided.");
+            return {
+                illnesses: {
+                    labels: ["No data available"],
+                    data: [0],
+                },
+                medicines: {
+                    labels: ["No data available"],
+                    data: [0],
+                },
+            };
+        }
+    
         const illnessesCount = {};
         const medicinesCount = {};
-
+    
         data.forEach((record) => {
             illnessesCount[record.illness] = (illnessesCount[record.illness] || 0) + 1;
             medicinesCount[record.medicine] = (medicinesCount[record.medicine] || 0) + record.total_quantity;
         });
-
+    
         const sortedIllnesses = Object.entries(illnessesCount)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 3);
-
+    
         const sortedMedicines = Object.entries(medicinesCount)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 3);
-
+    
         return {
             illnesses: {
                 labels: sortedIllnesses.map((item) => item[0]),
@@ -111,7 +125,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                 data: sortedMedicines.map((item) => item[1]),
             },
         };
-    };
+    };    
 
     const { illnesses, medicines } = processDataAnalytics(dataAnalytic["December 2024"]);
 
@@ -155,7 +169,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
 
     return (
         <Suspense>
-            <PatientLayout>
+            <AdminLayout>
                 <Head title="Dashboard" />
 
                 <div className="w-full md:w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
@@ -240,7 +254,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                     selectedAppointment={selectedAppointment}
                     />
                 )}
-            </PatientLayout>
+            </AdminLayout>
         </Suspense>
     );
 }
