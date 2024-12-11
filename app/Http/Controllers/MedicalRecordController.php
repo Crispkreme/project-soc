@@ -649,11 +649,11 @@ class MedicalRecordController extends Controller
             'Bhw' => 'Bhws/Reports/MedicineReport',
         ];
         $redirectInertia = $roleRoutes[$user->role] ?? 'login';
-
-        $medicines = $this->medicineContract->getAllMedicine();
+ 
+        $inventories = $this->ledgerContract->getAllLedger();
 
         return Inertia::render($redirectInertia, [
-            'medicines' => $medicines,
+            'inventories' => $inventories,
         ]);
     }
 

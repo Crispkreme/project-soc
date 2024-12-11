@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
+use App\Contracts\BookingContract;
 use App\Contracts\LedgerContract;
 use App\Contracts\MedicineContract;
 use App\Contracts\UserDetailContract;
@@ -19,14 +20,17 @@ class ServiceController extends Controller
     protected $appointmentContract;
     protected $ledgerContract;
     protected $medicineContract;
+    protected $bookingContract;
 
     public function __construct(
         BarangayEventContract $barangayEventContract,
         UserDetailContract $userDetailContract,
         AppointmentContract $appointmentContract,
         LedgerContract $ledgerContract,
+        BookingContract $bookingContract,
         MedicineContract $medicineContract,
     ) {
+        $this->bookingContract = $bookingContract;
         $this->userDetailContract = $userDetailContract;
         $this->barangayEventContract = $barangayEventContract;
         $this->appointmentContract = $appointmentContract;
@@ -88,7 +92,7 @@ class ServiceController extends Controller
             default => 'login'
         };
 
-        $consultations = $this->appointmentContract->getAllAppointmentByMonth();
+        $consultations = $this->barangayEventContract->getAllBarangayEventByMonth();
 
         return Inertia::render($viewPath, [
             'consultations' => $consultations

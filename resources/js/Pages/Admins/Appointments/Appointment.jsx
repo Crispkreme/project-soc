@@ -83,7 +83,7 @@ const Appointment = ({ appointments }) => {
                                         <StatusButton
                                             key="approve"
                                             status={appointment.booking_status}
-                                            onClick={() => toggleModal(appointment, "approve")}
+                                            onClick={() => toggleModal(appointment, "Approve")}
                                         />,
                                         appointment.booking_status === 'Pending' && (
                                             <StatusButton

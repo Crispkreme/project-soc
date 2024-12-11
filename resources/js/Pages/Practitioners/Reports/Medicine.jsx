@@ -1,62 +1,97 @@
-import React, { useState } from "react";
-import PatientLayout from "@/Layouts/PatientLayout";
-import Table from "@/Components/Table";
+import React, { useState, Suspense } from 'react';
+import { Head } from '@inertiajs/react';
+import { LuClipboardEdit } from "react-icons/lu";
 
-const Medicine = ({ inventories }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredInventories, setFilteredInventories] = useState(inventories);
+const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
+const InventoryModal = React.lazy(() => import("@/Components/Forms/InventoryModal"));
+const Table = React.lazy(() => import("@/Components/Table"));
 
-  const InventoryColumn = [
-    { key: "id", label: "ID", render: (_, __, index) => index + 1 },
-    { key: "medicine_name", label: "Medicine Name" },
-    { key: "description", label: "Description" },
-    { key: "sold", label: "Dispense" },
-    { key: "in_stock", label: "In-Stock" },
-  ];
+const Medicine = ({ inventories, medicines }) => {
+    const [showModal, setShowModal] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isViewing, setIsViewing] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredInventories, setFilteredInventories] = useState([]);
 
-  const handleSearch = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
+    const inventoriesArray = Object.values(inventories);
 
-    const filtered = inventories.filter(
-      (inventory) =>
-        inventory.medicine_name.toLowerCase().includes(query.toLowerCase()) ||
-        inventory.description.toLowerCase().includes(query.toLowerCase())
+    const toggleInventoryModal = (inventory = null, isEditing = false, isViewing = false) => {
+        setIsEditing(isEditing);
+        setIsViewing(isViewing);
+        setShowModal(!showModal);
+    };
+
+    const handleSearch = (e) => {
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
+
+        const filtered = inventoriesArray.filter((inventory) =>
+            inventory.medicine_name.toLowerCase().includes(query) ||
+            inventory.description.toLowerCase().includes(query)
+        );
+
+        setFilteredInventories(filtered);
+    };
+
+    const InventoryColumn = [
+        { key: "medicine_name", label: "Medicine Name" },
+        { key: "description", label: "Description" },
+        { key: "dosage", label: "Dosage" },
+        { key: "expiration_date", label: "Expiration" },
+        { key: "sold", label: "Dispense" },
+        { key: "in_stock", label: "Quantity" },
+    ];
+
+    const inventoryAction = [
+        {
+            label: "View",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleInventoryModal(row, false, true),
+        },
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleInventoryModal(row, true, false),
+        },
+    ];
+
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <PatientLayout>
+                <Head title="Inventory" />
+                <div className="p-6">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-lg font-medium">Medicine Available</h2>
+                    </div>
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            placeholder="Search Inventory"
+                            className="w-80 p-2 border rounded"
+                            value={searchQuery}
+                            onChange={handleSearch}
+                        />
+                    </div>
+                    <Table
+                        columns={InventoryColumn}
+                        data={filteredInventories.length ? filteredInventories : inventoriesArray}
+                        actions={inventoryAction}
+                        noDataMessage="No Inventory Available."
+                    />
+                </div>
+                {showModal && (
+                    <InventoryModal
+                        showModal={showModal}
+                        toggleInventoryModal={toggleInventoryModal}
+                        selectedInventory={null}
+                        isEditing={isEditing}
+                        isViewing={isViewing}
+                        medicines={medicines}
+                    />
+                )}
+            </PatientLayout>
+        </Suspense>
     );
-
-    setFilteredInventories(filtered);
-  };
-
-  return (
-    <PatientLayout>
-      <div className="grid grid-cols-1 gap-6 mb-6">
-        <div className="bg-white border border-gray-100 shadow-md p-6 rounded-md">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-medium">List of Medicine</h2>
-          </div>
-          <div className="pb-4">
-            <div className="relative">
-              <input
-                type="text"
-                id="table-search"
-                className="block w-80 pt-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Search for inventory"
-                value={searchQuery}
-                onChange={handleSearch}
-              />
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <Table
-              columns={InventoryColumn}
-              data={filteredInventories}
-              noDataMessage="No medicines available."
-            />
-          </div>
-        </div>
-      </div>
-    </PatientLayout>
-  );
 };
 
 export default Medicine;

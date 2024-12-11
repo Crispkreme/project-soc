@@ -6,6 +6,7 @@ use App\Contracts\BookingContract;
 use App\Models\Booking;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BookingRepository implements BookingContract
 {
@@ -170,6 +171,4 @@ class BookingRepository implements BookingContract
         ->where('appointment_end', $appointment_end)
         ->count();
     }
-
-    // maka booked before not same time
 }

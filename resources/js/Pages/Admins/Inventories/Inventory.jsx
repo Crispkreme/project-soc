@@ -63,7 +63,7 @@ const Inventory = ({ inventories, medicines }) => {
                 <Head title="Inventory" />
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg font-medium">Manage Inventory</h2>
+                        <h2 className="text-lg font-medium">Medicine Available</h2>
                         <button
                             onClick={() => toggleInventoryModal(null)}
                             className="bg-green-50 text-green-400 hover:text-green-600 py-2 px-4 rounded"

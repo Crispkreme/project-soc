@@ -167,9 +167,7 @@ class RecordController extends Controller
             ->map(function ($doctor) {
                 return [
                     'id' => $doctor['id'],
-                    'firstname' => $doctor['firstname'],
-                    'middlename' => $doctor['middlename'],
-                    'lastname' => $doctor['lastname'],
+                    'doctor_name' => $doctor['name'], 
                 ];
             });
 
