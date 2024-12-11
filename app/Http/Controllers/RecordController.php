@@ -12,10 +12,14 @@ use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
 use App\Contracts\SurgicalContract;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserDetailContract;
+use App\Models\MedicalCertificate;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -315,5 +319,56 @@ class RecordController extends Controller
         return Inertia::render($viewPath, [
             'medicalCertificates' => $medicalCertificates,
         ]);
+    }
+
+    public function viewPDF($id)
+    {
+        $certificate = MedicalCertificate::select(
+            'medical_certificates.id',
+            'medical_certificates.purpose',
+            'medical_certificates.examin_date',
+            'medical_certificates.issue_date',
+            DB::raw("CONCAT(doctor_details.firstname, ' ', doctor_details.lastname) as doctor_name"),
+            DB::raw("CONCAT(patient_details.firstname, ' ', patient_details.lastname) as patient_name")
+        )
+        ->join('user_details as doctor_details', 'medical_certificates.doctor_id', '=', 'doctor_details.id')
+        ->join('user_details as patient_details', 'medical_certificates.patient_id', '=', 'patient_details.id')
+        ->where('medical_certificates.id', $id)
+        ->firstOrFail();
+
+        // Format dates
+        $certificate->examin_date = $certificate->examin_date ? Carbon::parse($certificate->examin_date)->format('F d, Y') : null;
+        $certificate->issue_date = $certificate->issue_date ? Carbon::parse($certificate->issue_date)->format('F d, Y') : null;
+
+        // Load PDF view
+        $pdf = Pdf::loadView('pdf.medical_certificate', ['certificate' => $certificate]);
+
+        // Return PDF inline for viewing
+        return $pdf->stream('medical_certificate.pdf');
+    }
+    public function downloadPDF($id)
+    {
+        $certificate = MedicalCertificate::select(
+            'medical_certificates.id',
+            'medical_certificates.purpose',
+            'medical_certificates.examin_date',
+            'medical_certificates.issue_date',
+            DB::raw("CONCAT(doctor_details.firstname, ' ', doctor_details.lastname) as doctor_name"),
+            DB::raw("CONCAT(patient_details.firstname, ' ', patient_details.lastname) as patient_name")
+        )
+        ->join('user_details as doctor_details', 'medical_certificates.doctor_id', '=', 'doctor_details.id')
+        ->join('user_details as patient_details', 'medical_certificates.patient_id', '=', 'patient_details.id')
+        ->where('medical_certificates.id', $id)
+        ->firstOrFail();
+
+        // Format dates
+        $certificate->examin_date = $certificate->examin_date ? Carbon::parse($certificate->examin_date)->format('F d, Y') : null;
+        $certificate->issue_date = $certificate->issue_date ? Carbon::parse($certificate->issue_date)->format('F d, Y') : null;
+
+        // Load PDF view
+        $pdf = Pdf::loadView('pdf.medical_certificate', ['certificate' => $certificate]);
+
+        // Return PDF for download
+        return $pdf->download('medical_certificate.pdf');
     }
 }

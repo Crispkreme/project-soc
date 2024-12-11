@@ -50,6 +50,7 @@ class MedicalCertificateRepository implements MedicalCertificateContract
             ->get()
             ->map(function ($certificate) {
                 return [
+                    'id' => $certificate->id,
                     'doctor_name' => $certificate->doctor_name,
                     'patient_name' => $certificate->patient_name,
                     'purpose' => $certificate->purpose,
