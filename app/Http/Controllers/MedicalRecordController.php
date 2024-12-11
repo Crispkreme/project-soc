@@ -628,8 +628,8 @@ class MedicalRecordController extends Controller
             ? $this->medicationContract->getAllMedication()
             : $this->medicationContract->getMedicationById($user->id);
 
-        $medicines = $this->medicineContract->getAllMedicine();
-
+        $medicines = $this->ledgerContract->getAllLedger();
+        
         return Inertia::render($viewPath, [
             'medicineRequesters' => $medicineRequesters,
             'medicines' => $medicines,

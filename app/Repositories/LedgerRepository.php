@@ -56,11 +56,13 @@ class LedgerRepository implements LedgerContract
                 'ledgers.expiration_date',
                 'ledgers.dosage',
                 'medicines.medicine_name',
-                'medicines.description'
+                'medicines.description',
+                'medicines.id'
             )
             ->get()
             ->map(function ($record) {
                 return [
+                    'medicine_id' => $record->id,
                     'medicine_name' => $record->medicine_name,
                     'description' => $record->description,
                     'sold' => $record->sold,
