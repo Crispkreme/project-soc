@@ -79,8 +79,8 @@ class ActivitiesController extends Controller
             $today = Carbon::now()->startOfDay();
             $threeDaysAfter = Carbon::now()->addDays(4)->startOfDay();
             $eventDate = Carbon::parse($request->event_date)->startOfDay();
-            
-            if ($eventDate->eq($today->addDay())) {
+            // if ($eventDate->eq($today->addDay())) {
+            if ($eventDate->eq($today)) {
                 return redirect()->back()->with('error', 'You cannot set todays event');
             } else {
                 DB::beginTransaction();
