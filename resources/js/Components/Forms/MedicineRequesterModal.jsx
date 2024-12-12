@@ -13,10 +13,11 @@ const PrimaryButton = lazy(() => import("@/Components/Buttons/PrimaryButton"));
 const ComboBox = lazy(() => import("@/Components/Inputs/ComboBox"));
 
 const MedicineRequesterModal = ({ showModal, toggleModal, selectedReferral, medicines }) => {
+  console.log("medicines", medicines);
   const [loading, setLoading] = useState(false);
   const { data, setData, post, processing, errors } = useForm({
     patient_id: selectedReferral?.id || '',
-    medicines: [{ medicine_id: '', quantity: '', stockAvailable: 0 }], // Add stockAvailable to form data
+    medicines: [{ medicine_id: '', quantity: '', stockAvailable: 0 }],
     reason: '',
   });
 
@@ -33,7 +34,7 @@ const MedicineRequesterModal = ({ showModal, toggleModal, selectedReferral, medi
 
   const handleMedicineChange = async (index, field, value) => {
     const updatedMedicines = [...data.medicines];
-
+    console.log("updatedMedicines", updatedMedicines);
     if (field === 'medicine_id' && value) {
       try {
         setLoading(true);
@@ -103,9 +104,9 @@ const MedicineRequesterModal = ({ showModal, toggleModal, selectedReferral, medi
               <div className="flex items-center gap-4 mb-4" key={index}>
                 <div className="flex-grow">
                   <ComboBox
-                    items={medicines}
-                    value={medicines.find((med) => med.id === medicine.medicine_id)}
-                    onChange={(selected) => handleMedicineChange(index, 'medicine_id', selected?.id || '')}
+                    items={Object.values(medicines)}
+                    value={Object.values(medicines).find((med) => med.medicine_id === medicine.medicine_id)}
+                    onChange={(selected) => handleMedicineChange(index, 'medicine_id', selected?.medicine_id || '')}
                     placeholder="Select Medicine"
                     displayKey="medicine_name"
                   />

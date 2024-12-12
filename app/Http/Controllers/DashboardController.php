@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\BookingContract;
+use App\Contracts\DataAnalyticContract;
 use App\Contracts\LogContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,11 +14,14 @@ class DashboardController extends Controller
 {
     protected $logContract;
     protected $bookingContract;
+    protected $dataAnalyticContract;
 
     public function __construct(
         LogContract $logContract,
         BookingContract $bookingContract,
+        DataAnalyticContract $dataAnalyticContract,
     ) {
+        $this->dataAnalyticContract = $dataAnalyticContract;
         $this->logContract = $logContract;
         $this->bookingContract = $bookingContract;
     }
@@ -34,22 +38,26 @@ class DashboardController extends Controller
         if($user->role === 'Administration') {
             return Inertia::render('Admins/Dashboard', [
                 'message' => $message,
-                'appointments' => $this->bookingContract->getAllBooking(),
+                'appointments' => $this->bookingContract->getCurrentBooking(),
+                'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
             ]);
         } else if($user->role === 'Practitioner') {
             return Inertia::render('Practitioners/Dashboard', [
                 'message' => $message,
-                'appointments' => $this->bookingContract->getAllBooking(),
+                'appointments' => $this->bookingContract->getCurrentBooking(),
+                'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
             ]);
         } else if($user->role === 'Bhw') {
             return Inertia::render('Bhws/Dashboard', [
                 'message' => $message,
-                'appointments' => $this->bookingContract->getAllBooking(),
+                'appointments' => $this->bookingContract->getCurrentBooking(),
+                'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
             ]);
         } else {
             return Inertia::render('Patients/Dashboard', [
                 'message' => $message,
                 'appointments' => $this->bookingContract->getPatientBooking($user->id),
+                'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
             ]);
         }
     }

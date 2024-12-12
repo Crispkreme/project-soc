@@ -12,7 +12,7 @@ const UserDetail = ({ userDetail }) => {
 
     const defaultProfileImage = "https://cdn-icons-png.freepik.com/512/700/700674.png";
     const profileImage = profile || defaultProfileImage;
-
+    console.log("userDetail", userDetail);
     return (
         <div style={styles.card}>
             <span style={styles.label}>{role}</span>
@@ -25,9 +25,9 @@ const UserDetail = ({ userDetail }) => {
             </div>
             <div style={styles.contentContainer}>
                 <h2 style={styles.authorName}>
-                    {firstname} {middlename} {lastname}
+                    {userDetail.name}
                 </h2>
-                <p style={styles.description}>{address}</p>
+                <p style={styles.description}>{userDetail.address}</p>
             </div>
         </div>
     );

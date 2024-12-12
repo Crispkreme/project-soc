@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\UserDetailContract;
 use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
@@ -25,6 +26,7 @@ class BookingController extends Controller
     protected $prescriptionContract;
     protected $appointmentContract;
     protected $logContract;
+    protected $userDetailContract;
 
     public function __construct(
         BarangayEventContract $barangayEventContract,
@@ -33,6 +35,7 @@ class BookingController extends Controller
         ReferralContract $referralContract,
         PrescriptionContract $prescriptionContract,
         AppointmentContract $appointmentContract,
+        UserDetailContract $userDetailContract,
     ) {
         $this->barangayEventContract = $barangayEventContract;
         $this->bookingContract = $bookingContract;
@@ -40,6 +43,7 @@ class BookingController extends Controller
         $this->prescriptionContract = $prescriptionContract;
         $this->appointmentContract = $appointmentContract;
         $this->referralContract = $referralContract;
+        $this->userDetailContract = $userDetailContract;
     }
 
     public function cancelBookingAppointment(Request $request, $id)
@@ -50,7 +54,9 @@ class BookingController extends Controller
             return redirect()->route('login');
         }
 
-        $this->bookingContract->cancelBooking($id, $request->reason);
+        $userDetailId = $this->userDetailContract->getUserDetailById($user->id);
+        $approverId = $userDetailId->id;
+        $this->bookingContract->cancelBooking($id, $approverId, $request->reason);
 
         $logData = [  
             'doctor_id' => $user->id,
@@ -131,6 +137,7 @@ class BookingController extends Controller
             $data['appointment_date'] = $request->event_date;
             $data['appointment_start'] = $request->event_start;
             $data['appointment_end'] = $request->event_end;
+            $data['booking_status'] = 'Pending';
 
             $existingBookings = $this->bookingContract->checkExistingBooking(
                 $request->event_date, 
@@ -144,7 +151,8 @@ class BookingController extends Controller
 
             $existingPatientBookings = $this->bookingContract->checkPatientExistingBooking(
                 $user->id, 
-                $request->event_name
+                $request->event_start,
+                $request->event_end,
             );
 
             if ($existingPatientBookings >= 1) {
@@ -155,13 +163,12 @@ class BookingController extends Controller
                 if ($id) {
                     $data['id'] = $id;
                 }
-                
                 $this->bookingContract->createOrUpdateBooking($data);
-            
+                
                 $logData = [
                     'patient_id' => $user->id,
                     'message' => 'has booked an appointment',
-                    'log_status' => 'Pending',
+                    'log_status' => 'Accept',
                 ];
             
                 $this->logContract->updateOrCreateLog($logData);

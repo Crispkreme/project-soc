@@ -9,9 +9,13 @@ use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecordController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
+
+
 
 // ADMIN
 Route::middleware(['auth', 'verified', 'admin'])
@@ -52,6 +56,7 @@ Route::middleware(['auth', 'verified', 'admin'])
     Route::get('/medical/history', [MedicalRecordController::class, 'getUserMedicalHistory'])->name('medical.history');
     Route::get('/medical/patient/history/{id}', [MedicalRecordController::class, 'getPatientMedicalHistory'])->name('medical.patient.history');
     Route::get('/activities', [ActivitiesController::class, 'getActivities'])->name('activities');
+    Route::get('/show/data/analysis', [ServiceController::class, 'getAllDataAnalysis'])->name('show.data.analysis');
 
     Route::get('/medicine/requester', [MedicalRecordController::class, 'getMedicineRequester'])->name('medicine.requester');
     Route::get('/reports/medicine', [MedicalRecordController::class, 'getReport'])->name('reports.medicine');
@@ -64,6 +69,7 @@ Route::middleware(['auth', 'verified', 'admin'])
     Route::get('/reports/bhw/account', [MedicalRecordController::class, 'getBhwAccount'])->name('reports.bhw.account');
     Route::get('/reports/patient/account', [MedicalRecordController::class, 'getPatientAccount'])->name('reports.patient.account');
     
+    Route::get('/show/medical/certificate', [RecordController::class, 'getAllMedicalCertificate'])->name('show.medical.certificate');
     Route::get('/messages', [MessageController::class, 'getMessage'])->name('messages');
     Route::get('/message/user/{id}', [MessageController::class, 'getUserMessage'])->name('message.user');
 });

@@ -2,19 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\DataAnalyticContract;
 use App\Contracts\FamilyMedicalContract;
 use App\Contracts\HealthContract;
 use App\Contracts\HospitalContract;
 use App\Contracts\HospitalizationContract;
 use App\Contracts\ImmunizationContract;
+use App\Contracts\MedicalCertificateContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
 use App\Contracts\SurgicalContract;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserDetailContract;
+use App\Models\MedicalCertificate;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -30,9 +36,12 @@ class RecordController extends Controller
     protected $hospitalizationContract;
     protected $medicalRecordContract;
     protected $medicineContract;
+    protected $medicalCertificateContract;
     protected $hospitalContract;
+    protected $dataAnalyticContract;
     
     public function __construct(
+        MedicalCertificateContract $medicalCertificateContract,
         HospitalContract $hospitalContract,
         UserDetailContract $userDetailContract,
         HealthContract $healthContract,
@@ -44,7 +53,10 @@ class RecordController extends Controller
         HospitalizationContract $hospitalizationContract,
         MedicalRecordContract $medicalRecordContract,
         MedicineContract $medicineContract,
+        DataAnalyticContract $dataAnalyticContract,
     ) {
+        $this->dataAnalyticContract = $dataAnalyticContract;
+        $this->medicalCertificateContract = $medicalCertificateContract;
         $this->medicineContract = $medicineContract;
         $this->hospitalContract = $hospitalContract;
         $this->userDetailContract = $userDetailContract;
@@ -104,7 +116,7 @@ class RecordController extends Controller
             ->map(function ($doctor) {
                 return [
                     'id' => $doctor['id'],
-                    'doctor_name' => trim("{$doctor['firstname']} {$doctor['middlename']} {$doctor['lastname']}"), // Combine names into a single field
+                    'doctor_name' => trim("{$doctor['name']}"),
                 ];
             });
 
@@ -159,9 +171,7 @@ class RecordController extends Controller
             ->map(function ($doctor) {
                 return [
                     'id' => $doctor['id'],
-                    'firstname' => $doctor['firstname'],
-                    'middlename' => $doctor['middlename'],
-                    'lastname' => $doctor['lastname'],
+                    'doctor_name' => $doctor['name'], 
                 ];
             });
 
@@ -247,12 +257,16 @@ class RecordController extends Controller
             return redirect()->route('login');
         }
 
+        $dataAnalytic = $this->dataAnalyticContract->getAllDataAnalyticByMonth();
+
         $viewPath = match ($accountType) {
             'Practitioner' => 'Practitioners/Reports/Analytics',
             default => 'login'
         };
 
-        return Inertia::render($viewPath);
+        return Inertia::render($viewPath, [
+            'dataAnalytic' => $dataAnalytic,
+        ]);
     }
 
     public function getAllReleasedReports()
@@ -279,5 +293,106 @@ class RecordController extends Controller
         };
 
         return Inertia::render($viewPath);
+    }
+
+    public function getAllMedicalCertificate()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'practitioner.show.medical.certificate' => 'Practitioner',
+            'patient.show.medical.certificate' => 'Patient',
+            'admin.show.medical.certificate' => 'Administrator',
+            'bhw.show.medical.certificate' => 'Bhw',
+            default => null,
+        };
+
+        if (!$accountType) {
+            return redirect()->route('login');
+        }
+        $userDetail = $this->userDetailContract->getUserDetailById($user->id);
+        
+        if (!$userDetail) {
+            return redirect()->route('login')->with('error', 'User details not found.');
+        }
+        
+        $userID = $userDetail->id;
+
+        if (in_array($user->role, ['Practitioner', 'Administrator', 'Bhw'])) {
+            $medicalCertificates = $this->medicalCertificateContract->getAllMedicalCertificate();
+        } else {
+            $medicalCertificates = $this->medicalCertificateContract->getAllMedicalCertificateById($userID);
+        }
+
+        $doctors = $this->userDetailContract->getAllUserNameByRole('Practitioner', 'Active');
+
+        $viewPath = match ($accountType) {
+            'Practitioner' => 'Practitioners/Reports/MedicalCertificate',
+            'Patient' => 'Patients/Records/MedicalCertificate',
+            'Administrator' => 'Admins/Reports/MedicalCertificate',
+            'Bhw' => 'Bhws/Reports/MedicalCertificate',
+            default => 'Auth/Login', 
+        };
+
+        return Inertia::render($viewPath, [
+            'medicalCertificates' => $medicalCertificates,
+            'doctors' => $doctors,
+        ]);
+    }
+
+    public function viewPDF($id)
+    {
+        $certificate = MedicalCertificate::select(
+            'medical_certificates.id',
+            'medical_certificates.purpose',
+            'medical_certificates.examin_date',
+            'medical_certificates.issue_date',
+            DB::raw("CONCAT(doctor_details.firstname, ' ', doctor_details.lastname) as doctor_name"),
+            DB::raw("CONCAT(patient_details.firstname, ' ', patient_details.lastname) as patient_name")
+        )
+        ->join('user_details as doctor_details', 'medical_certificates.doctor_id', '=', 'doctor_details.id')
+        ->join('user_details as patient_details', 'medical_certificates.patient_id', '=', 'patient_details.id')
+        ->where('medical_certificates.id', $id)
+        ->firstOrFail();
+
+        // Format dates
+        $certificate->examin_date = $certificate->examin_date ? Carbon::parse($certificate->examin_date)->format('F d, Y') : null;
+        $certificate->issue_date = $certificate->issue_date ? Carbon::parse($certificate->issue_date)->format('F d, Y') : null;
+
+        // Load PDF view
+        $pdf = Pdf::loadView('pdf.medical_certificate', ['certificate' => $certificate]);
+
+        // Return PDF inline for viewing
+        return $pdf->stream('medical_certificate.pdf');
+    }
+    public function downloadPDF($id)
+    {
+        $certificate = MedicalCertificate::select(
+            'medical_certificates.id',
+            'medical_certificates.purpose',
+            'medical_certificates.examin_date',
+            'medical_certificates.issue_date',
+            DB::raw("CONCAT(doctor_details.firstname, ' ', doctor_details.lastname) as doctor_name"),
+            DB::raw("CONCAT(patient_details.firstname, ' ', patient_details.lastname) as patient_name")
+        )
+        ->join('user_details as doctor_details', 'medical_certificates.doctor_id', '=', 'doctor_details.id')
+        ->join('user_details as patient_details', 'medical_certificates.patient_id', '=', 'patient_details.id')
+        ->where('medical_certificates.id', $id)
+        ->firstOrFail();
+
+        // Format dates
+        $certificate->examin_date = $certificate->examin_date ? Carbon::parse($certificate->examin_date)->format('F d, Y') : null;
+        $certificate->issue_date = $certificate->issue_date ? Carbon::parse($certificate->issue_date)->format('F d, Y') : null;
+
+        // Load PDF view
+        $pdf = Pdf::loadView('pdf.medical_certificate', ['certificate' => $certificate]);
+
+        // Return PDF for download
+        return $pdf->download('medical_certificate.pdf');
     }
 }

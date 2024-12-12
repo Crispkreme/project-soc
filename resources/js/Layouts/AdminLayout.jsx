@@ -56,7 +56,7 @@ const AdminLayout = ({ children }) => {
                 icon={HiOutlineDocumentReport}
                 label="Report"
                 dropdownItems={[
-                    { label: 'Data', link: "#" },
+                    { label: 'Data', link: route('admin.show.data.analysis') },
                     { label: 'Referral', link: route('admin.referrals') },
                     { label: 'Referral', link: route('admin.referrals') },
                     { label: 'Prescription', link: route('admin.prescriptions') },
@@ -69,6 +69,8 @@ const AdminLayout = ({ children }) => {
                     { label: 'Doctor', link: route('admin.reports.doctor.account') },
                     { label: 'Patient', link: route('admin.reports.patient.account') },
                     { label: 'Bwh', link: route('admin.reports.bhw.account') },
+                    { label: 'Medical Certificate', link: route('admin.show.medical.certificate') },
+
                 ]}
             />
             <SidebarItem icon={LuMessagesSquare} label="Message" link={route('admin.messages')} />
@@ -101,7 +103,7 @@ const AdminLayout = ({ children }) => {
                 icon={HiOutlineDocumentReport}
                 label="Report"
                 dropdownItems={[
-                    { label: 'Data', link: "#" },
+                    { label: 'Data', link: route('bhw.show.data.analysis') },
                     { label: 'Referral', link: route('bhw.referrals') },
                     { label: 'Prescription', link: route('bhw.prescriptions') },
                     { label: 'Medicine', link: route('bhw.reports.medicine') },
@@ -113,6 +115,7 @@ const AdminLayout = ({ children }) => {
                     { label: 'Doctor', link: route('bhw.reports.doctor.account') },
                     { label: 'Patient', link: route('bhw.reports.patient.account') },
                     { label: 'Bwh', link: route('bhw.reports.bhw.account') },
+                    { label: 'Medical Certificate', link: route('bhw.show.medical.certificate') },
                 ]}
             />
             <SidebarItem icon={LuMessagesSquare} label="Message" link={route('bhw.messages')} />

@@ -20,13 +20,11 @@ const Event = ({ event }) => {
                 {day}
             </div>
             <div className="flex flex-col gap-2 py-2">
-                <p className="text-xl font-bold">{isBooking ? event.event_name : event.appointment}</p>
+                <p className="text-xl font-bold">{event.event_name}</p>
                 <p className="text-gray-500">
-                    {isBooking
-                        ? `${formatTimeToAMPM(event.event_start)} - ${formatTimeToAMPM(event.event_end)}`
-                        :  formatTimeToAMPM(event.time)}
+                    {event.event_time}
                     <br />
-                    {isBooking ? event.event_venue : event.description}
+                    {event.venue}
                     <br />
                 </p>
             </div>

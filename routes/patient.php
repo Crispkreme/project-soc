@@ -59,5 +59,6 @@ Route::middleware(['auth', 'verified', 'patient'])
     Route::get('/logs', [DashboardController::class, 'getUserLogs'])->name('logs');
 
     Route::get('/messages', [MessageController::class, 'getMessage'])->name('messages');
+    Route::get('/show/medical/certificate', [RecordController::class, 'getAllMedicalCertificate'])->name('show.medical.certificate');
     Route::get('/message/user/{id}', [MessageController::class, 'getUserMessage'])->name('message.user');
 });

@@ -5,6 +5,8 @@ namespace App\Repositories;
 use App\Contracts\BookingContract;
 use App\Models\Booking;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BookingRepository implements BookingContract
 {
@@ -50,7 +52,39 @@ class BookingRepository implements BookingContract
                 return [
                     'id' => $booking->id,
                     'patient_id' => $booking->patient_id,
-                    'doctor_id' => $booking->doctor_id,
+                    'doctor_id' => $booking->approve_by_id,
+                    'doctor_name' => $doctorName,
+                    'patient_name' => $patientName,
+                    'title' => $booking->title,
+                    'notes' => $booking->notes,
+                    'reason' => $booking->reason,
+                    'appointment_date' => $this->formatDateTime($booking->appointment_date, 'date'),
+                    'updated_at' => $this->formatDateTime($booking->updated_at, 'date'),
+                    'appointment_start' => $this->formatDateTime($booking->appointment_start, 'time'),
+                    'appointment_end' => $this->formatDateTime($booking->appointment_end, 'time'),
+                    'booking_status' => $booking->booking_status,
+                ];
+            });
+    }
+
+    public function getCurrentBooking()
+    {
+        return $this->model
+            ->with(['approver:id,firstname,middlename,lastname', 'patient:id,firstname,middlename,lastname'])
+            ->get()
+            ->map(function ($booking) {
+                $doctorName = $booking->approver
+                    ? trim("{$booking->approver->firstname} {$booking->approver->middlename} {$booking->approver->lastname}")
+                    : 'N/A';
+                
+                $patientName = $booking->patient
+                    ? trim("{$booking->patient->firstname} {$booking->patient->middlename} {$booking->patient->lastname}")
+                    : 'N/A';
+
+                return [
+                    'id' => $booking->id,
+                    'patient_id' => $booking->patient_id,
+                    'doctor_id' => $booking->approve_by_id,
                     'doctor_name' => $doctorName,
                     'patient_name' => $patientName,
                     'title' => $booking->title,
@@ -143,11 +177,12 @@ class BookingRepository implements BookingContract
         return $booking;
     }
 
-    public function cancelBooking($id, $data)
+    public function cancelBooking($id, $approverId, $reason)
     {
         $booking = $this->model->findOrFail($id);
         $booking->update([
-            'reason' => $data,
+            'approve_by_id' => $approverId,
+            'reason' => $reason,
             'booking_status' => 'Cancel',
         ]);
         return $booking;
@@ -161,10 +196,11 @@ class BookingRepository implements BookingContract
             ->count();
     }
 
-    public function checkPatientExistingBooking($id, $event)
+    public function checkPatientExistingBooking($id, $appointment_start, $appointment_end)
     {
         return $this->model->where('patient_id', $id)
-        ->where('title', $event)
+        ->where('appointment_start', $appointment_start)
+        ->where('appointment_end', $appointment_end)
         ->count();
     }
 }

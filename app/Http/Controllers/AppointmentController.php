@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
+use App\Contracts\DataAnalyticContract;
 use App\Contracts\HospitalContract;
 use App\Contracts\LogContract;
 use App\Contracts\MedicineContract;
@@ -35,6 +36,7 @@ class AppointmentController extends Controller
     protected $medicineContract;
     protected $logContract;
     protected $prescriptionContract;
+    protected $dataAnalyticContract;
 
     public function __construct(
         BookingContract $bookingContract,
@@ -47,7 +49,9 @@ class AppointmentController extends Controller
         HospitalContract $hospitalContract,
         LogContract $logContract,
         PrescriptionContract $prescriptionContract,
+        DataAnalyticContract $dataAnalyticContract,
     ) {
+        $this->dataAnalyticContract = $dataAnalyticContract;
         $this->prescriptionContract = $prescriptionContract;
         $this->medicineContract = $medicineContract;
         $this->referralContract = $referralContract;
@@ -304,51 +308,67 @@ class AppointmentController extends Controller
         }
 
         try {
-            
             DB::beginTransaction();
+
             $patientId = $this->bookingContract->getPatientIdByBookingId($id);
-            $data = $request->validate([  
-                'medicines' => 'required|array|min:1',
-                'instruction' => 'nullable|string|max:255',
-            ]);   
-            $data['patient_id'] = $patientId; 
-            $data['doctor_id'] = $user->id; 
-            
-            foreach ($request->medicines as $medicine) {
 
-                $data['medicine_id'] = $medicine['medicine_id'];
-                $data['quantity'] = $medicine['quantity'];
-
-                $this->prescriptionContract->updateOrCreatePrescription($data);
+            if (!$patientId) {
+                throw new Exception('Patient ID not found for the booking.');
             }
-            
-            $this->bookingContract->updateBookingstatus('Success', $id, $user->id);
 
+            $validatedData = $request->validate([
+                'medicines' => 'required|array|min:1',
+                'medicines.*.medicine_id' => 'required|integer|exists:medicines,id',
+                'medicines.*.quantity' => 'required|integer|min:1',
+                'diagnosis' => 'nullable|string|max:255',
+                'instruction' => 'nullable|string|max:255',
+            ]);
+
+            foreach ($validatedData['medicines'] as $medicine) {
+                $prescriptionData = [
+                    'patient_id' => $patientId,
+                    'doctor_id' => $user->id,
+                    'medicine_id' => $medicine['medicine_id'],
+                    'quantity' => $medicine['quantity'],
+                    'diagnosis' => $validatedData['diagnosis'] ?? null,
+                    'instruction' => $validatedData['instruction'] ?? null,
+                ];
+
+                $this->prescriptionContract->updateOrCreatePrescription($prescriptionData);
+
+                $analyticsData = [
+                    'illness' => $validatedData['diagnosis'] ?? null,
+                    'medicine_id' => $medicine['medicine_id'],
+                    'quantity' => $medicine['quantity'],
+                ];
+                $this->dataAnalyticContract->updateOrCreateDataAnalytic($analyticsData);
+            }
+
+            $this->bookingContract->updateBookingstatus('Success', $id, $user->id);
             $this->appointmentContract->updateAppointmentStatusById('Success', $id);
 
-            $logData = [  
+            $logData = [
                 'doctor_id' => $user->id,
                 'patient_id' => $patientId,
                 'message' => 'has created a prescription',
                 'log_status' => 'Success',
-            ]; 
-    
+            ];
             $this->logContract->updateOrCreateLog($logData);
-            
-            DB::commit();
-            
-            return redirect()->back()->with('success', 'Prescription saved successfully!');
 
-        } catch (Exception $e) {
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Prescription saved successfully!');
             
-            Log::error('Error during updateOrCreatePrescription: ' . $e->getMessage(), [
-                'exception' => $e,
+        } catch (Exception $e) {
+            Log::error('Error during updateOrCreatePrescription', [
+                'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
             DB::rollback();
 
-            return redirect()->back()->with('error', 'Error please try again.');
+            return redirect()->back()->with('error', 'An error occurred, please try again.');
         }
     }
+
 }

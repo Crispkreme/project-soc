@@ -54,6 +54,7 @@ Route::middleware(['auth', 'verified', 'practitioner'])
     Route::get('/show/reports/appointment', [RecordController::class, 'getAllAppointmentReports'])->name('show.report.appointment');
     Route::get('/show/reports/analytics', [RecordController::class, 'getAllDataAnalytics'])->name('show.report.analytics');
     Route::get('/show/reports/released', [RecordController::class, 'getAllReleasedReports'])->name('show.report.released');
+    Route::get('/show/medical/certificate', [RecordController::class, 'getAllMedicalCertificate'])->name('show.medical.certificate');
 
     Route::get('/messages', [MessageController::class, 'getMessage'])->name('messages');
     Route::get('/message/user/{id}', [MessageController::class, 'getUserMessage'])->name('message.user');

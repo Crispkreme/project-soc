@@ -1,101 +1,76 @@
-import React, { useEffect, useRef, useState } from 'react'
-import PatientLayout from '@/Layouts/PatientLayout'
+import React, { useState } from 'react';
+import PatientLayout from '@/Layouts/PatientLayout';
 
-const DataAnalysis = () => {
+const DataAnalysis = ({ dataAnalytic }) => {
+  const [visibleSection, setVisibleSection] = useState(null);
 
-    const analysis = [
-        {
-            period: "SEPTEMBER 2024",
-            firstHalf: {
-                commonIlness: {
-                    name: "COUGH",
-                    percentage: 46
-                },
-                inDemandMedicine: {
-                    name: "Paracetamol",
-                    percentage: 46
-                }
-            },
-            secondHalf: {}
-        },
-        {
-            period: "OCTOBER 2024",
-            firstHalf: {
-                commonIlness: {
-                    name: "COUGH",
-                    percentage: 46
-                },
-                inDemandMedicine: {
-                    name: "Paracetamol",
-                    percentage: 46
-                }
-            },
-            secondHalf: {}
-        },
-        {
-            period: "NOVEMBER 2024",
-            firstHalf: {
-                commonIlness: {
-                    name: "COUGH",
-                    percentage: 46
-                },
-                inDemandMedicine: {
-                    name: "Paracetamol",
-                    percentage: 46
-                }
-            },
-            secondHalf: {}
-        }
-    ]
+  const toggleVisibility = (index) => {
+    setVisibleSection(visibleSection === index ? null : index);
+  };
 
-    return (
-        <PatientLayout>
-            <div className='p-4 md:p-8 relative'>
-                {
-                    analysis.map( (anl,idx) => {
-                        
-                        const top = idx * 30;
-                        const ref = useRef(null);
-                        const [visible, setVisible] = useState(false);
-                        const handleOnClick = () => setVisible(!visible);
+  return (
+    <PatientLayout>
+      <div className="p-4 md:p-8 relative">
+        {Object.entries(dataAnalytic).map(([month, records], idx) => {
+          const isVisible = visibleSection === idx;
 
-                        useEffect(() => {
-                            function handleClickOutside(event) {
-                              if (ref.current && !ref.current.contains(event.target)) {
-                                setVisible(false);
-                              }
-                            }
+          // Group illnesses and medicines
+          const illnesses = [...new Set(records.map((record) => record.illness))];
+          const medicines = records.reduce((acc, record) => {
+            acc[record.medicine] = (acc[record.medicine] || 0) + record.total_quantity;
+            return acc;
+          }, {});
 
-                            document.addEventListener("mouseup", handleClickOutside);
-                            return () => {
-                              document.removeEventListener("mouseup", handleClickOutside);
-                            };
-                          }, [ref]);
-                        
+          return (
+            <section
+              key={idx}
+              className={`${
+                isVisible ? 'z-50' : 'z-0'
+              } transition relative bg-white w-full border border-black rounded-xl mb-4`}
+            >
+              <div
+                onClick={() => toggleVisibility(idx)}
+                className="header bg-secondary-bg py-2 px-4 rounded-t-xl cursor-pointer"
+              >
+                {month}
+              </div>
+              {isVisible && (
+                <div className="py-4 px-8 flex flex-col">
+                  {/* Illnesses */}
+                  <div className="mb-4">
+                    <h4 className="font-bold mb-2">Illnesses:</h4>
+                    {illnesses.length > 0 ? (
+                      illnesses.map((illness, illnessIdx) => (
+                        <span key={illnessIdx} className="block">
+                          {illness}
+                        </span>
+                      ))
+                    ) : (
+                      <span>No illnesses recorded this month.</span>
+                    )}
+                  </div>
 
-                        return (
-                            <section ref={ref} onClick={handleOnClick} key={idx} style={{top: `-${top}px`}} className={`${visible ? 'z-50' : 'z-0'} transition relative bg-white w-full border border-black rounded-xl`}>
-                                <div className='header bg-secondary-bg py-2 px-4 rounded-t-xl'>
-                                    {anl.period}
-                                </div>
-                                <div className='py-4 px-8 flex flex-col'>
-                                    <span>1st Half:</span>
-                                    <div className='px-8'>
-                                        <span>Common Ilness: {anl.firstHalf.commonIlness.name} - </span>
-                                        <span>{anl.firstHalf.commonIlness.percentage}%</span>
-                                    </div>
-                                    <div className='px-8'>
-                                        <span>In Demand Medicine: {anl.firstHalf.inDemandMedicine.name} - </span>
-                                        <span>{anl.firstHalf.inDemandMedicine.percentage}%</span>
-                                    </div>
-                                </div>
-                            </section>
-                        )
-                    })
-                }
-            </div>
-        </PatientLayout>
-    );
-}
+                  {/* Medicines */}
+                  <div>
+                    <h4 className="font-bold mb-2">Medicines:</h4>
+                    {Object.keys(medicines).length > 0 ? (
+                      Object.entries(medicines).map(([medicine, total], medicineIdx) => (
+                        <span key={medicineIdx} className="block">
+                          {medicine} - {total}
+                        </span>
+                      ))
+                    ) : (
+                      <span>No medicines recorded this month.</span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </section>
+          );
+        })}
+      </div>
+    </PatientLayout>
+  );
+};
 
-export default DataAnalysis
+export default DataAnalysis;

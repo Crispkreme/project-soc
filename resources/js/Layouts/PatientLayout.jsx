@@ -9,6 +9,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { closeSidebar } from '../reducers/sidebarSlice';
 import { LuBookMarked } from "react-icons/lu";
 import { IoSearch } from "react-icons/io5";
+import { MdOutlineDashboardCustomize } from "react-icons/md";
+import { BsJournalMedical } from "react-icons/bs";
+import { MdOutlineDashboard } from "react-icons/md";
 import { LuMessagesSquare } from "react-icons/lu";
 
 const logo = "/assets/svg/logo.svg";
@@ -33,6 +36,7 @@ export default function PatientLayout({ children }) {
     const linkOnClick = () => window.innerWidth < 768 ? dispatch(closeSidebar()) : null;
 
     const curLinks = user.role === "Patient" ? [
+        {icon: <MdOutlineDashboard />,text: "Dashboard", href: route(`patient.dashboard`), route: '/patient/dashboard', sublinks: []},
         {icon: <RiCalendarTodoLine />,text: "Book Appointments", href: route(`patient.book.appointments`), route: '/patient/book/appointments', sublinks: []},
         {icon: <RiCalendarTodoLine />,text: "Medicine Requester", href: route(`patient.medicine.requester`), route: '/patient/medicine/requester', sublinks: []},
         {icon: <RiCalendarTodoLine />,text: "Community", href: route(`patient.show.communities.${String(redirectRole).toLowerCase()}`), route: `/patient/show/communities/${String(redirectRole).toLowerCase()}`,
@@ -54,23 +58,31 @@ export default function PatientLayout({ children }) {
             sublinks: [
                 {text: "My Medical Records", href: route('patient.show.record.medicals'), route: '/patient/show/record/medicals'},
                 {text: "My Medical History", href: route('patient.show.record.histories'), route: '/patient/show/record/histories'},
+                {text: "Medical Certificate", href: route('patient.show.medical.certificate'), route: '/patient/show/medical/certificate'},
             ]
         },
         {icon: <LuBookMarked />,text: "Logs", href: route(`patient.logs`), route: '/patient/logs', sublinks: []},
         {icon: <LuMessagesSquare />,text: "Message", href: route(`patient.messages`), route: '/patient/messages', sublinks: []},
     ] : [
+        {icon: <MdOutlineDashboardCustomize />,text: "Dashboard", href: route(`practitioner.dashboard`), route: '/practitioner/dashboard', sublinks: []},
         {icon: <PiAddressBookBold />,text: "Schedules", href: route('practitioner.book.appointments'), route: '/practitioner/book/appointments',
-        sublinks: [
-            {text: "Schedules", href: route('practitioner.book.appointments'), route: '/practitioner/book/appointments'},
-            {text: "Patient Booked", href: route('practitioner.book.appointments.booked'), route: '/practitioner/book/appointments/booked'},
-        ]
+            sublinks: [
+                {text: "Schedules", href: route('practitioner.book.appointments'), route: '/practitioner/book/appointments'},
+                {text: "Patient Booked", href: route('practitioner.book.appointments.booked'), route: '/practitioner/book/appointments/booked'},
+            ]
+        },
+        {icon: <BsJournalMedical />,text: "Medical Record", href: route(`practitioner.dashboard`), route: '/practitioner/dashboard', 
+            sublinks: [
+                {text: "Medical Record", href: route('practitioner.medical.records'), route: '/practitioner/medical/records'},
+                {text: "Medical History", href: route('practitioner.medical.history'), route: '/practitioner/medical/history'},
+            ].filter(Boolean)
         },
         {icon: <RiCalendarTodoLine />,text: "Community", href: route(`practitioner.show.communities.patient`), route: `/practitioner/show/communities/patient`,
-        sublinks: [
-            user.role !== "Patient" && {text: "Patients", href: route('practitioner.show.communities.patient'), route: '/practitioner/show/communities/patient'},
-            user.role !== "Practitioner" && {text: "Practitioners", href: route('practitioner.show.communities.practitioner'), route: '/practitioner/show/communities/practitioner'},
-            user.role !== "BHW" && {text: "BHWs", href: route('practitioner.show.communities.bhw'), route: '/practitioner/show/communities/bhw'},
-        ].filter(Boolean)
+            sublinks: [
+                user.role !== "Patient" && {text: "Patients", href: route('practitioner.show.communities.patient'), route: '/practitioner/show/communities/patient'},
+                user.role !== "Practitioner" && {text: "Practitioners", href: route('practitioner.show.communities.practitioner'), route: '/practitioner/show/communities/practitioner'},
+                user.role !== "BHW" && {text: "BHWs", href: route('practitioner.show.communities.bhw'), route: '/practitioner/show/communities/bhw'},
+            ].filter(Boolean)
         },
         {icon: <PiAddressBookBold />,text: "Reports", href: route('practitioner.show.report.appointment'), route: '/practitioner/show/reports/appointment',
             sublinks: [
@@ -79,6 +91,7 @@ export default function PatientLayout({ children }) {
                 {text: "Medical Available", href: route('practitioner.show.report.medicine.available'), route: '/practitioner/show/reports/medicine/available'},
                 {text: "Data Analytics", href: route('practitioner.show.report.analytics'), route: '/practitioner/show/reports/analytics'},
                 {text: "Released", href: route('practitioner.show.report.released'), route: '/practitioner/show/reports/released'},
+                {text: "Medical Certificate", href: route('practitioner.show.medical.certificate'), route: '/practitioner/show/medical/certificate'},
             ]
         },
         {icon: <LuMessagesSquare />,text: "Message", href: route(`practitioner.messages`), route: '/practitioner/messages', sublinks: []},

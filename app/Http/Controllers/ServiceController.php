@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
+use App\Contracts\BookingContract;
+use App\Contracts\DataAnalyticContract;
 use App\Contracts\LedgerContract;
 use App\Contracts\MedicineContract;
 use App\Contracts\UserDetailContract;
@@ -19,14 +21,20 @@ class ServiceController extends Controller
     protected $appointmentContract;
     protected $ledgerContract;
     protected $medicineContract;
+    protected $bookingContract;
+    protected $dataAnalyticContract;
 
     public function __construct(
+        DataAnalyticContract $dataAnalyticContract,
         BarangayEventContract $barangayEventContract,
         UserDetailContract $userDetailContract,
         AppointmentContract $appointmentContract,
         LedgerContract $ledgerContract,
+        BookingContract $bookingContract,
         MedicineContract $medicineContract,
     ) {
+        $this->dataAnalyticContract = $dataAnalyticContract;
+        $this->bookingContract = $bookingContract;
         $this->userDetailContract = $userDetailContract;
         $this->barangayEventContract = $barangayEventContract;
         $this->appointmentContract = $appointmentContract;
@@ -88,7 +96,7 @@ class ServiceController extends Controller
             default => 'login'
         };
 
-        $consultations = $this->appointmentContract->getAllAppointmentByMonth();
+        $consultations = $this->barangayEventContract->getAllBarangayEventByMonth();
 
         return Inertia::render($viewPath, [
             'consultations' => $consultations
@@ -137,6 +145,8 @@ class ServiceController extends Controller
 
         $routeName = Route::currentRouteName();
         $accountType = match ($routeName) {
+            'admin.show.data.analysis' => 'Administrator',
+            'bhw.show.data.analysis' => 'Bhw',
             'practitioner.show.data.analysis' => 'Practitioner',
             'patient.show.data.analysis' => 'Patient',
             default => 'login',
@@ -146,13 +156,19 @@ class ServiceController extends Controller
             return redirect()->route('login');
         }
 
+        $dataAnalytic = $this->dataAnalyticContract->getAllDataAnalyticByMonth();
+
         $viewPath = match ($accountType) {
+            'Administrator' => 'Admins/Reports/DataAnalysis',
+            'Bhw' => 'Bhws/Reports/DataAnalysis',
             'Practitioner' => 'Practitioners/Services/DataAnalysis',
             'Patient' => 'Patients/Services/DataAnalysis',
             default => 'login'
         };
 
-        return Inertia::render($viewPath);
+        return Inertia::render($viewPath, [
+            'dataAnalytic' => $dataAnalytic,
+        ]);
     }  
     
     public function getAllBhwActivities()
