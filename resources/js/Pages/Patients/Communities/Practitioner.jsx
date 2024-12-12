@@ -5,13 +5,14 @@ const UserDetail = lazy(() => import("@/Components/Cards/UserDetail"));
 const PatientLayout = lazy(() => import("@/Layouts/PatientLayout"));
 
 const Practitioner = ({ totalBhw, totalPatient, totalPractitioner, practitioners, bhws }) => {
+  console.log("practitioners", practitioners);
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <PatientLayout>
         <Tabs tabTitles={[`Patient ${totalPatient}`, `Practitioner ${totalPractitioner}`, `Bhw ${totalBhw}`]}>
           <div>
-            <h2>First Tab Panel</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas dolores voluptate temporibus.</p>
+            <h2></h2>
+            <p></p>
           </div>
           <div>
             <h2>List of Practitioner</h2>
@@ -23,9 +24,7 @@ const Practitioner = ({ totalBhw, totalPatient, totalPractitioner, practitioners
                     userDetail={{
                       role: practitioner.role,
                       profile: practitioner.profile || "https://cdn-icons-png.freepik.com/512/700/700674.png",
-                      firstname: practitioner.firstname,
-                      middlename: practitioner.middlename,
-                      lastname: practitioner.lastname,
+                      name: practitioner.name,
                       address: practitioner.address || "No Address Provided",
                     }}
                   />
