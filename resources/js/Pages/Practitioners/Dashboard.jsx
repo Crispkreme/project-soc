@@ -1,4 +1,4 @@
-import AdminLayout from '../../Layouts/AdminLayout';
+import PatientLayout from '../../Layouts/PatientLayout';
 import { Bar } from 'react-chartjs-2';
 import React, { Suspense, useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
@@ -169,7 +169,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
 
     return (
         <Suspense>
-            <AdminLayout>
+            <PatientLayout>
                 <Head title="Dashboard" />
 
                 <div className="w-full md:w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
@@ -254,7 +254,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                     selectedAppointment={selectedAppointment}
                     />
                 )}
-            </AdminLayout>
+            </PatientLayout>
         </Suspense>
     );
 }

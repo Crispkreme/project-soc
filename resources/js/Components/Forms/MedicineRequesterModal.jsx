@@ -104,8 +104,8 @@ const MedicineRequesterModal = ({ showModal, toggleModal, selectedReferral, medi
               <div className="flex items-center gap-4 mb-4" key={index}>
                 <div className="flex-grow">
                   <ComboBox
-                    items={medicines}
-                    value={medicines.find((med) => med.medicine_name === medicine.medicine_id)}
+                    items={Object.values(medicines)}
+                    value={Object.values(medicines).find((med) => med.medicine_id === medicine.medicine_id)}
                     onChange={(selected) => handleMedicineChange(index, 'medicine_id', selected?.medicine_id || '')}
                     placeholder="Select Medicine"
                     displayKey="medicine_name"

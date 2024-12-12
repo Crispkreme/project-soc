@@ -207,7 +207,7 @@ class InventoryController extends Controller
         }
     }
 
-    public function approveMedication($id)
+    public function approveMedication(Request $request, $id)
     {
         $user = Auth::user();
 
@@ -224,7 +224,6 @@ class InventoryController extends Controller
             $quantity = $medicine->quantity;
 
             $this->medicationContract->updateMedicationStatusById('Success', $id);
-
             if (!$medicine) {
                 return redirect()->back()->with('error', 'Medication not found.');
             }
@@ -239,13 +238,19 @@ class InventoryController extends Controller
                 return redirect()->back()->with('error', 'Ledger data not found.');
             }
             
-            if ($ledgers->in_stock < $quantity) {
+            // if ($ledgers->in_stock < $inventories->quantity) {
+            //     return redirect()->back()->with('error', 'Insufficient stock available.');
+            //     dd('Insufficient stock available.');
+            // }
+            
+            $inStock = $ledgers->in_stock - $inventories->quantity;
+
+            if ($inStock === 0) {
                 return redirect()->back()->with('error', 'Insufficient stock available.');
+                dd('Insufficient stock available.');
             }
 
-            $inStock = $ledgers->in_stock - $quantity;
-            $sold = $quantity;
-
+            $sold = $inventories->quantity;
             $ledgerData = [
                 'medicine_id' => $medicineId,
                 'sold' => $sold + $ledgers->sold,
@@ -261,8 +266,7 @@ class InventoryController extends Controller
                 'quantity' => $inStock,
             ];
             $inventoryData['id'] = $inventories->id;
-            $data = $this->inventoryContract->createOrUpdateInventory($inventoryData);
-
+            $dddddd = $this->inventoryContract->createOrUpdateInventory($inventoryData);
             $logData = [
                 'doctor_id' => $user->id,
                 'patient_id' => $medicine->patient_id, 
