@@ -5,6 +5,7 @@ namespace App\Contracts;
 interface BookingContract {
 
     public function getAllBooking();
+    public function getCurrentBooking();
     public function getPatientBooking($id);
     public function createOrUpdateBooking($data);
     public function getBookingById($id);

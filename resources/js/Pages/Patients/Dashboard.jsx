@@ -1,4 +1,4 @@
-import AdminLayout from '../../Layouts/AdminLayout';
+import PatientLayout from '../../Layouts/PatientLayout';
 import { Bar } from 'react-chartjs-2';
 import React, { Suspense, useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
@@ -21,6 +21,7 @@ const CancelAppointmentModal = React.lazy(() => import("@/Components/Forms/Cance
 const Table = React.lazy(() => import("@/Components/Table"));
 
 export default function Dashboard({ appointments, message, dataAnalytic }) {
+
     const [filteredAppointments, setFilteredAppointments] = useState(appointments);
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState("");
@@ -39,6 +40,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
         const fetchUpcomingBarangayEvents = async () => {
             try {
                 const response = await axios.get("/get/upcoming/barangay/event");
+                console.log("response", response);
                 setBarangayEvents(response.data.barangayEvents);
             } catch (error) {
                 console.error("Error fetching barangayEvents:", error);
@@ -166,10 +168,10 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
     if (loading) {
         return <p>Loading...</p>;
     }
-
+    console.log("barangayEvents", barangayEvents);
     return (
         <Suspense>
-            <AdminLayout>
+            <PatientLayout>
                 <Head title="Dashboard" />
 
                 <div className="w-full md:w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
@@ -177,11 +179,13 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                         <p>No upcoming events found.</p>
                     ) : (
                         <>
-                            <h5 className="text-lg font-semibold text-gray-800">{event_name}</h5>
-                            <p className="text-gray-600">Dr. {doctor_name} MD</p>
-                            <p className="text-gray-600">
-                                {event_date} {event_start} - {event_end}
-                            </p>
+                            <div key={barangayEvents.id}>
+                                <h5 className="text-lg font-semibold text-gray-800">{barangayEvents.event_name}</h5>
+                                <p className="text-gray-600">Dr. {barangayEvents.doctor_name} MD</p>
+                                <p className="text-gray-600">
+                                    {barangayEvents.event_date} {barangayEvents.event_start} - {barangayEvents.event_end}
+                                </p>
+                            </div>
                         </>
                     )}
                 </div>
@@ -254,7 +258,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                     selectedAppointment={selectedAppointment}
                     />
                 )}
-            </AdminLayout>
+            </PatientLayout>
         </Suspense>
     );
 }

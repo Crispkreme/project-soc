@@ -177,10 +177,10 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                         <p>No upcoming events found.</p>
                     ) : (
                         <>
-                            <h5 className="text-lg font-semibold text-gray-800">{event_name}</h5>
-                            <p className="text-gray-600">Dr. {doctor_name} MD</p>
+                            <h5 className="text-lg font-semibold text-gray-800">{barangayEvents.event_name}</h5>
+                            <p className="text-gray-600">Dr. {barangayEvents.doctor_name} MD</p>
                             <p className="text-gray-600">
-                                {event_date} {event_start} - {event_end}
+                                {barangayEvents.event_date} {barangayEvents.event_start} - {barangayEvents.event_end}
                             </p>
                         </>
                     )}

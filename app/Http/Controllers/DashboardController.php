@@ -38,19 +38,19 @@ class DashboardController extends Controller
         if($user->role === 'Administration') {
             return Inertia::render('Admins/Dashboard', [
                 'message' => $message,
-                'appointments' => $this->bookingContract->getAllBooking(),
+                'appointments' => $this->bookingContract->getCurrentBooking(),
                 'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
             ]);
         } else if($user->role === 'Practitioner') {
             return Inertia::render('Practitioners/Dashboard', [
                 'message' => $message,
-                'appointments' => $this->bookingContract->getAllBooking(),
+                'appointments' => $this->bookingContract->getCurrentBooking(),
                 'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
             ]);
         } else if($user->role === 'Bhw') {
             return Inertia::render('Bhws/Dashboard', [
                 'message' => $message,
-                'appointments' => $this->bookingContract->getAllBooking(),
+                'appointments' => $this->bookingContract->getCurrentBooking(),
                 'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
             ]);
         } else {

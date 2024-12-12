@@ -67,6 +67,38 @@ class BookingRepository implements BookingContract
             });
     }
 
+    public function getCurrentBooking()
+    {
+        return $this->model
+            ->with(['approver:id,firstname,middlename,lastname', 'patient:id,firstname,middlename,lastname'])
+            ->get()
+            ->map(function ($booking) {
+                $doctorName = $booking->approver
+                    ? trim("{$booking->approver->firstname} {$booking->approver->middlename} {$booking->approver->lastname}")
+                    : 'N/A';
+                
+                $patientName = $booking->patient
+                    ? trim("{$booking->patient->firstname} {$booking->patient->middlename} {$booking->patient->lastname}")
+                    : 'N/A';
+
+                return [
+                    'id' => $booking->id,
+                    'patient_id' => $booking->patient_id,
+                    'doctor_id' => $booking->approve_by_id,
+                    'doctor_name' => $doctorName,
+                    'patient_name' => $patientName,
+                    'title' => $booking->title,
+                    'notes' => $booking->notes,
+                    'reason' => $booking->reason,
+                    'appointment_date' => $this->formatDateTime($booking->appointment_date, 'date'),
+                    'updated_at' => $this->formatDateTime($booking->updated_at, 'date'),
+                    'appointment_start' => $this->formatDateTime($booking->appointment_start, 'time'),
+                    'appointment_end' => $this->formatDateTime($booking->appointment_end, 'time'),
+                    'booking_status' => $booking->booking_status,
+                ];
+            });
+    }
+
     public function getPatientBooking($id)
     {
         return $this->model
