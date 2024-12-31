@@ -11,6 +11,7 @@ const LoginScreen = () => {
   const navigation = useNavigation(); // Hook for navigation
 
   async function handleLogin() {
+    
     setErrors({});
 
     try {
@@ -22,11 +23,11 @@ const LoginScreen = () => {
 
       const user = await loadUser();
 
-      // Navigate to PatientHomeScreen with user as parameter
       navigation.reset({
         index: 0,
-        routes: [{ name: 'PatientHomeScreen', params: { user } }],
+        routes: [{ name: 'Dashboard', params: { user } }],
       });
+
     } catch (err) {
       console.error('Axios error:', err.response || err.message);
 
