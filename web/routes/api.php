@@ -17,3 +17,4 @@ Route::get('mobile/health/record/{userId}', [RecordController::class, 'getMedica
 Route::get('mobile/surgical/record/{userId}', [RecordController::class, 'getSurgicalRecordMobile'])->name('mobile.surgical.record');
 Route::get('mobile/medication/record/{userId}', [RecordController::class, 'getMedicationRecordMobile'])->name('mobile.medication.record');
 Route::get('mobile/family/medical/record/{userId}', [RecordController::class, 'getFamilyMedicalRecordMobile'])->name('mobile.family.medical.record');
+Route::get('mobile/medical/certificate/{userId}', [RecordController::class, 'getMedicalCertificateMobile'])->name('mobile.medical.certificate');

@@ -8,6 +8,7 @@ import LoginScreen from "./screens/LoginScreen";
 import PatientHomeScreen from "./screens/PatientHomeScreen";
 import PatientRecordScreen from "./screens/PatientRecordScreen";
 import MedicalRecordScreen from "./screens/MedicalRecordScreen";
+import MedicalCertificateScreen from "./screens/MedicalCertificateScreen";
 
 
 const Drawer = createDrawerNavigator();
@@ -33,6 +34,12 @@ function DrawerNavigator({ route }) {
       <Drawer.Screen 
         name="Medical History" 
         component={MedicalRecordScreen} 
+        initialParams={{ user }}
+        options={{ headerShown: false }}
+      />
+      <Drawer.Screen 
+        name="Medical Certificate" 
+        component={MedicalCertificateScreen} 
         initialParams={{ user }}
         options={{ headerShown: false }}
       />
@@ -62,6 +69,11 @@ export default function App() {
           />
           <Stack.Screen 
             name="Medical History"
+            component={DrawerNavigator} 
+            options={{ headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="Medical Certificate" 
             component={DrawerNavigator} 
             options={{ headerShown: false }} 
           />

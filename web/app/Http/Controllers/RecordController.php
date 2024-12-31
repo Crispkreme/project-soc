@@ -640,5 +640,32 @@ class RecordController extends Controller
             'medicationRecords' => $formattedMedicationRecords
         ]);
     }
+    public function getMedicalCertificateMobile($userId)
+    {
+        $medicalCertificates = MedicalCertificate::select(
+                'medical_certificates.id',
+                'medical_certificates.purpose',
+                'medical_certificates.examin_date',
+                'medical_certificates.issue_date',
+                DB::raw("CONCAT(doctor_details.firstname, ' ', doctor_details.lastname) as doctor_name")
+            )
+            ->join('user_details as doctor_details', 'medical_certificates.doctor_id', '=', 'doctor_details.id')
+            ->orderBy('medical_certificates.id', 'desc')
+            ->where('patient_id', $userId)
+            ->get()
+            ->map(function ($certificate) {
+                return [
+                    'doctor_name' => $certificate->doctor_name,
+                    'purpose' => $certificate->purpose,
+                    'examin_date' => $certificate->examin_date,
+                    'issue_date' => $certificate->issue_date,
+                ];
+            });
+
+        return response()->json([
+            'medicalCertificates' => $medicalCertificates
+        ]);
+    }
+
 
 }
