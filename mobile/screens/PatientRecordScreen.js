@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView, Text, View, Alert } from 'react-native';
-import Accordion from 'react-native-collapsible/Accordion';
-import { getTestResult, getImmunizationResult } from "../services/MedicalResult";
+import React, { useEffect, useState } from "react";
+import { Alert, SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import Collapsible from 'react-native-collapsible';
+import { getTestResult, getImmunizationResult, getHospitalizationResult, getPrescriptionResult } from "../services/MedicalResult";
 
 const PatientRecordScreen = ({ route }) => {
   const { user } = route.params;
   const [testResults, setTestResults] = useState([]);
   const [immunizationResults, setImmunizationResults] = useState([]);
+  const [hospitalizationResults, setHospitalizationResults] = useState([]);
+  const [prescriptionResults, setPrescriptionResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [activeSections, setActiveSections] = useState([]);
+  const [activeSection, setActiveSection] = useState(null);
 
   useEffect(() => {
     const fetchTestResults = async () => {
@@ -18,9 +20,14 @@ const PatientRecordScreen = ({ route }) => {
         setLoading(true);
         const { testResult } = await getTestResult(user.id);
         const { immunizations: immunizationResultData } = await getImmunizationResult(user.id);
+        const { hospitalizations: hospitalizationResultData } = await getHospitalizationResult(user.id);
+        const { medical_records: prescriptionResultData } = await getPrescriptionResult(user.id);
 
         setTestResults(testResult || []);
         setImmunizationResults(immunizationResultData || []);
+        setHospitalizationResults(hospitalizationResultData || []);
+        setPrescriptionResults(prescriptionResultData || []);
+
         setLoading(false);
       } catch (err) {
         console.error("Axios error:", err.response || err.message);
@@ -39,6 +46,36 @@ const PatientRecordScreen = ({ route }) => {
     }
   }, [user.id]);
 
+  const toggleSection = (section) => {
+    setActiveSection(activeSection === section ? null : section);
+  };
+
+  const renderTable = (title, data, headers, section) => (
+    <View>
+      <TouchableOpacity onPress={() => toggleSection(section)}>
+        <View style={styles.headerWrapper}>
+          <Text style={styles.sectionHeader}>{title}</Text>
+        </View>
+      </TouchableOpacity>
+      <Collapsible collapsed={activeSection !== section}>
+        <ScrollView style={styles.tableContainer}>
+          <View style={styles.row}>{headers.map((header, i) => <Text key={i} style={styles.headerCell}>{header}</Text>)}</View>
+          {data.length > 0 ? (
+            data.map((item, index) => (
+              <View key={index} style={styles.row}>
+                {Object.values(item).map((value, i) => (
+                  <Text key={i} style={styles.cell}>{value}</Text>
+                ))}
+              </View>
+            ))
+          ) : (
+            <Text>No records found.</Text>
+          )}
+        </ScrollView>
+      </Collapsible>
+    </View>
+  );
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -55,102 +92,58 @@ const PatientRecordScreen = ({ route }) => {
     );
   }
 
-  const renderSectionHeader = (section) => {
-    return (
-      <View style={styles.row}>
-        <Text style={styles.headerCell}>{section.title}</Text>
-      </View>
-    );
-  };
-
-  const renderSectionContent = (section) => {
-    return (
-      <View style={styles.tableContainer}>
-        <View style={styles.row}>
-          {section.title === 'Test Results' ? (
-            <>
-              <Text style={[styles.cell, styles.headerCell]}>Test</Text>
-              <Text style={[styles.cell, styles.headerCell]}>Result</Text>
-              <Text style={[styles.cell, styles.headerCell]}>Date</Text>
-            </>
-          ) : (
-            <>
-              <Text style={[styles.cell, styles.headerCell]}>Immunization</Text>
-              <Text style={[styles.cell, styles.headerCell]}>Doctor</Text>
-              <Text style={[styles.cell, styles.headerCell]}>Date</Text>
-            </>
-          )}
-        </View>
-        {section.data.length > 0 ? (
-          section.data.map((item, index) => (
-            <View key={index} style={styles.row}>
-              <Text style={styles.cell}>{item.name || item.immunization}</Text>
-              <Text style={styles.cell}>{item.result || item.doctor_name}</Text>
-              <Text style={styles.cell}>{item.created_at}</Text>
-            </View>
-          ))
-        ) : (
-          <Text>No data found.</Text>
-        )}
-      </View>
-    );
-  };
-
-  const sections = [
-    {
-      title: 'Test Results',
-      data: testResults
-    },
-    {
-      title: 'Immunization Results',
-      data: immunizationResults
-    }
-  ];
-
   return (
     <SafeAreaView style={styles.container}>
-      <Accordion
-        sections={sections}
-        activeSections={activeSections}
-        renderHeader={renderSectionHeader}
-        renderContent={renderSectionContent}
-        onChange={(sections) => setActiveSections(sections)}
-        style={styles.accordion}
-      />a
+      {renderTable('Test Results', testResults, ['Test', 'Result', 'Date'], 'test')}
+      {renderTable('Immunizations', immunizationResults, ['Immunization', 'Doctor', 'Date'], 'immunization')}
+      {renderTable('Hospitalizations', hospitalizationResults, ['Diagnosis', 'Hospital', 'Doctor', 'Date'], 'hospitalization')}
+      {renderTable('Prescriptions', prescriptionResults, ['Diagnosis', 'Medicine', 'Date'], 'prescription')}
     </SafeAreaView>
   );
 };
 
-export default PatientRecordScreen;
-
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 50,
-    padding: 10,
-    textAlign: 'center',
+    paddingTop: 20,
+    marginTop: 60,
+    paddingHorizontal: 10,
   },
-  accordion: {
+  headerWrapper: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    marginBottom: 5,
+  },
+  sectionHeader: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
   tableContainer: {
     marginTop: 10,
   },
   row: {
-    flexDirection: 'row',
-    paddingVertical: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
   },
   headerCell: {
-    fontWeight: 'bold',
-    width: '30%',
-    textAlign: 'center',
+    fontWeight: "bold",
+    flex: 1,
+    textAlign: "center",
   },
   cell: {
-    width: '30%',
-    textAlign: 'center',
+    flex: 1,
+    textAlign: "center",
   },
   error: {
-    color: 'red',
-    textAlign: 'center',
+    color: "red",
+    textAlign: "center",
+    marginTop: 20,
   },
-};
+});
+
+export default PatientRecordScreen;

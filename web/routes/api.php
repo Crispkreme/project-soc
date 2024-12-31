@@ -11,3 +11,5 @@ Route::get('/user', function (Request $request) { return $request->user(); })->m
 Route::post('mobile/login', [UserController::class, 'loginMobile'])->name('mobile.login');
 Route::get('mobile/test/result/{userId}', [RecordController::class, 'getTestResultMobile'])->name('mobile.test.result');
 Route::get('mobile/immunization/result/{userId}', [RecordController::class, 'getImmunizationMobile'])->name('mobile.immunization.result');
+Route::get('mobile/hospitalization/result/{userId}', [RecordController::class, 'getHospitalizationMobile'])->name('mobile.hospitalization.result');
+Route::get('mobile/prescription/result/{userId}', [RecordController::class, 'getPrescriptionMobile'])->name('mobile.prescription.result');

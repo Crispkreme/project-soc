@@ -15,8 +15,11 @@ use App\Contracts\MedicineContract;
 use App\Contracts\SurgicalContract;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserDetailContract;
+use App\Models\Hospitalization;
 use App\Models\Immunization;
 use App\Models\MedicalCertificate;
+use App\Models\MedicalRecord;
+use App\Models\Prescription;
 use App\Models\TestResult;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -404,7 +407,14 @@ class RecordController extends Controller
     {
         $testResults = TestResult::where('patient_id', $userId)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($testResult) {
+                return [
+                    'name' => $testResult->name,
+                    'result' => $testResult->result,
+                    'created_at' => $testResult->created_at->format('F d, Y'),
+                ];
+            });
             
         Log::info('testResults:', ['testResults' => $testResults]);
         
@@ -451,5 +461,70 @@ class RecordController extends Controller
             'immunizations' => $formattedImmunizations
         ]);
     }
+    public function getHospitalizationMobile($userId)
+    {
+        $hospitalizations = Hospitalization::with('doctor.details', 'hospital')
+            ->where('patient_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
+        Log::info('Hospitalizations:', ['hospitalizations' => $hospitalizations]);
+
+        if ($hospitalizations->isEmpty()) {
+            return response()->json(['message' => 'No hospitalizations found'], 404);
+        }
+
+        $formattedHospitalizations = $hospitalizations->map(function ($hospitalization) {
+            $createdDate = $hospitalization->created_at->format('F d, Y');
+            
+            $doctor = $hospitalization->doctor;
+            $doctorFullName = $doctor && $doctor->details ? 
+                $doctor->details->firstname . ' ' .
+                ($doctor->details->middlename ? substr($doctor->details->middlename, 0, 1) . '. ' : '') .
+                $doctor->details->lastname
+                : 'Unknown Doctor';
+
+            $hospitalName = $hospitalization->hospital ? $hospitalization->hospital->name : 'Unknown Hospital';
+
+            return [
+                'diagnosis' => $hospitalization->diagnosis,
+                'hospital' => $hospitalName,
+                'doctor' => $doctorFullName,
+                'created_at' => $createdDate,
+            ];
+        });
+
+        return response()->json([
+            'hospitalizations' => $formattedHospitalizations
+        ]);
+    } 
+    public function getPrescriptionMobile($userId)
+    {
+        $medicalRecords = MedicalRecord::with('medicine', 'patient.details')
+            ->where('patient_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        Log::info('Medical Records:', ['medicalRecords' => $medicalRecords]);
+
+        if ($medicalRecords->isEmpty()) {
+            return response()->json(['message' => 'No medical records found'], 404);
+        }
+
+        $formattedRecords = $medicalRecords->map(function ($record) {
+
+            $createdDate = $record->created_at->format('F d, Y');
+            $medicineName = $record->medicine ? $record->medicine->medicine_name : 'Unknown Medicine';
+
+            return [
+                'diagnosis' => $record->diagnosis,
+                'medicine' => $medicineName,
+                'created_at' => $createdDate,
+            ];
+        });
+
+        return response()->json([
+            'medical_records' => $formattedRecords
+        ]);
+    }
 }
