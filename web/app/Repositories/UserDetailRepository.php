@@ -160,4 +160,20 @@ class UserDetailRepository implements UserDetailContract
         ->where('status', '=', $status)
         ->get();
     }
+
+    public function getFullname($id)
+    {
+        $userDetails = $this->model
+            ->select('firstname', 'middlename', 'lastname')
+            ->where('user_id', '=', $id)
+            ->first();
+
+        if ($userDetails) {
+            return $userDetails->firstname . ' ' .
+                ($userDetails->middlename ? substr($userDetails->middlename, 0, 1) . '. ' : '') . 
+                $userDetails->lastname;
+        }
+
+        return null;
+    }
 }

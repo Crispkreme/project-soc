@@ -11,6 +11,7 @@ const LoginScreen = () => {
   const navigation = useNavigation(); // Hook for navigation
 
   async function handleLogin() {
+    
     setErrors({});
 
     try {

@@ -13,14 +13,17 @@ use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
 use App\Contracts\SurgicalContract;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserDetailContract;
+use App\Models\Immunization;
 use App\Models\MedicalCertificate;
+use App\Models\TestResult;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -395,4 +398,58 @@ class RecordController extends Controller
         // Return PDF for download
         return $pdf->download('medical_certificate.pdf');
     }
+
+    // for mobile
+    public function getTestResultMobile($userId)
+    {
+        $testResults = TestResult::where('patient_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        Log::info('testResults:', ['testResults' => $testResults]);
+        
+        if ($testResults->isEmpty()) {
+            return response()->json(['message' => 'No test results found'], 404);
+        }
+
+        return response()->json([
+            'testResult' => $testResults
+        ]);
+    }
+    public function getImmunizationMobile($userId)
+    {
+        
+        $immunizations = Immunization::with('doctor.details')
+            ->where('patient_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        Log::info('Immunizations:', ['immunizations' => $immunizations]);
+
+        if ($immunizations->isEmpty()) {
+            return response()->json(['message' => 'No immunizations found'], 404);
+        }
+
+        $formattedImmunizations = $immunizations->map(function ($immunization) {
+            $createdDate = $immunization->created_at->format('F d, Y');
+            
+            $doctor = $immunization->doctor;
+            $doctorFullName = $doctor && $doctor->details ? 
+                $doctor->details->firstname . ' ' .
+                ($doctor->details->middlename ? substr($doctor->details->middlename, 0, 1) . '. ' : '') .
+                $doctor->details->lastname
+                : 'Unknown Doctor';
+
+            return [
+                'immunization' => $immunization->immunization,
+                'doctor_name' => $doctorFullName,
+                'created_at' => $createdDate,
+            ];
+        });
+
+        return response()->json([
+            'immunizations' => $formattedImmunizations
+        ]);
+    }
+
 }

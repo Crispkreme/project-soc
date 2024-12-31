@@ -13,4 +13,5 @@ interface UserDetailContract {
     public function countSpecificUserDetail($role, $status);
     public function updateUserDetailStatus($status, $id);
     public function createOrUpdateUserAvatar($data);
+    public function getFullname($id);
 }
