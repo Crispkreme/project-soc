@@ -50,7 +50,7 @@ export default function PatientLayout({ children }) {
             sublinks: [
                 {text: "Schedule Consultations", href: route('patient.show.schedule.consultations'), route: '/patient/show/schedule/consultations'},
                 {text: "Medicine Available", href: route('patient.show.medicine.available'), route: '/patient/show/medicine/available'},
-                {text: "Data Analysis Reports", href: route('patient.show.data.analysis'), route: '/patient/show/data/analysis'},
+                // {text: "Data Analysis Reports", href: route('patient.show.data.analysis'), route: '/patient/show/data/analysis'},
                 {text: "BHW Activities", href: route('patient.show.bhw.activities'), route: '/patient/show/bhw/activities'},
             ]
         },
