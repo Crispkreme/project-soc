@@ -9,10 +9,12 @@ use App\Contracts\DataAnalyticContract;
 use App\Contracts\LedgerContract;
 use App\Contracts\MedicineContract;
 use App\Contracts\UserDetailContract;
+use App\Models\BarangayEvent;
 use App\Models\Ledger;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -238,6 +240,33 @@ class ServiceController extends Controller
 
         return response()->json([
             'inventories' => $inventories
+        ]);
+    }
+    public function getScheduleConsultationMobile()
+    {
+        $barangayEvents = BarangayEvent::join('user_details as doctor_details', 'barangay_events.doctor_id', '=', 'doctor_details.id')
+        ->join('users as doctor_users', 'doctor_details.user_id', '=', 'doctor_users.id')
+        ->select([
+            DB::raw("CONCAT(doctor_details.firstname, ' ', COALESCE(doctor_details.middlename, ''), ' ', doctor_details.lastname) as doctor_name"),
+            'doctor_users.role as role',
+            'barangay_events.event_name as event_name',
+            'barangay_events.event_date as event_date',
+            'barangay_events.event_venue as venue',
+            DB::raw("CONCAT(barangay_events.event_start, ' - ', barangay_events.event_end) as event_time")
+        ])
+        ->whereNotNull('barangay_events.event_date')
+        ->get();
+
+        $groupedEvents = $barangayEvents->groupBy(function ($event) {
+            return Carbon::parse($event->event_date)->format('F Y');
+        });
+
+        if ($groupedEvents->isEmpty()) {
+            return response()->json(['message' => 'No Schedule Available found'], 404);
+        }
+
+        return response()->json([
+            'groupedEvents' => $groupedEvents
         ]);
     }
 }

@@ -1,8 +1,8 @@
 import axios from "../utils/axios";
 
-export async function getMedicineAvailable() {
+export async function getScheduleConsultation(userId) {
     try {
-        const response = await axios.get(`/mobile/medicine/available`);
+        const response = await axios.get(`/mobile/schedule/consultation`);
         return response.data;
     } catch (error) {
         console.error("Error fetching medication records:", error);
