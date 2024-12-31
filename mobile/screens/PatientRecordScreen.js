@@ -1,34 +1,26 @@
-import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  SafeAreaView,
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, Text, View, Alert } from 'react-native';
+import Accordion from 'react-native-collapsible/Accordion';
 import { getTestResult, getImmunizationResult } from "../services/MedicalResult";
 
 const PatientRecordScreen = ({ route }) => {
   const { user } = route.params;
-  const [testResults, setTestResults] = useState([]); 
+  const [testResults, setTestResults] = useState([]);
   const [immunizationResults, setImmunizationResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [activeSections, setActiveSections] = useState([]);
 
   useEffect(() => {
     const fetchTestResults = async () => {
       try {
         setLoading(true);
-
         const { testResult } = await getTestResult(user.id);
         const { immunizations: immunizationResultData } = await getImmunizationResult(user.id);
 
-        console.log('Immunization Results:', immunizationResultData);
-
         setTestResults(testResult || []);
         setImmunizationResults(immunizationResultData || []);
-
         setLoading(false);
       } catch (err) {
         console.error("Axios error:", err.response || err.message);
@@ -47,7 +39,6 @@ const PatientRecordScreen = ({ route }) => {
     }
   }, [user.id]);
 
-  // Loading state
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
@@ -56,7 +47,6 @@ const PatientRecordScreen = ({ route }) => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <SafeAreaView style={styles.container}>
@@ -65,79 +55,102 @@ const PatientRecordScreen = ({ route }) => {
     );
   }
 
+  const renderSectionHeader = (section) => {
+    return (
+      <View style={styles.row}>
+        <Text style={styles.headerCell}>{section.title}</Text>
+      </View>
+    );
+  };
+
+  const renderSectionContent = (section) => {
+    return (
+      <View style={styles.tableContainer}>
+        <View style={styles.row}>
+          {section.title === 'Test Results' ? (
+            <>
+              <Text style={[styles.cell, styles.headerCell]}>Test</Text>
+              <Text style={[styles.cell, styles.headerCell]}>Result</Text>
+              <Text style={[styles.cell, styles.headerCell]}>Date</Text>
+            </>
+          ) : (
+            <>
+              <Text style={[styles.cell, styles.headerCell]}>Immunization</Text>
+              <Text style={[styles.cell, styles.headerCell]}>Doctor</Text>
+              <Text style={[styles.cell, styles.headerCell]}>Date</Text>
+            </>
+          )}
+        </View>
+        {section.data.length > 0 ? (
+          section.data.map((item, index) => (
+            <View key={index} style={styles.row}>
+              <Text style={styles.cell}>{item.name || item.immunization}</Text>
+              <Text style={styles.cell}>{item.result || item.doctor_name}</Text>
+              <Text style={styles.cell}>{item.created_at}</Text>
+            </View>
+          ))
+        ) : (
+          <Text>No data found.</Text>
+        )}
+      </View>
+    );
+  };
+
+  const sections = [
+    {
+      title: 'Test Results',
+      data: testResults
+    },
+    {
+      title: 'Immunization Results',
+      data: immunizationResults
+    }
+  ];
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.tableContainer}>
-        <View style={styles.row}>
-          <Text style={styles.headerCell}>Test</Text>
-          <Text style={styles.headerCell}>Result</Text>
-          <Text style={styles.headerCell}>Date</Text>
-        </View>
-        {testResults.length > 0 ? (
-          testResults.map((item, index) => (
-            <View key={index} style={styles.row}>
-              <Text style={styles.cell}>{item.name}</Text>
-              <Text style={styles.cell}>{item.result}</Text>
-              <Text style={styles.cell}>{item.created_at}</Text>
-            </View>
-          ))
-        ) : (
-          <Text>No test results found.</Text>
-        )}
-      </ScrollView>
-
-      <ScrollView style={styles.tableContainer}>
-        <View style={styles.row}>
-          <Text style={styles.headerCell}>Immunization</Text>
-          <Text style={styles.headerCell}>Doctor</Text>
-          <Text style={styles.headerCell}>Date</Text>
-        </View>
-        {immunizationResults.length > 0 ? (
-          immunizationResults.map((item, index) => (
-            <View key={index} style={styles.row}>
-              <Text style={styles.cell}>{item.immunization}</Text>
-              <Text style={styles.cell}>{item.doctor_name}</Text>
-              <Text style={styles.cell}>{item.created_at}</Text>
-            </View>
-          ))
-        ) : (
-          <Text>No immunizations found.</Text>
-        )}
-      </ScrollView>
+      <Accordion
+        sections={sections}
+        activeSections={activeSections}
+        renderHeader={renderSectionHeader}
+        renderContent={renderSectionContent}
+        onChange={(sections) => setActiveSections(sections)}
+        style={styles.accordion}
+      />a
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+export default PatientRecordScreen;
+
+const styles = {
   container: {
     flex: 1,
-    paddingTop: 20,
-    paddingHorizontal: 10,
+    marginTop: 50,
+    padding: 10,
+    textAlign: 'center',
+  },
+  accordion: {
+    textAlign: 'center',
   },
   tableContainer: {
-    marginTop: 20,
+    marginTop: 10,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    flexDirection: 'row',
+    paddingVertical: 8,
   },
   headerCell: {
-    fontWeight: "bold",
-    flex: 1,
-    textAlign: "center",
+    fontWeight: 'bold',
+    width: '30%',
+    textAlign: 'center',
   },
   cell: {
-    flex: 1,
-    textAlign: "center",
+    width: '30%',
+    textAlign: 'center',
   },
   error: {
-    color: "red",
-    textAlign: "center",
-    marginTop: 20,
+    color: 'red',
+    textAlign: 'center',
   },
-});
-
-export default PatientRecordScreen;
+};
