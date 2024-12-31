@@ -21,12 +21,12 @@ const PatientRecordScreen = ({ route }) => {
       try {
         setLoading(true);
 
-        const { testResults: testResultData } = await getTestResult(user.id);
+        const { testResult } = await getTestResult(user.id);
         const { immunizations: immunizationResultData } = await getImmunizationResult(user.id);
 
         console.log('Immunization Results:', immunizationResultData);
 
-        setTestResults(testResultData || []);
+        setTestResults(testResult || []);
         setImmunizationResults(immunizationResultData || []);
 
         setLoading(false);
