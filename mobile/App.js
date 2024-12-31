@@ -7,6 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import LoginScreen from "./screens/LoginScreen";
 import PatientHomeScreen from "./screens/PatientHomeScreen";
 import PatientRecordScreen from "./screens/PatientRecordScreen";
+import MedicalRecordScreen from "./screens/MedicalRecordScreen";
 
 
 const Drawer = createDrawerNavigator();
@@ -26,6 +27,12 @@ function DrawerNavigator({ route }) {
       <Drawer.Screen 
         name="Patient History" 
         component={PatientRecordScreen} 
+        initialParams={{ user }}
+        options={{ headerShown: false }}
+      />
+      <Drawer.Screen 
+        name="Medical History" 
+        component={MedicalRecordScreen} 
         initialParams={{ user }}
         options={{ headerShown: false }}
       />
@@ -50,6 +57,11 @@ export default function App() {
           />
           <Stack.Screen 
             name="Patient History"
+            component={DrawerNavigator} 
+            options={{ headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="Medical History"
             component={DrawerNavigator} 
             options={{ headerShown: false }} 
           />

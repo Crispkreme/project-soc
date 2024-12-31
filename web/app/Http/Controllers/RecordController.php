@@ -15,11 +15,15 @@ use App\Contracts\MedicineContract;
 use App\Contracts\SurgicalContract;
 use App\Contracts\TestResultContract;
 use App\Contracts\UserDetailContract;
+use App\Models\FamilyMedical;
+use App\Models\Health;
 use App\Models\Hospitalization;
 use App\Models\Immunization;
 use App\Models\MedicalCertificate;
 use App\Models\MedicalRecord;
+use App\Models\Medication;
 use App\Models\Prescription;
+use App\Models\Surgical;
 use App\Models\TestResult;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -498,7 +502,7 @@ class RecordController extends Controller
             'hospitalizations' => $formattedHospitalizations
         ]);
     } 
-    public function getPrescriptionMobile($userId)
+    public function getMedicalRecordMobile($userId)
     {
         $medicalRecords = MedicalRecord::with('medicine', 'patient.details')
             ->where('patient_id', $userId)
@@ -527,4 +531,114 @@ class RecordController extends Controller
             'medical_records' => $formattedRecords
         ]);
     }
+    public function getHealthRecordMobile($userId)
+    {
+        $healthRecords = Health::where('patient_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($healthResult) {
+                return [
+                    'name' => $healthResult->name,
+                    'description' => $healthResult->description,
+                    'created_at' => $healthResult->created_at->format('F d, Y'),
+                ];
+            });
+            
+        Log::info('healthRecords:', ['healthRecords' => $healthRecords]);
+        
+        if ($healthRecords->isEmpty()) {
+            return response()->json(['message' => 'No health records found'], 404);
+        }
+
+        return response()->json([
+            'healthRecord' => $healthRecords
+        ]);
+    }
+    public function getFamilyMedicalRecordMobile($userId)
+    {
+        $familyMedicalRecords = FamilyMedical::where('patient_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'disease' => $record->disease,
+                    'relationship' => $record->relationship_disease,
+                    'date' => $record->created_at->format('F d, Y'),
+                ];
+            });
+
+        Log::info('Family Medical Records:', ['records' => $familyMedicalRecords]);
+
+        if ($familyMedicalRecords->isEmpty()) {
+            return response()->json(['message' => 'No family medical records found'], 404);
+        }
+
+        return response()->json([
+            'familyMedicalRecords' => $familyMedicalRecords
+        ]);
+    }
+    public function getSurgicalRecordMobile($userId)
+    {
+        $surgicalRecords = Surgical::with('doctor.details')
+            ->where('patient_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        Log::info('Surgical Records:', ['surgicalRecords' => $surgicalRecords]);
+
+        if ($surgicalRecords->isEmpty()) {
+            return response()->json(['message' => 'No surgical records found'], 404);
+        }
+
+        $formattedSurgicalRecords = $surgicalRecords->map(function ($record) {
+            $createdDate = $record->created_at->format('F d, Y');
+            
+            $doctor = $record->doctor;
+            $doctorFullName = $doctor && $doctor->details ? 
+                $doctor->details->firstname . ' ' .
+                ($doctor->details->middlename ? substr($doctor->details->middlename, 0, 1) . '. ' : '') .
+                $doctor->details->lastname
+                : 'Unknown Doctor';
+
+            return [
+                'procedure' => $record->procedure,
+                'description' => $record->description,
+                'doctor' => $doctorFullName,
+                'created_at' => $createdDate,
+            ];
+        });
+
+        return response()->json([
+            'surgicalRecords' => $formattedSurgicalRecords
+        ]);
+    }
+    public function getMedicationRecordMobile($userId)
+    {
+        $medicationRecords = Medication::with('medicine')
+            ->where('patient_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        Log::info('Medication Records:', ['medicationRecords' => $medicationRecords]);
+
+        if ($medicationRecords->isEmpty()) {
+            return response()->json(['message' => 'No medication records found'], 404);
+        }
+
+        $formattedMedicationRecords = $medicationRecords->map(function ($record) {
+            $createdDate = $record->created_at->format('F d, Y');
+            
+            return [
+                'medicine_name' => $record->medicine ? $record->medicine->name : 'Unknown Medicine',
+                'dosage' => $record->dosage,
+                'reason' => $record->reason,
+                'date' => $createdDate,
+            ];
+        });
+
+        return response()->json([
+            'medicationRecords' => $formattedMedicationRecords
+        ]);
+    }
+
 }
