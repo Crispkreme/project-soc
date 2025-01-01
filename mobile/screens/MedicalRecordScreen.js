@@ -17,7 +17,9 @@ const MedicalRecordScreen = ({ route }) => {
   useEffect(() => {
     const fetchTestResults = async () => {
       try {
+        
         setLoading(true);
+
         const { healthRecord: healthRecordData } = await getHealthRecord(user.id);
         const { surgicalRecords: surgicalRecordData } = await getSurgicalRecord(user.id);
         const { medicationRecords: medicationRecordData } = await getMedicationRecord(user.id);

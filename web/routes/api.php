@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
@@ -21,3 +22,4 @@ Route::get('mobile/family/medical/record/{userId}', [RecordController::class, 'g
 Route::get('mobile/medical/certificate/{userId}', [RecordController::class, 'getMedicalCertificateMobile'])->name('mobile.medical.certificate');
 Route::get('mobile/medicine/available', [ServiceController::class, 'getMedicineAvailableMobile'])->name('mobile.medicine.available');
 Route::get('mobile/schedule/consultation', [ServiceController::class, 'getScheduleConsultationMobile'])->name('mobile.schedule.consultation');
+Route::get('mobile/barangay/event', [AppointmentController::class, 'getBarangayEventMobile'])->name('mobile.barangay.event');
