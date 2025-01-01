@@ -24,8 +24,6 @@ const AppointmentScreen = ({ route }) => {
     event_name: "",
     event_venue: "",
     event_date: "",
-    event_start: "",
-    event_end: "",
   });
 
   useEffect(() => {
@@ -74,19 +72,8 @@ const AppointmentScreen = ({ route }) => {
       return new Date(parsedDate).toISOString().split('T')[0];
     } else {
       const dateParts = dateString.split(" ");
-      const months = {
-        January: 1,
-        February: 2,
-        March: 3,
-        April: 4,
-        May: 5,
-        June: 6,
-        July: 7,
-        August: 8,
-        September: 9,
-        October: 10,
-        November: 11,
-        December: 12,
+      const months = { 
+        January: 1, February: 2, March: 3, April: 4, May: 5, June: 6, July: 7, August: 8, September: 9, October: 10, November: 11, December: 12 
       };
   
       const month = months[dateParts[0]];
@@ -95,12 +82,18 @@ const AppointmentScreen = ({ route }) => {
   
       return `${year}-${month.toString().padStart(2, '0')}-${day.padStart(2, '0')}`;
     }
-  };  
+  };
 
   const timeSchedule = [
     { value: "08:00 - 09:00", label: "08:00 AM - 09:00 AM" },
     { value: "09:00 - 10:00", label: "09:00 AM - 10:00 AM" },
     { value: "10:00 - 11:00", label: "10:00 AM - 11:00 AM" },
+    { value: "11:00 - 12:00", label: "11:00 AM - 12:00 AM" },
+    { value: "01:00 - 02:00", label: "01:00 PM - 02:00 PM" },
+    { value: "02:00 - 03:00", label: "02:00 PM - 03:00 PM" },
+    { value: "03:00 - 04:00", label: "03:00 PM - 04:00 PM" },
+    { value: "04:00 - 05:00", label: "04:00 PM - 05:00 PM" },
+    { value: "05:00 - 06:00", label: "05:00 PM - 06:00 PM" },
   ];
 
   const filterTimeSlots = (date) => {
@@ -120,14 +113,24 @@ const AppointmentScreen = ({ route }) => {
         return slotEnd <= startHour || slotStart >= endHour;
       });
       setFilteredSlots(filtered);
+
+      setFormData({
+        event_name: event.event_name,
+        event_venue: event.event_venue,
+        event_date: date,
+      });
     } else {
       setFilteredSlots(timeSchedule);
+      setFormData({
+        event_name: "",
+        event_venue: "",
+        event_date: date,
+      });
     }
   };
 
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
-    setFormData({ ...formData, event_date: day.dateString });
     filterTimeSlots(day.dateString);
   };
 
@@ -153,6 +156,7 @@ const AppointmentScreen = ({ route }) => {
           [selectedDate]: { selected: true, selectedColor: "blue" },
         }}
       />
+
       <View style={styles.formContainer}>
         <Text>Event Name:</Text>
         <TextInput
