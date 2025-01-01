@@ -11,6 +11,7 @@ import MedicalRecordScreen from "./screens/MedicalRecordScreen";
 import MedicalCertificateScreen from "./screens/MedicalCertificateScreen";
 import MedicineAvailableScreen from "./screens/MedicineAvailableScreen";
 import ScheduleConsultationScreen from "./screens/ScheduleConsultationScreen";
+import BhwActivityScreen from "./screens/BhwActivityScreen";
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -56,6 +57,12 @@ function DrawerNavigator({ route }) {
         initialParams={{ user }}
         options={{ headerShown: false }}
       />
+      <Drawer.Screen 
+        name="Bhw Activity" 
+        component={BhwActivityScreen} 
+        initialParams={{ user }}
+        options={{ headerShown: false }}
+      />
     </Drawer.Navigator>
   );
 }
@@ -97,6 +104,11 @@ export default function App() {
           />
           <Stack.Screen 
             name="Schedule Consultation" 
+            component={DrawerNavigator} 
+            options={{ headerShown: false }} 
+          />
+          <Stack.Screen 
+            name="Bhw Activity" 
             component={DrawerNavigator} 
             options={{ headerShown: false }} 
           />
