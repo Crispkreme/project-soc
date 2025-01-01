@@ -51,36 +51,49 @@ const AppointmentScreen = ({ route }) => {
 
   const markEventDates = (events) => {
     let marked = {};
-    
+
     events.forEach((event) => {
       const formattedDate = formatEventDate(event.event_date);
-      
+
       marked[formattedDate] = {
         marked: true,
         dotColor: "red",
       };
     });
 
-    console.log("Marked Dates:", marked);
     setMarkedDates(marked);
   };
 
   const formatEventDate = (dateString) => {
     const parsedDate = Date.parse(dateString);
-    
+
     if (!isNaN(parsedDate)) {
-      return new Date(parsedDate).toISOString().split('T')[0];
+      return new Date(parsedDate).toISOString().split("T")[0];
     } else {
       const dateParts = dateString.split(" ");
-      const months = { 
-        January: 1, February: 2, March: 3, April: 4, May: 5, June: 6, July: 7, August: 8, September: 9, October: 10, November: 11, December: 12 
+      const months = {
+        January: 1,
+        February: 2,
+        March: 3,
+        April: 4,
+        May: 5,
+        June: 6,
+        July: 7,
+        August: 8,
+        September: 9,
+        October: 10,
+        November: 11,
+        December: 12,
       };
-  
+
       const month = months[dateParts[0]];
       const day = dateParts[1].replace(",", "");
       const year = dateParts[2];
-  
-      return `${year}-${month.toString().padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+      return `${year}-${month.toString().padStart(2, "0")}-${day.padStart(
+        2,
+        "0"
+      )}`;
     }
   };
 
@@ -88,7 +101,7 @@ const AppointmentScreen = ({ route }) => {
     { value: "08:00 - 09:00", label: "08:00 AM - 09:00 AM" },
     { value: "09:00 - 10:00", label: "09:00 AM - 10:00 AM" },
     { value: "10:00 - 11:00", label: "10:00 AM - 11:00 AM" },
-    { value: "11:00 - 12:00", label: "11:00 AM - 12:00 AM" },
+    { value: "11:00 - 12:00", label: "11:00 AM - 12:00 PM" },
     { value: "01:00 - 02:00", label: "01:00 PM - 02:00 PM" },
     { value: "02:00 - 03:00", label: "02:00 PM - 03:00 PM" },
     { value: "03:00 - 04:00", label: "03:00 PM - 04:00 PM" },
@@ -162,45 +175,43 @@ const AppointmentScreen = ({ route }) => {
         <TextInput
           style={styles.input}
           value={formData.event_name}
-          onChangeText={(value) =>
-            setFormData({ ...formData, event_name: value })
-          }
+          editable={false}
         />
+
         <Text>Event Venue:</Text>
         <TextInput
           style={styles.input}
           value={formData.event_venue}
-          onChangeText={(value) =>
-            setFormData({ ...formData, event_venue: value })
-          }
+          editable={false}
         />
+
+        <Text>Event Date:</Text>
+        <TextInput
+          style={styles.input}
+          value={formData.event_date}
+          editable={false}
+        />
+
         <Text>Time Slot:</Text>
         <Picker
           selectedValue={selectedSlot}
           onValueChange={(itemValue) => setSelectedSlot(itemValue)}
         >
-          {filteredSlots.length > 0 ? (
-            filteredSlots.map((slot, index) => (
-              <Picker.Item key={index} label={slot.label} value={slot.value} />
-            ))
-          ) : (
-            <Picker.Item label="No available slots" value="" />
-          )}
+          {filteredSlots.map((slot, index) => (
+            <Picker.Item key={index} label={slot.label} value={slot.value} />
+          ))}
         </Picker>
-        {loading ? (
-          <Text>Loading...</Text>
-        ) : (
-          <Button title="Book Appointment" onPress={handleFormSubmit} />
-        )}
+
+        <Button title="Book Appointment" onPress={handleFormSubmit} />
       </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, marginTop: 50 },
+  container: { flex: 1, padding: 16 },
   formContainer: { marginTop: 20 },
-  input: { borderWidth: 1, padding: 8, marginVertical: 10, borderRadius: 5 },
+  input: { borderWidth: 1, padding: 10, borderRadius: 5, backgroundColor: "#eee" },
 });
 
 export default AppointmentScreen;
