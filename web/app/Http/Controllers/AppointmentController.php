@@ -420,4 +420,75 @@ class AppointmentController extends Controller
 
         return response()->json(['barangayEvents' => $barangayEvents]);
     }
+    public function storeBooking(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $user_id = $request->input('user_id');
+            $event_id = $request->input('event_id');
+            $event_date = $request->input('event_date');
+            $event_start = $request->input('event_start');
+            $event_end = $request->input('event_end');
+            $event_name = $request->input('event_name');
+
+            $existingBookings = $this->bookingContract->checkExistingBooking(
+                $event_date, 
+                $event_start, 
+                $event_end
+            );
+
+            if ($existingBookings >= 2) {
+                return response()->json(['message' => 'The selected time slot is already fully booked. Please select another time.'], 404);
+            }
+
+            $existingPatientBookings = $this->bookingContract->checkPatientExistingBooking(
+                $user_id, 
+                $event_start,
+                $event_end
+            );
+
+            if ($existingPatientBookings >= 1) {
+                return response()->json(['message' => 'You have already booked for this event.'], 404);
+            }
+
+            $data = [
+                'patient_id' => $user_id,
+                'event_id' => $event_id,
+                'appointment_date' => $event_date,
+                'appointment_start' => $event_start,
+                'appointment_end' => $event_end,
+                'title' => $event_name,
+                'notes' => 'Create a Booking',
+                'booking_status' => 'Pending',
+            ];
+
+            if ($existingBookings < 2 && $existingPatientBookings < 1) {
+                $this->bookingContract->createOrUpdateBooking($data);
+                
+                $logData = [
+                    'patient_id' => $user_id,
+                    'message' => 'has booked an appointment',
+                    'log_status' => 'Accept',
+                ];
+                $this->logContract->updateOrCreateLog($logData);
+                
+                DB::commit();
+
+                return response()->json(['message' => 'Appointment saved successfully!'], 202);
+            }
+
+            DB::rollback();
+            return response()->json(['message' => 'Booking could not be saved.'], 500);
+        } catch (Exception $e) {
+            Log::error('Error during storeBooking: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json(['message' => 'An error occurred during the booking process.'], 500);
+        }
+    }
 }

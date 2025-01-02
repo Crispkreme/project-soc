@@ -10,3 +10,14 @@ export async function getBarangayEvent() {
         throw error;
     }
 }
+
+export async function storeBarangayEvent(data) {
+    console.log('data', data);
+    try {
+        const response = await axios.post(`/mobile/store/booking`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing barangay event:", error);
+        throw error;
+    }
+}

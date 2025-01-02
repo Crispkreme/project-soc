@@ -23,3 +23,5 @@ Route::get('mobile/medical/certificate/{userId}', [RecordController::class, 'get
 Route::get('mobile/medicine/available', [ServiceController::class, 'getMedicineAvailableMobile'])->name('mobile.medicine.available');
 Route::get('mobile/schedule/consultation', [ServiceController::class, 'getScheduleConsultationMobile'])->name('mobile.schedule.consultation');
 Route::get('mobile/barangay/event', [AppointmentController::class, 'getBarangayEventMobile'])->name('mobile.barangay.event');
+
+Route::post('mobile/store/booking', [AppointmentController::class, 'storeBooking'])->name('mobile.store.booking');

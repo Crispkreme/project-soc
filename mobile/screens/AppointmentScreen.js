@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { Picker } from "@react-native-picker/picker";
-import { getBarangayEvent } from "../services/Appointment";
+import { getBarangayEvent, storeBarangayEvent } from "../services/Appointment";
 
 const AppointmentScreen = ({ route }) => {
   const { user } = route.params;
@@ -20,10 +20,13 @@ const AppointmentScreen = ({ route }) => {
   const [medicalCertificate, setMedicalCertificate] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const [loading, setLoading] = useState(false);
+  
   const [formData, setFormData] = useState({
     event_name: "",
     event_venue: "",
     event_date: "",
+    event_id: "",
+    user_id: "",
   });
 
   useEffect(() => {
@@ -37,7 +40,6 @@ const AppointmentScreen = ({ route }) => {
           setMedicalCertificate(barangayEventData);
           markEventDates(barangayEventData);
         }
-
         setLoading(false);
       } catch (err) {
         console.error("Axios error:", err.response || err.message);
@@ -48,25 +50,19 @@ const AppointmentScreen = ({ route }) => {
 
     fetchBarangayEvent();
   }, []);
-
   const markEventDates = (events) => {
     let marked = {};
-
     events.forEach((event) => {
       const formattedDate = formatEventDate(event.event_date);
-
       marked[formattedDate] = {
         marked: true,
         dotColor: "red",
       };
     });
-
     setMarkedDates(marked);
   };
-
   const formatEventDate = (dateString) => {
     const parsedDate = Date.parse(dateString);
-
     if (!isNaN(parsedDate)) {
       return new Date(parsedDate).toISOString().split("T")[0];
     } else {
@@ -90,25 +86,17 @@ const AppointmentScreen = ({ route }) => {
       const day = dateParts[1].replace(",", "");
       const year = dateParts[2];
 
-      return `${year}-${month.toString().padStart(2, "0")}-${day.padStart(
-        2,
-        "0"
-      )}`;
+      return `${year}-${month.toString().padStart(2, "0")}-${day.padStart(2, "0")}`;
     }
   };
-
   const timeSchedule = [
-    { value: "08:00 - 09:00", label: "08:00 AM - 09:00 AM" },
-    { value: "09:00 - 10:00", label: "09:00 AM - 10:00 AM" },
-    { value: "10:00 - 11:00", label: "10:00 AM - 11:00 AM" },
-    { value: "11:00 - 12:00", label: "11:00 AM - 12:00 PM" },
-    { value: "01:00 - 02:00", label: "01:00 PM - 02:00 PM" },
-    { value: "02:00 - 03:00", label: "02:00 PM - 03:00 PM" },
-    { value: "03:00 - 04:00", label: "03:00 PM - 04:00 PM" },
-    { value: "04:00 - 05:00", label: "04:00 PM - 05:00 PM" },
-    { value: "05:00 - 06:00", label: "05:00 PM - 06:00 PM" },
+    { value: "08:00:00 - 09:00:00", label: "08:00 AM - 09:00 AM" },
+    { value: "09:00:00 - 10:00:00", label: "09:00 AM - 10:00 AM" },
+    { value: "10:00:00 - 11:00:00", label: "10:00 AM - 11:00 AM" },
+    { value: "11:00:00 - 12:00:00", label: "11:00 AM - 12:00 PM" },
+    { value: "13:00:00 - 14:00:00", label: "01:00 PM - 02:00 PM" },
+    { value: "14:00:00 - 15:00:00", label: "02:00 PM - 03:00 PM" },
   ];
-
   const filterTimeSlots = (date) => {
     const event = medicalCertificate.find((e) => {
       const formattedEventDate = formatEventDate(e.event_date);
@@ -127,39 +115,61 @@ const AppointmentScreen = ({ route }) => {
       });
       setFilteredSlots(filtered);
 
-      setFormData({
+      // Update formData state correctly
+      setFormData((prevFormData) => ({
+        ...prevFormData,
         event_name: event.event_name,
         event_venue: event.event_venue,
         event_date: date,
-      });
+        event_id: event.id,
+        user_id: user.id,
+      }));
     } else {
       setFilteredSlots(timeSchedule);
       setFormData({
         event_name: "",
         event_venue: "",
         event_date: date,
+        event_id: "",
+        user_id: "",
       });
     }
   };
-
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
     filterTimeSlots(day.dateString);
   };
-
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
+    // Recheck if formData exists
     if (
-      formData.event_name &&
-      formData.event_venue &&
-      formData.event_date &&
-      selectedSlot
+      !formData ||
+      !formData.event_name ||
+      !formData.event_venue ||
+      !formData.event_date ||
+      !selectedSlot
     ) {
+      Alert.alert("Error", "Please fill in all fields.");
+      return;
+    }
+    
+    const [startTime, endTime] = selectedSlot.split(" - ");
+
+    try {
+      const submissionData = {
+        ...formData,
+        event_start: startTime,
+        event_end: endTime,
+      };
+
+      const response = await storeBarangayEvent(submissionData);
+  
       Alert.alert("Success", "Appointment Booked");
-    } else {
-      Alert.alert("Error", "Please fill in all fields");
+    } catch (error) {
+      console.error("Error storing appointment:", error);
+      Alert.alert("Error", "Failed to book appointment. Please try again.");
     }
   };
-
+  
   return (
     <ScrollView style={styles.container}>
       <Calendar
@@ -172,25 +182,13 @@ const AppointmentScreen = ({ route }) => {
 
       <View style={styles.formContainer}>
         <Text>Event Name:</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.event_name}
-          editable={false}
-        />
+        <TextInput style={styles.input} value={formData.event_name} editable={false} />
 
         <Text>Event Venue:</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.event_venue}
-          editable={false}
-        />
+        <TextInput style={styles.input} value={formData.event_venue} editable={false} />
 
         <Text>Event Date:</Text>
-        <TextInput
-          style={styles.input}
-          value={formData.event_date}
-          editable={false}
-        />
+        <TextInput style={styles.input} value={formData.event_date} editable={false} />
 
         <Text>Time Slot:</Text>
         <Picker
@@ -209,9 +207,9 @@ const AppointmentScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  formContainer: { marginTop: 20 },
-  input: { borderWidth: 1, padding: 10, borderRadius: 5, backgroundColor: "#eee" },
+    container: { flex: 1, padding: 16, marginTop: 60 },
+    formContainer: { marginTop: 20 },
+    input: { borderWidth: 1, padding: 10, borderRadius: 5, backgroundColor: "#eee" },
 });
 
 export default AppointmentScreen;
