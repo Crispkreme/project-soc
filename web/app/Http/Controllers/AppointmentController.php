@@ -491,4 +491,30 @@ class AppointmentController extends Controller
             return response()->json(['message' => 'An error occurred during the booking process.'], 500);
         }
     }
+    public function getUpcomingBarangayEventMobile()
+    {   
+        $today = now()->startOfDay();
+
+        $upcomingBarangayEvents = BarangayEvent::where('event_date', '>=', $today)
+            ->with(['doctor:id,firstname,middlename,lastname'])
+            ->orderBy('event_date', 'asc')
+            ->first();
+
+        if (!$upcomingBarangayEvents) {
+            return response()->json(['message' => 'No Barangay Event found'], 404);
+        }
+
+        if ($upcomingBarangayEvents->doctor) {
+            $doctor = $upcomingBarangayEvents->doctor;
+            $upcomingBarangayEvents->doctor_name = trim("{$doctor->firstname} {$doctor->middlename} {$doctor->lastname}");
+        }
+
+        $upcomingBarangayEvents->event_date = Carbon::parse($upcomingBarangayEvents->event_date)->format('l, F d, Y');
+        $upcomingBarangayEvents->event_start = Carbon::parse($upcomingBarangayEvents->event_start)->format('h:i A');
+        $upcomingBarangayEvents->event_end = Carbon::parse($upcomingBarangayEvents->event_end)->format('h:i A');
+
+        Log::error(['upcomingBarangayEvents' => $upcomingBarangayEvents]);
+
+        return response()->json(['upcomingBarangayEvents' => $upcomingBarangayEvents]);
+    }
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Alert, SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import Collapsible from 'react-native-collapsible';
+import Collapsible from 'react-native-collapsible'; // Ensure this is installed
 import { getTestResult, getImmunizationResult, getHospitalizationResult, getPrescriptionResult } from "../services/MedicalResult";
 
 const PatientRecordScreen = ({ route }) => {
@@ -11,22 +11,21 @@ const PatientRecordScreen = ({ route }) => {
   const [prescriptionResults, setPrescriptionResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const [activeSection, setActiveSection] = useState(null);
+  const [activeSection, setActiveSection] = useState(null); // Active section for accordion
 
   useEffect(() => {
-    const fetchTestResults = async () => {
+    const fetchResults = async () => {
       try {
         setLoading(true);
         const { testResult } = await getTestResult(user.id);
-        const { immunizations: immunizationResultData } = await getImmunizationResult(user.id);
-        const { hospitalizations: hospitalizationResultData } = await getHospitalizationResult(user.id);
-        const { medical_records: prescriptionResultData } = await getPrescriptionResult(user.id);
+        const { immunizations } = await getImmunizationResult(user.id);
+        const { hospitalizations } = await getHospitalizationResult(user.id);
+        const { medical_records } = await getPrescriptionResult(user.id);
 
         setTestResults(testResult || []);
-        setImmunizationResults(immunizationResultData || []);
-        setHospitalizationResults(hospitalizationResultData || []);
-        setPrescriptionResults(prescriptionResultData || []);
+        setImmunizationResults(immunizations || []);
+        setHospitalizationResults(hospitalizations || []);
+        setPrescriptionResults(medical_records || []);
 
         setLoading(false);
       } catch (err) {
@@ -42,30 +41,70 @@ const PatientRecordScreen = ({ route }) => {
     };
 
     if (user.id) {
-      fetchTestResults();
+      fetchResults();
     }
   }, [user.id]);
 
+  const handleAdd = (type) => {
+    Alert.alert(`Add ${type}`, `Add functionality for ${type} goes here.`);
+  };
+
+  const handleEdit = (item) => {
+    Alert.alert("Edit", `Edit functionality for ${JSON.stringify(item)} goes here.`);
+  };
+
+  const handleDelete = (item) => {
+    Alert.alert("Delete", `Delete functionality for ${JSON.stringify(item)} goes here.`);
+  };
+
   const toggleSection = (section) => {
-    setActiveSection(activeSection === section ? null : section);
+    setActiveSection(activeSection === section ? null : section); // Toggle the active section
   };
 
   const renderTable = (title, data, headers, section) => (
     <View>
+      {/* Accordion Section */}
       <TouchableOpacity onPress={() => toggleSection(section)}>
         <View style={styles.headerWrapper}>
           <Text style={styles.sectionHeader}>{title}</Text>
         </View>
       </TouchableOpacity>
+
       <Collapsible collapsed={activeSection !== section}>
+        {/* Add Button inside the Accordion */}
+        <TouchableOpacity style={styles.actionButton} onPress={() => handleAdd(title)}>
+          <Text style={styles.actionText}>{`Add ${title}`}</Text>
+        </TouchableOpacity>
+
         <ScrollView style={styles.tableContainer}>
-          <View style={styles.row}>{headers.map((header, i) => <Text key={i} style={styles.headerCell}>{header}</Text>)}</View>
+          {/* Table Header */}
+          <View style={styles.row}>
+            {headers.map((header, i) => (
+              <Text key={i} style={styles.headerCell}>
+                {header}
+              </Text>
+            ))}
+            <Text style={styles.headerCell}>{'Actions'}</Text> {/* Action Column */}
+          </View>
+
+          {/* Table Body */}
           {data.length > 0 ? (
             data.map((item, index) => (
               <View key={index} style={styles.row}>
                 {Object.values(item).map((value, i) => (
-                  <Text key={i} style={styles.cell}>{value}</Text>
+                  <Text key={i} style={styles.cell}>
+                    {value}
+                  </Text>
                 ))}
+                {/* Action Column */}
+                <View style={styles.actions}>
+                  <TouchableOpacity style={styles.actionButton} onPress={() => handleEdit(item)}>
+                    <Text style={styles.actionText}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.actionButton} onPress={() => handleDelete(item)}>
+                    <Text style={styles.actionText}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))
           ) : (
@@ -94,10 +133,10 @@ const PatientRecordScreen = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {renderTable('Test Results', testResults, ['Test', 'Result', 'Date'], 'test')}
-      {renderTable('Immunizations', immunizationResults, ['Immunization', 'Doctor', 'Date'], 'immunization')}
-      {renderTable('Hospitalizations', hospitalizationResults, ['Diagnosis', 'Hospital', 'Doctor', 'Date'], 'hospitalization')}
-      {renderTable('Prescriptions', prescriptionResults, ['Diagnosis', 'Medicine', 'Date'], 'prescription')}
+      {renderTable('Test Result', testResults, ['Test', 'Result', 'Date'], 'test')}
+      {renderTable('Immunization', immunizationResults, ['Immunization', 'Doctor', 'Date'], 'immunization')}
+      {renderTable('Hospitalization', hospitalizationResults, ['Diagnosis', 'Hospital', 'Doctor', 'Date'], 'hospitalization')}
+      {renderTable('Prescription', prescriptionResults, ['Diagnosis', 'Medicine', 'Date'], 'prescription')}
     </SafeAreaView>
   );
 };
@@ -138,6 +177,24 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
     textAlign: "center",
+  },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+  actionButton: {
+    backgroundColor: '#E3F2FD',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    marginHorizontal: 4,
+    borderRadius: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionText: {
+    color: '#1E88E5',
+    fontSize: 14,
   },
   error: {
     color: "red",

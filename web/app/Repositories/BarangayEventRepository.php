@@ -142,9 +142,9 @@ class BarangayEventRepository implements BarangayEventContract
                 $event->doctor_name = trim("{$doctor->firstname} {$doctor->middlename} {$doctor->lastname}");
             }
 
-            $event->event_date = \Carbon\Carbon::parse($event->event_date)->format('l, F d, Y');
-            $event->event_start = \Carbon\Carbon::parse($event->event_start)->format('h:i a');
-            $event->event_end = \Carbon\Carbon::parse($event->event_end)->format('h:i a');
+            $event->event_date = Carbon::parse($event->event_date)->format('l, F d, Y');
+            $event->event_start = Carbon::parse($event->event_start)->format('h:i a');
+            $event->event_end = Carbon::parse($event->event_end)->format('h:i a');
 
             unset($event->doctor);
         }

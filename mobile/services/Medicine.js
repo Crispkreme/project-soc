@@ -1,0 +1,12 @@
+import axios from "../utils/axios";
+
+export async function getTopMedicine() {
+    try {
+        const response = await axios.get(`/mobile/top/medicine`);
+        console.log('analytics', response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching medication records:", error);
+        throw error;
+    }
+}

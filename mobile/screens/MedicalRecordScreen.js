@@ -17,7 +17,6 @@ const MedicalRecordScreen = ({ route }) => {
   useEffect(() => {
     const fetchTestResults = async () => {
       try {
-        
         setLoading(true);
 
         const { healthRecord: healthRecordData } = await getHealthRecord(user.id);
@@ -52,22 +51,54 @@ const MedicalRecordScreen = ({ route }) => {
     setActiveSection(activeSection === section ? null : section);
   };
 
+  const handleAdd = (type) => {
+    Alert.alert(`Add ${type}`, `Add functionality for ${type} goes here.`);
+  };
+
   const renderTable = (title, data, headers, section) => (
     <View>
+      {/* Accordion Section */}
       <TouchableOpacity onPress={() => toggleSection(section)}>
         <View style={styles.headerWrapper}>
           <Text style={styles.sectionHeader}>{title}</Text>
         </View>
       </TouchableOpacity>
+
       <Collapsible collapsed={activeSection !== section}>
+        {/* Add Button inside the Accordion */}
+        <TouchableOpacity style={styles.actionButton} onPress={() => handleAdd(title)}>
+          <Text style={styles.actionText}>{`Add ${title}`}</Text>
+        </TouchableOpacity>
+
         <ScrollView style={styles.tableContainer}>
-          <View style={styles.row}>{headers.map((header, i) => <Text key={i} style={styles.headerCell}>{header}</Text>)}</View>
+          {/* Table Header */}
+          <View style={styles.row}>
+            {headers.map((header, i) => (
+              <Text key={i} style={styles.headerCell}>
+                {header}
+              </Text>
+            ))}
+            <Text style={styles.headerCell}>{'Actions'}</Text> {/* Action Column */}
+          </View>
+
+          {/* Table Body */}
           {data.length > 0 ? (
             data.map((item, index) => (
               <View key={index} style={styles.row}>
                 {Object.values(item).map((value, i) => (
-                  <Text key={i} style={styles.cell}>{value}</Text>
+                  <Text key={i} style={styles.cell}>
+                    {value}
+                  </Text>
                 ))}
+                {/* Action Column */}
+                <View style={styles.actions}>
+                  <TouchableOpacity style={styles.actionButton} onPress={() => handleAdd('Edit')}>
+                    <Text style={styles.actionText}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.actionButton} onPress={() => handleAdd('Delete')}>
+                    <Text style={styles.actionText}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))
           ) : (
@@ -146,6 +177,24 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
     textAlign: "center",
+  },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+  actionButton: {
+    backgroundColor: '#E3F2FD',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    marginHorizontal: 4,
+    borderRadius: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionText: {
+    color: '#1E88E5',
+    fontSize: 14,
   },
   error: {
     color: "red",
