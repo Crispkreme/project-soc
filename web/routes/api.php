@@ -25,5 +25,6 @@ Route::get('mobile/medicine/available', [ServiceController::class, 'getMedicineA
 Route::get('mobile/schedule/consultation', [ServiceController::class, 'getScheduleConsultationMobile'])->name('mobile.schedule.consultation');
 Route::get('mobile/barangay/event', [AppointmentController::class, 'getBarangayEventMobile'])->name('mobile.barangay.event');
 Route::get('mobile/top/medicine', [DashboardController::class, 'getTopMedicineMobile'])->name('mobile.top.medicine');
+Route::get('mobile/upcoming/barangay/event', [AppointmentController::class, 'getUpcomingBarangayEventMobile'])->name('mobile.upcoming.barangay.event');
 
 Route::post('mobile/store/booking', [AppointmentController::class, 'storeBooking'])->name('mobile.store.booking');
