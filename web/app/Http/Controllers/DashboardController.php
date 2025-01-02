@@ -96,4 +96,16 @@ class DashboardController extends Controller
             'logs' => $logs,
         ]);
     } 
+
+    // for mobile
+    public function getTopMedicineMobile()
+    {
+        $dataAnalytic = $this->dataAnalyticContract->getAllDataAnalyticByMonth();
+
+        if ($dataAnalytic->isEmpty()) {
+            return response()->json(['message' => 'No data found'], 404);
+        }
+
+        return response()->json(['dataAnalytic' => $dataAnalytic]);
+    }
 }
