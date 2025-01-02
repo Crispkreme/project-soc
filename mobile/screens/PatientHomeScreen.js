@@ -121,10 +121,14 @@ const PatientHomeScreen = ({ route }) => {
     <SafeAreaView style={styles.container}>
       {user ? (
         <>
-          <Text style={styles.text}>{upcomingBarangayEvents.event_name}</Text>
-          <Text style={styles.subText}>Dr. {upcomingBarangayEvents.doctor_name} MD</Text>
-          <Text style={styles.subText}>{upcomingBarangayEvents.event_date}</Text>
-          <Text style={styles.subText}>{upcomingBarangayEvents.event_start} - {upcomingBarangayEvents.event_end}</Text>
+          <View style={styles.card}>
+            <Text style={styles.eventTitle}>{upcomingBarangayEvents.event_name}</Text>
+            <Text style={styles.doctorText}>Dr. {upcomingBarangayEvents.doctor_name} MD</Text>
+            <Text style={styles.eventDate}>{upcomingBarangayEvents.event_date}</Text>
+            <Text style={styles.eventTime}>
+              {upcomingBarangayEvents.event_start} - {upcomingBarangayEvents.event_end}
+            </Text>
+          </View>
 
           {loading ? (
             <Text>Loading data...</Text>
@@ -184,6 +188,43 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     paddingHorizontal: 16,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    marginVertical: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  eventTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#334155',
+    marginBottom: 6,
+  },
+  doctorText: {
+    fontSize: 16,
+    color: '#475569',
+    marginBottom: 4,
+  },
+  eventDate: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#0f172a',
+    marginBottom: 4,
+  },
+  eventTime: {
+    fontSize: 14,
+    color: '#64748b',
   },
   text: {
     fontSize: 22,
