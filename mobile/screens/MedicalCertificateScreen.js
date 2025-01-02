@@ -12,8 +12,8 @@ const MedicalCertificateScreen = ({ route }) => {
     const fetchMedicalCertificate = async () => {
       try {
         setLoading(true);
+        
         const { medicalCertificates: medicalCertificatetData } = await getMedicalCertificate(user.id);
-        console.log('medicalCertificatetData', medicalCertificatetData);
 
         setMedicalCertificate(medicalCertificatetData || []);
         setLoading(false);
