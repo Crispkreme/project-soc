@@ -96,6 +96,8 @@ const AppointmentScreen = ({ route }) => {
     { value: "11:00:00 - 12:00:00", label: "11:00 AM - 12:00 PM" },
     { value: "13:00:00 - 14:00:00", label: "01:00 PM - 02:00 PM" },
     { value: "14:00:00 - 15:00:00", label: "02:00 PM - 03:00 PM" },
+    { value: "15:00:00 - 16:00:00", label: "03:00 PM - 04:00 PM" },
+    { value: "16:00:00 - 17:00:00", label: "04:00 PM - 05:00 PM" },
   ];
   const filterTimeSlots = (date) => {
     const event = medicalCertificate.find((e) => {

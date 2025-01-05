@@ -14,4 +14,5 @@ interface UserDetailContract {
     public function updateUserDetailStatus($status, $id);
     public function createOrUpdateUserAvatar($data);
     public function getFullname($id);
+    public function getPatientData($id);
 }

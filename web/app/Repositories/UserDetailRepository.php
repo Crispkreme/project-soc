@@ -176,4 +176,9 @@ class UserDetailRepository implements UserDetailContract
 
         return null;
     }
+
+    public function getPatientData($id)
+    {
+        return $this->model->where('user_id', $id)->first();
+    }
 }
