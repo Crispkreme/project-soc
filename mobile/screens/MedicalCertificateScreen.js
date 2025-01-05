@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Alert, SafeAreaView, View, Text, StyleSheet, ScrollView } from "react-native";
+import { Alert, SafeAreaView, Text, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
 import { getMedicalCertificate } from "../services/MedicalCertificate";
+import DataTable, { COL_TYPES } from 'react-native-datatable-component';
+import moment from 'moment';
+import { Card } from "react-native-paper";
 
 const MedicalCertificateScreen = ({ route }) => {
   const { user } = route.params;
@@ -12,12 +15,10 @@ const MedicalCertificateScreen = ({ route }) => {
     const fetchMedicalCertificate = async () => {
       try {
         setLoading(true);
-        
-        const { medicalCertificates: medicalCertificatetData } = await getMedicalCertificate(user.id);
-
-        setMedicalCertificate(medicalCertificatetData || []);
+        const { medicalCertificates: medicalCertificateData } = await getMedicalCertificate(user.id);
+        console.log('medicalCertificateData', medicalCertificateData); 
+        setMedicalCertificate(medicalCertificateData || []);
         setLoading(false);
-
       } catch (err) {
         console.error("Axios error:", err.response || err.message);
         setLoading(false);
@@ -35,37 +36,22 @@ const MedicalCertificateScreen = ({ route }) => {
     }
   }, [user.id]);
 
-  const renderTable = (title, data, headers) => (
-    <View>
-      <View style={styles.headerWrapper}>
-        <Text style={styles.sectionHeader}>{title}</Text>
-      </View>
-      <ScrollView horizontal style={styles.tableContainer}>
-        <ScrollView style={styles.verticalScroll}>
-          <View style={styles.row}>
-            {headers.map((header, i) => (
-              <Text key={i} style={styles.headerCell}>{header}</Text>
-            ))}
-          </View>
-          {data.length > 0 ? (
-            data.map((item, index) => (
-              <View key={index} style={styles.row}>
-                {Object.values(item).map((value, i) => (
-                  <Text key={i} style={styles.cell}>{value}</Text>
-                ))}
-              </View>
-            ))
-          ) : (
-            <Text>No records found.</Text>
-          )}
-        </ScrollView>
-      </ScrollView>
-    </View>
-  );
+  const formatExpirationDate = (date) => {
+    const trimmedDate = date.trim();
+    const formattedDate = moment(trimmedDate, 'DD/MM/YYYY', true);    
+    return formattedDate.isValid() ? formattedDate.format("MMM DD, YYYY") : 'Invalid Date';
+  };
+
+  const formattedMedicineData = medicalCertificate.map(item => ({
+    ...item,
+    examin_date: formatExpirationDate(item.examin_date),
+    issue_date: formatExpirationDate(item.issue_date),
+  }));
 
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color="#007BFF" />
         <Text>Loading...</Text>
       </SafeAreaView>
     );
@@ -81,7 +67,26 @@ const MedicalCertificateScreen = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {renderTable('Medical Certificate', medicalCertificate, ['Purpose', 'Doctor', 'Examin Date', 'Issued Date'])}
+      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+        <Card style={[styles.card, { marginTop: 20, backgroundColor: 'white' }]}>
+          <Text style={styles.headerText}>Medical Certificate</Text>
+
+          <DataTable
+            data={formattedMedicineData}
+            colNames={["purpose", "doctor_name", "examin_date", "issue_date"]}
+            colSettings={[
+              { name: 'purpose', type: COL_TYPES.STRING, width: '30%' },
+              { name: 'doctor_name', type: COL_TYPES.STRING, width: '30%' },
+              { name: 'examin_date', type: COL_TYPES.STRING, width: '20%' },
+              { name: 'issue_date', type: COL_TYPES.STRING, width: '20%' },
+            ]}
+            noOfPages={2}
+            backgroundColor={'white'}
+            headerLabelStyle={{ color: 'grey', fontSize: 12 }}
+            style={{ marginTop: 10 }}
+          />
+        </Card>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -89,47 +94,25 @@ const MedicalCertificateScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
-    marginTop: 60,
-    paddingHorizontal: 10,
+    backgroundColor: "#fff",
+    marginTop: 20,
   },
-  headerWrapper: {
-    backgroundColor: '#007BFF',
-    padding: 10,
-    marginBottom: 5,
-  },
-  sectionHeader: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  tableContainer: {
-    marginTop: 10,
-  },
-  verticalScroll: {
-    marginTop: 10,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  headerCell: {
-    fontWeight: "bold",
-    flex: 1,
-    textAlign: "center",
-  },
-  cell: {
-    flex: 1,
-    textAlign: "center",
+  card: {
+    padding: 20,
+    borderRadius: 8,
+    elevation: 3,
   },
   error: {
     color: "red",
     textAlign: "center",
     marginTop: 20,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#333',
   },
 });
 

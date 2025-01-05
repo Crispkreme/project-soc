@@ -43,7 +43,7 @@ const MedicineAvailableScreen = ({ route }) => {
   }, [user.id]);
 
   const formatExpirationDate = (date) => {
-    const formattedDate = moment(date, 'MMMM DD, YYYY', true); // Explicit format parsing
+    const formattedDate = moment(date, 'MMMM DD, YYYY', true);
     return formattedDate.isValid() ? formattedDate.format("MMM DD, YYYY") : 'Invalid Date';
   };
 
