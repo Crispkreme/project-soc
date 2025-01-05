@@ -1,4 +1,3 @@
-import React from 'react';
 import { TbUserExclamation, TbUserShield } from 'react-icons/tb';
 
 const StatusButton = ({ status, onClick, className }) => {
@@ -16,7 +15,13 @@ const StatusButton = ({ status, onClick, className }) => {
             buttonText = 'Pending';
             buttonClass = 'bg-blue-50 text-blue-500 hover:text-blue-600';
             icon = <TbUserExclamation className="mr-1" />;
-            isDisabled = true;
+            isDisabled = false;
+            break;
+        case 'Approve':
+            buttonText = 'Approved';
+            buttonClass = 'bg-green-50 text-green-500 hover:text-green-600';
+            icon = '';
+            isDisabled = false;
             break;
         case 'Success':
             buttonText = 'Completed';

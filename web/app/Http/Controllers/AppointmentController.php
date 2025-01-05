@@ -372,6 +372,35 @@ class AppointmentController extends Controller
             return redirect()->back()->with('error', 'An error occurred, please try again.');
         }
     }
+    public function getAllAppointment()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $routeName = Route::currentRouteName();
+        $accountType = match ($routeName) {
+            'practitioner.appointments' => 'Practitioner',
+            default => 'login',
+        };
+
+        if (!$accountType) {
+            return redirect()->route('login');
+        }
+
+        $viewPath = match ($accountType) {
+            'Practitioner' => 'Practitioners/Bookings/Booking',
+            default => 'login'
+        }; 
+
+        $appointments = $this->appointmentContract->appointments();  
+        
+        return Inertia::render($viewPath, [
+            'appointments' => $appointments,
+        ]);
+    }
 
     // for mobile
     private function formatEventTime($startTime, $endTime)
