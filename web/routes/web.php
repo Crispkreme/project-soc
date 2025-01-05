@@ -81,6 +81,7 @@ Route::get('/get/medicines/quantity/{id}', [InventoryController::class, 'getMedi
 Route::post('/barangay/event/create', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.create');
 Route::post('/barangay/event/update/{id}', [ActivitiesController::class, 'updateOrCreateBarangayEvent'])->name('barangay.event.update');
 Route::get('/get/upcoming/barangay/event', [ActivitiesController::class, 'getUpcomingBarangayEvent'])->name('get.upcoming.barangay.event');
+Route::get('/get/patient/data/{id}', [AppointmentController::class, 'getPatientData'])->name('get.patient.data');
 Route::get('/get/notification', [ActivitiesController::class, 'getNotification'])->name('get.notification');
 Route::get('/view/{id}', [RecordController::class, 'viewPDF'])->name('medical.certificate.view');
 Route::get('/download/{id}', [RecordController::class, 'downloadPDF'])->name('medical.certificate.download');

@@ -517,4 +517,11 @@ class AppointmentController extends Controller
 
         return response()->json(['upcomingBarangayEvents' => $upcomingBarangayEvents]);
     }
+
+    public function getPatientData($id)
+    {
+        $patient = $this->userDetailContract->getPatientData($id);
+
+        return response()->json(['patient' => $patient]);
+    }
 }

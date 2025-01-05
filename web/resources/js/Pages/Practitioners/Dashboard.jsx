@@ -4,23 +4,18 @@ import React, { Suspense, useState, useEffect } from "react";
 import { Head } from "@inertiajs/react";
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-} from "chart.js";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const StatusButton = React.lazy(() => import("@/Components/Buttons/StatusButton"));
 const ApproveModal = React.lazy(() => import("@/Components/Forms/ApproveModal"));
+const PatientDetailsModal = React.lazy(() => import("@/Components/Modals/PatientDetailsModal"));
 const CancelAppointmentModal = React.lazy(() => import("@/Components/Forms/CancelAppointmentModal"));
 const Table = React.lazy(() => import("@/Components/Table"));
 
 export default function Dashboard({ appointments, message, dataAnalytic }) {
+
     const [filteredAppointments, setFilteredAppointments] = useState(appointments);
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState("");
@@ -28,6 +23,8 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
     const [barangayEvents, setBarangayEvents] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
+    const [selectedPatient, setSelectedPatient] = useState(null);
+    const [showPatientModal, setShowPatientModal] = useState(false);
 
     useEffect(() => {
         if (message) {
@@ -55,12 +52,66 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
         setModalType(type);
         setShowModal(!showModal);
     };
-
     const closeModal = () => {
         setShowModal(false);
         setModalType("");
         setSelectedAppointment(null);
     };
+    const handlePatientClick = (appointment) => {
+        console.log("appointment", appointment);
+        setSelectedPatient(appointment);
+        setShowPatientModal(true);
+    
+        const fetchPatientData = async () => {
+            try {
+                const response = await axios.get(`/get/patient/data/${appointment.patient_id}`);
+                console.log('Fetched patient data:', response.data);
+                setSelectedPatient({ ...appointment, patient_details: response.data.patient });
+            } catch (error) {
+                console.error("Error fetching patient data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchPatientData();
+    };      
+    const closePatientModal = () => {
+        setShowPatientModal(false);
+        setSelectedPatient(null);
+    };
+
+    const tableData = filteredAppointments
+        .filter((appointment) => appointment.booking_status !== "Approve")
+        .map((appointment) => ({
+            patient_name: (
+                <span
+                    className="text-blue-500 underline cursor-pointer"
+                    onClick={() => handlePatientClick(appointment)}
+                >
+                    {appointment.patient_name}
+                </span>
+            ),
+            title: appointment.title,
+            appointment_date: appointment.appointment_date,
+            appointment_time: `${appointment.appointment_start} - ${appointment.appointment_end}`,
+            reason: appointment.reason,
+            updated_at: appointment.updated_at,
+            actions: [
+                <StatusButton
+                    key="approve"
+                    status={appointment.booking_status}
+                    onClick={() => toggleModal(appointment, "approve")}
+                />,
+                appointment.booking_status === "Pending" && (
+                    <StatusButton
+                        key="cancel"
+                        status="Failed"
+                        onClick={() => toggleModal(appointment, "cancel")}
+                    />
+                ),
+            ].filter(Boolean),
+        }));
 
     const handleSearch = (e) => {
         const query = e.target.value.toLowerCase();
@@ -154,7 +205,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
     };
 
     const appointmentColumns = [
-        { key: "approver_name", label: "Approver's Name" },
+        { key: "patient_name", label: "Patient Name" },
         { key: "title", label: "Appointment" },
         { key: "appointment_date", label: "Event Date" },
         { key: "appointment_time", label: "Time" },
@@ -210,48 +261,33 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                         <div className="overflow-x-auto">
                             <Table
                                 columns={appointmentColumns}
-                                data={filteredAppointments
-                                    .filter((appointment) => appointment.booking_status !== "Approve")
-                                    .map((appointment) => ({
-                                        approver_name: appointment.doctor_name,
-                                        title: appointment.title,
-                                        appointment_date: appointment.appointment_date,
-                                        appointment_time: `${appointment.appointment_start} - ${appointment.appointment_end}`,
-                                        reason: appointment.reason,
-                                        updated_at: appointment.updated_at,
-                                        actions: [
-                                            <StatusButton
-                                                key="approve"
-                                                status={appointment.booking_status}
-                                                onClick={() => toggleModal(appointment, "approve")}
-                                            />,
-                                            appointment.booking_status === "Pending" && (
-                                                <StatusButton
-                                                    key="cancel"
-                                                    status="Failed"
-                                                    onClick={() => toggleModal(appointment, "cancel")}
-                                                />
-                                            ),
-                                        ].filter(Boolean),
-                                    }))}
+                                data={tableData}
                                 noDataMessage="No Appointments Available."
                             />
                         </div>
                     </div>
                 </div>
+                
+                {showPatientModal && selectedPatient && (
+                    <PatientDetailsModal
+                        showModal={showPatientModal}
+                        toggleModal={closePatientModal}
+                        patient={selectedPatient}
+                    />
+                )}
 
                 {showModal && modalType === "approve" && selectedAppointment && (
                     <ApproveModal
-                    showModal={showModal}
-                    toggleModal={closeModal}
-                    selectedAppointment={selectedAppointment}
+                        showModal={showModal}
+                        toggleModal={closeModal}
+                        selectedAppointment={selectedAppointment}
                     />
                 )}
                 {showModal && modalType === "cancel" && selectedAppointment && (
                     <CancelAppointmentModal
-                    showModal={showModal}
-                    toggleModal={closeModal}
-                    selectedAppointment={selectedAppointment}
+                        showModal={showModal}
+                        toggleModal={closeModal}
+                        selectedAppointment={selectedAppointment}
                     />
                 )}
             </PatientLayout>

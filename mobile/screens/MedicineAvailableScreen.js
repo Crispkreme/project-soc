@@ -77,7 +77,7 @@ const MedicineAvailableScreen = ({ route }) => {
                       {value}
                     </Text>
                   </View>
-              ))}
+                ))}
               </View>
             ))
           ) : (
