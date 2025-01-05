@@ -21,11 +21,11 @@ class AppointmentRepository implements AppointmentContract
     {
         return $this->model->updateOrCreate(
             [
-                'doctor_id' => $data['doctor_id'] ?? null,
+                'booking_id' => $data['booking_id'] ?? null,
             ],
             [
-                'booking_id' => $data['booking_id'] ?? null,
-                'slot' => $data['slot'],
+                'doctor_id' => $data['doctor_id'] ?? null,
+                'slot' => $data['slot'] ?? null,
                 'appointment_status' => $data['booking_status'] ?? 'Inprogress',
             ]
         );
@@ -86,5 +86,31 @@ class AppointmentRepository implements AppointmentContract
             $appointment->update(['appointment_status' => $status]);
             return $appointment;
         }
+    }
+
+    public function checkBookingSlot($id)
+    {
+        return $this->model->select('slot')
+            ->where('booking_id', $id)
+            ->first()?->slot ?? 0;
+    }
+
+    public function appointments()
+    {
+        return $this->model->join('bookings', 'appointments.booking_id', '=', 'bookings.id')
+        ->join('user_details as doctor', 'appointments.doctor_id', '=', 'doctor.id')
+        ->join('user_details as patient', 'bookings.patient_id', '=', 'patient.id')
+        ->select(
+            DB::raw("CONCAT(doctor.firstname, ' ', IFNULL(doctor.middlename, ''), ' ', doctor.lastname) AS doctor_name"),
+            DB::raw("CONCAT(patient.firstname, ' ', IFNULL(patient.middlename, ''), ' ', patient.lastname) AS patient_name"),
+            'bookings.title',
+            'bookings.appointment_date',
+            'bookings.appointment_start',
+            'bookings.appointment_end',
+            'appointments.slot',
+            'appointments.appointment_status',
+            'appointments.created_at'
+        )
+        ->get();
     }
 }

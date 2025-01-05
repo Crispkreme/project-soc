@@ -58,7 +58,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
         setSelectedAppointment(null);
     };
     const handlePatientClick = (appointment) => {
-        console.log("appointment", appointment);
+
         setSelectedPatient(appointment);
         setShowPatientModal(true);
     
@@ -99,15 +99,15 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
             updated_at: appointment.updated_at,
             actions: [
                 <StatusButton
-                    key="approve"
+                    key="Pending"
                     status={appointment.booking_status}
-                    onClick={() => toggleModal(appointment, "approve")}
+                    onClick={() => toggleModal(appointment, "Pending")}
                 />,
                 appointment.booking_status === "Pending" && (
                     <StatusButton
-                        key="cancel"
+                        key="Cancel"
                         status="Failed"
-                        onClick={() => toggleModal(appointment, "cancel")}
+                        onClick={() => toggleModal(appointment, "Cancel")}
                     />
                 ),
             ].filter(Boolean),
@@ -276,14 +276,14 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                     />
                 )}
 
-                {showModal && modalType === "approve" && selectedAppointment && (
+                {showModal && modalType === "Pending" && selectedAppointment && (
                     <ApproveModal
                         showModal={showModal}
                         toggleModal={closeModal}
                         selectedAppointment={selectedAppointment}
                     />
                 )}
-                {showModal && modalType === "cancel" && selectedAppointment && (
+                {showModal && modalType === "Cancel" && selectedAppointment && (
                     <CancelAppointmentModal
                         showModal={showModal}
                         toggleModal={closeModal}

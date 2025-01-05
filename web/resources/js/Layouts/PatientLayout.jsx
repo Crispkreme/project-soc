@@ -65,6 +65,7 @@ export default function PatientLayout({ children }) {
         {icon: <LuMessagesSquare />,text: "Message", href: route(`patient.messages`), route: '/patient/messages', sublinks: []},
     ] : [
         {icon: <MdOutlineDashboardCustomize />,text: "Dashboard", href: route(`practitioner.dashboard`), route: '/practitioner/dashboard', sublinks: []},
+        {icon: <MdOutlineDashboardCustomize />,text: "Appointment", href: route(`practitioner.appointments`), route: '/practitioner/appointments', sublinks: []},
         {icon: <PiAddressBookBold />,text: "Schedules", href: route('practitioner.book.appointments'), route: '/practitioner/book/appointments',
             sublinks: [
                 {text: "Schedules", href: route('practitioner.book.appointments'), route: '/practitioner/book/appointments'},
@@ -148,7 +149,7 @@ export default function PatientLayout({ children }) {
             <section className='flex h-full lg:grow flex-wrap'>
 
                 <Sidebar user={user}>
-                    <div className={`h-full mt-4 transition-all text-center bg-white flex py-4 flex-col justify-start rounded-2xl`}>
+                    <div className={`overflow-y-auto h-full mt-4 transition-all text-center bg-white flex py-4 flex-col justify-start rounded-2xl`}>
                         <div className='w-full flex justify-center mb-8'>
                             <Dropdown>
                                 <Dropdown.Trigger>

@@ -49,6 +49,7 @@ Route::middleware(['auth', 'verified', 'practitioner'])
     // RECORDS
     Route::get('/show/record/medicals', [RecordController::class, 'getAllMedical'])->name('show.record.medicals');
     Route::get('/show/record/histories', [RecordController::class, 'getAllHistory'])->name('show.record.histories');
+    Route::get('/appointments', [AppointmentController::class, 'getAllAppointment'])->name('appointments');
 
     // REPORTS THIS IS TEMP
     Route::get('/show/reports/appointment', [RecordController::class, 'getAllAppointmentReports'])->name('show.report.appointment');

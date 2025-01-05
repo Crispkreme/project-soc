@@ -58,7 +58,6 @@ const AdminLayout = ({ children }) => {
                 dropdownItems={[
                     { label: 'Data', link: route('admin.show.data.analysis') },
                     { label: 'Referral', link: route('admin.referrals') },
-                    { label: 'Referral', link: route('admin.referrals') },
                     { label: 'Prescription', link: route('admin.prescriptions') },
                     { label: 'Medicine', link: route('admin.reports.medicine') },
                     { label: 'Inventory', link: route('admin.reports.inventory') },

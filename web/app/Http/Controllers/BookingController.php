@@ -194,38 +194,36 @@ class BookingController extends Controller
 
     public function approveAppointments($id = null)
     {
-        $user = Auth::user();
-        $routeName = Route::currentRouteName();
-        $accountType = match ($routeName) {
-            'practitioner.dashboard' => 'practitioner',
-            'patient.dashboard' => 'patient',
-            default => 'login',
-        };
-
-        if (!$accountType) {
-            return redirect()->route('login');
-        }
         
-        $viewPath = match ($accountType) {
-            'Practitioner' => 'Practitioners/Dashboard',
-            'Patient' => 'Patients/Dashboard',
-            default => 'login'
-        };
+        $user = Auth::user();
+        
+        $data = $this->bookingContract->updateBookingstatus('Approve', $id, $user->id);
+        
+        $slotData = $this->appointmentContract->checkBookingSlot($id);
 
-        $data = $this->bookingContract->updateBookingstatus('Pending', $id, $user->id);
+        $slot = $slotData === 0 ? 1 : $slotData + 1;
 
-        $logData = [  
+        $appointmentData = [
+            'doctor_id' => $user->id,
+            'booking_id' => $id,
+            'slot' => $slot,
+            'appointment_status' => 'Pending',
+        ];
+
+        $this->appointmentContract->createOrUpdateAppointment($appointmentData);
+
+        $logData = [
             'doctor_id' => $user->id,
             'patient_id' => $data->patient_id,
             'message' => 'has approved booked your appointment',
             'log_status' => 'Success',
-        ]; 
+        ];
 
         $this->logContract->updateOrCreateLog($logData);
 
-        Session::flash('success', 'Appointment successfully aprroved.');
+        Session::flash('success', 'Appointment successfully approved.');
 
-        return Inertia::render($viewPath);
+        return redirect()->back();
     }
 
     public function getReferral()
