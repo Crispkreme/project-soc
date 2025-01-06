@@ -14,6 +14,7 @@ import MedicineAvailableScreen from "./screens/MedicineAvailableScreen";
 import ScheduleConsultationScreen from "./screens/ScheduleConsultationScreen";
 import BhwActivityScreen from "./screens/BhwActivityScreen";
 import AppointmentScreen from "./screens/AppointmentScreen";
+import MedicineRequesterScreen from "./screens/MedicineRequesterScreen";
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -59,6 +60,17 @@ function DrawerNavigator({ route }) {
       <Drawer.Screen
         name="Medical History"
         component={MedicalRecordScreen}
+        initialParams={{ user }}
+        options={{
+          headerShown: false,
+          drawerIcon: ({ color, size }) => (
+            <Icon name="medical-bag" color={color} size={size} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Medical Requester"
+        component={MedicineRequesterScreen}
         initialParams={{ user }}
         options={{
           headerShown: false,

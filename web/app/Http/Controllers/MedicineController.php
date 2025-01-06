@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\LedgerContract;
 use App\Contracts\MedicalRecordContract;
+use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
 use App\Models\Medicine;
 use Exception;
@@ -19,15 +20,19 @@ class MedicineController extends Controller
     protected $medicineContract;
     protected $medicalRecordContract;
     protected $ledgerContract;
+    protected $medicationContract;
 
     public function __construct(
         MedicineContract $medicineContract,
         MedicalRecordContract $medicalRecordContract,
         LedgerContract $ledgerContract,
+        MedicationContract $medicationContract
     ) {
         $this->medicineContract = $medicineContract;
         $this->medicalRecordContract = $medicalRecordContract;
         $this->ledgerContract = $ledgerContract;
+        $this->ledgerContract = $ledgerContract;
+        $this->medicationContract = $medicationContract;
     }
 
     public function getAllMedicine()
@@ -123,5 +128,11 @@ class MedicineController extends Controller
         $medicines = $this->ledgerContract->getAllLedgerMedicine();
 
         return response()->json($medicines);
+    }
+
+    public function getAllMedicineRequesterMobile($userId)
+    {
+        $medicineRequester = $this->medicationContract->getMedicationById($userId);
+        return response()->json($medicineRequester);
     }
 }

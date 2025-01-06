@@ -1,6 +1,6 @@
-import { lazy, useState, useEffect } from 'react';
-import { useForm } from '@inertiajs/react';
-import { toast } from 'react-hot-toast';
+import { lazy, useState, useEffect } from "react";
+import { useForm } from "@inertiajs/react";
+import { toast } from "react-hot-toast";
 
 const Modal = lazy(() => import("@/Components/Modals/Modal"));
 const Title = lazy(() => import("@/Components/Headers/Title"));
@@ -11,41 +11,41 @@ const InputError = lazy(() => import("@/Components/Inputs/InputError"));
 const PrimaryButton = lazy(() => import("@/Components/Buttons/PrimaryButton"));
 const ComboBox = lazy(() => import("@/Components/Inputs/ComboBox"));
 
-const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
+const PrescriptionModal = ({ showModal, toggleReferralModal, selectedReferral }) => {
+
   const { data, setData, post, processing, errors } = useForm({
-    doctor_id: '',
-    patient_id: selectedReferral ? selectedReferral.patient_id : '',
-    medicines: [{ medicine_id: '', quantity: '' }],
-    instruction: '',
-    diagnosis: '',
+    doctor_id: "",
+    patient_id: selectedReferral ? selectedReferral.patient_id : "",
+    medicines: [{ medicine_id: "", quantity: "" }],
+    instruction: "",
+    diagnosis: "",
   });
 
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const addMedicineRow = () => {
-    setData('medicines', [...data.medicines, { medicine_id: '', quantity: '' }]);
+    setData("medicines", [...data.medicines, { medicine_id: "", quantity: "" }]);
   };
 
   const removeMedicineRow = (index) => {
     if (data.medicines.length > 1) {
       const newMedicines = data.medicines.filter((_, i) => i !== index);
-      setData('medicines', newMedicines);
+      setData("medicines", newMedicines);
     }
   };
 
   const handleMedicineChange = (index, field, value) => {
     const newMedicines = [...data.medicines];
     newMedicines[index][field] = value;
-    setData('medicines', newMedicines);
-    console.log('medicines', newMedicines);
+    setData("medicines", newMedicines);
   };
 
   const fetchMedicines = async () => {
     if (!showModal) return;
     setLoading(true);
     try {
-      const response = await axios.get('/api/mobile/get/all/medicine/inventory');
+      const response = await axios.get("/api/mobile/get/all/medicine/inventory");
       setMedicines(response.data);
     } catch (err) {
       console.error(err);
@@ -64,21 +64,18 @@ const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
   const submit = (e) => {
     e.preventDefault();
 
-    console.log('Form Data:', data);
-
     const url = selectedReferral
       ? route("prescription.update", { id: selectedReferral.id })
       : route("prescription.create");
 
     post(url, {
       onSuccess: () => {
-        // Reset form data after successful submission
         setData({
-          doctor_id: '',
-          patient_id: selectedReferral ? selectedReferral.patient_id : '',
-          medicines: [{ medicine_id: '', quantity: '' }],
-          instruction: '',
-          diagnosis: '',
+          doctor_id: "",
+          patient_id: selectedReferral ? selectedReferral.patient_id : "",
+          medicines: [{ medicine_id: "", quantity: "" }],
+          instruction: "",
+          diagnosis: "",
         });
 
         toggleModal(false); // Close the modal
@@ -112,7 +109,7 @@ const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
         <div className="mt-4">
           <InputLabel value="Patient" />
           <TextInput
-            value={selectedReferral?.patient_name || ''}
+            value={selectedReferral?.patient_name || ""}
             type="text"
             className="w-full border p-2 rounded"
             disabled
@@ -132,14 +129,13 @@ const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
                   <input
                     type="hidden"
                     name={`medicines[${index}][medicine_id]`}
-                    value={medicine.medicine_id || ''}
+                    value={medicine.medicine_id || ""}
                   />
                   <ComboBox
                     items={medicines}
                     value={medicines.find((med) => med.id === medicine.medicine_id)}
                     onChange={(selected) => {
-                      console.log("selected", selected);
-                      handleMedicineChange(index, 'medicine_id', selected ? selected.id : '');
+                      handleMedicineChange(index, "medicine_id", selected ? selected.id : "");
                     }}
                     placeholder="Select Medicine"
                     displayKey="medicine_name"
@@ -219,7 +215,7 @@ const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
 
         <div className="mt-4 flex justify-center">
           <PrimaryButton disabled={processing} className="px-8 py-2">
-            {processing ? 'Saving...' : 'Save Prescription'}
+            {processing ? "Saving..." : "Save Prescription"}
           </PrimaryButton>
         </div>
       </form>

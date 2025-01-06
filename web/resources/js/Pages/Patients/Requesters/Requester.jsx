@@ -1,6 +1,5 @@
-import React, { useState, lazy, Suspense } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import PatientLayout from '@/Layouts/PatientLayout';
-import { HiOutlinePlusSm } from "react-icons/hi";
 import Table from "@/Components/Table";
 
 const MedicineRequesterModal = lazy(() => import("@/Components/Forms/MedicineRequesterModal"));
@@ -49,13 +48,13 @@ const Requester = ({ medicineRequesters, medicines }) => {
         <div className="bg-white border border-gray-100 shadow-md p-6 rounded-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-medium">Manage Medicine Requester</h2>
-            <button
+            {/* <button
               type="button"
               className="bg-green-50 text-sm font-medium text-green-400 py-2 px-4 hover:text-green-600 flex items-center"
               onClick={() => toggleModal()} // Open modal with no referral by default
             >
               <HiOutlinePlusSm className="mr-1" /> Request Medicine
-            </button>
+            </button> */}
           </div>
           <div className="pb-4">
             <div className="relative">

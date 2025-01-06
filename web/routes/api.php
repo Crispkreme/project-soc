@@ -33,6 +33,7 @@ Route::get('mobile/get/all/medicine', [MedicineController::class, 'getAllMedicin
 Route::get('mobile/get/all/doctor', [UserDetailController::class, 'getAllDoctorMobile'])->name('mobile.get.all.doctor');
 Route::get('mobile/get/all/hospital', [RecordController::class, 'getAllHospitalMobile'])->name('mobile.get.all.hospital');
 Route::get('mobile/get/all/medicine/inventory', [MedicineController::class, 'getAllInventoryMedicineMobile'])->name('mobile.get.all.medicine.inventory');
+Route::get('mobile/get/all/medicine/requester/{id}', [MedicineController::class, 'getAllMedicineRequesterMobile'])->name('mobile.get.all.medicine.requester');
 
 Route::post('mobile/store/booking', [AppointmentController::class, 'storeBooking'])->name('mobile.store.booking');
 Route::post('mobile/store/health/record', [MedicalRecordController::class, 'storeHealthRecordMobile'])->name('mobile.store.health.record');
