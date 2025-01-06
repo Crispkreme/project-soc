@@ -161,13 +161,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     marginTop: 20,
-    color: "#fff", // White text for no data message
+    color: "#fff",
   },
   error: {
     color: "red",
     textAlign: "center",
     marginTop: 20,
-    color: "#fff", // White text for error message
+    color: "#fff",
   },
   loadingText: {
     color: "#fff",
