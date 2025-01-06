@@ -25,7 +25,7 @@ class FamilyMedicalRepository implements FamilyMedicalContract
                 'patient_id' => $data['patient_id'],
                 'disease' => $data['disease'],
                 'relationship_disease' => $data['relationship_disease'],
-                'pdf_file' => $data['pdf_file'],
+                'pdf_file' => $data['pdf_file'] ?? null,
             ]
         );
     }

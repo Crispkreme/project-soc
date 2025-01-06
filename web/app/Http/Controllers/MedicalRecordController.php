@@ -1043,4 +1043,43 @@ class MedicalRecordController extends Controller
             ], 500);
         }
     }
+
+    public function storeFamilyRecordMobile(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validate([
+                'patient_id' => 'required|exists:users,id',
+                'disease' => 'nullable|string|max:255',
+                'relationship_disease' => 'nullable|in:Mother Family Disease,Father Family Disease',
+            ]);
+
+            if ($id) {
+                $data['id'] = $id;
+                $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
+            } else {
+                $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Family medical record saved successfully!',
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error during storeFamilyRecordMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the family medical record. Please try again.',
+            ], 500);
+        }
+    }
 }
