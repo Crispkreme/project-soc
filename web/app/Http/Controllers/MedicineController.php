@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\LedgerContract;
 use App\Contracts\MedicalRecordContract;
 use App\Contracts\MedicineContract;
 use App\Models\Medicine;
@@ -17,13 +18,16 @@ class MedicineController extends Controller
 {
     protected $medicineContract;
     protected $medicalRecordContract;
+    protected $ledgerContract;
 
     public function __construct(
         MedicineContract $medicineContract,
         MedicalRecordContract $medicalRecordContract,
+        LedgerContract $ledgerContract,
     ) {
         $this->medicineContract = $medicineContract;
         $this->medicalRecordContract = $medicalRecordContract;
+        $this->ledgerContract = $ledgerContract;
     }
 
     public function getAllMedicine()
@@ -110,6 +114,13 @@ class MedicineController extends Controller
     public function getAllMedicineMobile()
     {
         $medicines = $this->medicineContract->getAllMedicine();
+
+        return response()->json($medicines);
+    }
+
+    public function getAllInventoryMedicineMobile()
+    {
+        $medicines = $this->ledgerContract->getAllLedgerMedicine();
 
         return response()->json($medicines);
     }

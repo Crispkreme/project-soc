@@ -1,4 +1,4 @@
-import React, { lazy } from 'react';
+import { lazy, useState, useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import { toast } from 'react-hot-toast';
 
@@ -11,19 +11,24 @@ const InputError = lazy(() => import("@/Components/Inputs/InputError"));
 const PrimaryButton = lazy(() => import("@/Components/Buttons/PrimaryButton"));
 const ComboBox = lazy(() => import("@/Components/Inputs/ComboBox"));
 
-const PrescriptionModal = ({ showModal, toggleModal, medicines, selectedReferral }) => {
+const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
   const { data, setData, post, processing, errors } = useForm({
     doctor_id: '',
-    patient_id: '',
-    medicines: [{ medicine_id: '', quantity: '' }], 
+    patient_id: selectedReferral ? selectedReferral.patient_id : '',
+    medicines: [{ medicine_id: '', quantity: '' }],
     instruction: '',
     diagnosis: '',
   });
 
+  const [medicines, setMedicines] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Add medicine row
   const addMedicineRow = () => {
     setData('medicines', [...data.medicines, { medicine_id: '', quantity: '' }]);
   };
 
+  // Remove medicine row
   const removeMedicineRow = (index) => {
     if (data.medicines.length > 1) {
       const newMedicines = data.medicines.filter((_, i) => i !== index);
@@ -31,12 +36,36 @@ const PrescriptionModal = ({ showModal, toggleModal, medicines, selectedReferral
     }
   };
 
+  // Handle changes in medicine fields (medicine_id and quantity)
   const handleMedicineChange = (index, field, value) => {
     const newMedicines = [...data.medicines];
     newMedicines[index][field] = value;
     setData('medicines', newMedicines);
   };
 
+  // Fetch medicines
+  const fetchMedicines = async () => {
+    if (!showModal) return;
+    setLoading(true);
+    try {
+      const response = await axios.get('/api/mobile/get/all/medicine/inventory');
+      console.log('medicine', response.data);
+      setMedicines(response.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Unable to fetch medicines. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showModal) {
+      fetchMedicines();
+    }
+  }, [showModal]);
+
+  // Submit form
   const submit = (e) => {
     e.preventDefault();
   
@@ -54,16 +83,28 @@ const PrescriptionModal = ({ showModal, toggleModal, medicines, selectedReferral
       },
     });
   };
-  
+
+  // Validate quantity input
+  const handleQuantityChange = (index, value) => {
+    const selectedMedicine = medicines.find(
+      (med) => med.id === data.medicines[index].medicine_id
+    );
+    if (selectedMedicine && value > selectedMedicine.in_stock) {
+      toast.error(`You don't have enough stock! Available stock is ${selectedMedicine.in_stock}`);
+      return;
+    }
+    handleMedicineChange(index, 'quantity', value);
+  };
+
   return (
-    <Modal show={showModal} onClose={toggleModal}>
+    <Modal show={showModal} onClose={() => toggleModal(false)}>
       <form onSubmit={submit} className="p-6">
         <Title>Create Prescription</Title>
 
         <div className="mt-4">
           <InputLabel value="Patient" />
           <TextInput
-            value={selectedReferral.patient_name}
+            value={selectedReferral?.patient_name || ''}
             type="text"
             className="w-full border p-2 rounded"
             disabled
@@ -73,57 +114,68 @@ const PrescriptionModal = ({ showModal, toggleModal, medicines, selectedReferral
 
         <div className="mt-4">
           <InputLabel value="Medicines" />
-          {data.medicines.map((medicine, index) => (
-            <div className="flex items-center gap-4 mb-4" key={index}>
-              {/* Medicine field - wider */}
-              <div className="flex-grow">
-                <ComboBox
-                  items={medicines}
-                  value={medicines.find((med) => med.id === medicine.medicine_id)}
-                  onChange={(selected) => handleMedicineChange(index, 'medicine_id', selected ? selected.id : '')}
-                  placeholder="Select Medicine"
-                  displayKey="medicine_name"
-                />
-                {errors.medicines?.[index]?.medicine_id && (
-                  <InputError message={errors.medicines[index].medicine_id} />
-                )}
-              </div>
+          {data.medicines.map((medicine, index) => {
+            const selectedMedicine = medicines.find((med) => med.id === medicine.medicine_id);
+            const inStock = selectedMedicine ? selectedMedicine.in_stock : 0;
 
-              {/* Quantity field */}
-              <div className="col-md-3">
-                <TextInput
-                  value={medicine.quantity}
-                  onChange={(e) => handleMedicineChange(index, 'quantity', e.target.value)}
-                  type="number"
-                  className="w-full border p-2 rounded"
-                  placeholder="Quantity"
-                />
-                {errors.medicines?.[index]?.quantity && (
-                  <InputError message={errors.medicines[index].quantity} />
-                )}
-              </div>
+            return (
+              <div className="flex items-center gap-4 mb-4" key={index}>
+                <div className="flex-grow">
+                  <ComboBox
+                    items={medicines}
+                    value={medicines.find((med) => med.id === medicine.medicine_id)}
+                    onChange={(selected) => handleMedicineChange(index, 'medicine_id', selected ? selected.id : '')}
+                    placeholder="Select Medicine"
+                    displayKey="medicine_name"
+                  />
+                  {errors.medicines?.[index]?.medicine_id && (
+                    <InputError message={errors.medicines[index].medicine_id} />
+                  )}
+                </div>
 
-              {/* Plus and Minus buttons inside the same button group */}
-              <div className="flex justify-between items-center col-md-1">
-                <button
-                  type="button"
-                  onClick={addMedicineRow}
-                  className="text-green-600 bg-green-200 p-2 rounded"
-                >
-                  +
-                </button>
-                {data.medicines.length > 1 && (
+                <div className="col-md-3">
+                  <TextInput
+                    value={medicine.quantity}
+                    onChange={(e) => handleQuantityChange(index, e.target.value)}
+                    type="number"
+                    className="w-full border p-2 rounded"
+                    placeholder="Quantity"
+                  />
+                  {errors.medicines?.[index]?.quantity && (
+                    <InputError message={errors.medicines[index].quantity} />
+                  )}
+                </div>
+
+                {/* Display the available stock */}
+                <div className="col-md-2">
+                  {selectedMedicine && (
+                    <p className="text-sm text-gray-600">
+                      Available Stock: {inStock}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex justify-between items-center col-md-1">
                   <button
                     type="button"
-                    onClick={() => removeMedicineRow(index)}
-                    className="text-red-600 bg-red-200 p-2 rounded"
+                    onClick={addMedicineRow}
+                    className="text-green-600 bg-green-200 p-2 rounded"
                   >
-                    -
+                    +
                   </button>
-                )}
+                  {data.medicines.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeMedicineRow(index)}
+                      className="text-red-600 bg-red-200 p-2 rounded"
+                    >
+                      -
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-4">
@@ -133,7 +185,7 @@ const PrescriptionModal = ({ showModal, toggleModal, medicines, selectedReferral
             onChange={(e) => setData("diagnosis", e.target.value)}
             rows={5}
             className="w-full border p-2 rounded"
-            placeholder="Enter prescription diagnosiss"
+            placeholder="Enter prescription diagnosis"
           />
           {errors.diagnosis && <InputError message={errors.diagnosis} />}
         </div>

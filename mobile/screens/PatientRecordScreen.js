@@ -20,6 +20,7 @@ import TestResultModal from "../components/Modals/TestResultModal";
 import ImmunizationResultModal from "../components/Modals/ImmunizationResultModal";
 import HospitalizationResultModal from "../components/Modals/HospitalizationResultModal";
 import PrescriptionResultModal from "../components/Modals/PrescriptionResultModal";
+import { LinearGradient } from "expo-linear-gradient";
 
 const PatientRecordScreen = ({ route }) => {
   const { user } = route.params;
@@ -29,7 +30,7 @@ const PatientRecordScreen = ({ route }) => {
   const [prescriptionResults, setPrescriptionResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [visibleModal, setVisibleModal] = useState(null); // State to control modal visibility
+  const [visibleModal, setVisibleModal] = useState(null);
 
   const fetchResults = async () => {
     try {
@@ -38,14 +39,13 @@ const PatientRecordScreen = ({ route }) => {
       const { immunizations } = await getImmunizationResult(user.id);
       const { hospitalizations } = await getHospitalizationResult(user.id);
       const { medical_records } = await getPrescriptionResult(user.id);
-
-      console.log('immunizations', immunizations);
       
       setTestResults(testResult || []);
       setImmunizationResults(immunizations || []);
       setHospitalizationResults(hospitalizations || []);
       setPrescriptionResults(medical_records || []);
       setLoading(false);
+
     } catch (err) {
       console.error("Axios error:", err.response || err.message);
       setLoading(false);
@@ -160,7 +160,10 @@ const PatientRecordScreen = ({ route }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <LinearGradient
+      colors={['#6a11cb', '#2575fc']} // Example gradient colors
+      style={styles.container} // Gradient wraps the entire container
+    >
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
         {renderTable(
           "Test Result",
@@ -233,7 +236,7 @@ const PatientRecordScreen = ({ route }) => {
           userId={user.id}
         />
       )}
-    </SafeAreaView>
+    </LinearGradient>
   );
 };
 

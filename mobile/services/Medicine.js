@@ -20,3 +20,13 @@ export async function getAllMedicine() {
         throw error;
     }
 }
+
+export async function getMedicineInventory() {
+    try {
+        const response = await axios.get(`/mobile/get/all/medicine/inventory`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching medication records:", error);
+        throw error;
+    }
+}

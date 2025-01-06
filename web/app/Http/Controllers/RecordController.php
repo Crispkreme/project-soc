@@ -666,6 +666,12 @@ class RecordController extends Controller
             'medicalCertificates' => $medicalCertificates
         ]);
     }
-
+    public function getAllHospitalMobile()
+    {
+        $hospital = $this->hospitalContract->getAllHospital();
+        return response()->json([
+            'hospital' => $hospital
+        ]);
+    }
 
 }

@@ -58,7 +58,7 @@ const PrescriptionResult = ({ visible, onClose, userId }) => {
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.modalOverlay}>
         <View style={styles.modalView}>
-          <Text style={styles.modalHeader}>Add Family Medical Record</Text>
+          <Text style={styles.modalHeader}>Add Prescripion Record</Text>
 
           <TextInput
             placeholder="Disease"

@@ -31,6 +31,8 @@ Route::get('mobile/top/medicine', [DashboardController::class, 'getTopMedicineMo
 Route::get('mobile/upcoming/barangay/event', [AppointmentController::class, 'getUpcomingBarangayEventMobile'])->name('mobile.upcoming.barangay.event');
 Route::get('mobile/get/all/medicine', [MedicineController::class, 'getAllMedicineMobile'])->name('mobile.get.all.medicine');
 Route::get('mobile/get/all/doctor', [UserDetailController::class, 'getAllDoctorMobile'])->name('mobile.get.all.doctor');
+Route::get('mobile/get/all/hospital', [RecordController::class, 'getAllHospitalMobile'])->name('mobile.get.all.hospital');
+Route::get('mobile/get/all/medicine/inventory', [MedicineController::class, 'getAllInventoryMedicineMobile'])->name('mobile.get.all.medicine.inventory');
 
 Route::post('mobile/store/booking', [AppointmentController::class, 'storeBooking'])->name('mobile.store.booking');
 Route::post('mobile/store/health/record', [MedicalRecordController::class, 'storeHealthRecordMobile'])->name('mobile.store.health.record');

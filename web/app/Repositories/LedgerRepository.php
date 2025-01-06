@@ -99,4 +99,14 @@ class LedgerRepository implements LedgerContract
     {
         return $this->model->where('medicine_id', $id)->firstOrFail();
     }
+
+    public function getAllLedgerMedicine()
+    {
+        return $this->model
+        ->join('medicines', 'medicines.id', '=', 'ledgers.medicine_id')
+        ->select('medicines.medicine_name', 'medicines.id as medicine_id', 'ledgers.in_stock')
+        ->get();
+
+        // return $this->model->get();
+    }
 }
