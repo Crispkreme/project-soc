@@ -1,9 +1,72 @@
 import React, { useEffect, useState } from "react";
-import { Alert, SafeAreaView, View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
-import Collapsible from 'react-native-collapsible';
+import {
+  Alert,
+  SafeAreaView,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator
+} from "react-native";
 import { getHealthRecord, getSurgicalRecord, getMedicationRecord, getFamilyMedicalRecord } from "../services/MedicalResult";
+import DataTable, { COL_TYPES } from 'react-native-datatable-component';
+import { Card, Button } from "react-native-paper";
 
-const MedicalRecordScreen = ({ route }) => {
+const renderTable = (title, data, colNames, colSettings) => (
+  <Card style={[styles.card, { backgroundColor: 'white' }]}>
+      <Text style={styles.headerText}>{title}</Text>
+  
+      {data.length > 0 ? (
+      <DataTable
+          data={data.map((item) => {
+          if (title === "Health Records") {
+              return {
+              doctor: item.medicine || "No Medicine",
+              procedure: item.diagnosis || "No Diagnosis",
+              description: item.medicine || "No Medicine",
+              date: item.created_at,
+              };
+          }
+          if (title === "Surgical Records") {
+              return {
+              test: item.description,
+              result: item.doctor,
+              date: item.created_at,
+              };
+          }
+          if (title === "Medication Records") {
+              return {
+              medicine_name: item.medicine_name || "No Medicine",
+              reason: item.reason || "No Reason",
+              date: item.date,
+              };
+          }
+          if (title === "Family Medical Records") {
+              return {
+              disease: item.disease || "No Disease",
+              relationship: item.relationship || "No Relationship",
+              date: item.date,
+              };
+          }
+          return {};
+          })}
+          colNames={colNames}
+          colSettings={colSettings}
+          noOfPages={2}
+          backgroundColor={"white"}
+          headerLabelStyle={{ color: "grey", fontSize: 12 }}
+          style={{ marginTop: 10 }}
+      />
+      ) : (
+      <Text style={styles.noDataText}>No records found.</Text>
+      )}
+  
+      <Button mode="contained" onPress={() => handleAdd(title)} style={styles.addButton}>
+      Add {title}
+      </Button>
+  </Card>
+);
+  
+const PatientRecordScreen = ({ route }) => {
   const { user } = route.params;
   const [healthRecords, setHealthRecord] = useState([]);
   const [surgicalRecords, setSurgicalRecord] = useState([]);
@@ -11,190 +74,133 @@ const MedicalRecordScreen = ({ route }) => {
   const [familyMedicalRecord, setFamilyMedicalRecord] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const [activeSection, setActiveSection] = useState(null);
-
+  
   useEffect(() => {
-    const fetchTestResults = async () => {
+      const fetchTestResults = async () => {
       try {
-        setLoading(true);
-
-        const { healthRecord: healthRecordData } = await getHealthRecord(user.id);
-        const { surgicalRecords: surgicalRecordData } = await getSurgicalRecord(user.id);
-        const { medicationRecords: medicationRecordData } = await getMedicationRecord(user.id);
-        const { familyMedicalRecords: familyMedicalRecordData } = await getFamilyMedicalRecord(user.id);
-
-        setHealthRecord(healthRecordData || []);
-        setSurgicalRecord(surgicalRecordData || []);
-        setMedicationRecords(medicationRecordData || []);
-        setFamilyMedicalRecord(familyMedicalRecordData || []);
-
-        setLoading(false);
+          setLoading(true);
+  
+          const healthRecordData = await getHealthRecord(user.id);
+          const surgicalRecordData = await getSurgicalRecord(user.id);
+          const medicationRecordData = await getMedicationRecord(user.id);
+          const familyMedicalRecordData = await getFamilyMedicalRecord(user.id);
+  
+          setHealthRecord(healthRecordData?.medical_records || []);
+          setSurgicalRecord(surgicalRecordData?.surgicalRecords || []);
+          setMedicationRecords(medicationRecordData?.medicationRecords || []);
+          setFamilyMedicalRecord(familyMedicalRecordData?.familyMedicalRecords || []);
+  
+          setLoading(false);
       } catch (err) {
-        console.error("Axios error:", err.response || err.message);
-        setLoading(false);
-
-        if (err.response?.status === 422) {
-          setError(err.response.data.errors);
-        } else {
+          console.error("Axios error:", err.response || err.message);
+          setLoading(false);
+  
+          if (err.response?.status === 422) {
+          setError(err.response.data?.errors || "Validation error");
+          } else {
           Alert.alert("Error", "Something went wrong. Please try again.");
-        }
+          }
       }
-    };
-
-    if (user.id) {
+      };
+  
+      if (user.id) {
       fetchTestResults();
-    }
+      }
   }, [user.id]);
-
-  const toggleSection = (section) => {
-    setActiveSection(activeSection === section ? null : section);
-  };
-
+  
   const handleAdd = (type) => {
-    Alert.alert(`Add ${type}`, `Add functionality for ${type} goes here.`);
+      Alert.alert(`Add ${type}`, `Add functionality for ${type} goes here.`);
   };
-
-  const renderTable = (title, data, headers, section) => (
-    <View>
-      {/* Accordion Section */}
-      <TouchableOpacity onPress={() => toggleSection(section)}>
-        <View style={styles.headerWrapper}>
-          <Text style={styles.sectionHeader}>{title}</Text>
-        </View>
-      </TouchableOpacity>
-
-      <Collapsible collapsed={activeSection !== section}>
-        {/* Add Button inside the Accordion */}
-        <TouchableOpacity style={styles.actionButton} onPress={() => handleAdd(title)}>
-          <Text style={styles.actionText}>{`Add ${title}`}</Text>
-        </TouchableOpacity>
-
-        <ScrollView style={styles.tableContainer}>
-          {/* Table Header */}
-          <View style={styles.row}>
-            {headers.map((header, i) => (
-              <Text key={i} style={styles.headerCell}>
-                {header}
-              </Text>
-            ))}
-            <Text style={styles.headerCell}>{'Actions'}</Text> {/* Action Column */}
-          </View>
-
-          {/* Table Body */}
-          {data.length > 0 ? (
-            data.map((item, index) => (
-              <View key={index} style={styles.row}>
-                {Object.values(item).map((value, i) => (
-                  <Text key={i} style={styles.cell}>
-                    {value}
-                  </Text>
-                ))}
-                {/* Action Column */}
-                <View style={styles.actions}>
-                  <TouchableOpacity style={styles.actionButton} onPress={() => handleAdd('Edit')}>
-                    <Text style={styles.actionText}>Edit</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.actionButton} onPress={() => handleAdd('Delete')}>
-                    <Text style={styles.actionText}>Delete</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))
-          ) : (
-            <Text>No records found.</Text>
-          )}
-        </ScrollView>
-      </Collapsible>
-    </View>
-  );
-
+  
   if (loading) {
-    return (
+      return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#007BFF" />
+          <ActivityIndicator animating={true} size="large" />
+          <Text>Loading...</Text>
       </SafeAreaView>
-    );
+      );
   }
-
+  
   if (error) {
-    return (
+      return (
       <SafeAreaView style={styles.container}>
-        {Array.isArray(error) ? (
-          error.map((err, index) => (
-            <Text key={index} style={styles.error}>{err}</Text>
-          ))
-        ) : (
-          <Text style={styles.error}>{error}</Text>
-        )}
+          <Text style={styles.error}>{JSON.stringify(error)}</Text>
       </SafeAreaView>
-    );
+      );
   }
-
+  
   return (
-    <SafeAreaView style={styles.container}>
-      {renderTable('Health Record', healthRecords, ['Illness', 'Description', 'Date'], 'health')}
-      {renderTable('Surgical Record', surgicalRecords, ['Procedure', 'Description', 'Doctor', 'Date'], 'surgical')}
-      {renderTable('Medication Record', medicationRecords, ['Medicine', 'Dosage', 'Reason', 'Date'], 'medication')}
-      {renderTable('Family Medical Record', familyMedicalRecord, ['Disease', 'Relationship', 'Date'], 'family')}
-    </SafeAreaView>
+      <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+          {renderTable(
+          "Health Records",
+          healthRecords,
+          ["doctor", "procedure", "description", "date"],
+          [
+              { name: 'doctor', type: COL_TYPES.STRING, width: '25%' },
+              { name: 'procedure', type: COL_TYPES.STRING, width: '25%' },
+              { name: 'description', type: COL_TYPES.STRING, width: '30%' },
+              { name: 'date', type: COL_TYPES.STRING, width: '20%' }
+          ]
+          )}
+          {renderTable(
+          "Surgical Records",
+          surgicalRecords,
+          ["test", "result", "date"],
+          [
+              { name: 'test', type: COL_TYPES.STRING, width: '30%' },
+              { name: 'result', type: COL_TYPES.STRING, width: '30%' },
+              { name: 'date', type: COL_TYPES.STRING, width: '40%' }
+          ]
+          )}
+          {renderTable(
+          "Medication Records",
+          medicationRecords,
+          ["medicine_name", "reason", "date"],
+          [
+              { name: 'medicine_name', type: COL_TYPES.STRING, width: '30%' },
+              { name: 'reason', type: COL_TYPES.STRING, width: '30%' },
+              { name: 'date', type: COL_TYPES.STRING, width: '40%' }
+          ]
+          )}
+          {renderTable(
+          "Family Medical Records",
+          familyMedicalRecord,
+          ["disease", "relationship", "date"],
+          [
+              { name: 'disease', type: COL_TYPES.STRING, width: '30%' },
+              { name: 'relationship', type: COL_TYPES.STRING, width: '30%' },
+              { name: 'date', type: COL_TYPES.STRING, width: '40%' }
+          ]
+          )}
+      </ScrollView>
+      </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 20,
-    marginTop: 60,
-    paddingHorizontal: 10,
-  },
-  headerWrapper: {
-    backgroundColor: '#007BFF',
     padding: 10,
-    marginBottom: 5,
+    marginTop: 50,
   },
-  sectionHeader: {
-    color: 'white',
+  card: {
+    marginBottom: 20,
+    padding: 10,
+    borderRadius: 8,
+  },
+  headerText: {
     fontSize: 18,
     fontWeight: 'bold',
-    textAlign: 'center',
+    marginBottom: 10,
   },
-  tableContainer: {
+  addButton: {
     marginTop: 10,
   },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  headerCell: {
-    fontWeight: "bold",
-    flex: 1,
+  noDataText: {
     textAlign: "center",
-  },
-  cell: {
-    flex: 1,
-    textAlign: "center",
-  },
-  actions: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-  },
-  actionButton: {
-    backgroundColor: '#E3F2FD',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    marginHorizontal: 4,
-    borderRadius: 4,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  actionText: {
-    color: '#1E88E5',
-    fontSize: 14,
+    marginTop: 10,
+    color: "grey",
   },
   error: {
     color: "red",
@@ -203,4 +209,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MedicalRecordScreen;
+export default PatientRecordScreen;
