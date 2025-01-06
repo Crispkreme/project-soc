@@ -924,4 +924,45 @@ class MedicalRecordController extends Controller
             return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
+
+    public function storeHealthRecordMobile(Request $request, $id = null)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validate([
+                'patient_id' => 'nullable|exists:users,id',
+                'medicine_id' => 'required|integer|exists:medicines,id',
+                'diagnosis' => 'nullable|string|max:1000',
+            ]);
+
+            if ($id) {
+                $data['id'] = $id;
+                $this->medicalRecordContract->createOrUpdateMedicalRecord($data);
+            } else {
+                $this->medicalRecordContract->createOrUpdateMedicalRecord($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Health record saved successfully!',
+            ], 200);
+
+        } catch (Exception $e) {
+            Log::error('Error during storeHealthRecordMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the health record. Please try again.',
+            ], 500);
+        }
+    }
 }

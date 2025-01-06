@@ -164,7 +164,7 @@ const AppointmentScreen = ({ route }) => {
       };
 
       const response = await storeBarangayEvent(submissionData);
-  
+      console.log('store barangay event', response);
       Alert.alert("Success", "Appointment Booked");
     } catch (error) {
       console.error("Error storing appointment:", error);

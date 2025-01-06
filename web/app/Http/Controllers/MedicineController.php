@@ -106,4 +106,11 @@ class MedicineController extends Controller
         $medicines = $this->medicalRecordContract->searchMedicine($query);
         return response()->json($medicines);
     }   
+
+    public function getAllMedicineMobile()
+    {
+        $medicines = $this->medicineContract->getAllMedicine();
+
+        return response()->json($medicines);
+    }
 }

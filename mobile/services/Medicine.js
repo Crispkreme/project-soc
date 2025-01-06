@@ -10,3 +10,13 @@ export async function getTopMedicine() {
         throw error;
     }
 }
+
+export async function getAllMedicine() {
+    try {
+        const response = await axios.get(`/mobile/get/all/medicine`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching medication records:", error);
+        throw error;
+    }
+}

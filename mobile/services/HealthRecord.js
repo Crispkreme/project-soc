@@ -1,0 +1,12 @@
+import axios from "../utils/axios";
+
+export async function storeHealthRecord(data) {
+    try {
+        const response = await axios.post(`/mobile/store/health/record`, data);
+        console.log('health record', response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing health records:", error);
+        throw error;
+    }
+}
