@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  View,
 } from "react-native";
 import {
   getHealthRecord,
@@ -24,51 +25,51 @@ import SurgicalRecordModal from "../components/Modals/SurgicalRecordModal";
 const renderTable = (title, data, colNames, colSettings, handleAdd) => (
   <Card style={[styles.card, { backgroundColor: "white" }]}>
     <Text style={styles.headerText}>{title}</Text>
-
     {data.length > 0 ? (
-      <DataTable
-        data={data.map((item) => {
-          if (title === "Health Records") {
-            return {
-              medicine: item.medicine || "No Medicine",
-              procedure: item.diagnosis || "No Diagnosis",
-              date: item.created_at,
-            };
-          }
-          if (title === "Surgical Records") {
-            return {
-              test: item.description,
-              result: item.doctor,
-              date: item.created_at,
-            };
-          }
-          if (title === "Medication Records") {
-            return {
-              medicine_name: item.medicine_name || "No Medicine",
-              reason: item.reason || "No Reason",
-              date: item.date,
-            };
-          }
-          if (title === "Family Medical Records") {
-            return {
-              disease: item.disease || "No Disease",
-              relationship: item.relationship || "No Relationship",
-              date: item.date,
-            };
-          }
-          return {};
-        })}
-        colNames={colNames}
-        colSettings={colSettings}
-        noOfPages={2}
-        backgroundColor={"white"}
-        headerLabelStyle={{ color: "grey", fontSize: 12 }}
-        style={{ marginTop: 10 }}
-      />
+      <View style={styles.tableContainer}>
+        <DataTable
+          data={data.map((item) => {
+            if (title === "Health Records") {
+              return {
+                medicine: item.medicine || "No Medicine",
+                procedure: item.diagnosis || "No Diagnosis",
+                date: item.created_at,
+              };
+            }
+            if (title === "Surgical Records") {
+              return {
+                test: item.description,
+                result: item.doctor,
+                date: item.created_at,
+              };
+            }
+            if (title === "Medication Records") {
+              return {
+                medicine_name: item.medicine_name || "No Medicine",
+                reason: item.reason || "No Reason",
+                date: item.date,
+              };
+            }
+            if (title === "Family Medical Records") {
+              return {
+                disease: item.disease || "No Disease",
+                relationship: item.relationship || "No Relationship",
+                date: item.date,
+              };
+            }
+            return {};
+          })}
+          colNames={colNames}
+          colSettings={colSettings}
+          noOfPages={2}
+          backgroundColor={"white"}
+          headerLabelStyle={{ color: "grey", fontSize: 12 }}
+          style={{ marginTop: 10 }}
+        />
+      </View>
     ) : (
       <Text style={styles.noDataText}>No records found.</Text>
     )}
-
     <Button
       mode="contained"
       onPress={() => handleAdd(title)}
@@ -79,7 +80,7 @@ const renderTable = (title, data, colNames, colSettings, handleAdd) => (
   </Card>
 );
 
-const PatientRecordScreen = ({ route }) => {
+const MedicalRecordScreen = ({ route }) => {
   const { user } = route.params;
   const [healthRecords, setHealthRecord] = useState([]);
   const [surgicalRecords, setSurgicalRecord] = useState([]);
@@ -89,46 +90,53 @@ const PatientRecordScreen = ({ route }) => {
   const [error, setError] = useState(null);
   const [visibleModal, setVisibleModal] = useState(null);
 
-  useEffect(() => {
-    const fetchTestResults = async () => {
-      try {
-        setLoading(true);
+  // Fetch records
+  const fetchTestResults = async () => {
+    try {
+      setLoading(true);
 
-        const healthRecordData = await getHealthRecord(user.id);
-        const surgicalRecordData = await getSurgicalRecord(user.id);
-        const medicationRecordData = await getMedicationRecord(user.id);
-        const familyMedicalRecordData = await getFamilyMedicalRecord(user.id);
+      const healthRecordData = await getHealthRecord(user.id);
+      const surgicalRecordData = await getSurgicalRecord(user.id);
+      const medicationRecordData = await getMedicationRecord(user.id);
+      const familyMedicalRecordData = await getFamilyMedicalRecord(user.id);
 
-        setHealthRecord(healthRecordData?.medical_records || []);
-        setSurgicalRecord(surgicalRecordData?.surgicalRecords || []);
-        setMedicationRecords(medicationRecordData?.medicationRecords || []);
-        setFamilyMedicalRecord(
-          familyMedicalRecordData?.familyMedicalRecords || []
-        );
+      setHealthRecord(healthRecordData?.medical_records || []);
+      setSurgicalRecord(surgicalRecordData?.surgicalRecords || []);
+      setMedicationRecords(medicationRecordData?.medicationRecords || []);
+      setFamilyMedicalRecord(familyMedicalRecordData?.familyMedicalRecords || []);
 
-        setLoading(false);
-      } catch (err) {
-        console.error("Axios error:", err.response || err.message);
-        setLoading(false);
+      setLoading(false);
+    } catch (err) {
+      console.error("Axios error:", err.response || err.message);
+      setLoading(false);
 
-        if (err.response?.status === 422) {
-          setError(err.response.data?.errors || "Validation error");
-        } else {
-          Alert.alert("Error", "Something went wrong. Please try again.");
-        }
+      if (err.response?.status === 422) {
+        setError(err.response.data?.errors || "Validation error");
+      } else {
+        Alert.alert("Error", "Something went wrong. Please try again.");
       }
-    };
+    }
+  };
 
+  // Use effect to fetch records when the screen is loaded
+  useEffect(() => {
     if (user.id) {
       fetchTestResults();
     }
   }, [user.id]);
 
+  // Handle add button press to show modals
   const handleAdd = (type) => {
     if (type === "Health Records") setVisibleModal("HealthRecord");
     if (type === "Surgical Records") setVisibleModal("SurgicalRecord");
     if (type === "Medication Records") setVisibleModal("MedicationRecord");
     if (type === "Family Medical Records") setVisibleModal("FamilyRecord");
+  };
+
+  // Handle the closing of a modal and refetch records when a new record is added
+  const handleCloseModalAndRefresh = (type) => {
+    setVisibleModal(null); // Close the modal
+    fetchTestResults(); // Refetch all records
   };
 
   if (loading) {
@@ -154,7 +162,7 @@ const PatientRecordScreen = ({ route }) => {
         {renderTable(
           "Health Records",
           healthRecords,
-          ["medicine", "procedure", "description", "date"],
+          ["medicine", "procedure", "date"],
           [
             { name: "medicine", type: COL_TYPES.STRING, width: "40%" },
             { name: "procedure", type: COL_TYPES.STRING, width: "40%" },
@@ -198,16 +206,16 @@ const PatientRecordScreen = ({ route }) => {
       </ScrollView>
 
       {visibleModal === "HealthRecord" && (
-        <HealthRecordModal visible onClose={() => setVisibleModal(null)} userId={user.id} />
+        <HealthRecordModal visible onClose={() => handleCloseModalAndRefresh("HealthRecord")} userId={user.id} />
       )}
       {visibleModal === "SurgicalRecord" && (
-        <SurgicalRecordModal visible onClose={() => setVisibleModal(null)} userId={user.id}/>
+        <SurgicalRecordModal visible onClose={() => handleCloseModalAndRefresh("SurgicalRecord")} userId={user.id} />
       )}
       {visibleModal === "MedicationRecord" && (
-        <MedicationRecordModal visible onClose={() => setVisibleModal(null)} userId={user.id}/>
+        <MedicationRecordModal visible onClose={() => handleCloseModalAndRefresh("MedicationRecord")} userId={user.id} />
       )}
       {visibleModal === "FamilyRecord" && (
-        <FamilyRecordModal visible onClose={() => setVisibleModal(null)} userId={user.id}/>
+        <FamilyRecordModal visible onClose={() => handleCloseModalAndRefresh("FamilyRecord")} userId={user.id} />
       )}
     </SafeAreaView>
   );
@@ -242,6 +250,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
   },
+  tableContainer: {
+    marginBottom: 20,
+  },
 });
 
-export default PatientRecordScreen;
+export default MedicalRecordScreen;

@@ -26,7 +26,7 @@ class SurgicalRepository implements SurgicalContract
                 'doctor_id' => $data['doctor_id'],
                 'procedure' => $data['procedure'],
                 'description' => $data['description'],
-                'pdf_file' => $data['pdf_file'],
+                'pdf_file' => $data['pdf_file'] ?? null,
             ]
         );
     }

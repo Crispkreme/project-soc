@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { getAllMedicine } from "../../services/Medicine";
-import { storeHealthRecord as storeHealthRecordService } from "../../services/HealthRecord";
+import { storeHealthRecord as storeHealthRecordService } from "../../services/MedicalRecord";
 
 const HealthRecordModal = ({ visible, onClose, userId }) => {
   const [diagnosis, setDiagnosis] = useState("");

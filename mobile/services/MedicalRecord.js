@@ -10,3 +10,13 @@ export async function storeHealthRecord(data) {
         throw error;
     }
 }
+
+export async function storeSurgicalRecord(data) {
+    try {
+        const response = await axios.post(`/mobile/store/surgical/record`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing surgical records:", error);
+        throw error;
+    }
+}
