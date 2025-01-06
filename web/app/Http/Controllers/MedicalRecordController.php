@@ -999,4 +999,48 @@ class MedicalRecordController extends Controller
             ], 500);
         }
     }
+
+    public function storeMedicationRecordMobile(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validate([
+                'patient_id' => 'required|exists:users,id',
+                'medicine_id' => 'required|exists:medicines,id',
+                'reason' => 'nullable|string',
+                'dosage' => 'nullable|string',
+                'quantity' => 'required|integer|min:1',
+                'medication_status' => 'nullable|in:Accept,Pending,Approve,Success,Failed',
+            ]);
+
+            $data['medication_status'] = $data['medication_status'] ?? 'Pending';
+
+            if ($id) {
+                $data['id'] = $id;
+                $this->medicationContract->createOrUpdateMedication($data);
+            } else {
+                $this->medicationContract->createOrUpdateMedication($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Medication record saved successfully!',
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error during storeMedicationRecordMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the medication record. Please try again.',
+            ], 500);
+        }
+    }
 }
