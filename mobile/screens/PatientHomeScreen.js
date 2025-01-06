@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { SafeAreaView, Text, StyleSheet, View, Alert } from "react-native";
 import { BarChart } from "react-native-chart-kit";
+import { LinearGradient } from "expo-linear-gradient";
 import { getTopMedicine } from "../services/Medicine";
 import { getUpcomingBarangayEvent } from "../services/Appointment";
 
@@ -11,26 +12,11 @@ const PatientHomeScreen = ({ route }) => {
   const [error, setError] = useState(null);
   const [upcomingBarangayEvents, setUpcomingBarangayEvents] = useState([]);
 
-  const getRandomColor = () => {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
   const processDataAnalytics = (data) => {
     if (!Array.isArray(data) || data.length === 0) {
-      console.warn("No valid data provided.");
       return {
-        illnesses: {
-          labels: ["No data available"],
-          data: [0],
-        },
-        medicines: {
-          labels: ["No data available"],
-          data: [0],
-        },
+        illnesses: { labels: ["No data available"], data: [0] },
+        medicines: { labels: ["No data available"], data: [0] },
       };
     }
 
@@ -43,12 +29,14 @@ const PatientHomeScreen = ({ route }) => {
       medicinesCount[record.medicine] =
         (medicinesCount[record.medicine] || 0) + record.total_quantity;
     });
+
     const sortedIllnesses = Object.entries(illnessesCount)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3);
     const sortedMedicines = Object.entries(medicinesCount)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3);
+
     return {
       illnesses: {
         labels: sortedIllnesses.map((item) => item[0]),
@@ -101,140 +89,150 @@ const PatientHomeScreen = ({ route }) => {
     datasets: [
       {
         data: chartData.illnesses?.data || [],
-        color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`,
+        color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy blue bars
         strokeWidth: 2,
       },
     ],
   };
+
   const medicineDataForChart = {
     labels: chartData.medicines?.labels || [],
     datasets: [
       {
         data: chartData.medicines?.data || [],
-        color: (opacity = 1) => `rgba(255, 99, 132, ${opacity})`,
+        color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy blue bars
         strokeWidth: 2,
       },
     ],
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {user ? (
-        <>
-          <View style={styles.card}>
-            <Text style={styles.eventTitle}>{upcomingBarangayEvents.event_name}</Text>
-            <Text style={styles.doctorText}>Dr. {upcomingBarangayEvents.doctor_name} MD</Text>
-            <Text style={styles.eventDate}>{upcomingBarangayEvents.event_date}</Text>
-            <Text style={styles.eventTime}>
-              {upcomingBarangayEvents.event_start} - {upcomingBarangayEvents.event_end}
-            </Text>
-          </View>
+    <LinearGradient
+      colors={["#001f3f", "#00509e", "#00aaff"]} // Gradient colors
+      style={styles.container}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        {user ? (
+          <>
+            <View style={styles.card}>
+              <Text style={styles.eventTitle}>
+                {upcomingBarangayEvents.event_name}
+              </Text>
+              <Text style={styles.doctorText}>
+                Dr. {upcomingBarangayEvents.doctor_name} MD
+              </Text>
+              <Text style={styles.eventDate}>
+                {upcomingBarangayEvents.event_date}
+              </Text>
+              <Text style={styles.eventTime}>
+                {upcomingBarangayEvents.event_start} -{" "}
+                {upcomingBarangayEvents.event_end}
+              </Text>
+            </View>
 
-          {loading ? (
-            <Text>Loading data...</Text>
-          ) : error ? (
-            <Text style={styles.errorText}>Failed to load data.</Text>
-          ) : (
-            <>
-              <View style={styles.chartContainer}>
-                <Text style={styles.chartTitle}>Top Illnesses</Text>
-                <BarChart
-                  data={illnessDataForChart}
-                  width={350}
-                  height={220}
-                  fromZero
-                  chartConfig={{
-                    backgroundGradientFrom: "#f4f4f4",
-                    backgroundGradientTo: "#e1e1e1",
-                    decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                  }}
-                  style={styles.chart}
-                />
-              </View>
+            {loading ? (
+              <Text>Loading data...</Text>
+            ) : error ? (
+              <Text style={styles.errorText}>Failed to load data.</Text>
+            ) : (
+              <>
+                <View style={styles.chartContainer}>
+                  <Text style={styles.chartTitle}>Top Illnesses</Text>
+                  <BarChart
+                    data={illnessDataForChart}
+                    width={350}
+                    height={220}
+                    fromZero
+                    chartConfig={{
+                      backgroundGradientFrom: "#ffffff", // White background
+                      backgroundGradientTo: "#ffffff", // White background
+                      decimalPlaces: 0,
+                      color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy bars
+                      labelColor: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy labels
+                    }}
+                    style={styles.chart}
+                  />
+                </View>
 
-              <View style={styles.chartContainer}>
-                <Text style={styles.chartTitle}>Top Medicines</Text>
-                <BarChart
-                  data={medicineDataForChart}
-                  width={350}
-                  height={220}
-                  fromZero
-                  chartConfig={{
-                    backgroundGradientFrom: "#f4f4f4",
-                    backgroundGradientTo: "#e1e1e1",
-                    decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                  }}
-                  style={styles.chart}
-                />
-              </View>
-            </>
-          )}
-        </>
-      ) : (
-        <Text style={styles.text}>No user information available</Text>
-      )}
-    </SafeAreaView>
+                <View style={styles.chartContainer}>
+                  <Text style={styles.chartTitle}>Top Medicines</Text>
+                  <BarChart
+                    data={medicineDataForChart}
+                    width={350}
+                    height={220}
+                    fromZero
+                    chartConfig={{
+                      backgroundGradientFrom: "#ffffff", // White background
+                      backgroundGradientTo: "#ffffff", // White background
+                      decimalPlaces: 0,
+                      color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy bars
+                      labelColor: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy labels
+                    }}
+                    style={styles.chart}
+                  />
+                </View>
+              </>
+            )}
+          </>
+        ) : (
+          <Text style={styles.text}>No user information available</Text>
+        )}
+      </SafeAreaView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  safeArea: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
     paddingHorizontal: 16,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: "#ffffff",
     borderRadius: 12,
     padding: 20,
     marginVertical: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#e0e0e0",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   eventTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#334155',
+    fontWeight: "bold",
+    color: "#001f3f",
     marginBottom: 6,
   },
   doctorText: {
     fontSize: 16,
-    color: '#475569',
+    color: "#475569",
     marginBottom: 4,
   },
   eventDate: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#0f172a',
+    fontWeight: "500",
+    color: "#334155",
     marginBottom: 4,
   },
   eventTime: {
     fontSize: 14,
-    color: '#64748b',
+    color: "#64748b",
   },
   text: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#334155",
-  },
-  subText: {
-    fontSize: 16,
-    color: "#334155",
-    marginTop: 5,
+    color: "#ffffff",
   },
   errorText: {
     fontSize: 16,
@@ -248,7 +246,7 @@ const styles = StyleSheet.create({
   chartTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#334155",
+    color: "#ffffff",
     marginBottom: 10,
   },
   chart: {

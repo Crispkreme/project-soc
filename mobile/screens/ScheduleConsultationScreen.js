@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { getScheduleConsultation } from "../services/ScheduleConsultation";
+import { LinearGradient } from "expo-linear-gradient"; // Import the gradient component
 
 const Event = ({ event }) => {
   const isBooking = !!event.event_name;
@@ -115,19 +116,28 @@ const ScheduleConsultationScreen = ({ route }) => {
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <ScrollView style={styles.container}>
-        {record.length > 0 ? (
-          record.map((monthData, idx) => (
-            <Month
-              key={idx}
-              period={monthData.period}
-              events={monthData.events}
-            />
-          ))
+      <LinearGradient
+        colors={['#6a11cb', '#2575fc']} // Add your gradient colors here
+        style={styles.container} // Apply gradient to the whole screen
+      >
+        {loading ? (
+          <Text style={styles.noEventsText}>Loading...</Text>
         ) : (
-          <Text style={styles.noEventsText}>No consultations found.</Text>
+          <ScrollView>
+            {record.length > 0 ? (
+              record.map((monthData, idx) => (
+                <Month
+                  key={idx}
+                  period={monthData.period}
+                  events={monthData.events}
+                />
+              ))
+            ) : (
+              <Text style={styles.noEventsText}>No consultations found.</Text>
+            )}
+          </ScrollView>
         )}
-      </ScrollView>
+      </LinearGradient>
     </TouchableWithoutFeedback>
   );
 };
@@ -137,7 +147,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     marginTop: 50,
-    backgroundColor: "#F5F5F5",
   },
   eventCard: {
     flexDirection: "row",
@@ -196,6 +205,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     marginTop: 20,
+    color: 'white', // For better visibility on the gradient background
   },
 });
 

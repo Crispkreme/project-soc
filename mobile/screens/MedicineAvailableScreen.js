@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
   Alert,
-  SafeAreaView, Text,
+  SafeAreaView,
+  Text,
   StyleSheet,
   ScrollView,
   ActivityIndicator
@@ -10,6 +11,7 @@ import { Card } from "react-native-paper";
 import { getMedicineAvailable } from "../services/MedicineAvailable";
 import DataTable, { COL_TYPES } from 'react-native-datatable-component';
 import moment from 'moment';
+import { LinearGradient } from "expo-linear-gradient";
 
 const MedicineAvailableScreen = ({ route }) => {
   const { user } = route.params;
@@ -70,9 +72,12 @@ const MedicineAvailableScreen = ({ route }) => {
   }));
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-        <Card style={[styles.card, { marginTop: 20, backgroundColor: 'white' }]}>
+    <LinearGradient
+      colors={['#6a11cb', '#2575fc']}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={{ padding: 10 }}>
+        <Card style={[styles.card, { width: '100%', backgroundColor: 'white' }]}>
           <Text style={styles.headerText}>Medicine Available</Text>
 
           <DataTable
@@ -93,18 +98,17 @@ const MedicineAvailableScreen = ({ route }) => {
           />
         </Card>
       </ScrollView>
-    </SafeAreaView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     marginTop: 20,
   },
   card: {
-    padding: 20,
+    padding: 10,
     borderRadius: 8,
     elevation: 3,
   },
