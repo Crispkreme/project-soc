@@ -23,12 +23,10 @@ const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Add medicine row
   const addMedicineRow = () => {
     setData('medicines', [...data.medicines, { medicine_id: '', quantity: '' }]);
   };
 
-  // Remove medicine row
   const removeMedicineRow = (index) => {
     if (data.medicines.length > 1) {
       const newMedicines = data.medicines.filter((_, i) => i !== index);
@@ -36,20 +34,18 @@ const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
     }
   };
 
-  // Handle changes in medicine fields (medicine_id and quantity)
   const handleMedicineChange = (index, field, value) => {
     const newMedicines = [...data.medicines];
     newMedicines[index][field] = value;
     setData('medicines', newMedicines);
+    console.log('medicines', newMedicines);
   };
 
-  // Fetch medicines
   const fetchMedicines = async () => {
     if (!showModal) return;
     setLoading(true);
     try {
       const response = await axios.get('/api/mobile/get/all/medicine/inventory');
-      console.log('medicine', response.data);
       setMedicines(response.data);
     } catch (err) {
       console.error(err);
@@ -65,17 +61,27 @@ const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
     }
   }, [showModal]);
 
-  // Submit form
   const submit = (e) => {
     e.preventDefault();
-  
+
+    console.log('Form Data:', data);
+
     const url = selectedReferral
       ? route("prescription.update", { id: selectedReferral.id })
       : route("prescription.create");
-  
+
     post(url, {
       onSuccess: () => {
-        toggleModal(false);
+        // Reset form data after successful submission
+        setData({
+          doctor_id: '',
+          patient_id: selectedReferral ? selectedReferral.patient_id : '',
+          medicines: [{ medicine_id: '', quantity: '' }],
+          instruction: '',
+          diagnosis: '',
+        });
+
+        toggleModal(false); // Close the modal
         toast.success("Prescription added successfully!");
       },
       onError: () => {
@@ -84,16 +90,18 @@ const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
     });
   };
 
-  // Validate quantity input
   const handleQuantityChange = (index, value) => {
     const selectedMedicine = medicines.find(
       (med) => med.id === data.medicines[index].medicine_id
     );
+
     if (selectedMedicine && value > selectedMedicine.in_stock) {
-      toast.error(`You don't have enough stock! Available stock is ${selectedMedicine.in_stock}`);
+      toast.error(`Not enough stock! Available stock: ${selectedMedicine.in_stock}`);
       return;
     }
+
     handleMedicineChange(index, 'quantity', value);
+    handleMedicineChange(index, 'medicine_id', value);
   };
 
   return (
@@ -121,10 +129,18 @@ const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
             return (
               <div className="flex items-center gap-4 mb-4" key={index}>
                 <div className="flex-grow">
+                  <input
+                    type="hidden"
+                    name={`medicines[${index}][medicine_id]`}
+                    value={medicine.medicine_id || ''}
+                  />
                   <ComboBox
                     items={medicines}
                     value={medicines.find((med) => med.id === medicine.medicine_id)}
-                    onChange={(selected) => handleMedicineChange(index, 'medicine_id', selected ? selected.id : '')}
+                    onChange={(selected) => {
+                      console.log("selected", selected);
+                      handleMedicineChange(index, 'medicine_id', selected ? selected.id : '');
+                    }}
                     placeholder="Select Medicine"
                     displayKey="medicine_name"
                   />
@@ -146,7 +162,6 @@ const PrescriptionModal = ({ showModal, toggleModal, selectedReferral }) => {
                   )}
                 </div>
 
-                {/* Display the available stock */}
                 <div className="col-md-2">
                   {selectedMedicine && (
                     <p className="text-sm text-gray-600">

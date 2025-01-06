@@ -7,7 +7,9 @@ use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
 use App\Contracts\DataAnalyticContract;
 use App\Contracts\HospitalContract;
+use App\Contracts\LedgerContract;
 use App\Contracts\LogContract;
+use App\Contracts\MedicationContract;
 use App\Contracts\MedicineContract;
 use App\Contracts\PrescriptionContract;
 use App\Contracts\ReferralContract;
@@ -15,11 +17,12 @@ use App\Contracts\ReferralContract;
 use App\Contracts\ScheduleContract;
 use App\Contracts\UserDetailContract;
 use App\Models\BarangayEvent;
+use App\Models\Medicine;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +42,8 @@ class AppointmentController extends Controller
     protected $logContract;
     protected $prescriptionContract;
     protected $dataAnalyticContract;
+    protected $medicationContract;
+    protected $ledgerContract;
 
     public function __construct(
         BookingContract $bookingContract,
@@ -52,7 +57,10 @@ class AppointmentController extends Controller
         LogContract $logContract,
         PrescriptionContract $prescriptionContract,
         DataAnalyticContract $dataAnalyticContract,
+        MedicationContract $medicationContract,
+        LedgerContract $ledgerContract,
     ) {
+        $this->medicationContract = $medicationContract;
         $this->dataAnalyticContract = $dataAnalyticContract;
         $this->prescriptionContract = $prescriptionContract;
         $this->medicineContract = $medicineContract;
@@ -64,6 +72,7 @@ class AppointmentController extends Controller
         $this->bookingContract = $bookingContract;
         $this->appointmentContract = $appointmentContract;
         $this->scheduleContract = $scheduleContract;
+        $this->ledgerContract = $ledgerContract;
     }
 
     public function bookAppointment()
@@ -313,7 +322,7 @@ class AppointmentController extends Controller
             DB::beginTransaction();
 
             $patientId = $this->bookingContract->getPatientIdByBookingId($id);
-
+            
             if (!$patientId) {
                 throw new Exception('Patient ID not found for the booking.');
             }
@@ -324,16 +333,29 @@ class AppointmentController extends Controller
                 'medicines.*.quantity' => 'required|integer|min:1',
                 'diagnosis' => 'nullable|string|max:255',
                 'instruction' => 'nullable|string|max:255',
-            ]);
-
+                'reason' => 'nullable|string|max:255',
+                'dosage' => 'nullable|string|max:255',
+            ]); 
+            
             foreach ($validatedData['medicines'] as $medicine) {
+
+                $medicineRecord = $this->ledgerContract->getLedgerByMedicineId($medicine['medicine_id']);
+                
+                if (!$medicineRecord) {
+                    throw new Exception('Medicine not found.');
+                }
+
+                if ($medicine['quantity'] > $medicineRecord->in_stock) {
+                    throw new Exception("Not enough stock for the medicine: {$medicineRecord->name}. Available stock: {$medicineRecord->in_stock}. Requested quantity: {$medicine['quantity']}");
+                }
+
                 $prescriptionData = [
                     'patient_id' => $patientId,
                     'doctor_id' => $user->id,
                     'medicine_id' => $medicine['medicine_id'],
                     'quantity' => $medicine['quantity'],
-                    'diagnosis' => $validatedData['diagnosis'] ?? null,
-                    'instruction' => $validatedData['instruction'] ?? null,
+                    'diagnosis' => $validatedData['diagnosis'],
+                    'instruction' => $validatedData['instruction'],
                 ];
 
                 $this->prescriptionContract->updateOrCreatePrescription($prescriptionData);
@@ -344,11 +366,25 @@ class AppointmentController extends Controller
                     'quantity' => $medicine['quantity'],
                 ];
                 $this->dataAnalyticContract->updateOrCreateDataAnalytic($analyticsData);
+
+                $medicationData = [
+                    'patient_id' => $patientId,
+                    'medicine_id' => $medicine['medicine_id'],
+                    'quantity' => $medicine['quantity'] ?? 0,
+                    'reason' => $validatedData['reason'] ?? null,
+                    'dosage' => $validatedData['dosage'] ?? null,
+                    'medication_status' => 'Approve',
+                ];
+                $this->medicationContract->createOrUpdateMedication($medicationData);
+
+                $this->ledgerContract->updateLedgerQuantity($medicine['medicine_id'], $medicine['quantity']);
             }
 
+            // Update booking and appointment status
             $this->bookingContract->updateBookingstatus('Success', $id, $user->id);
             $this->appointmentContract->updateAppointmentStatusById('Success', $id);
 
+            // Log the prescription creation
             $logData = [
                 'doctor_id' => $user->id,
                 'patient_id' => $patientId,
@@ -372,6 +408,8 @@ class AppointmentController extends Controller
             return redirect()->back()->with('error', 'An error occurred, please try again.');
         }
     }
+
+
     public function getAllAppointment()
     {
         $user = Auth::user();
