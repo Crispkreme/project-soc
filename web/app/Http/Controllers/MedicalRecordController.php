@@ -147,7 +147,7 @@ class MedicalRecordController extends Controller
         $medicines = $this->medicineContract->getAllMedicine();
         $hospitals = $this->hospitalContract->getAllHospital();
         $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true);
-        
+
         $roleRoutes = [
             'Administration' => 'Admins/Medicals/PatientRecord',
             'Bhw' => 'Bhws/Medicals/PatientRecord',
@@ -216,13 +216,13 @@ class MedicalRecordController extends Controller
 
             $data = $request->validate([
                 'patient_id' => 'nullable|exists:users,id',
-                'name' => 'required|string|max:255',         
+                'name' => 'required|string|max:255',
                 'description' => 'nullable|string|max:1000',
                 'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
-            
+
             if ($id) {
-                $data['id'] = $id; 
+                $data['id'] = $id;
                 $health = $this->healthContract->getHealthById($id);
                 if ($request->hasFile('pdf_file')) {
                     if ($health->pdf_file) {
@@ -246,7 +246,6 @@ class MedicalRecordController extends Controller
             DB::commit();
 
             return redirect()->back()->with('success', 'Health Record saved successfully!');
-
         } catch (Exception $e) {
 
             Log::error('Error during updateOrCreateHealthRecord: ' . $e->getMessage(), [
@@ -255,7 +254,7 @@ class MedicalRecordController extends Controller
             ]);
 
             DB::rollback();
-            
+
             return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
@@ -273,16 +272,16 @@ class MedicalRecordController extends Controller
         try {
 
             $data = $request->validate([
-                'patient_id' => 'nullable|exists:users,id',      
-                'doctor_id'  => 'nullable|exists:users,id',      
-                'procedure'  => 'required|string|max:255',       
-                'description'=> 'nullable|string', 
+                'patient_id' => 'nullable|exists:users,id',
+                'doctor_id'  => 'nullable|exists:users,id',
+                'procedure'  => 'required|string|max:255',
+                'description' => 'nullable|string',
                 'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
 
             $id = $request->id;
             if ($id) {
-                $data['id'] = $id; 
+                $data['id'] = $id;
                 $surgical = $this->surgicalContract->getSurgicalById($id);
                 if ($request->hasFile('pdf_file')) {
                     if ($surgical->pdf_file) {
@@ -306,9 +305,8 @@ class MedicalRecordController extends Controller
             DB::commit();
 
             return redirect()->back()->with('success', 'Surgical Record saved successfully!');
-
         } catch (Exception $e) {
-            
+
             Log::error('Error during updateOrCreateSurgicalRecord: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
@@ -321,7 +319,7 @@ class MedicalRecordController extends Controller
     }
 
     public function updateOrCreateFamilyMedical(Request $request, $id = null)
-    {   
+    {
         $user = Auth::user();
 
         if (!$user) {
@@ -341,7 +339,7 @@ class MedicalRecordController extends Controller
 
             $id = $request->id;
             if ($id) {
-                $data['id'] = $id; 
+                $data['id'] = $id;
                 $familyMedical = $this->familyMedicalContract->getFamilyMedicalById($id);
                 if ($request->hasFile('pdf_file')) {
                     if ($familyMedical->pdf_file) {
@@ -359,16 +357,15 @@ class MedicalRecordController extends Controller
                 }
 
                 $data['pdf_file'] = $filePath;
-                $data['patient_id'] = $user->id; 
+                $data['patient_id'] = $user->id;
                 $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
             }
 
             DB::commit();
 
             return redirect()->back()->with('success', 'Family Medical Record saved successfully!');
-
         } catch (Exception $e) {
- 
+
             Log::error('Error during updateOrCreateFamilyMedical: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
@@ -395,16 +392,16 @@ class MedicalRecordController extends Controller
             $data = $request->validate([
                 'patient_id' => 'nullable|exists:users,id',
                 'medicine_id' => 'nullable|exists:medicines,id',
-                'reason' => 'nullable|string',  
-                'dosage' => 'nullable|string',  
-                'quantity' => 'nullable|string',  
+                'reason' => 'nullable|string',
+                'dosage' => 'nullable|string',
+                'quantity' => 'nullable|string',
                 'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
-            $data['quantity'] = null; 
-            
+            $data['quantity'] = null;
+
             $id = $request->id;
             if ($id) {
-                $data['id'] = $id; 
+                $data['id'] = $id;
                 $medication = $this->medicationContract->getSpecificMedicationById($id);
                 if ($request->hasFile('pdf_file')) {
                     if ($medication->pdf_file) {
@@ -422,16 +419,15 @@ class MedicalRecordController extends Controller
                 }
 
                 $data['pdf_file'] = $filePath;
-                $data['patient_id'] = $user->id; 
+                $data['patient_id'] = $user->id;
                 $this->medicationContract->createOrUpdateMedication($data);
             }
 
             DB::commit();
 
             return redirect()->back()->with('success', 'Medication Record saved successfully!');
-
         } catch (Exception $e) {
- 
+
             Log::error('Error during updateOrCreateMedication: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
@@ -464,7 +460,7 @@ class MedicalRecordController extends Controller
 
             $id = $request->id;
             if ($id) {
-                $data['id'] = $id; 
+                $data['id'] = $id;
                 $testResult = $this->testResultContract->getTestResultById($id);
                 if ($request->hasFile('pdf_file')) {
                     if ($testResult->pdf_file) {
@@ -488,16 +484,15 @@ class MedicalRecordController extends Controller
             DB::commit();
 
             return redirect()->back()->with('success', 'Test Result saved successfully!');
-
         } catch (Exception $e) {
- 
+
             Log::error('Error during updateOrCreateMedication: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);
 
             DB::rollback();
-            
+
             return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
@@ -523,7 +518,7 @@ class MedicalRecordController extends Controller
 
             $id = $request->id;
             if ($id) {
-                $data['id'] = $id; 
+                $data['id'] = $id;
                 $immunization = $this->immunizationContract->getImmunizationById($id);
                 if ($request->hasFile('pdf_file')) {
                     if ($immunization->pdf_file) {
@@ -541,23 +536,22 @@ class MedicalRecordController extends Controller
                 }
 
                 $data['pdf_file'] = $filePath;
-                $data['patient_id'] = $user->id; 
+                $data['patient_id'] = $user->id;
                 $this->immunizationContract->createOrUpdateImmunization($data);
             }
 
             DB::commit();
 
             return redirect()->back()->with('success', 'Immunization saved successfully!');
-
         } catch (Exception $e) {
- 
+
             Log::error('Error during updateOrCreateImmunization: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);
 
             DB::rollback();
-            
+
             return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
@@ -577,31 +571,30 @@ class MedicalRecordController extends Controller
                 'hospital_id' => 'nullable|exists:hospitals,id',
                 'doctor_id' => 'nullable|exists:users,id',
                 'patient_id' => 'nullable|exists:users,id',
-                'diagnosis' => 'required|string|max:255', 
+                'diagnosis' => 'required|string|max:255',
             ]);
 
             $id = $request->id;
             if ($id) {
-                $data['id'] = $id; 
+                $data['id'] = $id;
                 $this->hospitalizationContract->createOrUpdateHospitalization($data);
             } else {
-                $data['patient_id'] = $user->id; 
+                $data['patient_id'] = $user->id;
                 $this->hospitalizationContract->createOrUpdateHospitalization($data);
             }
 
             DB::commit();
 
             return redirect()->back()->with('success', 'Hospitalization saved successfully!');
-
         } catch (Exception $e) {
- 
+
             Log::error('Error during updateOrCreateHospitalization: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
             ]);
 
             DB::rollback();
-            
+
             return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
@@ -629,7 +622,7 @@ class MedicalRecordController extends Controller
             : $this->medicationContract->getMedicationById($user->id);
 
         $medicines = $this->ledgerContract->getAllLedger();
-        
+
         return Inertia::render($viewPath, [
             'medicineRequesters' => $medicineRequesters,
             'medicines' => $medicines,
@@ -649,7 +642,7 @@ class MedicalRecordController extends Controller
             'Bhw' => 'Bhws/Reports/MedicineReport',
         ];
         $redirectInertia = $roleRoutes[$user->role] ?? 'login';
- 
+
         $inventories = $this->ledgerContract->getAllLedger();
 
         return Inertia::render($redirectInertia, [
@@ -763,7 +756,7 @@ class MedicalRecordController extends Controller
             'accounts' => $accounts,
         ]);
     }
-    
+
     public function getAdministratorAccount()
     {
         $user = Auth::user();
@@ -848,22 +841,21 @@ class MedicalRecordController extends Controller
             ]);
             $data['issue_date'] = Carbon::now();
             $data['examin_date'] = Carbon::now();
-            
+
             $this->medicalCertificateContract->createOrUpdateMedicalCertificate($data);
 
-            $logData = [  
+            $logData = [
                 'doctor_id' => $data['doctor_id'],
                 'patient_id' => $data['patient_id'],
                 'message' => 'has created a medical certificate',
                 'log_status' => 'Success',
-            ]; 
-    
+            ];
+
             $this->logContract->updateOrCreateLog($logData);
 
             DB::commit();
 
             return redirect()->back()->with('success', 'Medical Record saved successfully!');
-
         } catch (Exception $e) {
 
             Log::error('Error during updateOrCreateMedicalCertificate: ' . $e->getMessage(), [
@@ -872,7 +864,7 @@ class MedicalRecordController extends Controller
             ]);
 
             DB::rollback();
-            
+
             return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
@@ -896,22 +888,21 @@ class MedicalRecordController extends Controller
             $data['patient_id'] = $user->id;
             $data['issue_date'] = Carbon::now();
             $data['examin_date'] = Carbon::now();
-            
+
             $this->medicalCertificateContract->createOrUpdateMedicalCertificate($data);
 
-            $logData = [  
+            $logData = [
                 'doctor_id' => $data['doctor_id'],
                 'patient_id' => $data['patient_id'],
                 'message' => 'has requested a medical certificate',
                 'log_status' => 'Success',
-            ]; 
-    
+            ];
+
             $this->logContract->updateOrCreateLog($logData);
 
             DB::commit();
 
             return redirect()->back()->with('success', 'Medical Record saved successfully!');
-
         } catch (Exception $e) {
 
             Log::error('Error during updateOrCreateMedicalCertificate: ' . $e->getMessage(), [
@@ -920,8 +911,175 @@ class MedicalRecordController extends Controller
             ]);
 
             DB::rollback();
-            
+
             return redirect()->back()->with('error', 'An error occurred during the process.');
+        }
+    }
+
+    public function storeHealthRecordMobile(Request $request, $id = null)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validate([
+                'patient_id' => 'nullable|exists:users,id',
+                'medicine_id' => 'required|integer|exists:medicines,id',
+                'diagnosis' => 'nullable|string|max:1000',
+            ]);
+
+            if ($id) {
+                $data['id'] = $id;
+                $this->medicalRecordContract->createOrUpdateMedicalRecord($data);
+            } else {
+                $this->medicalRecordContract->createOrUpdateMedicalRecord($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Health record saved successfully!',
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error during storeHealthRecordMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the health record. Please try again.',
+            ], 500);
+        }
+    }
+
+    public function storeSurgicalRecordMobile(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Validate the request
+            $data = $request->validate([
+                'patient_id' => 'nullable|exists:users,id',
+                'doctor_id' => 'nullable|exists:users,id',
+                'procedure' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'diagnosis' => 'nullable|string|max:1000',
+            ]);
+
+            if ($id) {
+                // Update an existing surgical record
+                $data['id'] = $id;
+                $this->surgicalContract->createOrUpdateSurgical($data);
+            } else {
+                // Create a new surgical record
+                $this->surgicalContract->createOrUpdateSurgical($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Health record saved successfully!',
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error during storeSurgicalRecordMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the health record. Please try again.',
+            ], 500);
+        }
+    }
+
+    public function storeMedicationRecordMobile(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validate([
+                'patient_id' => 'required|exists:users,id',
+                'medicine_id' => 'required|exists:medicines,id',
+                'reason' => 'nullable|string',
+                'dosage' => 'nullable|string',
+                'quantity' => 'required|integer|min:1',
+                'medication_status' => 'nullable|in:Accept,Pending,Approve,Success,Failed',
+            ]);
+
+            $data['medication_status'] = $data['medication_status'] ?? 'Pending';
+
+            if ($id) {
+                $data['id'] = $id;
+                $this->medicationContract->createOrUpdateMedication($data);
+            } else {
+                $this->medicationContract->createOrUpdateMedication($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Medication record saved successfully!',
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error during storeMedicationRecordMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the medication record. Please try again.',
+            ], 500);
+        }
+    }
+
+    public function storeFamilyRecordMobile(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validate([
+                'patient_id' => 'required|exists:users,id',
+                'disease' => 'nullable|string|max:255',
+                'relationship_disease' => 'nullable|in:Mother Family Disease,Father Family Disease',
+            ]);
+
+            if ($id) {
+                $data['id'] = $id;
+                $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
+            } else {
+                $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Family medical record saved successfully!',
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error during storeFamilyRecordMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the family medical record. Please try again.',
+            ], 500);
         }
     }
 }

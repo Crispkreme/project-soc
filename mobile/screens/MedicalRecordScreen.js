@@ -5,49 +5,59 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
+  View,
 } from "react-native";
-import { getHealthRecord, getSurgicalRecord, getMedicationRecord, getFamilyMedicalRecord } from "../services/MedicalResult";
-import DataTable, { COL_TYPES } from 'react-native-datatable-component';
+import {
+  getHealthRecord,
+  getSurgicalRecord,
+  getMedicationRecord,
+  getFamilyMedicalRecord,
+} from "../services/MedicalResult";
+import DataTable, { COL_TYPES } from "react-native-datatable-component";
 import { Card, Button } from "react-native-paper";
 
-const renderTable = (title, data, colNames, colSettings) => (
-  <Card style={[styles.card, { backgroundColor: 'white' }]}>
-      <Text style={styles.headerText}>{title}</Text>
-  
-      {data.length > 0 ? (
-      <DataTable
+import FamilyRecordModal from "../components/Modals/FamilyRecordModal";
+import HealthRecordModal from "../components/Modals/HealthRecordModal";
+import MedicationRecordModal from "../components/Modals/MedicationRecordModal";
+import SurgicalRecordModal from "../components/Modals/SurgicalRecordModal";
+
+const renderTable = (title, data, colNames, colSettings, handleAdd) => (
+  <Card style={[styles.card, { backgroundColor: "white" }]}>
+    <Text style={styles.headerText}>{title}</Text>
+    {data.length > 0 ? (
+      <View style={styles.tableContainer}>
+        <DataTable
           data={data.map((item) => {
-          if (title === "Health Records") {
+            if (title === "Health Records") {
               return {
-              doctor: item.medicine || "No Medicine",
-              procedure: item.diagnosis || "No Diagnosis",
-              description: item.medicine || "No Medicine",
-              date: item.created_at,
+                medicine: item.medicine || "No Medicine",
+                procedure: item.diagnosis || "No Diagnosis",
+                date: item.created_at,
               };
-          }
-          if (title === "Surgical Records") {
+            }
+            if (title === "Surgical Records") {
               return {
-              test: item.description,
-              result: item.doctor,
-              date: item.created_at,
+                test: item.description,
+                result: item.doctor,
+                date: item.created_at,
               };
-          }
-          if (title === "Medication Records") {
+            }
+            if (title === "Medication Records") {
               return {
-              medicine_name: item.medicine_name || "No Medicine",
-              reason: item.reason || "No Reason",
-              date: item.date,
+                medicine_name: item.medicine_name || "No Medicine",
+                reason: item.reason || "No Reason",
+                date: item.date,
               };
-          }
-          if (title === "Family Medical Records") {
+            }
+            if (title === "Family Medical Records") {
               return {
-              disease: item.disease || "No Disease",
-              relationship: item.relationship || "No Relationship",
-              date: item.date,
+                disease: item.disease || "No Disease",
+                relationship: item.relationship || "No Relationship",
+                date: item.date,
               };
-          }
-          return {};
+            }
+            return {};
           })}
           colNames={colNames}
           colSettings={colSettings}
@@ -55,18 +65,22 @@ const renderTable = (title, data, colNames, colSettings) => (
           backgroundColor={"white"}
           headerLabelStyle={{ color: "grey", fontSize: 12 }}
           style={{ marginTop: 10 }}
-      />
-      ) : (
+        />
+      </View>
+    ) : (
       <Text style={styles.noDataText}>No records found.</Text>
-      )}
-  
-      <Button mode="contained" onPress={() => handleAdd(title)} style={styles.addButton}>
+    )}
+    <Button
+      mode="contained"
+      onPress={() => handleAdd(title)}
+      style={styles.addButton}
+    >
       Add {title}
-      </Button>
+    </Button>
   </Card>
 );
-  
-const PatientRecordScreen = ({ route }) => {
+
+const MedicalRecordScreen = ({ route }) => {
   const { user } = route.params;
   const [healthRecords, setHealthRecord] = useState([]);
   const [surgicalRecords, setSurgicalRecord] = useState([]);
@@ -74,107 +88,136 @@ const PatientRecordScreen = ({ route }) => {
   const [familyMedicalRecord, setFamilyMedicalRecord] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  useEffect(() => {
-      const fetchTestResults = async () => {
-      try {
-          setLoading(true);
-  
-          const healthRecordData = await getHealthRecord(user.id);
-          const surgicalRecordData = await getSurgicalRecord(user.id);
-          const medicationRecordData = await getMedicationRecord(user.id);
-          const familyMedicalRecordData = await getFamilyMedicalRecord(user.id);
-  
-          setHealthRecord(healthRecordData?.medical_records || []);
-          setSurgicalRecord(surgicalRecordData?.surgicalRecords || []);
-          setMedicationRecords(medicationRecordData?.medicationRecords || []);
-          setFamilyMedicalRecord(familyMedicalRecordData?.familyMedicalRecords || []);
-  
-          setLoading(false);
-      } catch (err) {
-          console.error("Axios error:", err.response || err.message);
-          setLoading(false);
-  
-          if (err.response?.status === 422) {
-          setError(err.response.data?.errors || "Validation error");
-          } else {
-          Alert.alert("Error", "Something went wrong. Please try again.");
-          }
+  const [visibleModal, setVisibleModal] = useState(null);
+
+  // Fetch records
+  const fetchTestResults = async () => {
+    try {
+      setLoading(true);
+
+      const healthRecordData = await getHealthRecord(user.id);
+      const surgicalRecordData = await getSurgicalRecord(user.id);
+      const medicationRecordData = await getMedicationRecord(user.id);
+      const familyMedicalRecordData = await getFamilyMedicalRecord(user.id);
+
+      setHealthRecord(healthRecordData?.medical_records || []);
+      setSurgicalRecord(surgicalRecordData?.surgicalRecords || []);
+      setMedicationRecords(medicationRecordData?.medicationRecords || []);
+      setFamilyMedicalRecord(familyMedicalRecordData?.familyMedicalRecords || []);
+
+      setLoading(false);
+    } catch (err) {
+      console.error("Axios error:", err.response || err.message);
+      setLoading(false);
+
+      if (err.response?.status === 422) {
+        setError(err.response.data?.errors || "Validation error");
+      } else {
+        Alert.alert("Error", "Something went wrong. Please try again.");
       }
-      };
-  
-      if (user.id) {
-      fetchTestResults();
-      }
-  }, [user.id]);
-  
-  const handleAdd = (type) => {
-      Alert.alert(`Add ${type}`, `Add functionality for ${type} goes here.`);
+    }
   };
-  
+
+  // Use effect to fetch records when the screen is loaded
+  useEffect(() => {
+    if (user.id) {
+      fetchTestResults();
+    }
+  }, [user.id]);
+
+  // Handle add button press to show modals
+  const handleAdd = (type) => {
+    if (type === "Health Records") setVisibleModal("HealthRecord");
+    if (type === "Surgical Records") setVisibleModal("SurgicalRecord");
+    if (type === "Medication Records") setVisibleModal("MedicationRecord");
+    if (type === "Family Medical Records") setVisibleModal("FamilyRecord");
+  };
+
+  // Handle the closing of a modal and refetch records when a new record is added
+  const handleCloseModalAndRefresh = (type) => {
+    setVisibleModal(null); // Close the modal
+    fetchTestResults(); // Refetch all records
+  };
+
   if (loading) {
-      return (
+    return (
       <SafeAreaView style={styles.container}>
-          <ActivityIndicator animating={true} size="large" />
-          <Text>Loading...</Text>
+        <ActivityIndicator animating={true} size="large" />
+        <Text>Loading...</Text>
       </SafeAreaView>
-      );
+    );
   }
-  
+
   if (error) {
-      return (
+    return (
       <SafeAreaView style={styles.container}>
-          <Text style={styles.error}>{JSON.stringify(error)}</Text>
+        <Text style={styles.error}>{JSON.stringify(error)}</Text>
       </SafeAreaView>
-      );
+    );
   }
-  
+
   return (
-      <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-          {renderTable(
+        {renderTable(
           "Health Records",
           healthRecords,
-          ["doctor", "procedure", "description", "date"],
+          ["medicine", "procedure", "date"],
           [
-              { name: 'doctor', type: COL_TYPES.STRING, width: '25%' },
-              { name: 'procedure', type: COL_TYPES.STRING, width: '25%' },
-              { name: 'description', type: COL_TYPES.STRING, width: '30%' },
-              { name: 'date', type: COL_TYPES.STRING, width: '20%' }
-          ]
-          )}
-          {renderTable(
+            { name: "medicine", type: COL_TYPES.STRING, width: "40%" },
+            { name: "procedure", type: COL_TYPES.STRING, width: "40%" },
+            { name: "date", type: COL_TYPES.STRING, width: "20%" },
+          ],
+          handleAdd
+        )}
+        {renderTable(
           "Surgical Records",
           surgicalRecords,
           ["test", "result", "date"],
           [
-              { name: 'test', type: COL_TYPES.STRING, width: '30%' },
-              { name: 'result', type: COL_TYPES.STRING, width: '30%' },
-              { name: 'date', type: COL_TYPES.STRING, width: '40%' }
-          ]
-          )}
-          {renderTable(
+            { name: "test", type: COL_TYPES.STRING, width: "30%" },
+            { name: "result", type: COL_TYPES.STRING, width: "30%" },
+            { name: "date", type: COL_TYPES.STRING, width: "40%" },
+          ],
+          handleAdd
+        )}
+        {renderTable(
           "Medication Records",
           medicationRecords,
           ["medicine_name", "reason", "date"],
           [
-              { name: 'medicine_name', type: COL_TYPES.STRING, width: '30%' },
-              { name: 'reason', type: COL_TYPES.STRING, width: '30%' },
-              { name: 'date', type: COL_TYPES.STRING, width: '40%' }
-          ]
-          )}
-          {renderTable(
+            { name: "medicine_name", type: COL_TYPES.STRING, width: "30%" },
+            { name: "reason", type: COL_TYPES.STRING, width: "30%" },
+            { name: "date", type: COL_TYPES.STRING, width: "40%" },
+          ],
+          handleAdd
+        )}
+        {renderTable(
           "Family Medical Records",
           familyMedicalRecord,
           ["disease", "relationship", "date"],
           [
-              { name: 'disease', type: COL_TYPES.STRING, width: '30%' },
-              { name: 'relationship', type: COL_TYPES.STRING, width: '30%' },
-              { name: 'date', type: COL_TYPES.STRING, width: '40%' }
-          ]
-          )}
+            { name: "disease", type: COL_TYPES.STRING, width: "30%" },
+            { name: "relationship", type: COL_TYPES.STRING, width: "30%" },
+            { name: "date", type: COL_TYPES.STRING, width: "40%" },
+          ],
+          handleAdd
+        )}
       </ScrollView>
-      </SafeAreaView>
+
+      {visibleModal === "HealthRecord" && (
+        <HealthRecordModal visible onClose={() => handleCloseModalAndRefresh("HealthRecord")} userId={user.id} />
+      )}
+      {visibleModal === "SurgicalRecord" && (
+        <SurgicalRecordModal visible onClose={() => handleCloseModalAndRefresh("SurgicalRecord")} userId={user.id} />
+      )}
+      {visibleModal === "MedicationRecord" && (
+        <MedicationRecordModal visible onClose={() => handleCloseModalAndRefresh("MedicationRecord")} userId={user.id} />
+      )}
+      {visibleModal === "FamilyRecord" && (
+        <FamilyRecordModal visible onClose={() => handleCloseModalAndRefresh("FamilyRecord")} userId={user.id} />
+      )}
+    </SafeAreaView>
   );
 };
 
@@ -191,7 +234,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   addButton: {
@@ -207,6 +250,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
   },
+  tableContainer: {
+    marginBottom: 20,
+  },
 });
 
-export default PatientRecordScreen;
+export default MedicalRecordScreen;

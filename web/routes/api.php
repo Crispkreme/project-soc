@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MedicalRecordController;
+use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserDetailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,5 +29,11 @@ Route::get('mobile/schedule/consultation', [ServiceController::class, 'getSchedu
 Route::get('mobile/barangay/event', [AppointmentController::class, 'getBarangayEventMobile'])->name('mobile.barangay.event');
 Route::get('mobile/top/medicine', [DashboardController::class, 'getTopMedicineMobile'])->name('mobile.top.medicine');
 Route::get('mobile/upcoming/barangay/event', [AppointmentController::class, 'getUpcomingBarangayEventMobile'])->name('mobile.upcoming.barangay.event');
+Route::get('mobile/get/all/medicine', [MedicineController::class, 'getAllMedicineMobile'])->name('mobile.get.all.medicine');
+Route::get('mobile/get/all/doctor', [UserDetailController::class, 'getAllDoctorMobile'])->name('mobile.get.all.doctor');
 
 Route::post('mobile/store/booking', [AppointmentController::class, 'storeBooking'])->name('mobile.store.booking');
+Route::post('mobile/store/health/record', [MedicalRecordController::class, 'storeHealthRecordMobile'])->name('mobile.store.health.record');
+Route::post('mobile/store/surgical/record', [MedicalRecordController::class, 'storeSurgicalRecordMobile'])->name('mobile.store.surgical.record');
+Route::post('mobile/store/medication/record', [MedicalRecordController::class, 'storeMedicationRecordMobile'])->name('mobile.store.medication.record');
+Route::post('mobile/store/family/record', [MedicalRecordController::class, 'storeFamilyRecordMobile'])->name('mobile.store.family.record');

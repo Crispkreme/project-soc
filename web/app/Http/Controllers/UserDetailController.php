@@ -275,4 +275,11 @@ class UserDetailController extends Controller
         $users = $this->userDetailContract->getAllUserDetails();
         return response()->json(['users' => $users ]);
     }
+
+    // for mobile
+    public function getAllDoctorMobile()
+    {
+        $doctor = $this->userDetailContract->getAllUserByRole('Practitioner', true);
+        return response()->json(['doctor' => $doctor ]);
+    }
 }

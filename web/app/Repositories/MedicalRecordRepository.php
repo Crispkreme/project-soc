@@ -22,10 +22,10 @@ class MedicalRecordRepository implements MedicalRecordContract
                 'id' => $data['id'] ?? null,
             ],
             [
-                'hospital_id' => $data['hospital_id'],
-                'doctor_id' => $data['doctor_id'],
                 'patient_id' => $data['patient_id'],
+                'medicine_id' => $data['medicine_id'],
                 'diagnosis' => $data['diagnosis'],
+                'pdf_file' => $data['pdf_file'] ?? null,
             ]
         );
     }

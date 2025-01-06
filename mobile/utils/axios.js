@@ -1,7 +1,7 @@
 import axiosLib from 'axios';
 
 const axios = axiosLib.create({
-    baseURL: 'http://10.0.120.55:8000/api',
+    baseURL: 'http://192.168.1.21:8000/api',
     headers: {
         Accept: 'application/json',
     },
