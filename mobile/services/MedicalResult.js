@@ -9,6 +9,7 @@ export async function getTestResult(userId) {
         throw error;
     }
 }
+
 export async function getImmunizationResult(userId) {
     try {
         const response = await axios.get(`/mobile/immunization/result/${userId}`);
@@ -75,6 +76,16 @@ export async function getFamilyMedicalRecord(userId) {
         return response.data;
     } catch (error) {
         console.error("Error fetching medication records:", error);
+        throw error;
+    }
+}
+
+export async function getAllHospital() {
+    try {
+        const response = await axios.get(`/mobile/get/all/hospital`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching test results:", error);
         throw error;
     }
 }

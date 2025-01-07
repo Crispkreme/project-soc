@@ -28,6 +28,7 @@ class PrescriptionRepository implements PrescriptionContract
                 'medicine_id' => $data['medicine_id'],
                 'instruction' => $data['instruction'],
                 'quantity' => $data['quantity'],
+                'diagnosis' => $data['diagnosis'],
             ]
         );
     }

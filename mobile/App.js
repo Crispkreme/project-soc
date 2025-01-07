@@ -14,6 +14,9 @@ import MedicineAvailableScreen from "./screens/MedicineAvailableScreen";
 import ScheduleConsultationScreen from "./screens/ScheduleConsultationScreen";
 import BhwActivityScreen from "./screens/BhwActivityScreen";
 import AppointmentScreen from "./screens/AppointmentScreen";
+import MedicineRequesterScreen from "./screens/MedicineRequesterScreen";
+import ChatScreen from "./screens/ChatScreen";
+import MessageBoxScreen from "./screens/MessageBox";
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -68,6 +71,17 @@ function DrawerNavigator({ route }) {
         }}
       />
       <Drawer.Screen
+        name="Medical Requester"
+        component={MedicineRequesterScreen}
+        initialParams={{ user }}
+        options={{
+          headerShown: false,
+          drawerIcon: ({ color, size }) => (
+            <Icon name="medical-bag" color={color} size={size} />
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="Medical Certificate"
         component={MedicalCertificateScreen}
         initialParams={{ user }}
@@ -111,6 +125,17 @@ function DrawerNavigator({ route }) {
           ),
         }}
       />
+      <Drawer.Screen
+        name="Messages"
+        component={ChatScreen}
+        initialParams={{ user }}
+        options={{
+          headerShown: false,
+          drawerIcon: ({ color, size }) => (
+            <Icon name="account-group" color={color} size={size} />
+          ),
+        }}
+      />
     </Drawer.Navigator>
   );
 }
@@ -120,6 +145,7 @@ export default function App() {
     <AuthProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="MessageBoxScreen" component={MessageBoxScreen} />
           <Stack.Screen 
             name="Login" 
             component={LoginScreen} 

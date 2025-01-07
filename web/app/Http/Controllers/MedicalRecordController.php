@@ -1082,4 +1082,82 @@ class MedicalRecordController extends Controller
             ], 500);
         }
     }
+
+    public function storeTestResultMobile(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validate([
+                'patient_id' => 'required|exists:users,id',
+                'name' => 'nullable|string|max:255',
+                'result' => 'nullable|string',
+            ]);
+
+            if ($id) {
+                $data['id'] = $id;
+                $this->testResultContract->createOrUpdateTestResult($data);
+            } else {
+                $this->testResultContract->createOrUpdateTestResult($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Test result saved successfully!',
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error during storeTestResultMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the test result. Please try again.',
+            ], 500);
+        }
+    }
+
+    public function storeImmunizationResultMobile(Request $request, $id = null)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validate([
+                'patient_id' => 'required|exists:users,id',
+                'doctor_id' => 'nullable|exists:users,id',
+                'immunization' => 'required|string|max:255',
+            ]);
+
+            if ($id) {
+                $data['id'] = $id;
+                $this->immunizationContract->createOrUpdateImmunization($data);
+            } else {
+                $this->immunizationContract->createOrUpdateImmunization($data);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Immunization record saved successfully!',
+            ], 200);
+        } catch (Exception $e) {
+            Log::error('Error during storeImmunizationResultMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while saving the immunization record. Please try again.',
+            ], 500);
+        }
+    }
 }

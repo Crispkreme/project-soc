@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Text, View, StyleSheet, Button, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
+import { SafeAreaView, Text, View, StyleSheet, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { loadUser, login } from '../services/AuthService';
 
@@ -7,7 +7,7 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);  // Track password visibility
+  const [showPassword, setShowPassword] = useState(false); 
   const navigation = useNavigation();
 
   async function handleLogin() {
@@ -36,10 +36,10 @@ const LoginScreen = () => {
   return (
     <SafeAreaView style={styles.wrapper}>
       <View style={styles.container}>
-        <Text style={styles.header}>Login</Text>
+        <Text style={styles.header}>Ai-Timan</Text>
+        <Text style={styles.subtitle}>Streamlining Outpatient Care</Text>
 
-        {/* Email Field */}
-        <Text>Email Address:</Text>
+        <Text style={styles.label}>Email Address</Text>
         <TextInput
           style={styles.input}
           placeholder="Enter your email"
@@ -50,27 +50,35 @@ const LoginScreen = () => {
         />
         {errors.email && <Text style={styles.error}>{errors.email}</Text>}
 
-        {/* Password Field with Show/Hide Toggle */}
-        <Text>Password:</Text>
+        <Text style={styles.label}>Password</Text>
         <View style={styles.passwordContainer}>
           <TextInput
             style={styles.input}
             placeholder="Enter your password"
             value={password}
             onChangeText={(text) => setPassword(text)}
-            secureTextEntry={!showPassword}  // Toggle visibility
+            secureTextEntry={!showPassword}
             autoCapitalize="none"
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             style={styles.toggleButton}
           >
-            <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+            <Text style={styles.toggleButtonText}>{showPassword ? 'Hide' : 'Show'}</Text>
           </TouchableOpacity>
         </View>
         {errors.password && <Text style={styles.error}>{errors.password}</Text>}
 
-        <Button title="Login" onPress={handleLogin} />
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.loginButtonText}>Log In</Text>
+        </TouchableOpacity>
+
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Don't have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.footerLink}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -78,43 +86,86 @@ const LoginScreen = () => {
 
 const styles = StyleSheet.create({
   wrapper: {
-    backgroundColor: '#fff',
+    flex: 1,
+    backgroundColor: '#001f3f',
+  },
+  container: {
+    padding: 20,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  container: {
-    padding: 20,
-    width: '100%',
-    rowGap: 15,
-  },
   header: {
-    color: '#334155',
-    fontWeight: '500',
-    fontSize: 24,
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ffffff',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: '#a8c0ff', // Light Blue for subtitle
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  label: {
+    color: '#ffffff',
+    fontSize: 16,
+    marginBottom: 5,
+    alignSelf: 'flex-start',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 5,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
     width: '100%',
+    marginBottom: 15,
   },
   passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    width: '100%',
+    position: 'relative',
   },
   toggleButton: {
     position: 'absolute',
     right: 10,
-    padding: 10,
+    top: 10,
+  },
+  toggleButtonText: {
+    color: '#001f3f',
+    fontWeight: 'bold',
   },
   error: {
-    color: 'red',
-    marginTop: 5,
+    color: '#ff4d4d',
+    fontSize: 14,
+    marginTop: -10,
+    marginBottom: 10,
+  },
+  loginButton: {
+    backgroundColor: '#00509e',
+    borderRadius: 8,
+    paddingVertical: 15,
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  loginButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  footer: {
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerText: {
+    color: '#ffffff',
+  },
+  footerLink: {
+    color: '#00aaff',
+    fontWeight: 'bold',
   },
 });
 

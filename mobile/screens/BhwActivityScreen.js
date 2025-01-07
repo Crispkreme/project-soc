@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { getScheduleConsultation } from "../services/ScheduleConsultation";
+import { LinearGradient } from "expo-linear-gradient";
 
 const Event = ({ event }) => {
   const isBooking = !!event.event_name;
@@ -115,7 +116,11 @@ const BhwActivityScreen = ({ route }) => {
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <ScrollView style={styles.container}>
+      {/* Apply gradient background to the whole screen */}
+      <LinearGradient
+        colors={['#6a11cb', '#2575fc']} // Gradient colors
+        style={styles.container} // Gradient wraps the entire container
+      >
         {record.length > 0 ? (
           record.map((monthData, idx) => (
             <Month
@@ -127,7 +132,7 @@ const BhwActivityScreen = ({ route }) => {
         ) : (
           <Text style={styles.noEventsText}>No consultations found.</Text>
         )}
-      </ScrollView>
+      </LinearGradient>
     </TouchableWithoutFeedback>
   );
 };
@@ -137,7 +142,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     marginTop: 50,
-    backgroundColor: "#F5F5F5",
   },
   eventCard: {
     flexDirection: "row",

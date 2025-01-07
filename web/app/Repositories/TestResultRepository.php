@@ -25,7 +25,7 @@ class TestResultRepository implements TestResultContract
                 'patient_id' => $data['patient_id'],
                 'name' => $data['name'],
                 'result' => $data['result'],
-                'pdf_file' => $data['pdf_file'],
+                'pdf_file' => $data['pdf_file'] ?? null,
             ]
         );
     }

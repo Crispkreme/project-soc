@@ -25,7 +25,7 @@ class ImmunizationRepository implements ImmunizationContract
                 'doctor_id' => $data['doctor_id'],
                 'patient_id' => $data['patient_id'],
                 'immunization' => $data['immunization'],
-                'pdf_file' => $data['pdf_file'],
+                'pdf_file' => $data['pdf_file'] ?? null,
             ]
         );
     }

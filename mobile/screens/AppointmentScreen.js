@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { Picker } from "@react-native-picker/picker";
+import { LinearGradient } from "expo-linear-gradient";
 import { getBarangayEvent, storeBarangayEvent } from "../services/Appointment";
 
 const AppointmentScreen = ({ route }) => {
@@ -20,7 +21,7 @@ const AppointmentScreen = ({ route }) => {
   const [medicalCertificate, setMedicalCertificate] = useState([]);
   const [markedDates, setMarkedDates] = useState({});
   const [loading, setLoading] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     event_name: "",
     event_venue: "",
@@ -50,6 +51,7 @@ const AppointmentScreen = ({ route }) => {
 
     fetchBarangayEvent();
   }, []);
+
   const markEventDates = (events) => {
     let marked = {};
     events.forEach((event) => {
@@ -61,6 +63,7 @@ const AppointmentScreen = ({ route }) => {
     });
     setMarkedDates(marked);
   };
+
   const formatEventDate = (dateString) => {
     const parsedDate = Date.parse(dateString);
     if (!isNaN(parsedDate)) {
@@ -89,6 +92,7 @@ const AppointmentScreen = ({ route }) => {
       return `${year}-${month.toString().padStart(2, "0")}-${day.padStart(2, "0")}`;
     }
   };
+
   const timeSchedule = [
     { value: "08:00:00 - 09:00:00", label: "08:00 AM - 09:00 AM" },
     { value: "09:00:00 - 10:00:00", label: "09:00 AM - 10:00 AM" },
@@ -99,6 +103,7 @@ const AppointmentScreen = ({ route }) => {
     { value: "15:00:00 - 16:00:00", label: "03:00 PM - 04:00 PM" },
     { value: "16:00:00 - 17:00:00", label: "04:00 PM - 05:00 PM" },
   ];
+
   const filterTimeSlots = (date) => {
     const event = medicalCertificate.find((e) => {
       const formattedEventDate = formatEventDate(e.event_date);
@@ -117,7 +122,6 @@ const AppointmentScreen = ({ route }) => {
       });
       setFilteredSlots(filtered);
 
-      // Update formData state correctly
       setFormData((prevFormData) => ({
         ...prevFormData,
         event_name: event.event_name,
@@ -137,12 +141,13 @@ const AppointmentScreen = ({ route }) => {
       });
     }
   };
+
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
     filterTimeSlots(day.dateString);
   };
+
   const handleFormSubmit = async () => {
-    // Recheck if formData exists
     if (
       !formData ||
       !formData.event_name ||
@@ -153,7 +158,7 @@ const AppointmentScreen = ({ route }) => {
       Alert.alert("Error", "Please fill in all fields.");
       return;
     }
-    
+
     const [startTime, endTime] = selectedSlot.split(" - ");
 
     try {
@@ -164,54 +169,73 @@ const AppointmentScreen = ({ route }) => {
       };
 
       const response = await storeBarangayEvent(submissionData);
-      console.log('store barangay event', response);
+      console.log("store barangay event", response);
       Alert.alert("Success", "Appointment Booked");
     } catch (error) {
       console.error("Error storing appointment:", error);
       Alert.alert("Error", "Failed to book appointment. Please try again.");
     }
   };
-  
+
   return (
-    <ScrollView style={styles.container}>
-      <Calendar
-        onDayPress={handleDayPress}
-        markedDates={{
-          ...markedDates,
-          [selectedDate]: { selected: true, selectedColor: "blue" },
-        }}
-      />
+    <LinearGradient
+      colors={["#001f3f", "#00509e", "#00aaff"]}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Calendar
+          onDayPress={handleDayPress}
+          markedDates={{
+            ...markedDates,
+            [selectedDate]: { selected: true, selectedColor: "blue" },
+          }}
+        />
 
-      <View style={styles.formContainer}>
-        <Text>Event Name:</Text>
-        <TextInput style={styles.input} value={formData.event_name} editable={false} />
+        <View style={styles.formContainer}>
+          <Text style={styles.boldWhiteText}>Event Name:</Text>
+          <TextInput style={styles.input} value={formData.event_name} editable={false} />
 
-        <Text>Event Venue:</Text>
-        <TextInput style={styles.input} value={formData.event_venue} editable={false} />
+          <Text style={styles.boldWhiteText}>Event Venue:</Text>
+          <TextInput style={styles.input} value={formData.event_venue} editable={false} />
 
-        <Text>Event Date:</Text>
-        <TextInput style={styles.input} value={formData.event_date} editable={false} />
+          <Text style={styles.boldWhiteText}>Event Date:</Text>
+          <TextInput style={styles.input} value={formData.event_date} editable={false} />
 
-        <Text>Time Slot:</Text>
-        <Picker
-          selectedValue={selectedSlot}
-          onValueChange={(itemValue) => setSelectedSlot(itemValue)}
-        >
-          {filteredSlots.map((slot, index) => (
-            <Picker.Item key={index} label={slot.label} value={slot.value} />
-          ))}
-        </Picker>
+          <Text style={styles.boldWhiteText}>Time Slot:</Text>
+          <Picker
+            selectedValue={selectedSlot}
+            onValueChange={(itemValue) => setSelectedSlot(itemValue)}
+          >
+            {filteredSlots.map((slot, index) => (
+              <Picker.Item key={index} label={slot.label} value={slot.value} />
+            ))}
 
-        <Button title="Book Appointment" onPress={handleFormSubmit} />
-      </View>
-    </ScrollView>
+          </Picker>
+
+          <Button title="Book Appointment" onPress={handleFormSubmit} />
+        </View>
+
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 16, marginTop: 60 },
-    formContainer: { marginTop: 20 },
-    input: { borderWidth: 1, padding: 10, borderRadius: 5, backgroundColor: "#eee" },
+  container: { flex: 1 },
+  scrollContainer: { padding: 16, marginTop: 60 },
+  formContainer: { marginTop: 20 },
+  input: {
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: "#eee",
+  },
+  boldWhiteText: {
+    fontWeight: "bold",
+    color: "white",
+    marginTop: 10,
+    marginBottom: 5,
+  },
 });
 
 export default AppointmentScreen;

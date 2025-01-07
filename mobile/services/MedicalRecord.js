@@ -40,3 +40,23 @@ export async function storeFamilyRecord(data) {
         throw error;
     }
 }
+
+export async function storeTestResult(data) {
+    try {
+        const response = await axios.post(`/mobile/store/test/result`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing test results:", error);
+        throw error;
+    }
+}
+
+export async function storeImmunizationResult(data) {
+    try {
+        const response = await axios.post(`/mobile/store/immunization/result`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing test results:", error);
+        throw error;
+    }
+}

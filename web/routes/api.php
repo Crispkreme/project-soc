@@ -31,9 +31,14 @@ Route::get('mobile/top/medicine', [DashboardController::class, 'getTopMedicineMo
 Route::get('mobile/upcoming/barangay/event', [AppointmentController::class, 'getUpcomingBarangayEventMobile'])->name('mobile.upcoming.barangay.event');
 Route::get('mobile/get/all/medicine', [MedicineController::class, 'getAllMedicineMobile'])->name('mobile.get.all.medicine');
 Route::get('mobile/get/all/doctor', [UserDetailController::class, 'getAllDoctorMobile'])->name('mobile.get.all.doctor');
+Route::get('mobile/get/all/hospital', [RecordController::class, 'getAllHospitalMobile'])->name('mobile.get.all.hospital');
+Route::get('mobile/get/all/medicine/inventory', [MedicineController::class, 'getAllInventoryMedicineMobile'])->name('mobile.get.all.medicine.inventory');
+Route::get('mobile/get/all/medicine/requester/{id}', [MedicineController::class, 'getAllMedicineRequesterMobile'])->name('mobile.get.all.medicine.requester');
 
 Route::post('mobile/store/booking', [AppointmentController::class, 'storeBooking'])->name('mobile.store.booking');
 Route::post('mobile/store/health/record', [MedicalRecordController::class, 'storeHealthRecordMobile'])->name('mobile.store.health.record');
 Route::post('mobile/store/surgical/record', [MedicalRecordController::class, 'storeSurgicalRecordMobile'])->name('mobile.store.surgical.record');
 Route::post('mobile/store/medication/record', [MedicalRecordController::class, 'storeMedicationRecordMobile'])->name('mobile.store.medication.record');
 Route::post('mobile/store/family/record', [MedicalRecordController::class, 'storeFamilyRecordMobile'])->name('mobile.store.family.record');
+Route::post('mobile/store/test/result', [MedicalRecordController::class, 'storeTestResultMobile'])->name('mobile.store.test.result');
+Route::post('mobile/store/immunization/result', [MedicalRecordController::class, 'storeImmunizationResultMobile'])->name('mobile.store.immunization.result');

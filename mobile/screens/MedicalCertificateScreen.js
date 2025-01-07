@@ -4,6 +4,7 @@ import { getMedicalCertificate } from "../services/MedicalCertificate";
 import DataTable, { COL_TYPES } from 'react-native-datatable-component';
 import moment from 'moment';
 import { Card } from "react-native-paper";
+import { LinearGradient } from "expo-linear-gradient";
 
 const MedicalCertificateScreen = ({ route }) => {
   const { user } = route.params;
@@ -66,8 +67,11 @@ const MedicalCertificateScreen = ({ route }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+    <LinearGradient
+      colors={['#6a11cb', '#2575fc']}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={{ padding: 10 }}>
         <Card style={[styles.card, { marginTop: 20, backgroundColor: 'white' }]}>
           <Text style={styles.headerText}>Medical Certificate</Text>
 
@@ -87,14 +91,13 @@ const MedicalCertificateScreen = ({ route }) => {
           />
         </Card>
       </ScrollView>
-    </SafeAreaView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     marginTop: 20,
   },
   card: {
