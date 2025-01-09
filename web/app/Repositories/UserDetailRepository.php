@@ -140,12 +140,13 @@ class UserDetailRepository implements UserDetailContract
     {
         $user = Auth::user();
         $userDetail = $this->model->where('user_id', $user->id)->firstOrFail();
-
+   
         if ($userDetail->profile) {
             Storage::disk('public')->delete($userDetail->profile);
         }
 
         $userDetail->update(['profile' => $path]);
+        return $userDetail;
     }
 
     public function getAllUserNameByRole($role, $status)

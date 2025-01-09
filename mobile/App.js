@@ -1,11 +1,12 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import React, { useContext } from "react";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { AuthProvider } from "./contexts/AuthContext";
+import { createDrawerNavigator } from "@react-navigation/drawer"; // Add this import
+import { AuthProvider, AuthContext } from "./contexts/AuthContext";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import LoginScreen from "./screens/LoginScreen";
+import RegisterScreen from "./screens/RegisterScreen";
 import PatientHomeScreen from "./screens/PatientHomeScreen";
 import PatientRecordScreen from "./screens/PatientRecordScreen";
 import MedicalRecordScreen from "./screens/MedicalRecordScreen";
@@ -22,7 +23,14 @@ const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 
 function DrawerNavigator({ route }) {
+  const { logout } = useContext(AuthContext);
   const user = route?.params?.user;
+  const navigation = useNavigation();
+
+  const handleLogout = () => {
+    logout();
+    navigation.replace("Login");
+  };
 
   return (
     <Drawer.Navigator initialRouteName="Dashboard">
@@ -132,7 +140,7 @@ function DrawerNavigator({ route }) {
         options={{
           headerShown: false,
           drawerIcon: ({ color, size }) => (
-            <Icon name="account-group" color={color} size={size} />
+            <Icon name="message" color={color} size={size} />
           ),
         }}
       />
@@ -152,42 +160,12 @@ export default function App() {
             options={{ headerShown: false }} 
           />
           <Stack.Screen 
+            name="Register" 
+            component={RegisterScreen} 
+            options={{ headerShown: false }} 
+          />
+          <Stack.Screen 
             name="Dashboard"
-            component={DrawerNavigator} 
-            options={{ headerShown: false }} 
-          />
-          <Stack.Screen 
-            name="Patient History"
-            component={DrawerNavigator} 
-            options={{ headerShown: false }} 
-          />
-          <Stack.Screen 
-            name="Medical History"
-            component={DrawerNavigator} 
-            options={{ headerShown: false }} 
-          />
-          <Stack.Screen 
-            name="Medical Certificate" 
-            component={DrawerNavigator} 
-            options={{ headerShown: false }} 
-          />
-          <Stack.Screen 
-            name="Medicine Available" 
-            component={DrawerNavigator} 
-            options={{ headerShown: false }} 
-          />
-          <Stack.Screen 
-            name="Schedule Consultation" 
-            component={DrawerNavigator} 
-            options={{ headerShown: false }} 
-          />
-          <Stack.Screen 
-            name="Bhw Activity" 
-            component={DrawerNavigator} 
-            options={{ headerShown: false }} 
-          />
-          <Stack.Screen 
-            name="Appointment" 
             component={DrawerNavigator} 
             options={{ headerShown: false }} 
           />

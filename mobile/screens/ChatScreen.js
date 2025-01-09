@@ -23,7 +23,6 @@ const ChatScreen = ({ route, navigation }) => {
       try {
         setLoading(true);
         const doctorData = await getAllDoctor(user.id);
-        console.log('doctorData', doctorData);
         setDoctor(doctorData?.doctor || []);
         setLoading(false);
       } catch (err) {
