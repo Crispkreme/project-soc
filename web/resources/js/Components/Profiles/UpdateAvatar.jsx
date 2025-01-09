@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { IoCameraOutline } from 'react-icons/io5';
 import axios from 'axios';
 
 const UpdateAvatar = ({ userDetail }) => {
-    const [avatarPreview, setAvatarPreview] = useState(userDetail.profile ? `/storage/${userDetail.profile}` : '/path/to/default/avatar.jpg');
+    const [avatarPreview, setAvatarPreview] = useState(userDetail.profile ? `/storage/profiles/${userDetail.profile}` : '/path/to/default/avatar.jpg');
     const [profile, setProfile] = useState(null);
     const [processing, setProcessing] = useState(false);
     const [error, setError] = useState(null);

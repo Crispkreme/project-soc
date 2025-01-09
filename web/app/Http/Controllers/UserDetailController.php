@@ -254,13 +254,15 @@ class UserDetailController extends Controller
 
     public function uploadAvatar(Request $request)
     {
+
         $request->validate([
             'profile' => 'required|image|max:2048',
         ]);
 
         $path = $request->file('profile')->store('profiles', 'public');
-        $this->userDetailContract->createOrUpdateUserAvatar($path);
 
+        $updated = $this->userDetailContract->createOrUpdateUserAvatar($path);
+        
         return response()->json(['profile' => asset("storage/$path")]);
     }
 

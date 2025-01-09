@@ -380,4 +380,60 @@ class UserController extends Controller
             'token' => $user->createToken($request->device_name)->plainTextToken,
         ]);
     }
+
+    public function createUserMobile(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'username' => 'required|string|lowercase|max:255|unique:' . User::class,
+                'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+                'password' => ['required', 'confirmed', Password::defaults()],
+                'firstname' => 'required|string|max:255',
+                'middlename' => 'nullable|string|max:255',
+                'lastname' => 'required|string|max:255',
+                'gender' => 'nullable|in:Male,Female',
+                'birthday' => 'nullable|date|before:today',
+                'civil_status' => 'nullable|in:Single,Married,Divorce,Separated',
+                'religion' => 'required|string|max:255',
+                'status' => 'nullable|in:Active,Deactivate',
+                'address' => 'nullable|string|max:65535',
+            ]);
+
+            $userData = [
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'role' => 'Patient',
+            ];
+
+            $user = $this->userContract->createOrUpdateUser($userData);
+
+            $userDetailData = [
+                'user_id' => $user->id,
+                'firstname' => $data['firstname'],
+                'middlename' => $data['middlename'] ?? null,
+                'lastname' => $data['lastname'],
+                'gender' => $data['gender'],
+                'birthday' => $data['birthday'],
+                'civil_status' => $data['civil_status'],
+                'religion' => $data['religion'],
+                'address' => $data['address'] ?? null,
+                'profile' => null,
+            ];
+
+            $this->userDetailContract->createOrUpdateUserDetail($userDetailData);
+
+            return response()->json(['message' => 'Successfully created an account']);
+            
+        } catch (Exception $e) {
+            Log::error('Error during createUserMobile', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return redirect()->back()->with('error', 'An error occurred, please try again.');
+        }
+    }
 }

@@ -42,3 +42,4 @@ Route::post('mobile/store/medication/record', [MedicalRecordController::class, '
 Route::post('mobile/store/family/record', [MedicalRecordController::class, 'storeFamilyRecordMobile'])->name('mobile.store.family.record');
 Route::post('mobile/store/test/result', [MedicalRecordController::class, 'storeTestResultMobile'])->name('mobile.store.test.result');
 Route::post('mobile/store/immunization/result', [MedicalRecordController::class, 'storeImmunizationResultMobile'])->name('mobile.store.immunization.result');
+Route::post('mobile/store/user', [UserController::class, 'createUserMobile'])->name('mobile.store.user');

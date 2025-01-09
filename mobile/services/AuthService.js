@@ -17,3 +17,16 @@ export async function loadUser() {
 
     return user;
 }
+
+export async function storeUserDetails(data) {
+    
+    console.log('user data', data);
+
+    try {
+        const response = await axios.post(`/mobile/store/user`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing store user details:", error);
+        throw error;
+    }
+}
