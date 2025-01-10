@@ -436,4 +436,29 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'An error occurred, please try again.');
         }
     }
+
+    public function getUserDetailsMobile($id)
+    {
+        try {
+            
+            $details = $this->userDetailContract->getUserDetailById($id);
+
+            return response()->json([
+                'details' => $details,
+            ]);
+
+        } catch (Exception $e) {
+                
+            Log::error('Error during getUserDetailsMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            
+            Session::flash('error', 'Error please try again.');
+
+            return redirect()->back();
+        }
+    }
 }

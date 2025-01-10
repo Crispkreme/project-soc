@@ -1,48 +1,73 @@
-import React, { useContext } from "react";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createDrawerNavigator } from "@react-navigation/drawer"; // Add this import
-import { AuthProvider, AuthContext } from "./contexts/AuthContext";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import React from 'react';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { View, Image, Text, StyleSheet } from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { AuthProvider } from "./contexts/AuthContext";
 
-import LoginScreen from "./screens/LoginScreen";
-import RegisterScreen from "./screens/RegisterScreen";
-import PatientHomeScreen from "./screens/PatientHomeScreen";
-import PatientRecordScreen from "./screens/PatientRecordScreen";
-import MedicalRecordScreen from "./screens/MedicalRecordScreen";
-import MedicalCertificateScreen from "./screens/MedicalCertificateScreen";
-import MedicineAvailableScreen from "./screens/MedicineAvailableScreen";
-import ScheduleConsultationScreen from "./screens/ScheduleConsultationScreen";
-import BhwActivityScreen from "./screens/BhwActivityScreen";
-import AppointmentScreen from "./screens/AppointmentScreen";
-import MedicineRequesterScreen from "./screens/MedicineRequesterScreen";
-import ChatScreen from "./screens/ChatScreen";
-import MessageBoxScreen from "./screens/MessageBox";
+import PatientHomeScreen from './screens/PatientHomeScreen';
+import AppointmentScreen from './screens/AppointmentScreen';
+import PatientRecordScreen from './screens/PatientRecordScreen';
+import MedicalRecordScreen from './screens/MedicalRecordScreen';
+import MedicineRequesterScreen from './screens/MedicineRequesterScreen';
+import MedicalCertificateScreen from './screens/MedicalCertificateScreen';
+import MedicineAvailableScreen from './screens/MedicineAvailableScreen';
+import ScheduleConsultationScreen from './screens/ScheduleConsultationScreen';
+import BhwActivityScreen from './screens/BhwActivityScreen';
+import ChatScreen from './screens/ChatScreen';
+import LoginScreen from './screens/LoginScreen';
+import RegisterScreen from './screens/RegisterScreen';
+import MessageBoxScreen from './screens/MessageBoxScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import UpdateProfileScreen from './screens/UpdateProfileScreen';
+import AccountDetailScreen from './screens/AccountDetailScreen';
+import ChangeEmailScreen from './screens/ChangeEmailScreen';
+import ChangePasswordScreen from './screens/ChangePasswordScreen';
+import DeactivateAccountScreen from './screens/DeactivateAccountScreen';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 
 function DrawerNavigator({ route }) {
-  const { logout } = useContext(AuthContext);
-  const user = route?.params?.user;
+  const { user } = route?.params || {};
   const navigation = useNavigation();
 
-  const handleLogout = () => {
-    logout();
+  if (!user) {
     navigation.replace("Login");
-  };
+    return null;
+  }
 
   return (
     <Drawer.Navigator initialRouteName="Dashboard">
+      <Drawer.Screen
+        name="Profile"
+        component={ProfileScreen}
+        initialParams={{ user }}
+        options={{
+          title: "",
+          drawerLabel: () => null,
+          drawerIcon: () => (
+            <View style={styles.profileContainer}>
+              <Image
+                source={{ uri: user.profilePicture }}
+                style={styles.profileImage}
+              />
+              <View style={styles.userInfo}>
+                <Text style={styles.userName}>{user.name}</Text>
+                <Text style={styles.userRole}>{user.role}</Text>
+              </View>
+            </View>
+          ),
+        }}
+      />
       <Drawer.Screen
         name="Dashboard"
         component={PatientHomeScreen}
         initialParams={{ user }}
         options={{
           headerShown: false,
-          drawerIcon: ({ color, size }) => (
-            <Icon name="view-dashboard" color={color} size={size} />
-          ),
+          drawerIcon: ({ color, size }) => <MaterialCommunityIcons name="view-dashboard" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -51,9 +76,7 @@ function DrawerNavigator({ route }) {
         initialParams={{ user }}
         options={{
           headerShown: false,
-          drawerIcon: ({ color, size }) => (
-            <Icon name="calendar-check" color={color} size={size} />
-          ),
+          drawerIcon: ({ color, size }) => <MaterialCommunityIcons name="calendar-check" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -62,9 +85,7 @@ function DrawerNavigator({ route }) {
         initialParams={{ user }}
         options={{
           headerShown: false,
-          drawerIcon: ({ color, size }) => (
-            <Icon name="file-document-outline" color={color} size={size} />
-          ),
+          drawerIcon: ({ color, size }) => <MaterialCommunityIcons name="file-document-outline" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -73,9 +94,7 @@ function DrawerNavigator({ route }) {
         initialParams={{ user }}
         options={{
           headerShown: false,
-          drawerIcon: ({ color, size }) => (
-            <Icon name="medical-bag" color={color} size={size} />
-          ),
+          drawerIcon: ({ color, size }) => <MaterialCommunityIcons name="medical-bag" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -84,9 +103,7 @@ function DrawerNavigator({ route }) {
         initialParams={{ user }}
         options={{
           headerShown: false,
-          drawerIcon: ({ color, size }) => (
-            <Icon name="medical-bag" color={color} size={size} />
-          ),
+          drawerIcon: ({ color, size }) => <MaterialCommunityIcons name="medical-bag" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -95,9 +112,7 @@ function DrawerNavigator({ route }) {
         initialParams={{ user }}
         options={{
           headerShown: false,
-          drawerIcon: ({ color, size }) => (
-            <Icon name="certificate" color={color} size={size} />
-          ),
+          drawerIcon: ({ color, size }) => <MaterialCommunityIcons name="certificate" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -106,9 +121,7 @@ function DrawerNavigator({ route }) {
         initialParams={{ user }}
         options={{
           headerShown: false,
-          drawerIcon: ({ color, size }) => (
-            <Icon name="pill" color={color} size={size} />
-          ),
+          drawerIcon: ({ color, size }) => <MaterialCommunityIcons name="pill" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -117,9 +130,7 @@ function DrawerNavigator({ route }) {
         initialParams={{ user }}
         options={{
           headerShown: false,
-          drawerIcon: ({ color, size }) => (
-            <Icon name="calendar-clock" color={color} size={size} />
-          ),
+          drawerIcon: ({ color, size }) => <MaterialCommunityIcons name="calendar-clock" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -128,9 +139,7 @@ function DrawerNavigator({ route }) {
         initialParams={{ user }}
         options={{
           headerShown: false,
-          drawerIcon: ({ color, size }) => (
-            <Icon name="account-group" color={color} size={size} />
-          ),
+          drawerIcon: ({ color, size }) => <MaterialCommunityIcons name="account-group" color={color} size={size} />,
         }}
       />
       <Drawer.Screen
@@ -139,9 +148,7 @@ function DrawerNavigator({ route }) {
         initialParams={{ user }}
         options={{
           headerShown: false,
-          drawerIcon: ({ color, size }) => (
-            <Icon name="message" color={color} size={size} />
-          ),
+          drawerIcon: ({ color, size }) => <MaterialCommunityIcons name="message" color={color} size={size} />,
         }}
       />
     </Drawer.Navigator>
@@ -153,24 +160,43 @@ export default function App() {
     <AuthProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="MessageBoxScreen" component={MessageBoxScreen} />
-          <Stack.Screen 
-            name="Login" 
-            component={LoginScreen} 
-            options={{ headerShown: false }} 
-          />
-          <Stack.Screen 
-            name="Register" 
-            component={RegisterScreen} 
-            options={{ headerShown: false }} 
-          />
-          <Stack.Screen 
-            name="Dashboard"
-            component={DrawerNavigator} 
-            options={{ headerShown: false }} 
-          />
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Dashboard" component={DrawerNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="MessageBox" component={MessageBoxScreen} />
+          <Stack.Screen name="UpdateProfileScreen" component={UpdateProfileScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="AccountDetailScreen" component={AccountDetailScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ChangeEmailScreen" component={ChangeEmailScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="DeactivateAccountScreen" component={DeactivateAccountScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </AuthProvider>
   );
 }
+
+// Styles for ProfileScreen and drawer icon
+const styles = StyleSheet.create({
+  profileContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 15,
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+  },
+  userInfo: {
+    flexDirection: "column",
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  userRole: {
+    fontSize: 14,
+    color: "gray",
+  },
+});

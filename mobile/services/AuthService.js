@@ -30,3 +30,13 @@ export async function storeUserDetails(data) {
         throw error;
     }
 }
+
+export async function getUserDetails(id) {
+    try {
+      const response = await axios.get(`/mobile/get/user/detail/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      throw error;
+    }
+}

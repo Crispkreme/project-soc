@@ -6,6 +6,7 @@ import { getTopMedicine } from "../services/Medicine";
 import { getUpcomingBarangayEvent } from "../services/Appointment";
 
 const PatientHomeScreen = ({ route }) => {
+  
   const { user } = route.params;
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -185,6 +186,7 @@ const PatientHomeScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 50,
   },
   safeArea: {
     flex: 1,

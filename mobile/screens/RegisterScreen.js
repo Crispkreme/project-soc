@@ -76,28 +76,37 @@ const RegisterScreen = () => {
         setErrors({});
         try {
             const response = await storeUserDetails(formData);
-            
+    
             if (response && response.success) {
-                
-                Alert.alert('Success', 'Registration completed successfully.');
-
-                navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'Login' }],
-                });
+                Alert.alert(
+                    'Success',
+                    'Registration completed successfully.',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                navigation.reset({
+                                    index: 0,
+                                    routes: [{ name: 'Login', params: '' }],
+                                });
+                            },
+                        },
+                    ],
+                    { cancelable: false }
+                );
             } else {
                 Alert.alert(
-                    "Error",
-                    response.message || "Failed to save test result."
+                    'Error',
+                    response.message || 'Failed to save test result.'
                 );
             }
-            
+    
         } catch (err) {
             console.error('Error:', err);
             Alert.alert('Error', 'Something went wrong. Please try again.');
         }
     };
-
+    
     return (
         <SafeAreaView style={styles.wrapper}>
             <ScrollView contentContainerStyle={styles.container}>
