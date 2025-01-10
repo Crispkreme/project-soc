@@ -41,9 +41,18 @@ export async function updateUserDetails(data) {
 }
 
 export async function updateUserEmail(data) {
-    const token = await getToken();
     try {
         const response = await axios.post(`/mobile/update/user/email`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing updateUserEmail:", error);
+        throw error;
+    }
+}
+
+export async function updateUserPassword(data) {
+    try {
+        const response = await axios.post(`/mobile/update/user/password`, data);
         return response.data;
     } catch (error) {
         console.error("Error storing updateUserEmail:", error);

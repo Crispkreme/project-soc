@@ -547,5 +547,60 @@ class UserController extends Controller
         }
     }
 
+    public function updateUserPasswordMobile(Request $request)
+{
+    try {
+        $data = $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $data['user_id'] = $request->user_id;
+
+        if (!$data['user_id']) {
+            return response()->json([
+                'error' => 'User not authenticated'
+            ], 401);
+        }
+
+        // Retrieve the user from the database
+        $user = DB::select('SELECT * FROM users WHERE id = ? LIMIT 1', [$data['user_id']]);
+
+        if (!$user) {
+            return response()->json([
+                'error' => 'User not found or not authenticated'
+            ], 401);
+        }
+
+        // Check if the current password is correct
+        if (!Hash::check($data['current_password'], $user[0]->password)) {
+            return response()->json([
+                'error' => 'Current password is incorrect'
+            ], 400);
+        }
+
+        // Hash the new password
+        $hashedPassword = Hash::make($data['new_password']);
+
+        // Update the user's password in the database
+        $updated = DB::update('UPDATE users SET password = ? WHERE id = ?', [$hashedPassword, $data['user_id']]);
+
+        // Return the appropriate response
+        return response()->json([
+            'user' => $user[0],
+            'message' => 'Password updated successfully'
+        ], 200);
+
+    } catch (Exception $e) {
+        Log::error('Error during updateUserPasswordMobile: ' . $e->getMessage(), [
+            'exception' => $e,
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+        return response()->json([
+            'error' => 'Error updating password, please try again.'
+        ], 500);
+    }
+}
 
 }

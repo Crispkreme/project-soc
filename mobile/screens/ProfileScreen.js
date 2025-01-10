@@ -74,7 +74,7 @@ const ProfileScreen = ({ route }) => {
 
           <TouchableOpacity 
             style={styles.primaryButton} 
-            onPress={() => navigation.navigate('ChangePasswordScreen', { params: user })}
+            onPress={() => navigation.navigate('ChangePasswordScreen', { user: user })}
           >
             <Text style={styles.buttonText}>Change Password</Text>
           </TouchableOpacity>

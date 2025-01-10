@@ -46,3 +46,4 @@ Route::post('mobile/store/immunization/result', [MedicalRecordController::class,
 Route::post('mobile/store/user', [UserController::class, 'createUserMobile'])->name('mobile.store.user');
 Route::post('mobile/update/user/detail', [UserController::class, 'updateUserMobile'])->name('mobile.update.user.detail');
 Route::post('mobile/update/user/email', [UserController::class, 'updateUserEmailMobile'])->name('mobile.update.user.email');
+Route::post('mobile/update/user/password', [UserController::class, 'updateUserPasswordMobile'])->name('mobile.update.user.password');
