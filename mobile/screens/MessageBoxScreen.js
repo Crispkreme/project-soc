@@ -1,53 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
-    TextInput,
-    Button,
-    FlatList,
-    KeyboardAvoidingView,
-    TouchableWithoutFeedback,
-    Keyboard,
-    Platform,
-    ScrollView,
-    Dimensions,
-    SafeAreaView,
+  View,
+  Text,
+  StyleSheet
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { getAllMessages } from '../services/Message';
 
 const MessageBoxScreen = ({ route }) => {
-  const { doctor } = route.params; // Access the doctor data passed from ChatScreen
+  
+  const { user } = route.params;
+  const { doctor } = route.params;
+  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const [messages, setMessages] = useState([
-    // Initial mock conversation
-    { id: '1', text: 'Hello, Doctor!', sender: 'user' },
-    { id: '2', text: 'Hello! How can I assist you today?', sender: 'doctor' },
-  ]);
-  const [message, setMessage] = useState(''); // State to store the typed message
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const data = {
+          receiverId: doctor?.id,
+          senderId: user?.id,
+        };
+        
+        const fetchedMessages = await getAllMessages(data);
+        console.log("fetchedMessages", fetchedMessages);
+        if (fetchedMessages && Array.isArray(fetchedMessages)) {
+          setMessages(fetchedMessages);
+        } else {
+          setMessages([]);
+        }
+      } catch (err) {
+        console.error('Error fetching messages:', err.message);
+        setError('Unable to fetch messages. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (doctor && user) {
+      fetchMessages();
+    }
+  }, [doctor, user]);
 
   const handleSendMessage = () => {
     if (message.trim()) {
-      // Add the user's message to the conversation
       const newMessages = [
         ...messages,
         { id: (messages.length + 1).toString(), text: message, sender: 'user' },
       ];
 
-      // Simulate doctor’s response after the user message
       newMessages.push({
         id: (messages.length + 2).toString(),
         text: "I'm here to help! What else can I do for you?",
         sender: 'doctor',
       });
 
-      // Update the messages state
       setMessages(newMessages);
-      setMessage(''); // Clear the message input field
+      setMessage('');
     }
   };
 
-  // Render each message in the conversation
   const renderMessage = ({ item }) => (
     <View
       style={[
@@ -59,82 +75,99 @@ const MessageBoxScreen = ({ route }) => {
     </View>
   );
 
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0} // Adjusted for better alignment on iOS
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <SafeAreaView style={styles.safeArea}>
-          <LinearGradient
-            colors={['#1E3A5F', '#FFFFFF']} // Navy blue to white gradient
-            style={styles.gradientBackground}
-          >
-            <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-              <Text style={styles.headerText}>Message with Dr. {doctor.name}</Text>
-              
-              {/* Chat messages */}
-              <FlatList
-                data={messages}
-                renderItem={renderMessage}
-                keyExtractor={(item) => item.id}
-                inverted={true} // Show the newest messages at the bottom
-                contentContainerStyle={styles.messagesList}
-              />
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text>Loading messages...</Text>
+      </View>
+    );
+  }
 
-              {/* Input and send button */}
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Type a message..."
-                  value={message}
-                  onChangeText={setMessage}
-                />
-                <Button title="Send" onPress={handleSendMessage} />
-              </View>
-            </ScrollView>
-          </LinearGradient>
-        </SafeAreaView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-  );
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text>{error}</Text>
+      </View>
+    );
+  }
+
+  // return (
+  //   <KeyboardAvoidingView
+  //     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  //     style={styles.container}
+  //     keyboardVerticalOffset={90}
+  //   >
+  //     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+  //       <SafeAreaView style={[styles.safeArea, { flexGrow: 1 }]}>
+  //         <LinearGradient
+  //           colors={['#1E3A5F', '#FFFFFF']}
+  //           style={styles.gradientBackground}
+  //         >
+  //           <Text style={styles.headerText}>Message with Dr. {doctor.name}</Text>
+
+  //           <View style={styles.messagesContainer}>
+  //             <FlatList
+  //               data={messages}
+  //               renderItem={renderMessage}
+  //               keyExtractor={(item) => item.id}
+  //               contentContainerStyle={styles.messagesList}
+  //               inverted
+  //             />
+  //           </View>
+
+  //           <View style={styles.inputContainer}>
+  //             <TextInput
+  //               style={styles.input}
+  //               placeholder="Type a message..."
+  //               value={message}
+  //               onChangeText={setMessage}
+  //             />
+  //             <Button title="Send" onPress={handleSendMessage} />
+  //           </View>
+  //         </LinearGradient>
+  //       </SafeAreaView>
+  //     </TouchableWithoutFeedback>
+  //   </KeyboardAvoidingView>
+  // );
 };
-
-const { width } = Dimensions.get('window'); // Get the screen width
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   safeArea: {
-    flex: 1, 
-    paddingBottom: 20, // Add padding to the bottom to avoid cutting off content
+    flex: 1,
+    backgroundColor: '#fff',
   },
   gradientBackground: {
     flex: 1,
-  },
-  scrollViewContainer: {
-    flexGrow: 1, // Makes the content scrollable when the keyboard is open
-    justifyContent: 'flex-end', // Aligns the content towards the bottom to give space for input
-    padding: 10,
+    justifyContent: 'space-between',
   },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginVertical: 10,
     textAlign: 'center',
-    color: '#fff', // White color for the text to contrast with the background
+    color: '#fff',
+  },
+  messagesContainer: {
+    flex: 1,
+    paddingHorizontal: 10,
+    paddingTop: 10,
   },
   messagesList: {
-    paddingBottom: 10,
+    flexGrow: 1,
+    justifyContent: 'flex-end',
   },
   message: {
     padding: 10,
     marginBottom: 10,
     borderRadius: 10,
-    maxWidth: width - 60, // Make sure messages don’t exceed screen width (with padding)
-    marginHorizontal: 20, // Center messages within the screen
+    maxWidth: '80%',
   },
   userMessage: {
     backgroundColor: '#d1e7ff',
@@ -150,20 +183,17 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
-    padding: 5,
+    padding: 10,
     borderTopWidth: 1,
     borderTopColor: '#ccc',
-    width: width - 40,
-    alignSelf: 'center',
+    backgroundColor: '#fff',
   },
   input: {
     flex: 1,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 25,
-    paddingLeft: 10,
-    paddingRight: 10,
+    paddingHorizontal: 10,
     height: 40,
     marginRight: 10,
   },

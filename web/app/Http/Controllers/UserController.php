@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\MessageContract;
 use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
+use App\Models\Message;
 use App\Models\User;
 use App\Models\UserDetail;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -18,21 +21,24 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Laravolt\Avatar\Facade as Avatar;
-use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
     protected $userDetailContract;
     protected $userContract;
+    protected $messageContract;
 
     public function __construct(
         UserDetailContract $userDetailContract,
         UserContract $userContract,
+        MessageContract $messageContract,
     ) {
         $this->userDetailContract = $userDetailContract;
         $this->userContract = $userContract;
+        $this->messageContract = $messageContract;
     }
 
     public function createUser()
@@ -632,4 +638,61 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+    public function getAllMessageMobile(Request $request)
+    {
+        // try {
+        //     $senderId = $request->sender_id;
+        //     $receiverId = $request->receiver_id;
+
+        //     $messages = Message::join('user_details as sender_details', 'messages.sender_id', '=', 'sender_details.user_id')
+        //         ->join('user_details as receiver_details', 'messages.receiver_id', '=', 'receiver_details.user_id')
+        //         ->select(
+        //             'messages.*',
+        //             'sender_details.firstname as sender_first_name',
+        //             'sender_details.lastname as sender_last_name',
+        //             'receiver_details.firstname as receiver_first_name',
+        //             'receiver_details.lastname as receiver_last_name'
+        //         )
+        //         ->where(function ($query) use ($senderId, $receiverId) {
+        //             $query->where('messages.sender_id', $senderId)
+        //                 ->where('messages.receiver_id', $receiverId);
+        //         })
+        //         ->orWhere(function ($query) use ($senderId, $receiverId) {
+        //             $query->where('messages.sender_id', $receiverId)
+        //                 ->where('messages.receiver_id', $senderId);
+        //         })
+        //         ->orderBy('messages.created_at', 'asc')
+        //         ->get()
+        //         ->map(function ($message) {
+        //             return [
+        //                 'sender_id' => $message->sender_id,
+        //                 'receiver_id' => $message->receiver_id,
+        //                 'sender_name' => "{$message->sender_first_name} {$message->sender_last_name}",
+        //                 'receiver_name' => "{$message->receiver_first_name} {$message->receiver_last_name}",
+        //                 'message' => $message->message,
+        //                 'date' => Carbon::parse($message->created_at)->format('F d, Y'),
+        //             ];
+        //         });
+
+        //     return response()->json([
+        //         'message' => $messages,
+        //     ], 200);
+
+        // } catch (Exception $e) {
+        //     Log::error('Error during getAllMessageMobile: ' . $e->getMessage(), [
+        //         'exception' => $e,
+        //         'trace' => $e->getTraceAsString(),
+        //     ]);
+
+        //     return response()->json([
+        //         'error' => 'Error deactivating account, please try again.'
+        //     ], 500);
+        // }
+
+        return response()->json([
+            'message' => 'sasdasdasdasd',
+        ], 200);
+    }
+
 }

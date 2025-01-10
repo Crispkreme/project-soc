@@ -2,7 +2,7 @@ import React from "react";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { View, Image, Text, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -15,7 +15,6 @@ import MedicalCertificateScreen from "./screens/MedicalCertificateScreen";
 import MedicineAvailableScreen from "./screens/MedicineAvailableScreen";
 import ScheduleConsultationScreen from "./screens/ScheduleConsultationScreen";
 import BhwActivityScreen from "./screens/BhwActivityScreen";
-import ChatScreen from "./screens/ChatScreen";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import MessageBoxScreen from "./screens/MessageBoxScreen";
@@ -40,27 +39,6 @@ function DrawerNavigator({ route }) {
 
   return (
     <Drawer.Navigator initialRouteName="Dashboard">
-      <Drawer.Screen
-        name="Profile"
-        component={ProfileScreen}
-        initialParams={{ user }}
-        options={{
-          title: "",
-          drawerLabel: () => null,
-          drawerIcon: () => (
-            <View style={styles.profileContainer}>
-              <Image
-                source={{ uri: user.profilePicture }}
-                style={styles.profileImage}
-              />
-              <View style={styles.userInfo}>
-                <Text style={styles.userName}>{user.name}</Text>
-                <Text style={styles.userRole}>{user.role}</Text>
-              </View>
-            </View>
-          ),
-        }}
-      />
       <Drawer.Screen
         name="Dashboard"
         component={PatientHomeScreen}
@@ -192,7 +170,7 @@ function DrawerNavigator({ route }) {
           ),
         }}
       />
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="Messages"
         component={ChatScreen}
         initialParams={{ user }}
@@ -200,6 +178,21 @@ function DrawerNavigator({ route }) {
           headerShown: false,
           drawerIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="message" color={color} size={size} />
+          ),
+        }}
+      /> */}
+      <Drawer.Screen
+        name="Profile Settings"
+        component={ProfileScreen}
+        initialParams={{ user }}
+        options={{
+          headerShown: false,
+          drawerIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name="gear"
+              color={color}
+              size={size}
+            />
           ),
         }}
       />
@@ -227,7 +220,7 @@ export default function App() {
             component={DrawerNavigator}
             options={{ headerShown: false }}
           />
-          <Stack.Screen name="MessageBox" component={MessageBoxScreen} />
+          <Stack.Screen name="MessageBoxScreen" component={MessageBoxScreen} options={{ headerShown: false }}/>
           <Stack.Screen
             name="UpdateProfileScreen"
             component={UpdateProfileScreen}

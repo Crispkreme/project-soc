@@ -69,8 +69,14 @@ const ChatScreen = ({ route, navigation }) => {
   }
 
   const handleDoctorClick = (doctorData) => {
-    navigation.navigate("MessageBoxScreen", { doctor: doctorData });
+    if (!doctorData || !user) {
+      console.error("Invalid doctor or user data:", { doctorData, user });
+      return;
+    }
+  
+    navigation.navigate("MessageBoxScreen", { doctor: doctorData, user: user });
   };
+  
 
   return (
     <LinearGradient
