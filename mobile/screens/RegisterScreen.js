@@ -78,8 +78,13 @@ const RegisterScreen = () => {
             const response = await storeUserDetails(formData);
             
             if (response && response.success) {
+                
                 Alert.alert('Success', 'Registration completed successfully.');
-                navigation.replace('Login');
+
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                });
             } else {
                 Alert.alert(
                     "Error",
