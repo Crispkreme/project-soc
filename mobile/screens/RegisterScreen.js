@@ -79,7 +79,7 @@ const RegisterScreen = () => {
             
             if (response && response.success) {
                 Alert.alert('Success', 'Registration completed successfully.');
-                navigation.navigate('Login');
+                navigation.replace('Login');
             } else {
                 Alert.alert(
                     "Error",
