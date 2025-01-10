@@ -498,4 +498,54 @@ class UserController extends Controller
             return redirect()->back();
         }
     }
+
+    public function updateUserEmailMobile(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            ]);
+            $data['user_id'] = $request->user_id;
+
+
+            if (!$data['user_id']) {
+                return response()->json([
+                    'error' => 'User not authenticated'
+                ], 401);
+            }
+
+            $user = DB::select('SELECT * FROM users WHERE id = ? LIMIT 1', [$data['user_id']]);
+
+            if (!$user) {
+                return response()->json([
+                    'error' => 'User not authenticated'
+                ], 401);
+            }
+
+            $updated = DB::update('UPDATE users SET email = ? WHERE id = ?', [$data['email'], $data['user_id']]);
+
+            if ($updated) {
+                return response()->json([
+                    'user' => $user[0],
+                    'message' => 'Email updated successfully'
+                ], 200);
+            } else {
+                return response()->json([
+                    'error' => 'Failed to update email, please try again.'
+                ], 500);
+            }
+
+        } catch (Exception $e) {
+            Log::error('Error during updateUserEmailMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => 'Error updating email, please try again.'
+            ], 500);
+        }
+    }
+
+
 }

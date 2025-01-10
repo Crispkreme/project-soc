@@ -24,7 +24,7 @@ export async function storeUserDetails(data) {
         const response = await axios.post(`/mobile/store/user`, data);
         return response.data;
     } catch (error) {
-        console.error("Error storing store user details:", error);
+        console.error("Error storing storeUserDetails:", error);
         throw error;
     }
 }
@@ -35,7 +35,18 @@ export async function updateUserDetails(data) {
         const response = await axios.post(`/mobile/update/user/detail`, data);
         return response.data;
     } catch (error) {
-        console.error("Error storing store user details:", error);
+        console.error("Error storing updateUserDetailss:", error);
+        throw error;
+    }
+}
+
+export async function updateUserEmail(data) {
+    const token = await getToken();
+    try {
+        const response = await axios.post(`/mobile/update/user/email`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing updateUserEmail:", error);
         throw error;
     }
 }

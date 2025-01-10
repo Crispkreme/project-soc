@@ -53,6 +53,13 @@ const ProfileScreen = ({ route }) => {
         <View style={styles.buttons}>
           <TouchableOpacity 
             style={styles.primaryButton} 
+            onPress={() => navigation.navigate('AccountDetailScreen', { user: user })}
+          >
+            <Text style={styles.buttonText}>Account Detail</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.primaryButton} 
             onPress={() => navigation.navigate('UpdateProfileScreen', { user: user })}
           >
             <Text style={styles.buttonText}>Update Profile</Text>
@@ -60,14 +67,7 @@ const ProfileScreen = ({ route }) => {
 
           <TouchableOpacity 
             style={styles.primaryButton} 
-            onPress={() => navigation.navigate('AccountDetailScreen', { params: user })}
-          >
-            <Text style={styles.buttonText}>Account Detail</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.primaryButton} 
-            onPress={() => navigation.navigate('ChangeEmailScreen', { params: user })}
+            onPress={() => navigation.navigate('ChangeEmailScreen', { user: user })}
           >
             <Text style={styles.buttonText}>Change Email</Text>
           </TouchableOpacity>
