@@ -60,6 +60,16 @@ export async function updateUserPassword(data) {
     }
 }
 
+export async function deactivateUser(id) {
+    try {
+        const response = await axios.post(`/mobile/deactivate/user/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing updateUserEmail:", error);
+        throw error;
+    }
+}
+
 export async function getUserDetails(id) {
     try {
       const response = await axios.get(`/mobile/get/user/detail/${id}`);

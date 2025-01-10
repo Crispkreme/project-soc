@@ -47,3 +47,4 @@ Route::post('mobile/store/user', [UserController::class, 'createUserMobile'])->n
 Route::post('mobile/update/user/detail', [UserController::class, 'updateUserMobile'])->name('mobile.update.user.detail');
 Route::post('mobile/update/user/email', [UserController::class, 'updateUserEmailMobile'])->name('mobile.update.user.email');
 Route::post('mobile/update/user/password', [UserController::class, 'updateUserPasswordMobile'])->name('mobile.update.user.password');
+Route::post('mobile/deactivate/user/{id}', [UserController::class, 'deactivateUserMobile'])->name('mobile.deactivate.user');

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Text, StyleSheet, Alert, View, Image, TouchableOpacity, ScrollView } from "react-native";
-import { useNavigation } from '@react-navigation/native';
-import { getUserDetails } from "../services/AuthService";
+import { useNavigation } from "@react-navigation/native";
+import { deactivateUser, getUserDetails } from "../services/AuthService";
 
 const ProfileScreen = ({ route }) => {
   const { user } = route.params;
@@ -15,7 +15,6 @@ const ProfileScreen = ({ route }) => {
     try {
       setLoading(true);
       const data = await getUserDetails(user.id);
-      console.log('data', data);
       setUserDetails(data.details || {});
       setLoading(false);
     } catch (err) {
@@ -36,53 +35,77 @@ const ProfileScreen = ({ route }) => {
     return <Text>Loading...</Text>;
   }
 
+  const handleDeactivateAccountClick = async () => {
+    Alert.alert(
+      "Deactivate Account",
+      "Are you sure you want to deactivate your account?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Deactivate",
+          onPress: async () => {
+            setLoading(true);
+            const response = await deactivateUser(user.id);
+            console.log(response);
+            setLoading(false);
+
+            Alert.alert("Success", "Your account has been deactivated.");
+            navigation.navigate("Login");
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.cardContainer}>
         <Image
-          source={{ uri: userDetails?.profilePicture || "https://randomuser.me/api/portraits/women/79.jpg" }}
+          source={{
+            uri: userDetails?.profilePicture || "https://randomuser.me/api/portraits/women/79.jpg",
+          }}
           style={styles.round}
         />
         <Text style={styles.name}>
-          {userDetails?.firstname || "First"} {userDetails?.middlename || "Middle"} {userDetails?.lastname || "Patient"}
+          {userDetails?.firstname || "First"} {userDetails?.middlename || "Middle"} {userDetails?.lastname || "Last"}
         </Text>
         <Text style={styles.location}>Patient</Text>
 
         {error && <Text style={styles.errorText}>{error}</Text>}
 
         <View style={styles.buttons}>
-          <TouchableOpacity 
-            style={styles.primaryButton} 
-            onPress={() => navigation.navigate('AccountDetailScreen', { user: user })}
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => navigation.navigate("AccountDetailScreen", { user: user })}
           >
             <Text style={styles.buttonText}>Account Detail</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.primaryButton} 
-            onPress={() => navigation.navigate('UpdateProfileScreen', { user: user })}
+          {/* <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => navigation.navigate("UpdateProfileScreen", { user: user })}
           >
             <Text style={styles.buttonText}>Update Profile</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          <TouchableOpacity 
-            style={styles.primaryButton} 
-            onPress={() => navigation.navigate('ChangeEmailScreen', { user: user })}
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => navigation.navigate("ChangeEmailScreen", { user: user })}
           >
             <Text style={styles.buttonText}>Change Email</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.primaryButton} 
-            onPress={() => navigation.navigate('ChangePasswordScreen', { user: user })}
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => navigation.navigate("ChangePasswordScreen", { user: user })}
           >
             <Text style={styles.buttonText}>Change Password</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.primaryButton} 
-            onPress={() => navigation.navigate('DeactivateAccountScreen', { params: user })}
-          >
+          <TouchableOpacity style={styles.primaryButton} onPress={handleDeactivateAccountClick}>
             <Text style={styles.buttonText}>Deactivate Account</Text>
           </TouchableOpacity>
         </View>
@@ -125,13 +148,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 5,
   },
-  description: {
-    textAlign: "center",
-    fontSize: 14,
-    marginBottom: 20,
-  },
   buttons: {
-    flexDirection: "column", 
+    flexDirection: "column",
     justifyContent: "space-between",
     width: "100%",
     marginBottom: 20,
@@ -146,33 +164,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 10,
   },
-  ghostButton: {
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: "#00BFFF",
-  },
   buttonText: {
     color: "white",
     fontSize: 14,
     fontWeight: "bold",
-  },
-  skills: {
-    marginTop: 10,
-  },
-  skillsTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  skillsList: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  skill: {
-    fontSize: 14,
-    color: "#333",
-    marginRight: 10,
-    marginBottom: 5,
   },
   errorText: {
     color: "red",

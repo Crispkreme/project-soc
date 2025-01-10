@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
 use App\Models\User;
+use App\Models\UserDetail;
 use Exception;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -362,6 +363,7 @@ class UserController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->first();
+        $userDetail = UserDetail::where('user_id', $user->id)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -372,6 +374,12 @@ class UserController extends Controller
         if ($user->role !== 'Patient') {
             throw ValidationException::withMessages([
                 'email' => ['You must be a patient to log in.'],
+            ]);
+        }
+
+        if ($userDetail->status !== 'Active') {
+            throw ValidationException::withMessages([
+                'email' => ['Your account has been deactivated'],
             ]);
         }
 
@@ -548,59 +556,80 @@ class UserController extends Controller
     }
 
     public function updateUserPasswordMobile(Request $request)
-{
-    try {
-        $data = $request->validate([
-            'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8|confirmed',
-        ]);
+    {
+        try {
+            $data = $request->validate([
+                'current_password' => 'required|string',
+                'new_password' => 'required|string|min:8|confirmed',
+            ]);
 
-        $data['user_id'] = $request->user_id;
+            $data['user_id'] = $request->user_id;
 
-        if (!$data['user_id']) {
+            if (!$data['user_id']) {
+                return response()->json([
+                    'error' => 'User not authenticated'
+                ], 401);
+            }
+
+            // Retrieve the user from the database
+            $user = DB::select('SELECT * FROM users WHERE id = ? LIMIT 1', [$data['user_id']]);
+
+            if (!$user) {
+                return response()->json([
+                    'error' => 'User not found or not authenticated'
+                ], 401);
+            }
+
+            // Check if the current password is correct
+            if (!Hash::check($data['current_password'], $user[0]->password)) {
+                return response()->json([
+                    'error' => 'Current password is incorrect'
+                ], 400);
+            }
+
+            // Hash the new password
+            $hashedPassword = Hash::make($data['new_password']);
+
+            // Update the user's password in the database
+            $updated = DB::update('UPDATE users SET password = ? WHERE id = ?', [$hashedPassword, $data['user_id']]);
+
+            // Return the appropriate response
             return response()->json([
-                'error' => 'User not authenticated'
-            ], 401);
-        }
+                'user' => $user[0],
+                'message' => 'Password updated successfully'
+            ], 200);
 
-        // Retrieve the user from the database
-        $user = DB::select('SELECT * FROM users WHERE id = ? LIMIT 1', [$data['user_id']]);
+        } catch (Exception $e) {
+            Log::error('Error during updateUserPasswordMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-        if (!$user) {
             return response()->json([
-                'error' => 'User not found or not authenticated'
-            ], 401);
+                'error' => 'Error updating password, please try again.'
+            ], 500);
         }
-
-        // Check if the current password is correct
-        if (!Hash::check($data['current_password'], $user[0]->password)) {
-            return response()->json([
-                'error' => 'Current password is incorrect'
-            ], 400);
-        }
-
-        // Hash the new password
-        $hashedPassword = Hash::make($data['new_password']);
-
-        // Update the user's password in the database
-        $updated = DB::update('UPDATE users SET password = ? WHERE id = ?', [$hashedPassword, $data['user_id']]);
-
-        // Return the appropriate response
-        return response()->json([
-            'user' => $user[0],
-            'message' => 'Password updated successfully'
-        ], 200);
-
-    } catch (Exception $e) {
-        Log::error('Error during updateUserPasswordMobile: ' . $e->getMessage(), [
-            'exception' => $e,
-            'trace' => $e->getTraceAsString(),
-        ]);
-
-        return response()->json([
-            'error' => 'Error updating password, please try again.'
-        ], 500);
     }
-}
 
+    public function deactivateUserMobile($id)
+    {
+        try {
+
+            DB::update('UPDATE user_details SET status = ? WHERE user_id = ?', ['Deactivate', $id]);
+
+            return response()->json([
+                'message' => 'User deactivated successfully'
+            ], 200);
+
+        } catch (Exception $e) {
+            Log::error('Error during updateUserEmailMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => 'Error deactivating account, please try again.'
+            ], 500);
+        }
+    }
 }
