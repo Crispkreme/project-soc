@@ -10,10 +10,11 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { getUserDetails } from "../services/AuthService";
+import { getUserDetails, updateUserDetails } from "../services/AuthService";
 
 const UpdateProfileScreen = ({ route }) => {
   const { user } = route.params || {};
+
   if (!user) {
     Alert.alert("Error", "User data is missing!");
     return null;
@@ -88,20 +89,35 @@ const UpdateProfileScreen = ({ route }) => {
     setFormData((prev) => ({ ...prev, birthday: currentDate }));
   };
 
-  // Handle form submission
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      console.log("Submitting form data:", formData);
-
-      Alert.alert("Profile Updated", "Your profile has been updated successfully.");
+  
+      const formattedBirthday = formData.birthday.toISOString().split("T")[0];
+  
+      const formDataToSubmit = {
+        ...formData,
+        user_id: user.id,
+        birthday: formattedBirthday,
+      };
+  
+      console.log("Submitting form data:", formDataToSubmit);
+  
+      const response = await updateUserDetails(formDataToSubmit);
+  
+      if (response && response.details) {
+        Alert.alert("Profile Updated", "Your profile has been updated successfully.");
+      } else {
+        throw new Error("Profile update failed.");
+      }
+  
       setLoading(false);
     } catch (err) {
       console.error("Error submitting form:", err.message || err);
       setLoading(false);
       Alert.alert("Error", "Unable to update profile. Please try again.");
     }
-  };
+  };  
 
   if (loading) {
     return (
@@ -151,7 +167,9 @@ const UpdateProfileScreen = ({ route }) => {
         style={styles.datePickerButton}
       >
         <Text style={styles.datePickerText}>
-          {formData.birthday ? formData.birthday.toDateString() : "Select Birthday"}
+          {formData.birthday
+            ? formData.birthday.toDateString()
+            : "Select Birthday"}
         </Text>
       </TouchableOpacity>
 
@@ -166,7 +184,9 @@ const UpdateProfileScreen = ({ route }) => {
 
       <Picker
         selectedValue={formData.civil_status}
-        onValueChange={(itemValue) => handleInputChange("civil_status", itemValue)}
+        onValueChange={(itemValue) =>
+          handleInputChange("civil_status", itemValue)
+        }
         style={styles.picker}
       >
         <Picker.Item label="Select Civil Status" value="" />
@@ -190,15 +210,6 @@ const UpdateProfileScreen = ({ route }) => {
         onChangeText={(text) => handleInputChange("address", text)}
         multiline
       />
-
-      <Picker
-        selectedValue={formData.status}
-        onValueChange={(itemValue) => handleInputChange("status", itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Active" value="Active" />
-        <Picker.Item label="Deactivate" value="Deactivate" />
-      </Picker>
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Update Profile</Text>

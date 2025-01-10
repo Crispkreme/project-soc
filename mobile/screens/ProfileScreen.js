@@ -53,7 +53,7 @@ const ProfileScreen = ({ route }) => {
         <View style={styles.buttons}>
           <TouchableOpacity 
             style={styles.primaryButton} 
-            onPress={() => navigation.navigate('UpdateProfileScreen', { params: user })}
+            onPress={() => navigation.navigate('UpdateProfileScreen', { user: user })}
           >
             <Text style={styles.buttonText}>Update Profile</Text>
           </TouchableOpacity>

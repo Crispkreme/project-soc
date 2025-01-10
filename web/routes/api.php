@@ -44,3 +44,4 @@ Route::post('mobile/store/family/record', [MedicalRecordController::class, 'stor
 Route::post('mobile/store/test/result', [MedicalRecordController::class, 'storeTestResultMobile'])->name('mobile.store.test.result');
 Route::post('mobile/store/immunization/result', [MedicalRecordController::class, 'storeImmunizationResultMobile'])->name('mobile.store.immunization.result');
 Route::post('mobile/store/user', [UserController::class, 'createUserMobile'])->name('mobile.store.user');
+Route::post('mobile/update/user/detail', [UserController::class, 'updateUserMobile'])->name('mobile.update.user.detail');

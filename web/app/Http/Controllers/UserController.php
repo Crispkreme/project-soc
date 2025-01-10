@@ -461,4 +461,41 @@ class UserController extends Controller
             return redirect()->back();
         }
     }
+
+    public function updateUserMobile(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'firstname' => 'required|string|max:255',
+                'middlename' => 'nullable|string|max:255',
+                'lastname' => 'required|string|max:255',
+                'gender' => 'nullable|in:Male,Female',
+                'birthday' => 'nullable|date|before:today',
+                'civil_status' => 'nullable|in:Single,Married,Divorce,Separated',
+                'religion' => 'required|string|max:255',
+                'status' => 'nullable|in:Active,Deactivate',
+                'address' => 'nullable|string|max:65535',
+            ]);
+            $data['user_id'] = $request->user_id;
+
+            $details = $this->userDetailContract->createOrUpdateUserDetail($data);
+
+            return response()->json([
+                'details' => $details,
+            ]);
+
+        } catch (Exception $e) {
+                
+            Log::error('Error during updateUserMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+            
+            Session::flash('error', 'Error please try again.');
+
+            return redirect()->back();
+        }
+    }
 }

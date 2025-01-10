@@ -20,10 +20,19 @@ export async function loadUser() {
 
 export async function storeUserDetails(data) {
     
-    console.log('user data', data);
-
     try {
         const response = await axios.post(`/mobile/store/user`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing store user details:", error);
+        throw error;
+    }
+}
+
+export async function updateUserDetails(data) {
+    
+    try {
+        const response = await axios.post(`/mobile/update/user/detail`, data);
         return response.data;
     } catch (error) {
         console.error("Error storing store user details:", error);
