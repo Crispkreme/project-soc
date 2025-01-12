@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Text, StyleSheet, View, Alert } from "react-native";
+import { SafeAreaView, Text, StyleSheet, View, Alert, TextInput, ScrollView, FlatList, TouchableOpacity } from "react-native";
 import { BarChart } from "react-native-chart-kit";
 import { LinearGradient } from "expo-linear-gradient";
-import { getTopMedicine } from "../services/Medicine";
+import { getTopMedicine, searchMedicine } from "../services/Medicine";
 import { getUpcomingBarangayEvent } from "../services/Appointment";
 
 const PatientHomeScreen = ({ route }) => {
-  
   const { user } = route.params;
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [upcomingBarangayEvents, setUpcomingBarangayEvents] = useState([]);
+  const [upcomingBarangayEvents, setUpcomingBarangayEvents] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredData, setFilteredData] = useState({ illnesses: [], medicines: [] });
+  const [filteredMedicines, setFilteredMedicines] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const processDataAnalytics = (data) => {
     if (!Array.isArray(data) || data.length === 0) {
@@ -25,10 +28,8 @@ const PatientHomeScreen = ({ route }) => {
     const medicinesCount = {};
 
     data.forEach((record) => {
-      illnessesCount[record.illness] =
-        (illnessesCount[record.illness] || 0) + 1;
-      medicinesCount[record.medicine] =
-        (medicinesCount[record.medicine] || 0) + record.total_quantity;
+      illnessesCount[record.illness] = (illnessesCount[record.illness] || 0) + 1;
+      medicinesCount[record.medicine] = (medicinesCount[record.medicine] || 0) + record.total_quantity;
     });
 
     const sortedIllnesses = Object.entries(illnessesCount)
@@ -69,67 +70,85 @@ const PatientHomeScreen = ({ route }) => {
         });
         const dataForMonth = dataAnalytic[currentMonth] || [];
 
-        setChartData(processDataAnalytics(dataForMonth));
-        setUpcomingBarangayEvents(upcomingBarangayEvents);
+        const processedData = processDataAnalytics(dataForMonth);
+
+        setChartData(processedData);
+        setFilteredData(processedData);
+        setUpcomingBarangayEvents(upcomingBarangayEvents || {});
         setLoading(false);
       } catch (err) {
         console.error("Error fetching data:", err.message);
         setLoading(false);
         setError(err.message);
-        Alert.alert(
-          "Error",
-          "Unable to fetch chart data. Please try again later."
-        );
+        Alert.alert("Error", "Unable to fetch chart data. Please try again later.");
       }
     };
     fetchChartData();
   }, []);
 
-  const illnessDataForChart = {
-    labels: chartData.illnesses?.labels || [],
-    datasets: [
-      {
-        data: chartData.illnesses?.data || [],
-        color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy blue bars
-        strokeWidth: 2,
-      },
-    ],
-  };
+  useEffect(() => {
+    const fetchFilteredData = async () => {
+      try {
+        if (searchQuery.trim() === "") {
+          setFilteredMedicines([]);
+          setShowDropdown(false);
+          return;
+        }
 
-  const medicineDataForChart = {
-    labels: chartData.medicines?.labels || [],
-    datasets: [
-      {
-        data: chartData.medicines?.data || [],
-        color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy blue bars
-        strokeWidth: 2,
-      },
-    ],
+        const response = await searchMedicine(searchQuery);
+        const medicines = response.map((item) => item.medicine_name);
+        setFilteredMedicines(medicines);
+        setShowDropdown(medicines.length > 0);
+      } catch (error) {
+        console.error("Error fetching filtered data:", error.message);
+        Alert.alert("Error", "Unable to fetch filtered data. Please try again.");
+      }
+    };
+
+    fetchFilteredData();
+  }, [searchQuery]);
+
+  const handleSelectMedicine = (medicine) => {
+    setSearchQuery(medicine);
+    setShowDropdown(false);
   };
 
   return (
-    <LinearGradient
-      colors={["#001f3f", "#00509e", "#00aaff"]} // Gradient colors
-      style={styles.container}
-    >
+    <LinearGradient colors={["#001f3f", "#00509e", "#00aaff"]} style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         {user ? (
-          <>
-            <View style={styles.card}>
-              <Text style={styles.eventTitle}>
-                {upcomingBarangayEvents.event_name}
-              </Text>
-              <Text style={styles.doctorText}>
-                Dr. {upcomingBarangayEvents.doctor_name} MD
-              </Text>
-              <Text style={styles.eventDate}>
-                {upcomingBarangayEvents.event_date}
-              </Text>
-              <Text style={styles.eventTime}>
-                {upcomingBarangayEvents.event_start} -{" "}
-                {upcomingBarangayEvents.event_end}
-              </Text>
-            </View>
+          <ScrollView contentContainerStyle={styles.scrollViewContent}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search illnesses or medicines..."
+              placeholderTextColor="#aaa"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+
+            {showDropdown && (
+              <FlatList
+                data={filteredMedicines}
+                keyExtractor={(item, index) => index.toString()}
+                style={styles.dropdown}
+                renderItem={({ item }) => (
+                  <TouchableOpacity style={styles.dropdownItem} onPress={() => handleSelectMedicine(item)}>
+                    <Text style={styles.dropdownText}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            )}
+
+            {upcomingBarangayEvents && (
+              <View style={styles.card}>
+                <Text style={styles.eventTitle}>{upcomingBarangayEvents.event_name}</Text>
+                <Text style={styles.doctorText}>Dr. {upcomingBarangayEvents.doctor_name} MD</Text>
+                <Text style={styles.eventDate}>{upcomingBarangayEvents.event_date}</Text>
+                <Text style={styles.eventTime}>
+                  {upcomingBarangayEvents.event_start} - {upcomingBarangayEvents.event_end}
+                </Text>
+              </View>
+            )}
 
             {loading ? (
               <Text>Loading data...</Text>
@@ -140,16 +159,25 @@ const PatientHomeScreen = ({ route }) => {
                 <View style={styles.chartContainer}>
                   <Text style={styles.chartTitle}>Top Illnesses</Text>
                   <BarChart
-                    data={illnessDataForChart}
+                    data={{
+                      labels: filteredData.illnesses?.labels || [],
+                      datasets: [
+                        {
+                          data: filteredData.illnesses?.data || [],
+                          color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`,
+                          strokeWidth: 2,
+                        },
+                      ],
+                    }}
                     width={350}
                     height={220}
                     fromZero
                     chartConfig={{
-                      backgroundGradientFrom: "#ffffff", // White background
-                      backgroundGradientTo: "#ffffff", // White background
+                      backgroundGradientFrom: "#ffffff",
+                      backgroundGradientTo: "#ffffff",
                       decimalPlaces: 0,
-                      color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy bars
-                      labelColor: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy labels
+                      color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`,
+                      labelColor: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`,
                     }}
                     style={styles.chart}
                   />
@@ -158,23 +186,32 @@ const PatientHomeScreen = ({ route }) => {
                 <View style={styles.chartContainer}>
                   <Text style={styles.chartTitle}>Top Medicines</Text>
                   <BarChart
-                    data={medicineDataForChart}
+                    data={{
+                      labels: filteredData.medicines?.labels || [],
+                      datasets: [
+                        {
+                          data: filteredData.medicines?.data || [],
+                          color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`,
+                          strokeWidth: 2,
+                        },
+                      ],
+                    }}
                     width={350}
                     height={220}
                     fromZero
                     chartConfig={{
-                      backgroundGradientFrom: "#ffffff", // White background
-                      backgroundGradientTo: "#ffffff", // White background
+                      backgroundGradientFrom: "#ffffff",
+                      backgroundGradientTo: "#ffffff",
                       decimalPlaces: 0,
-                      color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy bars
-                      labelColor: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`, // Navy labels
+                      color: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`,
+                      labelColor: (opacity = 1) => `rgba(0, 31, 63, ${opacity})`,
                     }}
                     style={styles.chart}
                   />
                 </View>
               </>
             )}
-          </>
+          </ScrollView>
         ) : (
           <Text style={styles.text}>No user information available</Text>
         )}
@@ -186,13 +223,39 @@ const PatientHomeScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 50,
   },
   safeArea: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  },
+  dropdown: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  dropdownItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  searchInput: {
+    backgroundColor: "#ffffff",
+    padding: 10,
+    marginBottom: 16,
+    borderRadius: 8,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    width: "100%",
+    maxWidth: 400,
+    flexShrink: 1,
+    textAlign: "center",
+  },
+  scrollViewContent: {
     paddingHorizontal: 16,
+    paddingBottom: 20,
   },
   card: {
     backgroundColor: "#ffffff",
@@ -206,26 +269,20 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderWidth: 1,
     borderColor: "#e0e0e0",
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
   },
   eventTitle: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#001f3f",
-    marginBottom: 6,
   },
   doctorText: {
     fontSize: 16,
     color: "#475569",
-    marginBottom: 4,
   },
   eventDate: {
     fontSize: 16,
     fontWeight: "500",
     color: "#334155",
-    marginBottom: 4,
   },
   eventTime: {
     fontSize: 14,
@@ -249,7 +306,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#ffffff",
-    marginBottom: 10,
   },
   chart: {
     borderRadius: 16,
