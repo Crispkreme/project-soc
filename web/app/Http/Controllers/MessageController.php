@@ -167,4 +167,38 @@ class MessageController extends Controller
         }
     }
  
+    
+    public function sendMessageToDoctorMobile(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'sender_id' => 'required|exists:users,id',
+                'receiver_id' => 'required|exists:users,id',
+                'message' => 'required|string|max:255',
+            ]);
+
+            Log::info('Sending message with data:', $data);
+
+            $message = new Message();
+            $message->sender_id = $data['sender_id'];
+            $message->receiver_id = $data['receiver_id'];
+            $message->message = $data['message'];
+
+            $message->save();
+
+            return response()->json([
+                'message' => $message,
+            ], 200);
+
+        } catch (Exception $e) {
+            Log::error('Error during sendMessageToDoctorMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => 'An error occurred while sending the message. Please try again later.',
+            ], 500);
+        }
+    }
 }

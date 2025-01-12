@@ -54,3 +54,4 @@ Route::post('mobile/update/user/detail', [UserController::class, 'updateUserMobi
 Route::post('mobile/update/user/email', [UserController::class, 'updateUserEmailMobile'])->name('mobile.update.user.email');
 Route::post('mobile/update/user/password', [UserController::class, 'updateUserPasswordMobile'])->name('mobile.update.user.password');
 Route::post('mobile/deactivate/user/{id}', [UserController::class, 'deactivateUserMobile'])->name('mobile.deactivate.user');
+Route::post('mobile/send/message', [MessageController::class, 'sendMessageToDoctorMobile'])->name('mobile.send.message');

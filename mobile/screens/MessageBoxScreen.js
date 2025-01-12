@@ -14,7 +14,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getAllMessages } from '../services/Message';
+import { getAllMessages, sendMessageToDoctor } from '../services/Message';
 
 const MessageBoxScreen = ({ route }) => {
   const { user, doctor } = route.params;
@@ -62,21 +62,42 @@ const MessageBoxScreen = ({ route }) => {
     fetchMessages();
   }, [user, doctor]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (message.trim()) {
       const newMessage = {
-        id: (messages.length + 1).toString(),
-        text: message,
-        sender: 'user',
-        senderName: user.name,
-        date: new Date(), // Current date
+        sender_id: user.id,
+        receiver_id: doctor.id,
+        message: message, 
+        date: new Date(),
       };
+      
+      try {
+        setLoading(true);
 
-      setMessages((prevMessages) =>
-        [...prevMessages, newMessage].sort((a, b) => a.date - b.date) // Sort after adding
-      );
+        const response = await sendMessageToDoctor(newMessage);
+        console.log("response", response);
+        if (response?.status === 200) {
+          const sentMessage = {
+            ...newMessage,
+            id: (messages.length + 1).toString(),
+            sender: 'user',
+            senderName: user.name,
+            date: new Date(),
+          };
 
-      setMessage('');
+          setMessages((prevMessages) =>
+            [...prevMessages, sentMessage].sort((a, b) => a.date - b.date)
+          );
+        } else {
+          setError('Failed to send message');
+        }
+      } catch (err) {
+        console.error('Error sending message:', err.message);
+        setError('Unable to send the message. Please try again later.');
+      } finally {
+        setMessage('');
+        setLoading(false);
+      }
     }
   };
 
