@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
+use App\Models\UserDetail;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -94,7 +95,7 @@ class UserDetailController extends Controller
                 $image = $request->file('profile');
                 $imageName = time() . '.' . $image->getClientOriginalExtension();
                 $imagePath = $image->storeAs('public/profiles', $imageName);
-                $data['profile'] = $imagePath;
+                $data['profile'] = basename($imagePath);
             }
 
             dd($data);
@@ -268,14 +269,22 @@ class UserDetailController extends Controller
         ]);
 
         $path = $request->file('profile')->store('profiles', 'public');
-
+        $publicUrl = asset('storage/' . $path);
         $this->userDetailContract->createOrUpdateUserAvatar($path);
 
         return response()->json([
-            'profile' => asset('storage/' . $path),
+            'profile' => $publicUrl,
         ]);
     }
 
+    public function viewProfileMobile($id)
+    {
+        $userdetail = UserDetail::findOrFail($id);
+        $publicUrl = asset('storage/' . $userdetail->profile);
+        return response()->json([
+            'profile' => $publicUrl,
+        ]);
+    }
 
     public function getAllUsers()
     {
