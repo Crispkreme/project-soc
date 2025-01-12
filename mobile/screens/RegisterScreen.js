@@ -76,7 +76,7 @@ const RegisterScreen = () => {
         setErrors({});
         try {
             const response = await storeUserDetails(formData);
-    
+            
             if (response && response.success) {
                 Alert.alert(
                     'Success',
@@ -106,7 +106,15 @@ const RegisterScreen = () => {
             Alert.alert('Error', 'Something went wrong. Please try again.');
         }
     };
+
     
+    const handleBack = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+        });
+    };
+
     return (
         <SafeAreaView style={styles.wrapper}>
             <ScrollView contentContainerStyle={styles.container}>
@@ -247,6 +255,9 @@ const RegisterScreen = () => {
                 <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
                     <Text style={styles.registerButtonText}>Register</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.registerButton} onPress={handleBack}>
+                            <Text style={styles.registerButtonText}>Already Have an Account?</Text>
+                        </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>
     );

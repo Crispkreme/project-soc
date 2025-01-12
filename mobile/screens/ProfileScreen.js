@@ -153,6 +153,7 @@ const ProfileScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 15,
+    marginTop: 60,
     backgroundColor: "#f4f4f4",
   },
   cardContainer: {

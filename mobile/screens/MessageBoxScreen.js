@@ -2,34 +2,52 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  StyleSheet
+  StyleSheet,
+  FlatList,
+  TextInput,
+  Button,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  ActivityIndicator,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { getAllMessages } from '../services/Message';
 
 const MessageBoxScreen = ({ route }) => {
-  
-  const { user } = route.params;
-  const { doctor } = route.params;
+  const { user, doctor } = route.params;
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        if (!user?.id || !doctor?.id) {
+          setError('Missing user or doctor information.');
+          setMessages([]);
+          setLoading(false);
+          return;
+        }
 
-        const data = {
-          receiverId: doctor?.id,
-          senderId: user?.id,
-        };
-        
-        const fetchedMessages = await getAllMessages(data);
-        console.log("fetchedMessages", fetchedMessages);
-        if (fetchedMessages && Array.isArray(fetchedMessages)) {
-          setMessages(fetchedMessages);
+        const fetchedMessages = await getAllMessages(user.id, doctor.id);
+        console.log('Fetched Messages:', fetchedMessages);
+
+        if (fetchedMessages?.message && Array.isArray(fetchedMessages.message)) {
+          const formattedMessages = fetchedMessages.message
+            .map((msg, index) => ({
+              id: index.toString(),
+              text: msg.message,
+              sender: msg.sender_id === user.id ? 'user' : 'doctor',
+              senderName: msg.sender_name,
+              date: new Date(msg.date), // Convert to Date object for sorting
+            }))
+            .sort((a, b) => a.date - b.date); // Sort messages in ascending order
+
+          setMessages(formattedMessages);
         } else {
           setMessages([]);
         }
@@ -41,25 +59,23 @@ const MessageBoxScreen = ({ route }) => {
       }
     };
 
-    if (doctor && user) {
-      fetchMessages();
-    }
-  }, [doctor, user]);
+    fetchMessages();
+  }, [user, doctor]);
 
   const handleSendMessage = () => {
     if (message.trim()) {
-      const newMessages = [
-        ...messages,
-        { id: (messages.length + 1).toString(), text: message, sender: 'user' },
-      ];
+      const newMessage = {
+        id: (messages.length + 1).toString(),
+        text: message,
+        sender: 'user',
+        senderName: user.name,
+        date: new Date(), // Current date
+      };
 
-      newMessages.push({
-        id: (messages.length + 2).toString(),
-        text: "I'm here to help! What else can I do for you?",
-        sender: 'doctor',
-      });
+      setMessages((prevMessages) =>
+        [...prevMessages, newMessage].sort((a, b) => a.date - b.date) // Sort after adding
+      );
 
-      setMessages(newMessages);
       setMessage('');
     }
   };
@@ -72,12 +88,14 @@ const MessageBoxScreen = ({ route }) => {
       ]}
     >
       <Text style={styles.messageText}>{item.text}</Text>
+      <Text style={styles.senderName}>{item.senderName}</Text>
     </View>
   );
 
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#1E3A5F" />
         <Text>Loading messages...</Text>
       </View>
     );
@@ -86,49 +104,47 @@ const MessageBoxScreen = ({ route }) => {
   if (error) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        <Text>{error}</Text>
+        <Text style={styles.errorText}>{error}</Text>
       </View>
     );
   }
 
-  // return (
-  //   <KeyboardAvoidingView
-  //     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-  //     style={styles.container}
-  //     keyboardVerticalOffset={90}
-  //   >
-  //     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-  //       <SafeAreaView style={[styles.safeArea, { flexGrow: 1 }]}>
-  //         <LinearGradient
-  //           colors={['#1E3A5F', '#FFFFFF']}
-  //           style={styles.gradientBackground}
-  //         >
-  //           <Text style={styles.headerText}>Message with Dr. {doctor.name}</Text>
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.container}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView style={styles.safeArea}>
+          <LinearGradient
+            colors={['#1E3A5F', '#FFFFFF']}
+            style={styles.gradientBackground}
+          >
+            <Text style={styles.headerText}>Message with Dr. {doctor?.name}</Text>
 
-  //           <View style={styles.messagesContainer}>
-  //             <FlatList
-  //               data={messages}
-  //               renderItem={renderMessage}
-  //               keyExtractor={(item) => item.id}
-  //               contentContainerStyle={styles.messagesList}
-  //               inverted
-  //             />
-  //           </View>
+            <View style={styles.messagesContainer}>
+              <FlatList
+                data={messages}
+                renderItem={renderMessage}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.messagesList}
+              />
+            </View>
 
-  //           <View style={styles.inputContainer}>
-  //             <TextInput
-  //               style={styles.input}
-  //               placeholder="Type a message..."
-  //               value={message}
-  //               onChangeText={setMessage}
-  //             />
-  //             <Button title="Send" onPress={handleSendMessage} />
-  //           </View>
-  //         </LinearGradient>
-  //       </SafeAreaView>
-  //     </TouchableWithoutFeedback>
-  //   </KeyboardAvoidingView>
-  // );
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Type a message..."
+                value={message}
+                onChangeText={setMessage}
+              />
+              <Button title="Send" onPress={handleSendMessage} />
+            </View>
+          </LinearGradient>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -161,7 +177,7 @@ const styles = StyleSheet.create({
   },
   messagesList: {
     flexGrow: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start', // Adjust to align to top
   },
   message: {
     padding: 10,
@@ -180,6 +196,11 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 16,
   },
+  senderName: {
+    fontSize: 12,
+    color: '#555',
+    marginTop: 5,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -196,6 +217,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     height: 40,
     marginRight: 10,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 

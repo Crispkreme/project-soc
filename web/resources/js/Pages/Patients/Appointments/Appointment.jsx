@@ -97,7 +97,7 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
   };
 
   const [filteredTimeSchedule, setFilteredTimeSchedule] = React.useState(timeSchedule);
-
+  console.log(filteredTimeSchedule);
   const handleBookAppointment = (e) => {
     e.preventDefault();
     post(route('patient.create.booking'), {

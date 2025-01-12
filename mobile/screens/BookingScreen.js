@@ -8,36 +8,37 @@ import {
   View,
 } from "react-native";
 import { Card } from "react-native-paper";
-import { getMedicineAvailable } from "../services/MedicineAvailable";
+
 import DataTable, { COL_TYPES } from "react-native-datatable-component";
 import moment from "moment";
 import { LinearGradient } from "expo-linear-gradient";
+import { getAllBooking } from "../services/Booking";
 
-const MedicineAvailableScreen = ({ route }) => {
+const BookingScreen = ({ route }) => {
   const { user } = route.params;
-  const [medicineAvailable, setMedicineAvailable] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchMedicineData = async () => {
+    const fetchBookingData = async () => {
       try {
         setLoading(true);
-        const response = await getMedicineAvailable();
-        console.log("Response:", response);
-
-        // Transform inventories object to an array
-        if (response?.inventories && typeof response.inventories === "object") {
-          const medicineArray = Object.values(response.inventories);
-          setMedicineAvailable(medicineArray);
+  
+        const response = await getAllBooking(user.id);
+        console.log("Booking Response:", response.data);
+  
+        if (Array.isArray(response.data.booking)) {
+          setBookings(response.data.booking);
         } else {
-          setMedicineAvailable([]); // Fallback to an empty array if no valid data
+          setBookings([]);
         }
+  
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching medicines:", err.response || err.message);
+        console.error("Error fetching bookings:", err.response || err.message);
         setLoading(false);
-
+  
         if (err.response?.status === 422) {
           setError("Invalid user data. Please contact support.");
         } else {
@@ -45,21 +46,23 @@ const MedicineAvailableScreen = ({ route }) => {
         }
       }
     };
-
+  
     if (user?.id) {
-      fetchMedicineData();
+      fetchBookingData();
     } else {
       setError("User ID is missing.");
-      setLoading(false); // Ensure loading is stopped if no user ID
+      setLoading(false);
     }
   }, [user?.id]);
-
-  const formatExpirationDate = (date) => {
+  
+  const formatDate = (date) => {
     if (!date) return "N/A";
-    const formattedDate = moment(date, "MMMM DD, YYYY", true);
-    return formattedDate.isValid()
-      ? formattedDate.format("MMM DD, YYYY")
-      : "Invalid Date";
+    return moment(date).format("MMM DD, YYYY");
+  };
+
+  const formatTime = (time) => {
+    if (!time) return "N/A";
+    return moment(time, "HH:mm:ss").format("hh:mm A");
   };
 
   if (loading) {
@@ -79,36 +82,38 @@ const MedicineAvailableScreen = ({ route }) => {
     );
   }
 
-  const formattedMedicineData = medicineAvailable.map((item) => ({
-    ...item,
-    expiration_date: formatExpirationDate(item.expiration_date),
-    depense: item.sold,  // Add "depense" as a new field that maps to "sold"
+  const formattedBookings = bookings.map((booking) => ({
+    ...booking,
+    appointment_date: formatDate(booking.appointment_date),
+    appointment_start: formatTime(booking.appointment_start),
+    appointment_end: formatTime(booking.appointment_end),
+    approved_date: formatDate(booking.approved_date),
   }));
 
   return (
     <LinearGradient colors={["#6a11cb", "#2575fc"]} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Card style={styles.card}>
-          <Text style={styles.headerText}>Medicine Available</Text>
+          <Text style={styles.headerText}>Bookings</Text>
 
-          {formattedMedicineData.length > 0 ? (
+          {formattedBookings.length > 0 ? (
             <DataTable
-              data={formattedMedicineData}
+              data={formattedBookings}
               colNames={[
-                "medicine_name",
-                "description",
-                "dosage",
-                "dispense",
-                "in_stock",
-                "expiration_date",
+                "title",
+                "appointment_date",
+                "appointment_start",
+                "appointment_end",
+                "booking_status",
+                "reason",
               ]}
               colSettings={[
-                { name: "medicine_name", type: COL_TYPES.STRING, width: "25%" },
-                { name: "description", type: COL_TYPES.STRING, width: "25%" },
-                { name: "dosage", type: COL_TYPES.STRING, width: "15%" },
-                { name: "dispense", type: COL_TYPES.INT, width: "10%" },
-                { name: "in_stock", type: COL_TYPES.INT, width: "10%" },
-                { name: "expiration_date", type: COL_TYPES.STRING, width: "15%" },
+                { name: "title", type: COL_TYPES.STRING, width: "25%" },
+                { name: "appointment_date", type: COL_TYPES.STRING, width: "15%" },
+                { name: "appointment_start", type: COL_TYPES.STRING, width: "15%" },
+                { name: "appointment_end", type: COL_TYPES.STRING, width: "15%" },
+                { name: "booking_status", type: COL_TYPES.STRING, width: "10%" },
+                { name: "reason", type: COL_TYPES.STRING, width: "20%" },
               ]}
               noOfPages={2}
               backgroundColor="white"
@@ -117,7 +122,7 @@ const MedicineAvailableScreen = ({ route }) => {
             />
           ) : (
             <View style={styles.noDataView}>
-              <Text style={styles.noDataText}>No medicine available.</Text>
+              <Text style={styles.noDataText}>No bookings available.</Text>
             </View>
           )}
         </Card>
@@ -168,4 +173,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MedicineAvailableScreen;
+export default BookingScreen;

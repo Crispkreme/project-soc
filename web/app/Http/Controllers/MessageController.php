@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\MessageContract;
+use App\Models\Message;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -111,4 +113,58 @@ class MessageController extends Controller
         }
     }
 
+    public function getAllMessageMobile(Request $request, $senderId, $receiverId)
+    {
+        try {
+            // Validate input parameters
+            if (!$senderId || !$receiverId) {
+                return response()->json(['error' => 'Sender or receiver ID is missing.'], 400);
+            }
+
+            $messages = Message::join('user_details as sender_details', 'messages.sender_id', '=', 'sender_details.user_id')
+                ->join('user_details as receiver_details', 'messages.receiver_id', '=', 'receiver_details.user_id')
+                ->select(
+                    'messages.*',
+                    'sender_details.firstname as sender_first_name',
+                    'sender_details.lastname as sender_last_name',
+                    'receiver_details.firstname as receiver_first_name',
+                    'receiver_details.lastname as receiver_last_name'
+                )
+                ->where(function ($query) use ($senderId, $receiverId) {
+                    $query->where('messages.sender_id', $senderId)
+                        ->where('messages.receiver_id', $receiverId);
+                })
+                ->orWhere(function ($query) use ($senderId, $receiverId) {
+                    $query->where('messages.sender_id', $receiverId)
+                        ->where('messages.receiver_id', $senderId);
+                })
+                ->orderBy('messages.created_at', 'asc')
+                ->get()
+                ->map(function ($message) {
+                    return [
+                        'sender_id' => $message->sender_id,
+                        'receiver_id' => $message->receiver_id,
+                        'sender_name' => "{$message->sender_first_name} {$message->sender_last_name}",
+                        'receiver_name' => "{$message->receiver_first_name} {$message->receiver_last_name}",
+                        'message' => $message->message,
+                        'date' => Carbon::parse($message->created_at)->format('F d, Y'),
+                    ];
+                });
+
+            return response()->json([
+                'message' => $messages,
+            ], 200);
+
+        } catch (Exception $e) {
+            Log::error('Error during getAllMessageMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'error' => 'An error occurred while fetching messages. Please try again later.',
+            ], 500);
+        }
+    }
+ 
 }

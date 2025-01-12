@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicineController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
@@ -35,9 +37,10 @@ Route::get('mobile/get/all/hospital', [RecordController::class, 'getAllHospitalM
 Route::get('mobile/get/all/medicine/inventory', [MedicineController::class, 'getAllInventoryMedicineMobile'])->name('mobile.get.all.medicine.inventory');
 Route::get('mobile/get/all/medicine/requester/{id}', [MedicineController::class, 'getAllMedicineRequesterMobile'])->name('mobile.get.all.medicine.requester');
 Route::get('mobile/get/user/detail/{id}', [UserController::class, 'getUserDetailsMobile'])->name('mobile.get.user.detail');
-Route::get('mobile/client/message/{id}', [UserController::class, 'getAllMessageMobile'])->name('mobile.client.message');
-Route::get('/mobile/search/medicine/{param}', [MedicineController::class, 'searchMedicineMobile']);
-Route::get('/mobile/view/profile/{id}', [UserDetailController::class, 'viewProfileMobile']);
+Route::get('mobile/client/message/senderid={sender_id}/receiverid={receiver_id}', [MessageController::class, 'getAllMessageMobile'])->name('mobile.client.message');
+Route::get('mobile/search/medicine/{param}', [MedicineController::class, 'searchMedicineMobile']);
+Route::get('mobile/view/profile/{id}', [UserDetailController::class, 'viewProfileMobile']);
+Route::get('mobile/get/all/patient/booking/{id}', [BookingController::class, 'getAllBooking']);
 
 Route::post('mobile/store/booking', [AppointmentController::class, 'storeBooking'])->name('mobile.store.booking');
 Route::post('mobile/store/health/record', [MedicalRecordController::class, 'storeHealthRecordMobile'])->name('mobile.store.health.record');
