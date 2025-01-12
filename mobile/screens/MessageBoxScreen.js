@@ -23,43 +23,48 @@ const MessageBoxScreen = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        if (!user?.id || !doctor?.id) {
-          setError('Missing user or doctor information.');
-          setMessages([]);
-          setLoading(false);
-          return;
-        }
-
-        const fetchedMessages = await getAllMessages(user.id, doctor.id);
-        console.log('Fetched Messages:', fetchedMessages);
-
-        if (fetchedMessages?.message && Array.isArray(fetchedMessages.message)) {
-          const formattedMessages = fetchedMessages.message
-            .map((msg, index) => ({
-              id: index.toString(),
-              text: msg.message,
-              sender: msg.sender_id === user.id ? 'user' : 'doctor',
-              senderName: msg.sender_name,
-              date: new Date(msg.date), // Convert to Date object for sorting
-            }))
-            .sort((a, b) => a.date - b.date); // Sort messages in ascending order
-
-          setMessages(formattedMessages);
-        } else {
-          setMessages([]);
-        }
-      } catch (err) {
-        console.error('Error fetching messages:', err.message);
-        setError('Unable to fetch messages. Please try again later.');
-      } finally {
+  const fetchMessages = async () => {
+    try {
+      if (!user?.id || !doctor?.id) {
+        setError('Missing user or doctor information.');
+        setMessages([]);
         setLoading(false);
+        return;
       }
-    };
 
-    fetchMessages();
+      const fetchedMessages = await getAllMessages(user.id, doctor.id);
+      console.log('Fetched Messages:', fetchedMessages);
+
+      if (fetchedMessages?.message && Array.isArray(fetchedMessages.message)) {
+        const formattedMessages = fetchedMessages.message
+          .map((msg, index) => ({
+            id: index.toString(),
+            text: msg.message,
+            sender: msg.sender_id === user.id ? 'user' : 'doctor',
+            senderName: msg.sender_name,
+            date: new Date(msg.date), // Convert to Date object for sorting
+          }))
+          .sort((a, b) => a.date - b.date); // Sort messages in ascending order
+
+        setMessages(formattedMessages);
+      } else {
+        setMessages([]);
+      }
+    } catch (err) {
+      console.error('Error fetching messages:', err.message);
+      setError('Unable to fetch messages. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Use useEffect to refresh messages every 5 seconds
+  useEffect(() => {
+    fetchMessages(); // Initial fetch
+    const interval = setInterval(fetchMessages, 5000); // Refresh every 5 seconds
+
+    // Cleanup on component unmount
+    return () => clearInterval(interval);
   }, [user, doctor]);
 
   const handleSendMessage = async () => {
@@ -67,7 +72,7 @@ const MessageBoxScreen = ({ route }) => {
       const newMessage = {
         sender_id: user.id,
         receiver_id: doctor.id,
-        message: message, 
+        message: message,
         date: new Date(),
       };
       
