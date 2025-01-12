@@ -79,3 +79,13 @@ export async function getUserDetails(id) {
       throw error;
     }
 }
+
+export async function getUserProfile(id) {
+    try {
+      const response = await axios.get(`/mobile/view/profile/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching getUserProfile:", error);
+      throw error;
+    }
+}

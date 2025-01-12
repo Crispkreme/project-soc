@@ -224,22 +224,24 @@ class MedicalRecordController extends Controller
             if ($id) {
                 $data['id'] = $id;
                 $health = $this->healthContract->getHealthById($id);
+            
                 if ($request->hasFile('pdf_file')) {
                     if ($health->pdf_file) {
                         Storage::disk('public')->delete($health->pdf_file);
                     }
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
-                    $health->pdf_file = $filePath;
+                    $data['pdf_file'] = basename($filePath);
                 }
                 $this->healthContract->createOrUpdateHealth($data);
+                
             } else {
-
+            
                 $filePath = null;
                 if ($request->hasFile('pdf_file')) {
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
                 }
-
-                $data['pdf_file'] = $filePath;
+            
+                $data['pdf_file'] = basename($filePath);
                 $this->healthContract->createOrUpdateHealth($data);
             }
 
@@ -288,7 +290,7 @@ class MedicalRecordController extends Controller
                         Storage::disk('public')->delete($surgical->pdf_file);
                     }
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
-                    $surgical->pdf_file = $filePath;
+                    $data['pdf_file'] = basename($filePath);
                 }
                 $this->surgicalContract->createOrUpdateSurgical($data);
             } else {
@@ -298,7 +300,7 @@ class MedicalRecordController extends Controller
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
                 }
 
-                $data['pdf_file'] = $filePath;
+                $data['pdf_file'] = basename($filePath);
                 $this->surgicalContract->createOrUpdateSurgical($data);
             }
 
@@ -346,7 +348,7 @@ class MedicalRecordController extends Controller
                         Storage::disk('public')->delete($familyMedical->pdf_file);
                     }
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
-                    $familyMedical->pdf_file = $filePath;
+                    $data['pdf_file'] = basename($filePath);
                 }
                 $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
             } else {
@@ -356,7 +358,7 @@ class MedicalRecordController extends Controller
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
                 }
 
-                $data['pdf_file'] = $filePath;
+                $data['pdf_file'] = basename($filePath);
                 $data['patient_id'] = $user->id;
                 $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
             }
@@ -408,7 +410,7 @@ class MedicalRecordController extends Controller
                         Storage::disk('public')->delete($medication->pdf_file);
                     }
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
-                    $medication->pdf_file = $filePath;
+                    $data['pdf_file'] = basename($filePath);
                 }
                 $this->medicationContract->createOrUpdateMedication($data);
             } else {
@@ -418,7 +420,7 @@ class MedicalRecordController extends Controller
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
                 }
 
-                $data['pdf_file'] = $filePath;
+                $data['pdf_file'] = basename($filePath);
                 $data['patient_id'] = $user->id;
                 $this->medicationContract->createOrUpdateMedication($data);
             }
@@ -467,7 +469,7 @@ class MedicalRecordController extends Controller
                         Storage::disk('public')->delete($testResult->pdf_file);
                     }
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
-                    $testResult->pdf_file = $filePath;
+                    $data['pdf_file'] = basename($filePath);
                 }
                 $this->testResultContract->createOrUpdateTestResult($data);
             } else {
@@ -477,7 +479,7 @@ class MedicalRecordController extends Controller
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
                 }
 
-                $data['pdf_file'] = $filePath;
+                $data['pdf_file'] = basename($filePath);
                 $this->testResultContract->createOrUpdateTestResult($data);
             }
 
@@ -525,7 +527,7 @@ class MedicalRecordController extends Controller
                         Storage::disk('public')->delete($immunization->pdf_file);
                     }
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
-                    $immunization->pdf_file = $filePath;
+                    $data['pdf_file'] = basename($filePath);
                 }
                 $this->immunizationContract->createOrUpdateImmunization($data);
             } else {
@@ -535,8 +537,9 @@ class MedicalRecordController extends Controller
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
                 }
 
-                $data['pdf_file'] = $filePath;
+                $data['pdf_file'] = basename($filePath);
                 $data['patient_id'] = $user->id;
+                dd($data);
                 $this->immunizationContract->createOrUpdateImmunization($data);
             }
 

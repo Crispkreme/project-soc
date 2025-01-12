@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Text, StyleSheet, Alert, View, Image, TouchableOpacity, ScrollView } from "react-native";
+import {
+  Text,
+  StyleSheet,
+  Alert,
+  View,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { deactivateUser, getUserDetails } from "../services/AuthService";
+import { deactivateUser, getUserDetails, getUserProfile } from "../services/AuthService";
 
 const ProfileScreen = ({ route }) => {
   const { user } = route.params;
   const [userDetails, setUserDetails] = useState(null);
+  const [userProfilePicture, setUserProfilePicture] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -14,11 +23,20 @@ const ProfileScreen = ({ route }) => {
   const fetchUserData = async () => {
     try {
       setLoading(true);
+
       const data = await getUserDetails(user.id);
+      const profile = await getUserProfile(user.id);
+
       setUserDetails(data.details || {});
+
+      // Ensure the profile picture URL is valid or use a default placeholder
+      setUserProfilePicture(
+        profile.profile || "https://via.placeholder.com/150"
+      );
+
       setLoading(false);
     } catch (err) {
-      console.error("Axios error:", err.response || err.message);
+      console.error("Error fetching user data:", err.message || err);
       setLoading(false);
       setError("Something went wrong. Please try again.");
       Alert.alert("Error", "Something went wrong. Please try again.");
@@ -30,10 +48,6 @@ const ProfileScreen = ({ route }) => {
       fetchUserData();
     }
   }, [user.id]);
-
-  if (loading) {
-    return <Text>Loading...</Text>;
-  }
 
   const handleDeactivateAccountClick = async () => {
     Alert.alert(
@@ -48,29 +62,40 @@ const ProfileScreen = ({ route }) => {
           text: "Deactivate",
           onPress: async () => {
             setLoading(true);
-            const response = await deactivateUser(user.id);
-            console.log(response);
-            setLoading(false);
+            try {
+              const response = await deactivateUser(user.id);
+              console.log(response);
 
-            Alert.alert("Success", "Your account has been deactivated.");
-            navigation.navigate("Login");
+              Alert.alert("Success", "Your account has been deactivated.");
+              navigation.navigate("Login");
+            } catch (err) {
+              console.error("Error deactivating account:", err.message || err);
+              Alert.alert("Error", "Failed to deactivate account. Please try again.");
+            } finally {
+              setLoading(false);
+            }
           },
         },
       ]
     );
   };
 
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.cardContainer}>
         <Image
           source={{
-            uri: userDetails?.profilePicture || "https://randomuser.me/api/portraits/women/79.jpg",
+            uri: userProfilePicture,
           }}
           style={styles.round}
         />
         <Text style={styles.name}>
-          {userDetails?.firstname || "First"} {userDetails?.middlename || "Middle"} {userDetails?.lastname || "Last"}
+          {userDetails?.firstname || "First"} {userDetails?.middlename || "Middle"}{" "}
+          {userDetails?.lastname || "Last"}
         </Text>
         <Text style={styles.location}>Patient</Text>
 
@@ -79,33 +104,44 @@ const ProfileScreen = ({ route }) => {
         <View style={styles.buttons}>
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => navigation.navigate("AccountDetailScreen", { user: user })}
+            onPress={() =>
+              navigation.navigate("AccountDetailScreen", { user: user })
+            }
           >
             <Text style={styles.buttonText}>Account Detail</Text>
           </TouchableOpacity>
 
-          {/* <TouchableOpacity
+          <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => navigation.navigate("UpdateProfileScreen", { user: user })}
+            onPress={() =>
+              navigation.navigate("UpdateAvatarScreen", { user: user })
+            }
           >
             <Text style={styles.buttonText}>Update Profile</Text>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => navigation.navigate("ChangeEmailScreen", { user: user })}
+            onPress={() =>
+              navigation.navigate("ChangeEmailScreen", { user: user })
+            }
           >
             <Text style={styles.buttonText}>Change Email</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => navigation.navigate("ChangePasswordScreen", { user: user })}
+            onPress={() =>
+              navigation.navigate("ChangePasswordScreen", { user: user })
+            }
           >
             <Text style={styles.buttonText}>Change Password</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.primaryButton} onPress={handleDeactivateAccountClick}>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={handleDeactivateAccountClick}
+          >
             <Text style={styles.buttonText}>Deactivate Account</Text>
           </TouchableOpacity>
         </View>

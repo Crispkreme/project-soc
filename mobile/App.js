@@ -24,6 +24,7 @@ import AccountDetailScreen from "./screens/AccountDetailScreen";
 import ChangeEmailScreen from "./screens/ChangeEmailScreen";
 import ChangePasswordScreen from "./screens/ChangePasswordScreen";
 import DeactivateAccountScreen from "./screens/DeactivateAccountScreen";
+import UpdateAvatarScreen from "./screens/UpdateAvatarScreen";
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -244,6 +245,11 @@ export default function App() {
           <Stack.Screen
             name="DeactivateAccountScreen"
             component={DeactivateAccountScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="UpdateAvatarScreen"
+            component={UpdateAvatarScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>
