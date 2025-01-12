@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    Alert,
-    ActivityIndicator,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -204,11 +204,12 @@ const UpdateProfileScreen = ({ route }) => {
       />
 
       <TextInput
-        style={styles.input}
+        style={[styles.input, { opacity: 0.6 }]}
         placeholder="Address"
         value={formData.address}
-        onChangeText={(text) => handleInputChange("address", text)}
         multiline
+        editable={false}
+        aria-disabled={true}
       />
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>

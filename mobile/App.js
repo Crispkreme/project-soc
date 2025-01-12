@@ -25,6 +25,8 @@ import ChangeEmailScreen from "./screens/ChangeEmailScreen";
 import ChangePasswordScreen from "./screens/ChangePasswordScreen";
 import DeactivateAccountScreen from "./screens/DeactivateAccountScreen";
 import UpdateAvatarScreen from "./screens/UpdateAvatarScreen";
+import ChatScreen from "./screens/ChatScreen";
+import BookingScreen from "./screens/BookingScreen";
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -58,6 +60,21 @@ function DrawerNavigator({ route }) {
       <Drawer.Screen
         name="Appointment"
         component={AppointmentScreen}
+        initialParams={{ user }}
+        options={{
+          headerShown: false,
+          drawerIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name="calendar-check"
+              color={color}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Booking"
+        component={BookingScreen}
         initialParams={{ user }}
         options={{
           headerShown: false,
@@ -171,7 +188,7 @@ function DrawerNavigator({ route }) {
           ),
         }}
       />
-      {/* <Drawer.Screen
+      <Drawer.Screen
         name="Messages"
         component={ChatScreen}
         initialParams={{ user }}
@@ -181,7 +198,7 @@ function DrawerNavigator({ route }) {
             <MaterialCommunityIcons name="message" color={color} size={size} />
           ),
         }}
-      /> */}
+      />
       <Drawer.Screen
         name="Profile Settings"
         component={ProfileScreen}

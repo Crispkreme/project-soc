@@ -129,15 +129,17 @@ const AppointmentScreen = ({ route }) => {
         event_date: date,
         event_id: event.id,
         user_id: user.id,
+        eent_start: event.event_venue,
       }));
     } else {
       setFilteredSlots(timeSchedule);
       setFormData({
-        event_name: "",
-        event_venue: "",
+        event_name: event.event_name,
+        event_venue: event.event_venue,
         event_date: date,
-        event_id: "",
-        user_id: "",
+        event_id: event.id,
+        user_id: user.id,
+        eent_start: event.event_venue,
       });
     }
   };
@@ -145,6 +147,9 @@ const AppointmentScreen = ({ route }) => {
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
     filterTimeSlots(day.dateString);
+
+    console.log('setSelectedDate', day);
+    console.log('day', day);
   };
 
   const handleFormSubmit = async () => {
