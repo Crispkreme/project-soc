@@ -109,19 +109,23 @@ const AppointmentScreen = ({ route }) => {
       const formattedEventDate = formatEventDate(e.event_date);
       return formattedEventDate === date;
     });
-
+  
+    console.log("filterTimeSlots", event);
+  
     if (event) {
       const startHour = parseInt(event.event_start.split(":")[0], 10);
       const endHour = parseInt(event.event_end.split(":")[0], 10);
-
+  
       const filtered = timeSchedule.filter(({ value }) => {
         const [slotStart, slotEnd] = value
           .split(" - ")
           .map((time) => parseInt(time.split(":")[0], 10));
-        return slotEnd <= startHour || slotStart >= endHour;
+  
+        return slotStart >= startHour && slotEnd <= endHour;
       });
+  
       setFilteredSlots(filtered);
-
+  
       setFormData((prevFormData) => ({
         ...prevFormData,
         event_name: event.event_name,
@@ -147,9 +151,6 @@ const AppointmentScreen = ({ route }) => {
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
     filterTimeSlots(day.dateString);
-
-    console.log('setSelectedDate', day);
-    console.log('day', day);
   };
 
   const handleFormSubmit = async () => {
