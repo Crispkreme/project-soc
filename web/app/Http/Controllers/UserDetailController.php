@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\UserContract;
 use App\Contracts\UserDetailContract;
+use App\Models\UserDetail;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,7 +60,7 @@ class UserDetailController extends Controller
         };
 
         $userDetail = $this->userDetailContract->getUserDetailById($id);
-        
+
         return Inertia::render($viewPath, [
             'userDetail' => $userDetail,
         ]);
@@ -74,7 +75,6 @@ class UserDetailController extends Controller
         }
 
         try {
-            
             DB::beginTransaction();
 
             $data = $request->validate([
@@ -86,12 +86,22 @@ class UserDetailController extends Controller
                 'civil_status' => 'nullable|string|in:Single,Married,Divorce,Separated',
                 'religion' => 'required|string',
                 'address' => 'nullable|string',
-                'profile' => 'nullable|string',
+                'profile' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
-            $data['user_id'] = $user->id; 
+            
+            $data['user_id'] = $user->id;
+
+            if ($request->hasFile('profile')) {
+                $image = $request->file('profile');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $imagePath = $image->storeAs('public/profiles', $imageName);
+                $data['profile'] = basename($imagePath);
+            }
+
+            dd($data);
 
             if ($id) {
-                $data['id'] = $id; 
+                $data['id'] = $id;
                 $this->userDetailContract->createOrUpdateUserDetail($data);
             } else {
                 $this->userDetailContract->createOrUpdateUserDetail($data);
@@ -102,7 +112,6 @@ class UserDetailController extends Controller
             Session::flash('success', 'Account updated successfully!');
 
         } catch (Exception $e) {
-
             Log::error('Error during updateProfile: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString(),
@@ -114,6 +123,7 @@ class UserDetailController extends Controller
             return redirect()->back();
         }
     }
+
 
     public function viewPassword($id)
     {
@@ -254,16 +264,26 @@ class UserDetailController extends Controller
 
     public function uploadAvatar(Request $request)
     {
-
         $request->validate([
             'profile' => 'required|image|max:2048',
         ]);
 
         $path = $request->file('profile')->store('profiles', 'public');
+        $publicUrl = asset('storage/' . $path);
+        $this->userDetailContract->createOrUpdateUserAvatar($path);
 
-        $updated = $this->userDetailContract->createOrUpdateUserAvatar($path);
-        
-        return response()->json(['profile' => asset("storage/$path")]);
+        return response()->json([
+            'profile' => $publicUrl,
+        ]);
+    }
+
+    public function viewProfileMobile($id)
+    {
+        $userdetail = UserDetail::findOrFail($id);
+        $publicUrl = asset('storage/' . $userdetail->profile);
+        return response()->json([
+            'profile' => $publicUrl,
+        ]);
     }
 
     public function getAllUsers()

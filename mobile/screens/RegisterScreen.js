@@ -78,19 +78,41 @@ const RegisterScreen = () => {
             const response = await storeUserDetails(formData);
             
             if (response && response.success) {
-                Alert.alert('Success', 'Registration completed successfully.');
-                navigation.navigate('Login');
+                Alert.alert(
+                    'Success',
+                    'Registration completed successfully.',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => {
+                                navigation.reset({
+                                    index: 0,
+                                    routes: [{ name: 'Login', params: '' }],
+                                });
+                            },
+                        },
+                    ],
+                    { cancelable: false }
+                );
             } else {
                 Alert.alert(
-                    "Error",
-                    response.message || "Failed to save test result."
+                    'Error',
+                    response.message || 'Failed to save test result.'
                 );
             }
-            
+    
         } catch (err) {
             console.error('Error:', err);
             Alert.alert('Error', 'Something went wrong. Please try again.');
         }
+    };
+
+    
+    const handleBack = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+        });
     };
 
     return (
@@ -145,8 +167,8 @@ const RegisterScreen = () => {
                             <Picker.Item label="Select Civil Status" value="" />
                             <Picker.Item label="Single" value="Single" />
                             <Picker.Item label="Married" value="Married" />
-                            <Picker.Item label="Divorced" value="Divorced" />
-                            <Picker.Item label="Widowed" value="Widowed" />
+                            <Picker.Item label="Divorce" value="Divorce" />
+                            <Picker.Item label="Separated" value="Separated" />
                         </Picker>
                     </View>
                     {errors.civil_status && <Text style={styles.error}>{errors.civil_status}</Text>}
@@ -233,6 +255,9 @@ const RegisterScreen = () => {
                 <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
                     <Text style={styles.registerButtonText}>Register</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.registerButton} onPress={handleBack}>
+                            <Text style={styles.registerButtonText}>Already Have an Account?</Text>
+                        </TouchableOpacity>
             </ScrollView>
         </SafeAreaView>
     );

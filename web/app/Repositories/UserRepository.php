@@ -25,7 +25,7 @@ class UserRepository implements UserContract
             ],
             [
                 'email' => $data['email'] ?? null,
-                'password' => Hash::make($data['password']),
+                'password' => $data['password'],
                 'role' => $data['role'] ?? 'Patient',
                 'username' => $data['username'] ?? null,
             ]

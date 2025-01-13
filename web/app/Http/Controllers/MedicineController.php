@@ -135,4 +135,30 @@ class MedicineController extends Controller
         $medicineRequester = $this->medicationContract->getMedicationById($userId);
         return response()->json($medicineRequester);
     }
+
+    public function searchMedicineMobile($param)
+    {
+        try {
+            
+            $medicines = DB::table('prescriptions')
+            ->join('medicines', 'prescriptions.medicine_id', '=', 'medicines.id')
+            ->select('prescriptions.diagnosis', 'medicines.medicine_name')
+            ->where('prescriptions.diagnosis', 'LIKE', '%' . $param . '%')
+            ->orderBy('prescriptions.diagnosis', 'ASC')
+            ->get();
+
+            return response()->json($medicines);
+        
+        } catch (Exception $e) {
+
+            Log::error('Error during searchMedicineMobile: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return redirect()->back()->with('error', 'An error occurred during searchMedicineMobile.');
+        }
+    }
 }

@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\UserDetailContract;
 use App\Contracts\AppointmentContract;
 use App\Contracts\BarangayEventContract;
 use App\Contracts\BookingContract;
 use App\Contracts\LogContract;
 use App\Contracts\PrescriptionContract;
 use App\Contracts\ReferralContract;
+use App\Contracts\UserDetailContract;
+use App\Models\Booking;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -115,6 +116,7 @@ class BookingController extends Controller
 
     public function createBooking(Request $request, $id = null)
     {
+        
         $user = Auth::user();
 
         if (!$user) {
@@ -138,7 +140,7 @@ class BookingController extends Controller
             $data['appointment_start'] = $request->event_start;
             $data['appointment_end'] = $request->event_end;
             $data['booking_status'] = 'Pending';
-
+            dd($data);
             $existingBookings = $this->bookingContract->checkExistingBooking(
                 $request->event_date, 
                 $request->event_start, 
@@ -255,4 +257,29 @@ class BookingController extends Controller
             'prescriptions' => $prescriptions,
         ]);
     }
+
+    public function getAllBooking($id)
+    {
+        try {
+            $bookings = Booking::where('patient_id', $id)->get();
+
+            if ($bookings->isEmpty()) {
+                return response()->json([
+                    'message' => 'No bookings found for the specified patient.',
+                    'booking' => [],
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Bookings retrieved successfully.',
+                'booking' => $bookings,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while retrieving bookings.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }

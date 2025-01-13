@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MedicineController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\RecordController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
@@ -34,6 +36,11 @@ Route::get('mobile/get/all/doctor', [UserDetailController::class, 'getAllDoctorM
 Route::get('mobile/get/all/hospital', [RecordController::class, 'getAllHospitalMobile'])->name('mobile.get.all.hospital');
 Route::get('mobile/get/all/medicine/inventory', [MedicineController::class, 'getAllInventoryMedicineMobile'])->name('mobile.get.all.medicine.inventory');
 Route::get('mobile/get/all/medicine/requester/{id}', [MedicineController::class, 'getAllMedicineRequesterMobile'])->name('mobile.get.all.medicine.requester');
+Route::get('mobile/get/user/detail/{id}', [UserController::class, 'getUserDetailsMobile'])->name('mobile.get.user.detail');
+Route::get('mobile/client/message/senderid={sender_id}/receiverid={receiver_id}', [MessageController::class, 'getAllMessageMobile'])->name('mobile.client.message');
+Route::get('mobile/search/medicine/{param}', [MedicineController::class, 'searchMedicineMobile']);
+Route::get('mobile/view/profile/{id}', [UserDetailController::class, 'viewProfileMobile']);
+Route::get('mobile/get/all/patient/booking/{id}', [BookingController::class, 'getAllBooking']);
 
 Route::post('mobile/store/booking', [AppointmentController::class, 'storeBooking'])->name('mobile.store.booking');
 Route::post('mobile/store/health/record', [MedicalRecordController::class, 'storeHealthRecordMobile'])->name('mobile.store.health.record');
@@ -43,3 +50,8 @@ Route::post('mobile/store/family/record', [MedicalRecordController::class, 'stor
 Route::post('mobile/store/test/result', [MedicalRecordController::class, 'storeTestResultMobile'])->name('mobile.store.test.result');
 Route::post('mobile/store/immunization/result', [MedicalRecordController::class, 'storeImmunizationResultMobile'])->name('mobile.store.immunization.result');
 Route::post('mobile/store/user', [UserController::class, 'createUserMobile'])->name('mobile.store.user');
+Route::post('mobile/update/user/detail', [UserController::class, 'updateUserMobile'])->name('mobile.update.user.detail');
+Route::post('mobile/update/user/email', [UserController::class, 'updateUserEmailMobile'])->name('mobile.update.user.email');
+Route::post('mobile/update/user/password', [UserController::class, 'updateUserPasswordMobile'])->name('mobile.update.user.password');
+Route::post('mobile/deactivate/user/{id}', [UserController::class, 'deactivateUserMobile'])->name('mobile.deactivate.user');
+Route::post('mobile/send/message', [MessageController::class, 'sendMessageToDoctorMobile'])->name('mobile.send.message');

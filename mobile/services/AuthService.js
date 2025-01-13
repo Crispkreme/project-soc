@@ -20,13 +20,72 @@ export async function loadUser() {
 
 export async function storeUserDetails(data) {
     
-    console.log('user data', data);
-
     try {
         const response = await axios.post(`/mobile/store/user`, data);
         return response.data;
     } catch (error) {
-        console.error("Error storing store user details:", error);
+        console.error("Error storing storeUserDetails:", error);
         throw error;
+    }
+}
+
+export async function updateUserDetails(data) {
+    
+    try {
+        const response = await axios.post(`/mobile/update/user/detail`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing updateUserDetailss:", error);
+        throw error;
+    }
+}
+
+export async function updateUserEmail(data) {
+    try {
+        const response = await axios.post(`/mobile/update/user/email`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing updateUserEmail:", error);
+        throw error;
+    }
+}
+
+export async function updateUserPassword(data) {
+    try {
+        const response = await axios.post(`/mobile/update/user/password`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing updateUserEmail:", error);
+        throw error;
+    }
+}
+
+export async function deactivateUser(id) {
+    try {
+        const response = await axios.post(`/mobile/deactivate/user/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error storing updateUserEmail:", error);
+        throw error;
+    }
+}
+
+export async function getUserDetails(id) {
+    try {
+      const response = await axios.get(`/mobile/get/user/detail/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      throw error;
+    }
+}
+
+export async function getUserProfile(id) {
+    try {
+      const response = await axios.get(`/mobile/view/profile/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching getUserProfile:", error);
+      throw error;
     }
 }

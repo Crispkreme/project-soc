@@ -209,30 +209,63 @@ class ServiceController extends Controller
     // for mobile
     public function getMedicineAvailableMobile()
     {
+        // $inventories = Ledger::join('medicines', 'ledgers.medicine_id', '=', 'medicines.id')
+        // ->select(
+        //     'ledgers.sold',
+        //     'ledgers.in_stock',
+        //     'ledgers.expiration_date',
+        //     'ledgers.dosage',
+        //     'medicines.medicine_name',
+        //     'medicines.description',
+        //     'medicines.id'
+        // )
+        // ->get()
+        // ->map(function ($record) {
+        //     return [
+        //         'medicine_name' => $record->medicine_name,
+        //         'description' => $record->description,
+        //         'dosage' => $record->dosage,
+        //         'sold' => $record->sold,
+        //         'in_stock' => $record->in_stock,
+        //         'expiration_date' => Carbon::parse($record->expiration_date)->format('F d, Y'),
+        //     ];
+        // })
+        // ->filter(function ($record) {
+        //     return $record['in_stock'] > 0;
+        // });;
+
+        // if ($inventories->isEmpty()) {
+        //     return response()->json(['message' => 'No Medicine Available found'], 404);
+        // }
+
+        // return response()->json([
+        //     'inventories' => $inventories
+        // ]);
+
         $inventories = Ledger::join('medicines', 'ledgers.medicine_id', '=', 'medicines.id')
-        ->select(
-            'ledgers.sold',
-            'ledgers.in_stock',
-            'ledgers.expiration_date',
-            'ledgers.dosage',
-            'medicines.medicine_name',
-            'medicines.description',
-            'medicines.id'
-        )
-        ->get()
-        ->map(function ($record) {
-            return [
-                'medicine_name' => $record->medicine_name,
-                'description' => $record->description,
-                'dosage' => $record->dosage,
-                'sold' => $record->sold,
-                'in_stock' => $record->in_stock,
-                'expiration_date' => Carbon::parse($record->expiration_date)->format('F d, Y'),
-            ];
-        })
-        ->filter(function ($record) {
-            return $record['in_stock'] > 0;
-        });;
+            ->select(
+                'ledgers.sold',
+                'ledgers.in_stock',
+                'ledgers.expiration_date',
+                'ledgers.dosage',
+                'medicines.medicine_name',
+                'medicines.description',
+                'medicines.id'
+            )
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'medicine_name' => $record->medicine_name,
+                    'description' => $record->description,
+                    'dosage' => $record->dosage,
+                    'sold' => $record->sold,
+                    'in_stock' => $record->in_stock,
+                    'expiration_date' => Carbon::parse($record->expiration_date)->format('F d, Y'),
+                ];
+            });
+            // ->filter(function ($record) {
+            //     return $record['in_stock'] > 0;
+            // });
 
         if ($inventories->isEmpty()) {
             return response()->json(['message' => 'No Medicine Available found'], 404);
@@ -241,6 +274,7 @@ class ServiceController extends Controller
         return response()->json([
             'inventories' => $inventories
         ]);
+
     }
     public function getScheduleConsultationMobile()
     {

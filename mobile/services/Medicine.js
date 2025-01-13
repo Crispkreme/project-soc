@@ -6,7 +6,7 @@ export async function getTopMedicine() {
         console.log('analytics', response.data);
         return response.data;
     } catch (error) {
-        console.error("Error fetching medication records:", error);
+        console.error("Error fetching getTopMedicine:", error);
         throw error;
     }
 }
@@ -16,7 +16,7 @@ export async function getAllMedicine() {
         const response = await axios.get(`/mobile/get/all/medicine`);
         return response.data;
     } catch (error) {
-        console.error("Error fetching medication records:", error);
+        console.error("Error fetching getAllMedicine:", error);
         throw error;
     }
 }
@@ -26,7 +26,17 @@ export async function getMedicineInventory() {
         const response = await axios.get(`/mobile/get/all/medicine/inventory`);
         return response.data;
     } catch (error) {
-        console.error("Error fetching medication records:", error);
+        console.error("Error fetching getMedicineInventory:", error);
+        throw error;
+    }
+}
+
+export async function searchMedicine(query) {
+    try {
+        const response = await axios.get(`/mobile/search/medicine/${query}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching searchMedicine:", error);
         throw error;
     }
 }

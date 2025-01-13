@@ -13,11 +13,13 @@ const LoginScreen = () => {
   async function handleLogin() {
     setErrors({});
     try {
+      
       await login({
         email,
         password,
         device_name: `${Platform.OS} ${Platform.Version}`,
       });
+
       const user = await loadUser();
       navigation.reset({
         index: 0,
@@ -104,7 +106,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#a8c0ff', // Light Blue for subtitle
+    color: '#a8c0ff',
     textAlign: 'center',
     marginBottom: 30,
   },
