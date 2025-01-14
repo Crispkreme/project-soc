@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ActivitiesController;
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserDetailController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -49,7 +51,8 @@ Route::middleware(['auth', 'verified', 'admin'])
     Route::get('/appointments', [BookingController::class, 'getAppointments'])->name('appointments');
     Route::get('/referrals', [BookingController::class, 'getReferral'])->name('referrals');
     Route::get('/prescriptions', [BookingController::class, 'getPrescription'])->name('prescriptions');
-
+    Route::get('/appointment/books', [AppointmentController::class, 'getAllAppointment'])->name('appointment.books');
+    
     // MEDICAL
     Route::get('/medical/records', [MedicalRecordController::class, 'getUserMedicalRecord'])->name('medical.records');
     Route::get('/medical/patient/record/{id}', [MedicalRecordController::class, 'getPatientMedicalRecord'])->name('medical.patient.record');
