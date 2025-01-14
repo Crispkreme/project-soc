@@ -165,8 +165,16 @@ class BookingController extends Controller
                 if ($id) {
                     $data['id'] = $id;
                 }
-                $this->bookingContract->createOrUpdateBooking($data);
+                $bookingData = $this->bookingContract->createOrUpdateBooking($data);
                 
+                $appointmentData = [
+                    'booking_id' => $bookingData->id,
+                    'doctor_id' => $bookingData->approve_by_id,
+                    'slot' => 1,
+                    'appointment_status' => 'Inprogress',
+                ];     
+                $this->appointmentContract->createOrUpdateAppointment($appointmentData);
+
                 $logData = [
                     'patient_id' => $user->id,
                     'message' => 'has booked an appointment',
