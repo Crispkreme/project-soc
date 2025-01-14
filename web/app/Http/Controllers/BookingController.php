@@ -140,7 +140,7 @@ class BookingController extends Controller
             $data['appointment_start'] = $request->event_start;
             $data['appointment_end'] = $request->event_end;
             $data['booking_status'] = 'Pending';
-            dd($data);
+
             $existingBookings = $this->bookingContract->checkExistingBooking(
                 $request->event_date, 
                 $request->event_start, 

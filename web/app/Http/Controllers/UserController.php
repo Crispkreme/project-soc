@@ -66,7 +66,7 @@ class UserController extends Controller
             try {
                 $data = $request->validate([
                     'username' => ['required', 'string', 'max:255', 'unique:' . User::class],
-                    'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+                    'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
                     'password' => ['required', 'confirmed', Password::defaults()],
                 ]);
                 $data['role'] = 'Patient';
@@ -399,8 +399,8 @@ class UserController extends Controller
     {
         try {
             $data = $request->validate([
-                'username' => 'required|string|lowercase|max:255|unique:' . User::class,
-                'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+                'username' => 'required|string|max:255|unique:' . User::class,
+                'email' => 'required|string|email|max:255|unique:' . User::class,
                 'password' => ['required', 'confirmed', Password::defaults()],
                 'firstname' => 'required|string|max:255',
                 'middlename' => 'nullable|string|max:255',
@@ -517,7 +517,7 @@ class UserController extends Controller
     {
         try {
             $data = $request->validate([
-                'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+                'email' => 'required|string|email|max:255|unique:' . User::class,
             ]);
             $data['user_id'] = $request->user_id;
 

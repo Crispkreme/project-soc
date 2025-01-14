@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import { MdOutlineDashboardCustomize } from "react-icons/md";
 import { RiHome2Line, RiCalendarTodoLine, RiMedicineBottleLine } from "react-icons/ri";
 import { AiOutlineSkin } from "react-icons/ai";
 import { TbReportMedical, TbTools } from "react-icons/tb";
@@ -39,6 +40,7 @@ const AdminLayout = ({ children }) => {
 
     const curLinks = user.role === "Administration" ? [
         { icon: <RiHome2Line />, text: "Dashboard", href: "#", route: "/admin/dashboard", sublinks: [] },
+        { icon: <MdOutlineDashboardCustomize />,text: "Appointment", href: route(`admin.appointment.books`), route: '/admin/appointment/books', sublinks: []},
         { 
             icon: <AiOutlineSkin className='mr-4'/>, 
             text: "Accounts", 

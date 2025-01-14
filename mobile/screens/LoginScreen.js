@@ -13,11 +13,13 @@ const LoginScreen = () => {
   async function handleLogin() {
     setErrors({});
     try {
+      
       await login({
         email,
         password,
         device_name: `${Platform.OS} ${Platform.Version}`,
       });
+
       const user = await loadUser();
       navigation.reset({
         index: 0,
