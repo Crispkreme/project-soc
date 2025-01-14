@@ -116,7 +116,6 @@ class BookingController extends Controller
 
     public function createBooking(Request $request, $id = null)
     {
-        
         $user = Auth::user();
 
         if (!$user) {
@@ -132,7 +131,7 @@ class BookingController extends Controller
                 'booking_status' => 'nullable|in:Approve,Pending,Success,Failed',
             ]);
 
-            $data['approve_by_id'] = null;
+            $data['approve_by_id'] = $request->doctor_id;
             $data['patient_id'] = $user->id;
             $data['title'] = $request->event_name;
             $data['notes'] = "Booking";
@@ -166,13 +165,13 @@ class BookingController extends Controller
                     $data['id'] = $id;
                 }
                 $bookingData = $this->bookingContract->createOrUpdateBooking($data);
-                
                 $appointmentData = [
                     'booking_id' => $bookingData->id,
-                    'doctor_id' => $bookingData->approve_by_id,
+                    'doctor_id' => $request->doctor_id,
                     'slot' => 1,
                     'appointment_status' => 'Inprogress',
                 ];     
+                
                 $this->appointmentContract->createOrUpdateAppointment($appointmentData);
 
                 $logData = [

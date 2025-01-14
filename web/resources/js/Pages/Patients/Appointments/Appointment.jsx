@@ -27,6 +27,7 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
       start: `${isoDate}T${event.event_start}`,
       end: `${isoDate}T${event.event_end}`,
       extendedProps: {
+        doctor_id: event.doctor_id,
         doctor_name: event.doctor_name,
         bhw_name: event.bhw_name,
         venue: event.event_venue,
@@ -81,6 +82,7 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
     setData({
       ...data,
       event_id: event.id,
+      doctor_id: extendedProps.doctor_id,
       event_name: event.title,
       event_venue: extendedProps.venue,
       event_date: event.start.toISOString().split('T')[0],
@@ -165,6 +167,12 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
 
           <div className="col-span-12 lg:col-span-5 flex flex-col gap-4 p-4">
             <form onSubmit={handleBookAppointment}>
+              <input
+                type="hidden"
+                value={data.doctor_id}
+                name="doctor_id"
+                onChange={(e) => setData("doctor_id", e.target.value)}
+              />
               <div className="p-8">
                 <div>
                   <label>Event Name:</label>
