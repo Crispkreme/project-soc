@@ -113,4 +113,9 @@ class AppointmentRepository implements AppointmentContract
         )
         ->get();
     }
+
+    public function getAppointmentById($id)
+    {
+        return $this->model->where('booking_id', $id)->first();
+    }
 }

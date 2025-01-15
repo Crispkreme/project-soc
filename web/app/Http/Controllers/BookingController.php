@@ -146,6 +146,21 @@ class BookingController extends Controller
                 $request->event_end
             );
 
+            if ($existingBookings !== 0) {
+                $bookingData = $this->bookingContract->getExistingBooking(
+                    $request->event_date, 
+                    $request->event_start, 
+                    $request->event_end
+                );
+                
+                $appointmentData = $this->appointmentContract->getAppointmentById($request->event_id);
+                $slot = $appointmentData->slot;
+            } else {
+                
+                $bookingData = $this->bookingContract->createOrUpdateBooking($data);
+                $slot = 1;
+            }
+
             if ($existingBookings >= 2) {
                 Session::flash('error', 'The selected time slot is already fully booked. Please select another time.');
             }
@@ -160,26 +175,31 @@ class BookingController extends Controller
                 Session::flash('error', 'You have already booked for this event.');
             }
 
-            if ($existingBookings < 2 && $existingPatientBookings < 1) {
+            if ($existingPatientBookings < 1) {
                 if ($id) {
                     $data['id'] = $id;
                 }
+            
                 $bookingData = $this->bookingContract->createOrUpdateBooking($data);
+            
                 $appointmentData = [
                     'booking_id' => $bookingData->id,
                     'doctor_id' => $request->doctor_id,
-                    'slot' => 1,
+                    'slot' => $slot,
                     'appointment_status' => 'Inprogress',
-                ];     
-                
+                ];
+            
+                if ($appointmentData) {
+                    $appointmentData['slot'] = $slot + 1;
+                }
+            
                 $this->appointmentContract->createOrUpdateAppointment($appointmentData);
-
+            
                 $logData = [
                     'patient_id' => $user->id,
                     'message' => 'has booked an appointment',
                     'log_status' => 'Accept',
                 ];
-            
                 $this->logContract->updateOrCreateLog($logData);
             
                 Session::flash('success', 'Appointment saved successfully!');

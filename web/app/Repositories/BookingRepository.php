@@ -196,6 +196,14 @@ class BookingRepository implements BookingContract
             ->count();
     }
 
+    public function getExistingBooking($date, $start, $end)
+    {
+        return $this->model->where('appointment_date', $date)
+            ->where('appointment_start', $start)
+            ->where('appointment_end', $end)
+            ->first();
+    }
+
     public function checkPatientExistingBooking($id, $appointment_start, $appointment_end)
     {
         return $this->model->where('patient_id', $id)

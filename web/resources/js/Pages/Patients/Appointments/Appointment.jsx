@@ -16,7 +16,7 @@ const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
 
 const Appointment = ({ bookings = [], doctors, bhws }) => {
-  
+  console.log("bookings", bookings);
   const bookingSchedule = bookings.map((event) => {
     const parsedDate = new Date(event.event_date);
     const isoDate = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}`;
@@ -27,6 +27,7 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
       start: `${isoDate}T${event.event_start}`,
       end: `${isoDate}T${event.event_end}`,
       extendedProps: {
+        eventId: event.id,
         doctor_id: event.doctor_id,
         doctor_name: event.doctor_name,
         bhw_name: event.bhw_name,
@@ -81,7 +82,7 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
 
     setData({
       ...data,
-      event_id: event.id,
+      event_id: extendedProps.eventId,
       doctor_id: extendedProps.doctor_id,
       event_name: event.title,
       event_venue: extendedProps.venue,
