@@ -219,6 +219,15 @@ class BookingRepository implements BookingContract
                     });
             })
             ->count();
-}
+    }
 
+    public function getExistingBookingForPatient($patientId, $eventDate, $eventStart, $eventEnd)
+    {
+        return Booking::where('patient_id', $patientId)
+            ->where('appointment_date', $eventDate)
+            ->where('appointment_start', $eventStart)
+            ->where('appointment_end', $eventEnd)
+            ->where('booking_status', '!=', 'Canceled')
+            ->first();
+    }
 }
