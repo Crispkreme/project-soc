@@ -131,92 +131,99 @@ class BookingController extends Controller
                 'booking_status' => 'nullable|in:Approve,Pending,Success,Failed',
             ]);
 
-            $data['approve_by_id'] = $request->doctor_id;
-            $data['patient_id'] = $user->id;
-            $data['title'] = $request->event_name;
-            $data['notes'] = "Booking";
-            $data['appointment_date'] = $request->event_date;
-            $data['appointment_start'] = $request->event_start;
-            $data['appointment_end'] = $request->event_end;
-            $data['booking_status'] = 'Pending';
+            $data = array_merge($data, [
+                'approve_by_id' => $request->doctor_id,
+                'patient_id' => $user->id,
+                'title' => $request->event_name,
+                'notes' => 'Booking',
+                'appointment_date' => $request->event_date,
+                'appointment_start' => $request->event_start,
+                'appointment_end' => $request->event_end,
+                'booking_status' => 'Pending',
+            ]);
 
+            // Check if there are existing bookings for the selected time slot
             $existingBookings = $this->bookingContract->checkExistingBooking(
-                $request->event_date, 
-                $request->event_start, 
+                $request->event_date,
+                $request->event_start,
                 $request->event_end
             );
 
-            if ($existingBookings !== 0) {
-                $bookingData = $this->bookingContract->getExistingBooking(
-                    $request->event_date, 
-                    $request->event_start, 
-                    $request->event_end
-                );
-                
-                $appointmentData = $this->appointmentContract->getAppointmentById($request->event_id);
-                $slot = $appointmentData->slot;
-            } else {
-                
-                $bookingData = $this->bookingContract->createOrUpdateBooking($data);
-                $slot = 1;
-            }
-
             if ($existingBookings >= 2) {
                 Session::flash('error', 'The selected time slot is already fully booked. Please select another time.');
+                DB::rollBack();
+                return redirect()->back();
             }
 
+            // Check if the patient has already booked this event
             $existingPatientBookings = $this->bookingContract->checkPatientExistingBooking(
-                $user->id, 
+                $user->id,
                 $request->event_start,
-                $request->event_end,
+                $request->event_end
             );
-
-            if ($existingPatientBookings >= 1) {
+            
+            if ($existingPatientBookings > 0) {
                 Session::flash('error', 'You have already booked for this event.');
+                DB::rollBack();
+                return redirect()->back();
             }
 
-            if ($existingPatientBookings < 1) {
-                if ($id) {
-                    $data['id'] = $id;
-                }
+            // Fetch appointment data by ID if it exists
+            $appointmentData = $this->appointmentContract->getAppointmentById($request->event_id);
             
+            if ($appointmentData === null) {
+                // No existing appointment, so create a new booking and appointment
                 $bookingData = $this->bookingContract->createOrUpdateBooking($data);
-            
+
                 $appointmentData = [
                     'booking_id' => $bookingData->id,
                     'doctor_id' => $request->doctor_id,
-                    'slot' => $slot,
+                    'slot' => 1,
                     'appointment_status' => 'Inprogress',
                 ];
-            
-                if ($appointmentData) {
-                    $appointmentData['slot'] = $slot + 1;
-                }
-            
                 $this->appointmentContract->createOrUpdateAppointment($appointmentData);
-            
-                $logData = [
+
+                $this->logContract->updateOrCreateLog([
                     'patient_id' => $user->id,
                     'message' => 'has booked an appointment',
                     'log_status' => 'Accept',
-                ];
-                $this->logContract->updateOrCreateLog($logData);
-            
+                ]);
+
+                Session::flash('success', 'Appointment saved successfully!');
+            } else {
+                // Update existing booking and appointment
+                $bookingData = $this->bookingContract->createOrUpdateBooking($data);
+                $slot = $appointmentData->slot ?? 0;
+                $appointmentId = $appointmentData->id ?? null;
+
+                $this->appointmentContract->createOrUpdateAppointment([
+                    'id' => $appointmentId,
+                    'booking_id' => $bookingData->id,
+                    'doctor_id' => $request->doctor_id,
+                    'slot' => $slot + 1,
+                    'appointment_status' => 'Inprogress',
+                ]);
+
+                $this->logContract->updateOrCreateLog([
+                    'patient_id' => $user->id,
+                    'message' => 'has booked an appointment',
+                    'log_status' => 'Accept',
+                ]);
+
                 Session::flash('success', 'Appointment saved successfully!');
             }
-            
+
             DB::commit();
             return redirect()->back();
 
         } catch (Exception $e) {
             Log::error('Error during createBooking: ' . $e->getMessage(), [
                 'exception' => $e,
-                'trace' => $e->getTraceAsString(),
             ]);
 
-            DB::rollback();
+            DB::rollBack();
 
-            Session::flash('error', 'An error occurred during createBooking.');
+            Session::flash('error', 'An error occurred during booking creation.');
             return redirect()->back();
         }
     }

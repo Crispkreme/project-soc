@@ -60,6 +60,7 @@ Route::post('/immunization/create', [MedicalRecordController::class, 'updateOrCr
 
 Route::post('/hospitalization/update/{id}', [MedicalRecordController::class, 'updateOrCreateHospitalization'])->name('hospitalization.update');
 Route::post('/hospitalization/create', [MedicalRecordController::class, 'updateOrCreateHospitalization'])->name('hospitalization.create');
+Route::post('/medical/record/create', [MedicalRecordController::class, 'updateOrCreateMedicalRecord'])->name('medical.record.create');
 
 Route::post('/inventory/update/{id}', [InventoryController::class, 'updateInventory'])->name('inventory.update');
 Route::post('/inventory/create', [InventoryController::class, 'createInventory'])->name('inventory.create');

@@ -500,6 +500,66 @@ class MedicalRecordController extends Controller
             return redirect()->back()->with('error', 'An error occurred during the process.');
         }
     }
+    
+    public function updateOrCreateMedicalRecord(Request $request, $id = null)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validate([
+                'doctor_id' => 'nullable|exists:users,id',
+                'patient_id' => 'required|exists:users,id',
+                'immunization' => 'required|string|max:255',
+                'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
+            ]);
+
+            $data['id'] = $id;
+
+            if ($id) {
+                $medicalRecord = $this->medicalRecordContract->getMedicalRecordById($id);
+
+                if ($request->hasFile('pdf_file')) {
+                    if ($medicalRecord->pdf_file) {
+                        Storage::disk('public')->delete($medicalRecord->pdf_file);
+                    }
+
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                    $data['pdf_file'] = asset('storage/' . $filePath);
+                }
+
+                $this->medicalRecordContract->createOrUpdateMedicalRecord($data);
+            } else {
+                $filePath = null;
+                if ($request->hasFile('pdf_file')) {
+                    $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                    $data['pdf_file'] = asset('storage/' . $filePath);
+                }
+
+                $data['patient_id'] = $user->id;
+                $this->medicalRecordContract->createOrUpdateMedicalRecord($data);
+            }
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Immunization saved successfully!');
+        } catch (Exception $e) {
+            Log::error('Error during updateOrCreateImmunization: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            DB::rollback();
+
+            return redirect()->back()->with('error', 'An error occurred during the process.');
+        }
+    }
+
 
     public function updateOrCreateImmunization(Request $request, $id = null)
     {

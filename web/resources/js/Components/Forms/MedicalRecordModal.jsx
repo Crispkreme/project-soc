@@ -78,7 +78,7 @@ const MedicalRecordModal = ({
       isEditing ? "medical.record.update" : "medical.record.create",
       isEditing ? selectedRecord.id : null
     );
-
+    console.log(url);
     post(url, {
       data: formData,
       onSuccess: (response) => {
