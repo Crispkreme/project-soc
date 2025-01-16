@@ -2,6 +2,7 @@ import React, { useState, Suspense } from "react";
 import { format } from "date-fns";
 import { LuClipboardEdit } from "react-icons/lu";
 import { HiOutlinePlusSm } from "react-icons/hi";
+import { FaRegFilePdf } from "react-icons/fa6";
 
 const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
 const Accordion = React.lazy(() => import("@/Components/Accordion"));
@@ -33,14 +34,12 @@ const Medical = ({
     const [showTestResultModal, setShowTestResultModal] = useState(false);
     const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
     const [showImmunizationModal, setShowImmunizationModal] = useState(false);
-    const [showHospitalizationModal, setShowHospitalizationModal] =
-        useState(false);
+    const [showHospitalizationModal, setShowHospitalizationModal] =useState(false);
 
     const [selectedTestResult, setSelectedTestResult] = useState(null);
     const [selectedMedicalRecord, setSelectedMedicalRecord] = useState(null);
     const [selectedImmunization, setSelectedImmunization] = useState(null);
-    const [selectedHospitalization, setSelectedHospitalization] =
-        useState(null);
+    const [selectedHospitalization, setSelectedHospitalization] = useState(null);
 
     const toggleTestResultModal = (testResult = null) => {
         setSelectedTestResult(testResult);
@@ -60,7 +59,6 @@ const Medical = ({
     };
 
     const testResultColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "name", label: "Test" },
         { key: "result", label: "Result" },
         {
@@ -70,7 +68,6 @@ const Medical = ({
         },
     ];
     const medicalRecordColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "diagnosis", label: "Diagnosis" },
         { key: "medicine.medicine_name", label: "Medication" },
         {
@@ -80,7 +77,6 @@ const Medical = ({
         },
     ];
     const immunizationColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "immunization", label: "Immunization" },
         { key: "doctor_name", label: "Doctor" },
         {
@@ -90,7 +86,6 @@ const Medical = ({
         },
     ];
     const hospitalizationColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "diagnosis", label: "Diagnosis" },
         { key: "hospital_name", label: "Hospital" },
         { key: "doctor_name", label: "Doctor" },
@@ -106,6 +101,11 @@ const Medical = ({
             label: "Edit",
             icon: LuClipboardEdit,
             onClick: (row) => toggleImmunizationModal(row, true, false, row.id),
+        },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFImmunization(row),
         },
     ];
 
@@ -124,6 +124,11 @@ const Medical = ({
             icon: LuClipboardEdit,
             onClick: (row) => toggleTestResultModal(row, true, false, row.id),
         },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFTestResults(row),
+        },
     ];
 
     const medicalRecordAction = [
@@ -135,6 +140,16 @@ const Medical = ({
         },
     ];
 
+    const handleViewPDFTestResults = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFImmunization = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+
+    console.log('immunizations', immunizations);
     return (
         <Suspense fallback={<div>Loading...</div>}>
             <PatientLayout>

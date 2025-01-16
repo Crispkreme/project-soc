@@ -20,6 +20,9 @@ const ImmunizationModal = ({
   isViewing = false,
   onClose,
 }) => {
+
+  console.log('doctors', doctors);
+
   const [data, setData] = useState({
     patient_id: patient_id || "",
     immunization: "",
@@ -78,7 +81,7 @@ const ImmunizationModal = ({
     if (data.pdf_file) {
       formData.append("pdf_file", data.pdf_file);
     }
-
+    console.log('url', url);
     try {
       await axios.post(url, formData, {
         headers: {
@@ -150,7 +153,7 @@ const ImmunizationModal = ({
               }));
             }}
             placeholder="Select a doctor"
-            displayKey="name"
+            displayKey="doctor_name"
             ariaLabel="Select doctor"
             disabled={isViewing}
           />

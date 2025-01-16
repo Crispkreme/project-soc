@@ -25,7 +25,7 @@ class TestResultRepository implements TestResultContract
                 'patient_id' => $data['patient_id'],
                 'name' => $data['name'],
                 'result' => $data['result'],
-                'pdf_file' => $data['pdf_file'] ?? null,
+                'pdf_file' => $data['pdf_file'],
             ]
         );
     }
@@ -33,7 +33,7 @@ class TestResultRepository implements TestResultContract
     public function getTestResultById($id)
     {
         return $this->model
-            ->where('id', $id)
+            ->where('patient_id', $id)
             ->get();
     }
 

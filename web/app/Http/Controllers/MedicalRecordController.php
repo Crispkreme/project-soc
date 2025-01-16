@@ -459,7 +459,7 @@ class MedicalRecordController extends Controller
                 'result'     => 'nullable|string',
                 'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
-
+            
             $id = $request->id;
             if ($id) {
                 $data['id'] = $id;
@@ -469,7 +469,8 @@ class MedicalRecordController extends Controller
                         Storage::disk('public')->delete($testResult->pdf_file);
                     }
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
-                    $data['pdf_file'] = basename($filePath);
+                    $publicUrl = asset('storage/' . $filePath);
+                    $data['pdf_file'] = $publicUrl;
                 }
                 $this->testResultContract->createOrUpdateTestResult($data);
             } else {
@@ -477,9 +478,10 @@ class MedicalRecordController extends Controller
                 $filePath = null;
                 if ($request->hasFile('pdf_file')) {
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                    $publicUrl = asset('storage/' . $filePath);
                 }
-
-                $data['pdf_file'] = basename($filePath);
+        
+                $data['pdf_file'] = $publicUrl;
                 $this->testResultContract->createOrUpdateTestResult($data);
             }
 
@@ -527,7 +529,8 @@ class MedicalRecordController extends Controller
                         Storage::disk('public')->delete($immunization->pdf_file);
                     }
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
-                    $data['pdf_file'] = basename($filePath);
+                    $publicUrl = asset('storage/' . $filePath);
+                    $data['pdf_file'] = $publicUrl;
                 }
                 $this->immunizationContract->createOrUpdateImmunization($data);
             } else {
@@ -535,11 +538,12 @@ class MedicalRecordController extends Controller
                 $filePath = null;
                 if ($request->hasFile('pdf_file')) {
                     $filePath = $request->file('pdf_file')->store('pdfs', 'public');
+                    $publicUrl = asset('storage/' . $filePath);
                 }
 
-                $data['pdf_file'] = basename($filePath);
+                $data['pdf_file'] = $publicUrl;
                 $data['patient_id'] = $user->id;
-                dd($data);
+                
                 $this->immunizationContract->createOrUpdateImmunization($data);
             }
 

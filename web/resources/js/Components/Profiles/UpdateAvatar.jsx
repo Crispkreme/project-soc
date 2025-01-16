@@ -3,7 +3,7 @@ import { IoCameraOutline } from 'react-icons/io5';
 import axios from 'axios';
 
 const UpdateAvatar = ({ userDetail }) => {
-    console.log('userDetail', userDetail);
+    
     const [avatarPreview, setAvatarPreview] = useState(userDetail.profile ? `/storage/profiles/${userDetail.profile}` : '/path/to/default/avatar.jpg');
     const [profile, setProfile] = useState(null);
     const [processing, setProcessing] = useState(false);

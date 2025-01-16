@@ -75,9 +75,12 @@ const TestResultModal = ({
     formData.append("patient_id", data.patient_id || "");
     formData.append("name", data.name || "");
     formData.append("result", data.result || "");
+
     if (data.pdf_file) {
       formData.append("pdf_file", data.pdf_file);
     }
+
+    console.log('pdf', data.pdf_file);
 
     try {
       await axios.post(url, formData, {
