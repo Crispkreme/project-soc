@@ -47,7 +47,7 @@ const AdminLayout = ({ children }) => {
             href: route('admin.accounts.admin'), 
             route: '/admin/accounts',
             sublinks: [
-                { text: "Administrations", href: route('admin.accounts.admin'), route: '/admin/accounts/admin' },
+                { text: "Administrator", href: route('admin.accounts.admin'), route: '/admin/accounts/admin' },
                 { text: "Doctors", href: route('admin.accounts.doctor'), route: '/admin/accounts/doctor' },
                 { text: "Bhws", href: route('admin.accounts.bhw'), route: '/admin/accounts/bhw' },
                 { text: "Patients", href: route('admin.accounts.patient'), route: '/admin/accounts/patient' },
