@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useForm } from "@inertiajs/react";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
+import axios from "axios";
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
@@ -21,30 +22,24 @@ const HospitalizationModal = ({
   isViewing = false,
   onClose,
 }) => {
-  const { data, setData, post, processing, errors } = useForm({
+  const { data, setData, post, processing, errors, clearErrors, setErrors } = useForm({
     hospital_id: "",
     doctor_id: "",
     patient_id: patient_id || "",
     diagnosis: "",
+    pdf_file: null,
   });
 
   useEffect(() => {
     if (showModal) {
-      if (selectedHospitalization) {
-        setData({
-          hospital_id: selectedHospitalization.hospital_id || "",
-          doctor_id: selectedHospitalization.doctor_id || "",
-          patient_id: selectedHospitalization.patient_id || patient_id || "",
-          diagnosis: selectedHospitalization.diagnosis || "",
-        });
-      } else {
-        setData({
-          hospital_id: "",
-          doctor_id: "",
-          patient_id: patient_id || "",
-          diagnosis: "",
-        });
-      }
+      clearErrors();
+      setData({
+        hospital_id: selectedHospitalization?.hospital_id || "",
+        doctor_id: selectedHospitalization?.doctor_id || "",
+        patient_id: selectedHospitalization?.patient_id || patient_id || "",
+        diagnosis: selectedHospitalization?.diagnosis || "",
+        pdf_file: null,
+      });
     }
   }, [showModal, selectedHospitalization, patient_id]);
 
@@ -53,35 +48,61 @@ const HospitalizationModal = ({
     if (onClose) onClose();
   };
 
-  const submit = (e) => {
-    e.preventDefault();
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setData("pdf_file", file);
+  };
 
+  const submit = async (e) => {
+    
+    e.preventDefault();
+    const isUpdating = isEditing && selectedHospitalization;
     const url = route(
-      isEditing ? "hospitalization.update" : "hospitalization.create",
-      isEditing ? selectedHospitalization.id : null
+      isUpdating ? "hospitalization.update" : "hospitalization.create",
+      isUpdating ? selectedHospitalization.id : null
     );
 
-    post(url, {
-      onSuccess: (response) => {
-        toggleHospitalizationModal(false);
-        toast.success("Hospitalization added successfully!");
-      },
-      onError: (errors) => {
-        toggleHospitalizationModal(false);
-        toast.error("An error occurred during hospitalization creation.");
-      },
-    });
+    const formData = new FormData();
+    formData.append("hospital_id", data.hospital_id || "");
+    formData.append("doctor_id", data.doctor_id || "");
+    formData.append("patient_id", data.patient_id || "");
+    formData.append("diagnosis", data.diagnosis || "");
+
+    if (data.pdf_file) {
+      formData.append("pdf_file", data.pdf_file);
+    }
+
+    console.log('formData', formData);
+
+    try {
+      await axios.post(url, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      toggleHospitalizationModal(false);
+      toast.success(
+        isUpdating
+          ? "Hospitalization Record updated successfully!"
+          : "Hospitalization Record added successfully!"
+      );
+    } catch (error) {
+      if (error.response?.data.errors) {
+        setErrors(error.response.data.errors);
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
+    }
   };
 
   return (
     <Modal show={showModal} onClose={handleClose}>
-      <form onSubmit={submit} className="p-6">
+      <form onSubmit={submit} className="p-6 space-y-4">
         <input
           type="hidden"
           value={data.patient_id}
           name="patient_id"
           onChange={(e) => setData("patient_id", e.target.value)}
         />
+
         <Title>
           {isViewing
             ? "View Hospitalization Record"
@@ -90,8 +111,7 @@ const HospitalizationModal = ({
             : "Add Hospitalization Record"}
         </Title>
 
-        {/* Diagnosis Field */}
-        <div className="mt-4">
+        <div>
           <InputLabel value="Diagnosis" />
           <TextInput
             value={data.diagnosis}
@@ -101,44 +121,53 @@ const HospitalizationModal = ({
             disabled={isViewing}
             placeholder="Enter the diagnosis"
           />
-          {errors.diagnosis && <InputError message={errors.diagnosis} />}
+          <InputError message={errors.diagnosis} />
         </div>
 
-        <div className="mt-4">
+        <div>
           <InputLabel value="Hospital" />
           <ComboBox
             items={hospitals}
-            value={hospitals.find(hospital => hospital.id === data.hospital_id)}
-            onChange={(selected) => setData("hospital_id", selected ? selected.id : "")}
+            value={hospitals.find((hospital) => hospital.id === data.hospital_id)}
+            onChange={(selected) => setData("hospital_id", selected?.id || "")}
             placeholder="Select a Hospital"
             displayKey="name"
             disabled={isViewing}
           />
-          {errors.hospital_id && <InputError message={errors.hospital_id} />}
+          <InputError message={errors.hospital_id} />
         </div>
 
-        {/* Doctor Field */}
-        <div className="mt-4">
+        <div>
           <InputLabel value="Doctor" />
           <ComboBox
             items={doctors}
-            value={doctors.find(doctor => doctor.id === data.doctor_id)}
-            onChange={(selected) => setData("doctor_id", selected ? selected.id : "")}
+            value={doctors.find((doctor) => doctor.id === data.doctor_id)}
+            onChange={(selected) => setData("doctor_id", selected?.id || "")}
             placeholder="Select a Doctor"
             displayKey="doctor_name"
             disabled={isViewing}
           />
-          {errors.doctor_id && <InputError message={errors.doctor_id} />}
+          <InputError message={errors.doctor_id} />
         </div>
 
-        {/* Submit Button */}
-        <div className="mt-4">
-          {!isViewing && (
-            <PrimaryButton type="submit" disabled={processing}>
-              {isEditing ? "Update" : "Save"}
-            </PrimaryButton>
-          )}
+        <div>
+          <InputLabel value="Upload PDF File (optional)" />
+          <input
+            type="file"
+            name="pdf_file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            className="w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+            disabled={isViewing}
+          />
+          <InputError message={errors.pdf_file} />
         </div>
+
+        {!isViewing && (
+          <PrimaryButton type="submit" disabled={processing}>
+            {isEditing ? "Update" : "Save"}
+          </PrimaryButton>
+        )}
       </form>
     </Modal>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "@inertiajs/react";
 import { toast } from 'react-hot-toast';
 
@@ -27,8 +27,6 @@ const MedicalRecordModal = ({
     pdf_file: null,
   });
 
-  const [pdfPreview, setPdfPreview] = useState(null);
-
   useEffect(() => {
     if (showModal) {
       if (selectedRecord) {
@@ -38,15 +36,13 @@ const MedicalRecordModal = ({
           diagnosis: selectedRecord.diagnosis || "",
           pdf_file: selectedRecord.pdf_file || null,
         });
-        setPdfPreview(selectedRecord.pdf_file || null);
       } else {
         setData({
           patient_id: patient_id || "",
           medicine_id: "",
           diagnosis: "",
-          pdf_file: null,
+          pdf_file: "",
         });
-        setPdfPreview(null);
       }
     }
   }, [showModal, selectedRecord, patient_id]);
@@ -54,7 +50,6 @@ const MedicalRecordModal = ({
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setData("pdf_file", file);
-    setPdfPreview(URL.createObjectURL(file));
   };
 
   const handleClose = () => {
@@ -62,9 +57,15 @@ const MedicalRecordModal = ({
     if (onClose) onClose();
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-
+  
+    const isUpdating = isEditing && selectedImmunization;
+    const url = route(
+      isUpdating ? "medical.record.update" : "medical.record.create",
+      isUpdating ? selectedRecord.id : null
+    );
+    
     const formData = new FormData();
     formData.append("patient_id", data.patient_id);
     formData.append("medicine_id", data.medicine_id);
@@ -74,39 +75,42 @@ const MedicalRecordModal = ({
       formData.append("pdf_file", data.pdf_file);
     }
 
-    const url = route(
-      isEditing ? "medical.record.update" : "medical.record.create",
-      isEditing ? selectedRecord.id : null
-    );
-    console.log(url);
-    post(url, {
-      data: formData,
-      onSuccess: (response) => {
-        toggleMedicalRecordModal(false);
-        toast.success("Medical Record added successfully!");
-      },
-      onError: (errors) => {
-        toggleMedicalRecordModal(false);
-        toast.error("An error occurred during medical creation.");
-      },
-    });
+    try {
+      await axios.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      toggleImmunizationModal(false);
+      toast.success(
+        isUpdating
+          ? "Medical Record added successfully!"
+          : "Medical Record updated successfully!"
+      );
+    } catch (error) {
+      if (error.response && error.response.data.errors) {
+        setErrors(error.response.data.errors);
+      } else {
+        toast.error("An error occurred while processing the request.");
+      }
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
     <Modal show={showModal} onClose={handleClose}>
       <form onSubmit={submit} className="p-6" encType="multipart/form-data">
+        
         <input
           type="hidden"
           value={data.patient_id}
           name="patient_id"
           onChange={(e) => setData("patient_id", e.target.value)}
         />
+
         <Title>
-          {isViewing
-            ? "View Medical Record"
-            : isEditing
-            ? "Edit Medical Record"
-            : "Add Medical Record"}
+          {isViewing ? "View Medical Record" : isEditing ? "Edit Medical Record" : "Add Medical Record"}
         </Title>
 
         <div className="mt-4">
@@ -151,18 +155,6 @@ const MedicalRecordModal = ({
             className="w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
             disabled={isViewing}
           />
-          {pdfPreview && (
-            <div className="mt-2">
-              <a
-                href={pdfPreview}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500"
-              >
-                View PDF
-              </a>
-            </div>
-          )}
           {errors.pdf_file && <InputError message={errors.pdf_file} />}
         </div>
 

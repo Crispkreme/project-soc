@@ -21,6 +21,7 @@ const CancelAppointmentModal = React.lazy(() => import("@/Components/Forms/Cance
 const Table = React.lazy(() => import("@/Components/Table"));
 
 export default function Dashboard({ appointments, message, dataAnalytic }) {
+    console.log('appointments', appointments);
     const [filteredAppointments, setFilteredAppointments] = useState(appointments);
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState("");
@@ -154,11 +155,13 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
     };
 
     const appointmentColumns = [
-        { key: "approver_name", label: "Approver's Name" },
+        { key: "approver_name", label: "Doctor" },
+        { key: "patient_name", label: "Patient" },
         { key: "title", label: "Appointment" },
         { key: "appointment_date", label: "Event Date" },
         { key: "appointment_time", label: "Time" },
         { key: "reason", label: "Reason" },
+        { key: "booking_status", label: "Status" },
         { key: "updated_at", label: "Updated" },
         { key: "actions", label: "Action" },
     ];
@@ -208,16 +211,19 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                             />
                         </div>
                         <div className="overflow-x-auto">
+
                             <Table
                                 columns={appointmentColumns}
                                 data={filteredAppointments
                                     .filter((appointment) => appointment.booking_status !== "Approve")
                                     .map((appointment) => ({
                                         approver_name: appointment.doctor_name,
+                                        patient_name: appointment.patient_name,
                                         title: appointment.title,
                                         appointment_date: appointment.appointment_date,
                                         appointment_time: `${appointment.appointment_start} - ${appointment.appointment_end}`,
                                         reason: appointment.reason,
+                                        booking_status: appointment.booking_status,
                                         updated_at: appointment.updated_at,
                                         actions: [
                                             <StatusButton

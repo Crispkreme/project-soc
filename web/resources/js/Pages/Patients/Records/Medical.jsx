@@ -69,7 +69,7 @@ const Medical = ({
     ];
     const medicalRecordColumn = [
         { key: "diagnosis", label: "Diagnosis" },
-        { key: "medicine.medicine_name", label: "Medication" },
+        { key: "medicine_name", label: "Medication" },
         {
             key: "created_at",
             label: "Date",
@@ -116,6 +116,11 @@ const Medical = ({
             onClick: (row) =>
                 toggleHospitalizationModal(row, true, false, row.id),
         },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFHospitalization(row),
+        },
     ];
 
     const testResultAction = [
@@ -138,6 +143,11 @@ const Medical = ({
             onClick: (row) =>
                 toggleMedicalRecordModal(row, true, false, row.id),
         },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFMedicalRecord(row),
+        },
     ];
 
     const handleViewPDFTestResults = (row) => {
@@ -145,6 +155,14 @@ const Medical = ({
         window.open(row.pdf_file, "_blank");
     };
     const handleViewPDFImmunization = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFHospitalization = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFMedicalRecord = (row) => {
         console.log('Viewing PDF for:', row.pdf_file);
         window.open(row.pdf_file, "_blank");
     };

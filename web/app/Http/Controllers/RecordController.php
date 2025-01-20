@@ -129,7 +129,7 @@ class RecordController extends Controller
                     'doctor_name' => trim("{$doctor['name']}"),
                 ];
             });
-
+            
         return Inertia::render($viewPath, [
             'patient' => $patient,
             'hospitals' => $hospitals,
