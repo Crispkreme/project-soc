@@ -114,11 +114,7 @@ const HealthHistoryModal = ({ showModal, toggleHealthModal, selectedHealthRecord
           }
         />
         <Title>
-          {isViewing
-            ? "View Health Record"
-            : isEditing
-            ? "Edit Health Record"
-            : "Add Health Record"}
+          {isViewing ? "View Health Record" : isEditing ? "Edit Health Record" : "Add Health Record"}
         </Title>
 
         <div className="mt-4">

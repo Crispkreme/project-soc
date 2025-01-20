@@ -129,7 +129,7 @@ class RecordController extends Controller
                     'doctor_name' => trim("{$doctor['name']}"),
                 ];
             });
-            
+
         return Inertia::render($viewPath, [
             'patient' => $patient,
             'hospitals' => $hospitals,
@@ -175,7 +175,6 @@ class RecordController extends Controller
         $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
         $medicationRecords = $this->medicationContract->getMedicationById($id);
         $familyMedicalRecords = $this->familyMedicalContract->getFamilyMedicalById($id);
-        $surgicalRecords = $this->surgicalContract->getSurgicalById($id);
         $medicines = $this->medicineContract->getAllMedicine();
         $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true)
             ->map(function ($doctor) {
@@ -184,7 +183,7 @@ class RecordController extends Controller
                     'doctor_name' => $doctor['name'], 
                 ];
             });
-
+            
         return Inertia::render($viewPath, [
             'medicines' => $medicines,
             'patients' => $patients,

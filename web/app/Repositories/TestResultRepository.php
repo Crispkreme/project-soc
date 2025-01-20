@@ -34,7 +34,7 @@ class TestResultRepository implements TestResultContract
     {
         return $this->model
             ->where('patient_id', $id)
-            ->get();
+            ->first();
     }
 
     public function getAllTestResultById($id)
