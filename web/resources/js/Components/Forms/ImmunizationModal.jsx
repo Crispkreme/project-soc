@@ -20,7 +20,7 @@ const ImmunizationModal = ({
   isViewing = false,
   onClose,
 }) => {
-
+  console.log(doctors);
   const [data, setData] = useState({
     patient_id: patient_id || "",
     immunization: "",
@@ -153,7 +153,7 @@ const ImmunizationModal = ({
               }));
             }}
             placeholder="Select a doctor"
-            displayKey="doctor_name"
+            displayKey="name"
             ariaLabel="Select doctor"
             disabled={isViewing}
           />

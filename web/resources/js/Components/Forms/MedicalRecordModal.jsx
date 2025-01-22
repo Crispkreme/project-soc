@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useForm } from "@inertiajs/react";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
@@ -20,7 +20,7 @@ const MedicalRecordModal = ({
   isViewing = false,
   onClose,
 }) => {
-  const { data, setData, post, processing, errors } = useForm({
+  const { data, setData, post, processing, errors, clearErrors } = useForm({
     patient_id: patient_id || "",
     medicine_id: "",
     diagnosis: "",
@@ -29,23 +29,28 @@ const MedicalRecordModal = ({
 
   useEffect(() => {
     if (showModal) {
-      if (selectedRecord) {
-        setData({
-          patient_id: selectedRecord.patient_id || patient_id || "",
-          medicine_id: selectedRecord.medicine_id || "",
-          diagnosis: selectedRecord.diagnosis || "",
-          pdf_file: selectedRecord.pdf_file || null,
-        });
-      } else {
-        setData({
-          patient_id: patient_id || "",
-          medicine_id: "",
-          diagnosis: "",
-          pdf_file: "",
-        });
-      }
+      const newData = {
+        patient_id: selectedRecord?.patient_id || patient_id || "",
+        medicine_id: selectedRecord?.medicine_id || "",
+        diagnosis: selectedRecord?.diagnosis || "",
+        pdf_file: null,
+      };
+  
+      setData((prevData) => {
+        const isEqual = JSON.stringify(prevData) === JSON.stringify(newData);
+        return isEqual ? prevData : newData;
+      });
+    } else {
+      clearErrors();
+      setData({
+        patient_id: patient_id || "",
+        medicine_id: "",
+        diagnosis: "",
+        pdf_file: null,
+      });
     }
-  }, [showModal, selectedRecord, patient_id]);
+  }, [showModal]);
+  
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -57,20 +62,23 @@ const MedicalRecordModal = ({
     if (onClose) onClose();
   };
 
+  const handleChange = (field) => (e) => {
+    setData(field, e.target.value);
+  };
+
   const submit = async (e) => {
     e.preventDefault();
-  
-    const isUpdating = isEditing && selectedImmunization;
+    const isUpdating = isEditing && selectedRecord;
     const url = route(
       isUpdating ? "medical.record.update" : "medical.record.create",
       isUpdating ? selectedRecord.id : null
     );
-    
+
     const formData = new FormData();
     formData.append("patient_id", data.patient_id);
     formData.append("medicine_id", data.medicine_id);
     formData.append("diagnosis", data.diagnosis);
-    
+
     if (data.pdf_file) {
       formData.append("pdf_file", data.pdf_file);
     }
@@ -81,43 +89,46 @@ const MedicalRecordModal = ({
           "Content-Type": "multipart/form-data",
         },
       });
-      toggleImmunizationModal(false);
+
       toast.success(
         isUpdating
-          ? "Medical Record added successfully!"
-          : "Medical Record updated successfully!"
+          ? "Medical Record updated successfully!"
+          : "Medical Record added successfully!"
       );
+      toggleMedicalRecordModal(false);
     } catch (error) {
-      if (error.response && error.response.data.errors) {
+      if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       } else {
         toast.error("An error occurred while processing the request.");
       }
-    } finally {
-      setProcessing(false);
     }
   };
 
+  console.log('patient id', data.patient_id);
   return (
     <Modal show={showModal} onClose={handleClose}>
       <form onSubmit={submit} className="p-6" encType="multipart/form-data">
-        
         <input
           type="hidden"
           value={data.patient_id}
           name="patient_id"
-          onChange={(e) => setData("patient_id", e.target.value)}
+          onChange={handleChange("patient_id")}
         />
 
         <Title>
-          {isViewing ? "View Medical Record" : isEditing ? "Edit Medical Record" : "Add Medical Record"}
+          {isViewing
+            ? "View Medical Record"
+            : isEditing
+            ? "Edit Medical Record"
+            : "Add Medical Record"}
         </Title>
 
         <div className="mt-4">
           <InputLabel value="Diagnosis" />
           <TextInput
             value={data.diagnosis}
-            onChange={(e) => setData("diagnosis", e.target.value)}
+            onChange={handleChange("diagnosis")}
             type="text"
             className="w-full border p-2 rounded"
             disabled={isViewing}
@@ -131,12 +142,7 @@ const MedicalRecordModal = ({
           <ComboBox
             items={medicines}
             value={data.medicine_id}
-            onChange={(selected) => {
-              setData((prevState) => ({
-                ...prevState,
-                medicine_id: selected ? selected.id : "",
-              }));
-            }}
+            onChange={(selected) => setData("medicine_id", selected?.id || "")}
             placeholder="Select a medicine"
             displayKey="medicine_name"
             ariaLabel="Select medicine"

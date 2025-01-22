@@ -522,13 +522,12 @@ class MedicalRecordController extends Controller
         try {
 
             $data = $request->validate([
+                'patient_id' => 'nullable|exists:users,id',
                 'medicine_id' => 'nullable|exists:medicines,id',
                 'diagnosis' => 'nullable|string|max:255',
                 'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
-
             $data['id'] = $id;
-            $data['patient_id'] = $user->id;
 
             if ($id) {
                 $medicalRecord = $this->medicalRecordContract->getMedicalRecordById($id);
@@ -542,7 +541,6 @@ class MedicalRecordController extends Controller
                     $publicUrl = asset('storage/' . $filePath);
                     $data['pdf_file'] = $publicUrl;
                 }
-
                 $this->medicalRecordContract->createOrUpdateMedicalRecord($data);
             } else {
                 $filePath = null;
@@ -552,7 +550,6 @@ class MedicalRecordController extends Controller
                 }
         
                 $data['pdf_file'] = $publicUrl;
-                $data['patient_id'] = $user->id;
                 $this->medicalRecordContract->createOrUpdateMedicalRecord($data);
             }
 
@@ -615,7 +612,6 @@ class MedicalRecordController extends Controller
                 }
 
                 $data['pdf_file'] = $publicUrl;
-                $data['patient_id'] = $user->id;
                 
                 $this->immunizationContract->createOrUpdateImmunization($data);
             }
@@ -677,7 +673,6 @@ class MedicalRecordController extends Controller
                 }
 
                 $data['pdf_file'] = $publicUrl;
-                $data['patient_id'] = $user->id;
                 
                 $this->hospitalizationContract->createOrUpdateHospitalization($data);
             }

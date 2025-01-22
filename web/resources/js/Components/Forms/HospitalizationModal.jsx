@@ -22,6 +22,7 @@ const HospitalizationModal = ({
   isViewing = false,
   onClose,
 }) => {
+
   const { data, setData, post, processing, errors, clearErrors, setErrors } = useForm({
     hospital_id: "",
     doctor_id: "",
@@ -144,7 +145,7 @@ const HospitalizationModal = ({
             value={doctors.find((doctor) => doctor.id === data.doctor_id)}
             onChange={(selected) => setData("doctor_id", selected?.id || "")}
             placeholder="Select a Doctor"
-            displayKey="doctor_name"
+            displayKey="name"
             disabled={isViewing}
           />
           <InputError message={errors.doctor_id} />
