@@ -1,31 +1,30 @@
-import React from 'react';
 
 const UserDetail = ({ userDetail }) => {
     const {
-        role = "author",
-        profile,
+        role = "Patient",
         name,
-        address,
-    } = userDetail;
+        profile,
+        address = "No address available",
+    } = userDetail[0] || {}; 
 
     const defaultProfileImage = "https://cdn-icons-png.freepik.com/512/700/700674.png";
     const profileImage = profile || defaultProfileImage;
-    console.log("userDetail", userDetail);
+
     return (
         <div style={styles.card}>
             <span style={styles.label}>{role}</span>
             <div style={styles.imageContainer}>
                 <img
                     src={profileImage}
-                    alt={userDetail.name}
+                    alt={name}
                     style={styles.avatar}
                 />
             </div>
             <div style={styles.contentContainer}>
                 <h2 style={styles.authorName}>
-                    {userDetail.name}
+                    {name}
                 </h2>
-                <p style={styles.description}>{userDetail.address}</p>
+                <p style={styles.description}>{address}</p>
             </div>
         </div>
     );

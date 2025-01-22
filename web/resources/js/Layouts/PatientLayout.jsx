@@ -41,7 +41,7 @@ export default function PatientLayout({ children }) {
         {icon: <RiCalendarTodoLine />,text: "Medicine Requester", href: route(`patient.medicine.requester`), route: '/patient/medicine/requester', sublinks: []},
         {icon: <RiCalendarTodoLine />,text: "Community", href: route(`patient.show.communities.${String(redirectRole).toLowerCase()}`), route: `/patient/show/communities/${String(redirectRole).toLowerCase()}`,
             sublinks: [
-                user.role !== "Patient" && {text: "Patients", href: route('patient.show.communities.patient'), route: '/patient/show/communities/patient'},
+                // user.role !== "Patient" && {text: "Patients", href: route('patient.show.communities.patient'), route: '/patient/show/communities/patient'},
                 user.role !== "Practitioner" && {text: "Practitioners", href: route('patient.show.communities.practitioner'), route: '/patient/show/communities/practitioner'},
                 user.role !== "BHW" && {text: "BHWs", href: route('patient.show.communities.bhw'), route: '/patient/show/communities/bhw'},
             ].filter(Boolean)
@@ -80,7 +80,7 @@ export default function PatientLayout({ children }) {
         },
         {icon: <RiCalendarTodoLine />,text: "Community", href: route(`practitioner.show.communities.patient`), route: `/practitioner/show/communities/patient`,
             sublinks: [
-                user.role !== "Patient" && {text: "Patients", href: route('practitioner.show.communities.patient'), route: '/practitioner/show/communities/patient'},
+                // user.role !== "Patient" && {text: "Patients", href: route('practitioner.show.communities.patient'), route: '/practitioner/show/communities/patient'},
                 user.role !== "Practitioner" && {text: "Practitioners", href: route('practitioner.show.communities.practitioner'), route: '/practitioner/show/communities/practitioner'},
                 user.role !== "BHW" && {text: "BHWs", href: route('practitioner.show.communities.bhw'), route: '/practitioner/show/communities/bhw'},
             ].filter(Boolean)
