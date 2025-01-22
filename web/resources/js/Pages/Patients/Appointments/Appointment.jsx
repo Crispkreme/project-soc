@@ -185,6 +185,12 @@ const Appointment = ({ bookings = [] }) => {
                 name="doctor_id"
                 onChange={(e) => setData("doctor_id", e.target.value)}
               />
+              <input
+                type="hidden"
+                value={data.event_id}
+                name="event_id"
+                onChange={(e) => setData("event_id", e.target.value)}
+              />
               <div className="p-8">
                 <div>
                   <label>Event Name:</label>

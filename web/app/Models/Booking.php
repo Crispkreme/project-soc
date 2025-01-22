@@ -12,6 +12,7 @@ class Booking extends Model
     protected $fillable = [
         'approve_by_id', 
         'patient_id', 
+        'barangay_event_id', 
         'title',
         'reason', 
         'notes', 
@@ -28,5 +29,9 @@ class Booking extends Model
 
     public function patient() {
         return $this->belongsTo(UserDetail::class, 'patient_id');
+    }
+
+    public function barangayEvent() {
+        return $this->belongsTo(BarangayEvent::class, 'barangay_event_id');
     }
 }

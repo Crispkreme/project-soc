@@ -141,6 +141,7 @@ class BookingRepository implements BookingContract
             ],
             [
                 'approve_by_id' => $data['approve_by_id'] ?? null,
+                'event_id' => $data['event_id'] ?? null,
                 'patient_id' => $data['patient_id'],
                 'title' => $data['title'],
                 'notes' => $data['notes'],

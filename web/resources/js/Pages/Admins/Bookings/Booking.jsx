@@ -6,6 +6,7 @@ const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const ConfirmDeleteModal = React.lazy(() => import("@/Components/Modals/ConfirmDeleteModal"));
 
 const Booking = ({ appointments }) => {
+    
     const [showModal, setShowModal] = useState(false);
     const [selectedMedicine, setSelectedMedicine] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -66,12 +67,14 @@ const Booking = ({ appointments }) => {
     };
 
     const formatTime = (timeString) => {
+        if (!timeString) return 'N/A';
         const [hours, minutes] = timeString.split(':');
         const hour = parseInt(hours, 10);
         const period = hour >= 12 ? 'PM' : 'AM';
         const formattedHour = hour % 12 || 12;
         return `${formattedHour}:${minutes} ${period}`;
     };
+    
 
     return (
         <Suspense fallback={<div>Loading...</div>}>
