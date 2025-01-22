@@ -365,7 +365,6 @@ class MedicalRecordController extends Controller
                 }
 
                 $data['pdf_file'] = $publicUrl;
-                $data['patient_id'] = $user->id;
                 $this->familyMedicalContract->createOrUpdateFamilyMedical($data);
             }
 
@@ -406,8 +405,8 @@ class MedicalRecordController extends Controller
                 'pdf_file' => 'nullable|file|mimes:pdf|max:2048',
             ]);
             $data['quantity'] = null;
-
             $id = $request->id;
+
             if ($id) {
 
                 $data['id'] = $id;
@@ -431,7 +430,6 @@ class MedicalRecordController extends Controller
                 }
 
                 $data['pdf_file'] = $publicUrl;
-                $data['patient_id'] = $user->id;
                 $this->medicationContract->createOrUpdateMedication($data);
             }
 

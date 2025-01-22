@@ -80,6 +80,7 @@ const MedicationRecordModal = ({
     formData.append("medicine_id", data.medicine_id || "");
     formData.append("dosage", data.dosage || "");
     formData.append("reason", data.reason || "");
+
     if (data.pdf_file) {
       formData.append("pdf_file", data.pdf_file);
     }
@@ -91,10 +92,14 @@ const MedicationRecordModal = ({
         },
       });
 
-      toggleMedicationModal(false);
       toast.success(
         isUpdating ? "Medication Record updated successfully!" : "Medication Record added successfully!"
       );
+      toggleMedicationModal(false);
+
+      // Optional: Add your redirect here after successful form submission
+      // window.location.href = "/desired-route"; // or Inertia.visit("/desired-route");
+
     } catch (error) {
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
@@ -106,6 +111,8 @@ const MedicationRecordModal = ({
     }
   };
 
+  const isUpdating = isEditing && selectedMedication;
+
   return (
     <Modal show={showModal} onClose={handleClose}>
       <form onSubmit={submit} className="p-6">
@@ -114,7 +121,7 @@ const MedicationRecordModal = ({
         <Title>
           {isViewing
             ? "View Medication Record"
-            : isEditing
+            : isUpdating
             ? "Edit Medication Record"
             : "Add Medication Record"}
         </Title>
@@ -188,7 +195,7 @@ const MedicationRecordModal = ({
         <div className="mt-4">
           {!isViewing && (
             <PrimaryButton type="submit" disabled={processing}>
-              {isEditing ? "Update" : "Save"}
+              {isUpdating ? "Update" : "Save"}
             </PrimaryButton>
           )}
         </div>
