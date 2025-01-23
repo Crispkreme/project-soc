@@ -16,7 +16,16 @@ const ImmunizationModal = React.lazy(() => import("@/Components/Forms/Immunizati
 const MedicalRecordModal = React.lazy(() => import("@/Components/Forms/MedicalRecordModal"));
 const TestResultModal = React.lazy(() => import("@/Components/Forms/TestResultModal"));
 
-const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords, hospitalizations, immunizations, testResults }) => {
+const PatientRecord = ({ 
+    hospitals = [], 
+    medicines = [], 
+    patients = [], 
+    doctors = [], 
+    medicalRecords = [], 
+    hospitalizations = [], 
+    immunizations = [], 
+    testResults = [], 
+}) => {
 
     const [showTestResultModal, setShowTestResultModal] = useState(false);
     const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);

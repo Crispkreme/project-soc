@@ -16,7 +16,17 @@ const MedicationRecordModal = React.lazy(() => import("@/Components/Forms/Medica
 
 import { Viewer, Worker } from '@react-pdf-viewer/core';
 
-const PatientHistory = ({ medicines, patients, doctors, healthRecords, surgicalRecords, medicationRecords, familyMedicalRecords, patient_id }) => {
+const PatientHistory = ({ 
+    medicines = [],
+    patients = [],
+    doctors = [],
+    healthRecords = [],
+    surgicalRecords = [],
+    medicationRecords = [],
+    familyMedicalRecords = [],
+    patient_id,
+}) => {
+    console.log('here');
     const transformedDoctors = doctors.map(doctor => ({
         value: doctor.id,
         option: `${doctor.name}`

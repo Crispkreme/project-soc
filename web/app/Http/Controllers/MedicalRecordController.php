@@ -130,6 +130,7 @@ class MedicalRecordController extends Controller
 
     public function getPatientMedicalRecord($id)
     {
+        
         $user = Auth::user();
 
         if (!$user) {
@@ -147,7 +148,7 @@ class MedicalRecordController extends Controller
         $medicines = $this->medicineContract->getAllMedicine();
         $hospitals = $this->hospitalContract->getAllHospital();
         $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true);
-
+        
         $roleRoutes = [
             'Administration' => 'Admins/Medicals/PatientRecord',
             'Bhw' => 'Bhws/Medicals/PatientRecord',

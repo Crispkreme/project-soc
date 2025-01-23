@@ -312,6 +312,7 @@ class AppointmentController extends Controller
 
     public function updateOrCreatePrescription(Request $request, $id = null)
     {
+        dd($request);
         $user = Auth::user();
 
         // Ensure the user is authenticated
