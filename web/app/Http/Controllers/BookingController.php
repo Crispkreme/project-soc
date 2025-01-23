@@ -142,7 +142,8 @@ class BookingController extends Controller
                 'appointment_end' => $request->event_end,
                 'booking_status' => 'Pending',
             ]);
-
+            $data['barangay_event_id'] = $request->event_id;
+ 
             $existingBooking = $this->bookingContract->getExistingBookingForPatient(
                 $user->id,
                 $request->event_date,
