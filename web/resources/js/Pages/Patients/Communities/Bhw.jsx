@@ -1,17 +1,28 @@
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 
 const Tabs = lazy(() => import("@/Components/Links/Tabs"));
 const UserDetail = lazy(() => import("@/Components/Cards/UserDetail"));
 const PatientLayout = lazy(() => import("@/Layouts/PatientLayout"));
 
-const Bhw = ({ totalBhw, totalPatient, totalPractitioner, practitioners, bhws }) => {
+const Bhw = ({ totalBhw, totalPatient, totalPractitioner, practitioners, bhws, patients }) => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <PatientLayout>
         <Tabs tabTitles={[`Patient ${totalPatient}`, `Practitioner ${totalPractitioner}`, `Bhw ${totalBhw}`]}>
           <div>
-            <h2></h2>
-            <p></p>
+            <h2>List of Patient</h2>
+            {patients.length > 0 ? (
+              <div style={styles.cardContainer}>
+                {patients.map((patient) => (
+                  <UserDetail
+                    key={patient.id}
+                    userDetail={patient}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div>No Available Practitioner</div>
+            )}
           </div>
           <div>
             <h2>List of Practitioner</h2>
@@ -20,7 +31,7 @@ const Bhw = ({ totalBhw, totalPatient, totalPractitioner, practitioners, bhws })
                 {practitioners.map((practitioner) => (
                   <UserDetail
                     key={practitioner.id}
-                    userDetail={practitioners}
+                    userDetail={practitioner}
                   />
                 ))}
               </div>
@@ -35,7 +46,7 @@ const Bhw = ({ totalBhw, totalPatient, totalPractitioner, practitioners, bhws })
                 {bhws.map((bhw) => (
                   <UserDetail
                     key={bhw.id}
-                    userDetail={practitioners}
+                    userDetail={bhw}
                   />
                 ))}
               </div>
