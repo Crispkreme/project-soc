@@ -25,7 +25,6 @@ const Inventory = ({ inventories, medicines }) => {
     };
 
     const InventoryColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "medicine_name", label: "Medicine Name" },
         { key: "description", label: "Description" },
         { key: "sold", label: "Dispense" },

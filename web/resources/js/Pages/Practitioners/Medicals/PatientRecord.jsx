@@ -123,7 +123,6 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
     };
 
     const medicalRecordColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "diagnosis", label: "Diagnosis" },
         { key: "medicine.medicine_name", label: "Medication" },
         {
@@ -134,7 +133,6 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
     ];
     
     const hospitalizationColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "diagnosis", label: "Diagnosis" },
         { key: "hospital_name", label: "Hospital" },
         { key: "doctor_name", label: "Doctor" },

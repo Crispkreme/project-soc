@@ -1,4 +1,4 @@
-import React, { useState, Suspense, useEffect } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import PatientLayout from '@/Layouts/PatientLayout';
 import Table from "@/Components/Table";
 
@@ -18,7 +18,6 @@ const Log = ({ logs }) => {
     };
 
     const logColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         {
             key: "doctor_name",
             label: "Name",
