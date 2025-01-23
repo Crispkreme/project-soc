@@ -80,8 +80,6 @@ const TestResultModal = ({
       formData.append("pdf_file", data.pdf_file);
     }
 
-    console.log('pdf', data.pdf_file);
-
     try {
       await axios.post(url, formData, {
         headers: {

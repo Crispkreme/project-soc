@@ -65,7 +65,6 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
         const fetchPatientData = async () => {
             try {
                 const response = await axios.get(`/get/patient/data/${appointment.patient_id}`);
-                console.log('Fetched patient data:', response.data);
                 setSelectedPatient({ ...appointment, patient_details: response.data.patient });
             } catch (error) {
                 console.error("Error fetching patient data:", error);

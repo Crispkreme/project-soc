@@ -8,7 +8,7 @@ const ApproveModal = React.lazy(() => import("@/Components/Forms/ApproveModal"))
 const Table = React.lazy(() => import("@/Components/Table"));
 
 const Appointment = ({ appointments }) => {
-    console.log("appointments", appointments);
+    
     const [filteredAppointments, setFilteredAppointments] = useState(appointments);
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState("");

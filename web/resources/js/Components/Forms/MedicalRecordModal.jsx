@@ -105,7 +105,6 @@ const MedicalRecordModal = ({
     }
   };
 
-  console.log('patient id', data.patient_id);
   return (
     <Modal show={showModal} onClose={handleClose}>
       <form onSubmit={submit} className="p-6" encType="multipart/form-data">

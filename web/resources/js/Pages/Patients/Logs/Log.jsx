@@ -3,7 +3,7 @@ import PatientLayout from '@/Layouts/PatientLayout';
 import Table from "@/Components/Table";
 
 const Log = ({ logs }) => {
-    console.log(logs);
+    
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredLog, setFilteredLog] = useState(logs);
 

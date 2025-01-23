@@ -102,8 +102,6 @@ const Appointment = ({ bookings = [] }) => {
 
     e.preventDefault();
 
-    console.log('Form data being submitted:', data);
-
     post(route('patient.create.booking'), {
       onSuccess: (response) => {
         const flash = response.props?.flash;

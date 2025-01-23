@@ -73,8 +73,6 @@ const HospitalizationModal = ({
       formData.append("pdf_file", data.pdf_file);
     }
 
-    console.log('formData', formData);
-
     try {
       await axios.post(url, formData, {
         headers: { "Content-Type": "multipart/form-data" },

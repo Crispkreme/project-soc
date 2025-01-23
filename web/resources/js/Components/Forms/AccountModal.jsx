@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { TbUsersPlus } from "react-icons/tb";
 import { useForm } from "@inertiajs/react";
 import Modal from "@/Components/Modals/Modal";
@@ -85,7 +85,6 @@ const AccountModal = ({ showModal, toggleModal, userDetail, isPage }) => {
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
     });
-    console.log("formData", formData);
     post(route("store.profile.detail"), {
       data: formData,
       onSuccess: (response) => {

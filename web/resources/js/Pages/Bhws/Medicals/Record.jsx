@@ -5,8 +5,6 @@ const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 
 const Record = ({ userDetails }) => {
 
-  console.log('userDetails', userDetails);
-
   const calculateAge = (birthday) => {
     const today = new Date();
     const birthDate = new Date(birthday);

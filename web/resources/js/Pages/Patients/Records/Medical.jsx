@@ -167,7 +167,6 @@ const Medical = ({
         window.open(row.pdf_file, "_blank");
     };
 
-    console.log('immunizations', immunizations);
     return (
         <Suspense fallback={<div>Loading...</div>}>
             <PatientLayout>

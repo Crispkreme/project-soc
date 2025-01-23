@@ -20,7 +20,6 @@ const ImmunizationModal = ({
   isViewing = false,
   onClose,
 }) => {
-  console.log(doctors);
   const [data, setData] = useState({
     patient_id: patient_id || "",
     immunization: "",
@@ -80,8 +79,6 @@ const ImmunizationModal = ({
       formData.append("pdf_file", data.pdf_file);
     }
     
-    console.log('formData', formData);
-
     try {
       await axios.post(url, formData, {
         headers: {
