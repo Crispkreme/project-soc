@@ -97,21 +97,25 @@ class AppointmentRepository implements AppointmentContract
 
     public function appointments()
     {
-        return $this->model->join('bookings', 'appointments.booking_id', '=', 'bookings.id')
-        ->join('user_details as doctor', 'appointments.doctor_id', '=', 'doctor.id')
-        ->join('user_details as patient', 'bookings.patient_id', '=', 'patient.id')
-        ->select(
-            DB::raw("CONCAT(doctor.firstname, ' ', IFNULL(doctor.middlename, ''), ' ', doctor.lastname) AS doctor_name"),
-            DB::raw("CONCAT(patient.firstname, ' ', IFNULL(patient.middlename, ''), ' ', patient.lastname) AS patient_name"),
-            'bookings.title',
-            'bookings.appointment_date',
-            'bookings.appointment_start',
-            'bookings.appointment_end',
-            'appointments.slot',
-            'appointments.appointment_status',
-            'appointments.created_at'
-        )
-        ->get();
+        return $this->model
+            ->join('bookings', 'appointments.booking_id', '=', 'bookings.id')
+            ->join('barangay_events', 'bookings.barangay_event_id', '=', 'barangay_events.id')
+            ->join('user_details as doctor', 'appointments.doctor_id', '=', 'doctor.id')
+            ->join('user_details as patient', 'bookings.patient_id', '=', 'patient.id')
+            ->join('user_details as bhw', 'barangay_events.bhw_id', '=', 'bhw.id')
+            ->select(
+                DB::raw("CONCAT(doctor.firstname, ' ', IFNULL(doctor.middlename, ''), ' ', doctor.lastname) AS doctor_name"),
+                DB::raw("CONCAT(patient.firstname, ' ', IFNULL(patient.middlename, ''), ' ', patient.lastname) AS patient_name"),
+                DB::raw("CONCAT(bhw.firstname, ' ', IFNULL(bhw.middlename, ''), ' ', bhw.lastname) AS bhw_name"),
+                'bookings.title',
+                'bookings.appointment_date',
+                'bookings.appointment_start',
+                'bookings.appointment_end',
+                'appointments.slot',
+                'appointments.appointment_status',
+                'appointments.created_at'
+            )
+            ->get();
     }
 
     public function getAppointmentById($id = null)

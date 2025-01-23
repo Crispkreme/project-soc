@@ -459,28 +459,9 @@ class AppointmentController extends Controller
         };
 
         $appointments = $this->appointmentContract->appointments();
-        $titles = $appointments->pluck('title')->toArray();
-
-        $barangayEvents = $this->barangayEventContract->getBarangayEventByTitle($titles);
-
-        $combinedResults = $appointments->map(function ($appointment) use ($barangayEvents) {
-            $matchingEvent = $barangayEvents->firstWhere('event_name', $appointment->title);
-        
-            return [
-                'doctor_name' => $appointment->doctor_name,
-                'bhw_name' => $matchingEvent->bhw_name ?? null,
-                'title' => $matchingEvent->event_name ?? $appointment->title,
-                'appointment_date' => $matchingEvent->event_date ?? $appointment->appointment_date,
-                'appointment_start' => $matchingEvent->event_start ?? $appointment->appointment_start,
-                'appointment_end' => $matchingEvent->event_end ?? $appointment->appointment_end,
-                'slot' => $appointment->slot,
-                'appointment_status' => $appointment->appointment_status,
-                'created_at' => $appointment->created_at->format('F d, Y'),
-            ];
-        });
         
         return Inertia::render($viewPath, [
-            'appointments' => $combinedResults,
+            'appointments' => $appointments,
         ]);
     }
 

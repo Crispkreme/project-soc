@@ -103,6 +103,7 @@ const Booking = ({ appointments }) => {
                                 <tr>
                                     <th className="px-6 py-3">Doctor Name</th>
                                     <th className="px-6 py-3">Patient Name</th>
+                                    <th className="px-6 py-3">Bhw Name</th>
                                     <th className="px-6 py-3">Title</th>
                                     <th className="px-6 py-3">Appointment Date</th>
                                     <th className="px-6 py-3">Start Time</th>
@@ -118,6 +119,7 @@ const Booking = ({ appointments }) => {
                                         <tr key={index} className="bg-white border-b hover:bg-gray-50">
                                             <td className="px-6 py-4">{appointment.doctor_name}</td>
                                             <td className="px-6 py-4">{appointment.patient_name}</td>
+                                            <td className="px-6 py-4">{appointment.bhw_name}</td>
                                             <td className="px-6 py-4">{appointment.title}</td>
                                             <td className="px-6 py-4">{formatDate(appointment.appointment_date)}</td>
                                             <td className="px-6 py-4">{formatTime(appointment.appointment_start)}</td>
