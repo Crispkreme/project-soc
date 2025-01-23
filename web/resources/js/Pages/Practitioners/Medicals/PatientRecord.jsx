@@ -2,6 +2,7 @@ import React, { Suspense, useState } from "react";
 import { Head } from "@inertiajs/react";
 import { format } from "date-fns";
 import { LuClipboardEdit } from "react-icons/lu";
+import { FaRegFilePdf } from "react-icons/fa6";
 import { HiOutlinePlusSm } from "react-icons/hi";
 
 import { Viewer, Worker } from "@react-pdf-viewer/core";
@@ -16,7 +17,7 @@ const MedicalRecordModal = React.lazy(() => import("@/Components/Forms/MedicalRe
 const TestResultModal = React.lazy(() => import("@/Components/Forms/TestResultModal"));
 
 const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords, hospitalizations, immunizations, testResults }) => {
-    console.log("immunizations", immunizations);
+
     const [showTestResultModal, setShowTestResultModal] = useState(false);
     const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
     const [showImmunizationModal, setShowImmunizationModal] = useState(false);
@@ -28,91 +29,14 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
     const [selectedPdf, setSelectedPdf] = useState(null);
     const [showPdfModal, setShowPdfModal] = useState(false);
 
-    const closePdfModal = () => {
-        setShowPdfModal(false);
-        setSelectedPdf(null);
-    };
-
-    // TEST RESULT FUNCTIONALITY
     const toggleTestResultModal = (testResult = null) => {
         setSelectedTestResult(testResult);
         setShowTestResultModal(!!testResult || !showTestResultModal);
     };
-    const testResultColumn = [
-        { key: "name", label: "Test" },
-        { key: "result", label: "Result" },
-        {
-          key: "pdf_file",
-          label: "Reports",
-          render: (value) => (
-            <button
-              className="text-blue-500 underline"
-              onClick={() => handleTestResultPdfPreview(value)}
-            >
-              Preview
-            </button>
-          ),
-        },
-        {
-          key: "created_at",
-          label: "Date",
-          render: (value) => format(new Date(value), "MMMM d, yyyy"),
-        },
-    ];
-    const testResultAction = [
-        {
-          label: "Edit",
-          icon: LuClipboardEdit,
-          onClick: (row) => toggleTestResultModal(row),
-        },
-    ];
-    const handleTestResultPdfPreview = (pdfPath) => {
-        const baseUrl = import.meta.env.VITE_STORAGE_URL || "http://localhost:8000/storage/";
-        const fullPdfUrl = `${baseUrl}${pdfPath}`;
-        setSelectedPdf(fullPdfUrl);
-        setShowPdfModal(true);
-    };
-
-    // IMMUNIZATION FUNCTIONALITY
     const toggleImmunizationModal = (immunization = null) => {
         setSelectedImmunization(immunization);
         setShowImmunizationModal(!!immunization || !showImmunizationModal);
     };
-    const immunizationColumn = [
-        { key: "immunization", label: "Immunization" },
-        { key: "doctor_name", label: "Doctor" },
-        {
-            key: "pdf_file",
-            label: "Reports",
-            render: (value) => (
-              <button
-                className="text-blue-500 underline"
-                onClick={() => handleImmunizationPdfPreview(value)}
-              >
-                Preview
-              </button>
-            ),
-          },
-        {
-            key: "created_at",
-            label: "Date",
-            render: (value) => format(new Date(value), "MMMM d, yyyy"),
-        },
-    ];
-    const immunizationAction = [
-        {
-            label: "Edit",
-            icon: LuClipboardEdit,
-            onClick: (row) => toggleImmunizationModal(row, true, false, row.id),
-        },
-    ];
-    const handleImmunizationPdfPreview = (pdfPath) => {
-        const baseUrl = import.meta.env.VITE_STORAGE_URL || "http://localhost:8000/storage/";
-        const fullPdfUrl = `${baseUrl}${pdfPath}`;
-        setSelectedPdf(fullPdfUrl);
-        setShowPdfModal(true);
-    };
-
     const toggleMedicalRecordModal = (medicalRecord = null) => {
         setSelectedMedicalRecord(medicalRecord);
         setShowMedicalRecordModal((prev) => !prev);
@@ -122,16 +46,33 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
         setShowHospitalizationModal((prev) => !prev);
     };
 
-    const medicalRecordColumn = [
-        { key: "diagnosis", label: "Diagnosis" },
-        { key: "medicine.medicine_name", label: "Medication" },
+    const testResultColumn = [
+        { key: "name", label: "Test" },
+        { key: "result", label: "Result" },
         {
             key: "created_at",
             label: "Date",
             render: (value) => format(new Date(value), "MMMM d, yyyy"),
         },
     ];
-    
+    const immunizationColumn = [
+        { key: "immunization", label: "Immunization" },
+        { key: "doctor_name", label: "Doctor" },
+        {
+            key: "created_at",
+            label: "Date",
+            render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const medicalRecordColumn = [
+        { key: "diagnosis", label: "Diagnosis" },
+        { key: "medicine_name", label: "Medication" },
+        {
+            key: "created_at",
+            label: "Date",
+            render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
     const hospitalizationColumn = [
         { key: "diagnosis", label: "Diagnosis" },
         { key: "hospital_name", label: "Hospital" },
@@ -143,7 +84,30 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
         },
     ];
 
-    
+    const immunizationAction = [
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleImmunizationModal(row, true, false, row.id),
+        },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFImmunization(row),
+        },
+    ];
+    const testResultAction = [
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleTestResultModal(row),
+        },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFTestResult(row),
+        },
+    ];
     const hospitalizationAction = [
         {
             label: "Edit",
@@ -151,8 +115,12 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
             onClick: (row) =>
                 toggleHospitalizationModal(row, true, false, row.id),
         },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFHospitalization(row),
+        },
     ];
-
     const medicalRecordAction = [
         {
             label: "Edit",
@@ -160,7 +128,29 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
             onClick: (row) =>
                 toggleMedicalRecordModal(row, true, false, row.id),
         },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFMedicalRecord(row),
+        },
     ];
+
+    const handleViewPDFImmunization = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFTestResult = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFHospitalization = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFMedicalRecord = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
 
     return (
         <Suspense fallback={<div>Loading...</div>}>

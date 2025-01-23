@@ -5,6 +5,8 @@ const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 
 const Record = ({ userDetails }) => {
 
+  console.log('userDetails', userDetails);
+
   const calculateAge = (birthday) => {
     const today = new Date();
     const birthDate = new Date(birthday);
@@ -47,7 +49,7 @@ const Record = ({ userDetails }) => {
                             href={route('bhw.medical.patient.record', { id: userDetail.id })} 
                             className="text-gray-600 text-sm font-medium hover:text-blue-500 ml-2 truncate"
                           >
-                            {userDetail.firstname} {userDetail.middlename} {userDetail.lastname}
+                            {userDetail.name}
                           </a>
                         </div>
                       </td>
