@@ -1,11 +1,11 @@
 
 const UserDetail = ({ userDetail }) => {
     const {
-        role = "Patient",
         name,
+        role,
         profile,
-        address = "No address available",
-    } = userDetail[0] || {}; 
+        address = "No address provided",
+    } = userDetail;
 
     const defaultProfileImage = "https://cdn-icons-png.freepik.com/512/700/700674.png";
     const profileImage = profile || defaultProfileImage;
@@ -29,6 +29,7 @@ const UserDetail = ({ userDetail }) => {
         </div>
     );
 };
+
 
 const styles = {
     card: {

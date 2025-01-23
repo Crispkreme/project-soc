@@ -248,12 +248,14 @@ class UserController extends Controller
         $totalPractitioner = $this->userDetailContract->countSpecificUserDetail('Practitioner', 'Active');
         $practitioners = $this->userDetailContract->getAllUserByRole('Practitioner', 'Active');
         $bhws = $this->userDetailContract->getAllUserByRole('Bhw', 'Active');
-
+        $patients = $this->userDetailContract->getAllUserByRole('Patient', 'Active');
+        
         return Inertia::render($viewPath, [
             'totalBhw' => $totalBhw,
             'totalPatient' => $totalPatient,
             'totalPractitioner' => $totalPractitioner,
             'practitioners' => $practitioners,
+            'patients' => $patients,
             'bhws' => $bhws,
         ]);
     }
