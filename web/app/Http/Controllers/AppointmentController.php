@@ -459,7 +459,7 @@ class AppointmentController extends Controller
         };
 
         $appointments = $this->appointmentContract->appointments();
-        
+  
         return Inertia::render($viewPath, [
             'appointments' => $appointments,
         ]);

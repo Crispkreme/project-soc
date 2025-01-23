@@ -6,7 +6,7 @@ const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const ConfirmDeleteModal = React.lazy(() => import("@/Components/Modals/ConfirmDeleteModal"));
 
 const Booking = ({ appointments }) => {
-    
+
     const [showModal, setShowModal] = useState(false);
     const [selectedMedicine, setSelectedMedicine] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -122,7 +122,7 @@ const Booking = ({ appointments }) => {
                                             <td className="px-6 py-4">{formatDate(appointment.appointment_date)}</td>
                                             <td className="px-6 py-4">{formatTime(appointment.appointment_start)} - {formatTime(appointment.appointment_end)}</td>
                                             <td className="px-6 py-4">{appointment.slot}</td>
-                                            <td className="px-6 py-4">{appointment.created_at}</td>
+                                            <td className="px-6 py-4">{appointment.format_created_at}</td>
                                         </tr>
                                     ))
                                 ) : (

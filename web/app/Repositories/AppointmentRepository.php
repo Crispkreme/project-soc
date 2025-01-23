@@ -113,7 +113,7 @@ class AppointmentRepository implements AppointmentContract
                 'bookings.appointment_end',
                 'appointments.slot',
                 'appointments.appointment_status',
-                'appointments.created_at'
+                DB::raw("DATE_FORMAT(appointments.created_at, '%M %d, %Y') AS format_created_at")
             )
             ->get();
     }
