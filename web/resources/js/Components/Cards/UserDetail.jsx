@@ -4,7 +4,7 @@ const UserDetail = ({ userDetail }) => {
         name,
         role,
         profile,
-        address = "No address provided",
+        address = "",
     } = userDetail;
 
     const defaultProfileImage = "https://cdn-icons-png.freepik.com/512/700/700674.png";

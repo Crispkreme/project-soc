@@ -11,7 +11,7 @@ const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 
 const HealthHistoryModal = ({ showModal, toggleHealthModal, selectedHealthRecord, patient_id, patients, isEditing, isViewing, onClose }) => {
-
+  console.log('patient_id', patient_id);
   const [data, setData] = useState({
     patient_id: patient_id,
     name: "",

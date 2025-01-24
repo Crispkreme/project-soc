@@ -114,7 +114,6 @@ class RecordController extends Controller
        
         $role = 'Patient';
         $status = 'Active';
-        $patient = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
         $testResults = $this->testResultContract->getTestResultById($id);
         $immunizations = $this->immunizationContract->getImmunizationById($id);
         $hospitalizations = $this->hospitalizationContract->getHospitalizationById($id);
@@ -131,7 +130,6 @@ class RecordController extends Controller
             });
 
         return Inertia::render($viewPath, [
-            'patient' => $patient,
             'hospitals' => $hospitals,
             'testResults' => $testResults,
             'immunizations' => $immunizations,

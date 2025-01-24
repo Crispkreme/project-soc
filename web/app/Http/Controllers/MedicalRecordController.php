@@ -139,16 +139,15 @@ class MedicalRecordController extends Controller
 
         $role = 'Patient';
         $status = 'Active';
-        $patient = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
         $testResults = $this->testResultContract->getAllTestResultById($id);
         $immunizations = $this->immunizationContract->getAllImmunizationById($id);
         $hospitalizations = $this->hospitalizationContract->getHospitalizationById($id);
         $medicalRecords = $this->medicalRecordContract->getMedicalRecordById($id);
-        $patients = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
+        $patient = $this->userDetailContract->getSpecificUserDetailsById($id, $role, $status);
         $medicines = $this->medicineContract->getAllMedicine();
         $hospitals = $this->hospitalContract->getAllHospital();
         $doctors = $this->userDetailContract->getAllUserByRole('Practitioner', true);
-        
+
         $roleRoutes = [
             'Administration' => 'Admins/Medicals/PatientRecord',
             'Bhw' => 'Bhws/Medicals/PatientRecord',
@@ -157,13 +156,12 @@ class MedicalRecordController extends Controller
         $redirectInertia = $roleRoutes[$user->role] ?? 'login';
 
         return Inertia::render($redirectInertia, [
-            'patient' => $patient,
             'hospitals' => $hospitals,
             'testResults' => $testResults,
             'immunizations' => $immunizations,
             'hospitalizations' => $hospitalizations,
             'medicalRecords' => $medicalRecords,
-            'patients' => $patients,
+            'patient' => $patient,
             'medicines' => $medicines,
             'doctors' => $doctors,
         ]);

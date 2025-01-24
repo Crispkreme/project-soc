@@ -18,15 +18,14 @@ import { Viewer, Worker } from '@react-pdf-viewer/core';
 
 const PatientHistory = ({ 
     medicines = [],
-    patients = [],
+    patient,
     doctors = [],
     healthRecords = [],
     surgicalRecords = [],
     medicationRecords = [],
     familyMedicalRecords = [],
-    patient_id,
 }) => {
-    console.log('here');
+    console.log('healthRecords', healthRecords);
     const transformedDoctors = doctors.map(doctor => ({
         value: doctor.id,
         option: `${doctor.name}`
@@ -307,8 +306,8 @@ const PatientHistory = ({
                 showModal={showHealthModal}
                 toggleHealthModal={toggleHealthModal} 
                 selectedHealthRecord={selectedHealthRecord}
-                patient_id={patient_id}
-                patients={patients}
+                patient_id={patient.id}
+                patients={patient}
                 isEditing={!!selectedHealthRecord}
             />
 
@@ -316,7 +315,7 @@ const PatientHistory = ({
                 showModal={showSurgicalModal}
                 toggleSurgicalModal={toggleSurgicalModal}
                 selectedSurgicalRecord={selectedSurgicalRecord}
-                patient_id={patient_id}
+                patient_id={patient.id}
                 isEditing={!!selectedSurgicalRecord}
                 doctors={transformedDoctors}
             />
@@ -324,16 +323,16 @@ const PatientHistory = ({
                 showModal={showFamilyMedicalModal}
                 toggleFamilyMedicalModal={toggleFamilyMedicalModal}
                 selectedRecord={selectedFamilyMedicalRecord}
-                patient_id={patient_id}
-                patients={patients}
+                patient_id={patient.id}
+                patients={patient}
                 isEditing={!!selectedFamilyMedicalRecord}
             />
             <MedicationRecordModal
                 showModal={showMedicationModal}
                 toggleMedicationModal={toggleMedicationModal}
                 selectedMedication={selectedMedicationRecord}
-                patient_id={patient_id}
-                patients={patients}
+                patient_id={patient.id}
+                patients={patient}
                 medicines={medicines}
                 isEditing={!!selectedMedicationRecord}
             />
