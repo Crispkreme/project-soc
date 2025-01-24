@@ -5,6 +5,9 @@ import Table from '@/Components/Table';
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 
 const MedicineRequesterRecord = ({ medicineRequesters }) => {
+    
+    console.log('medicineRequesters', medicineRequesters);
+
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredRequesters, setFilteredRequesters] = useState(medicineRequesters);
 

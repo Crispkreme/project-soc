@@ -13,7 +13,7 @@ class Immunization extends Model
 
     public function doctor()
     {
-        return $this->belongsTo(User::class, 'doctor_id');
+        return $this->belongsTo(User::class, 'doctor_id')->with('details');
     }
 
     public function patient()

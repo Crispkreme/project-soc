@@ -114,7 +114,7 @@ class UserDetailRepository implements UserDetailContract
             ->where('user_details.id', '=', $id)
             ->where('users.role', '=', $role)
             ->where('user_details.status', '=', 'Active')
-            ->get();
+            ->first();
     }
 
     public function countSpecificUserDetail($role, $status)

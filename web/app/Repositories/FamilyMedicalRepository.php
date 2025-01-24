@@ -25,7 +25,7 @@ class FamilyMedicalRepository implements FamilyMedicalContract
                 'patient_id' => $data['patient_id'],
                 'disease' => $data['disease'],
                 'relationship_disease' => $data['relationship_disease'],
-                'pdf_file' => $data['pdf_file'] ?? null,
+                'pdf_file' => $data['pdf_file'],
             ]
         );
     }
@@ -33,7 +33,7 @@ class FamilyMedicalRepository implements FamilyMedicalContract
     public function getFamilyMedicalById($id)
     {
         return $this->model
-            ->where('id', $id)
+            ->where('patient_id', $id)
             ->get();
     }
 

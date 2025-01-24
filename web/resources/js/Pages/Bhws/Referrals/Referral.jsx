@@ -9,7 +9,6 @@ const Referral = ({ referrals }) => {
     const [filteredReferrals, setFilteredReferrals] = useState(referrals);
 
     const InventoryColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "patient_name", label: "Patient Name" },
         { key: "doctor_name", label: "Doctor Name" },
         { key: "refer_to_name", label: "Referred Doctor" },

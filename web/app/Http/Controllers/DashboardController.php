@@ -35,29 +35,32 @@ class DashboardController extends Controller
             return redirect()->route('login');
         }
         
+        $appointments = $this->bookingContract->getCurrentBooking();
+        $dataAnalytic = $this->dataAnalyticContract->getAllDataAnalyticByMonth();
+
         if($user->role === 'Administration') {
             return Inertia::render('Admins/Dashboard', [
                 'message' => $message,
-                'appointments' => $this->bookingContract->getCurrentBooking(),
-                'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
+                'appointments' => $appointments,
+                'dataAnalytic' => $dataAnalytic,
             ]);
         } else if($user->role === 'Practitioner') {
             return Inertia::render('Practitioners/Dashboard', [
                 'message' => $message,
-                'appointments' => $this->bookingContract->getCurrentBooking(),
-                'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
+                'appointments' => $appointments,
+                'dataAnalytic' => $dataAnalytic,
             ]);
         } else if($user->role === 'Bhw') {
             return Inertia::render('Bhws/Dashboard', [
                 'message' => $message,
-                'appointments' => $this->bookingContract->getCurrentBooking(),
-                'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
+                'appointments' => $appointments,
+                'dataAnalytic' => $dataAnalytic,
             ]);
         } else {
             return Inertia::render('Patients/Dashboard', [
                 'message' => $message,
                 'appointments' => $this->bookingContract->getPatientBooking($user->id),
-                'dataAnalytic' => $this->dataAnalyticContract->getAllDataAnalyticByMonth(),
+                'dataAnalytic' => $dataAnalytic,
             ]);
         }
     }

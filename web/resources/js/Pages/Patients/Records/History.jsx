@@ -3,6 +3,7 @@ import PatientLayout from '@/Layouts/PatientLayout';
 import { format } from 'date-fns';
 import { HiOutlinePlusSm } from "react-icons/hi";
 import { LuClipboardEdit } from "react-icons/lu";
+import { FaRegFilePdf } from "react-icons/fa6";
 
 const Sample = React.lazy(() => import("@/Components/Sample"));
 const Table = React.lazy(() => import("@/Components/Table"));
@@ -52,7 +53,12 @@ const History = ({ medicines, patients, doctors, healthRecords, surgicalRecords,
             icon: LuClipboardEdit,
             onClick: (row) => {
                 toggleHealthModal(row);
-              },
+            },
+        },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFHealthRecord(row),
         },
     ];
     const surgicalRecordAction = [
@@ -63,12 +69,22 @@ const History = ({ medicines, patients, doctors, healthRecords, surgicalRecords,
             toggleSurgicalModal(row);
           },
         },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFSurgicalRecord(row),
+        },
     ];
     const familyMedicalRecordAction = [
         {
           label: "Edit",
           icon: LuClipboardEdit,
           onClick: (row) => toggleFamilyMedicalModal(row, true, false, row.id),
+        },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFMedicalRecord(row),
         },
     ];
     const medicationRecordAction = [
@@ -77,10 +93,14 @@ const History = ({ medicines, patients, doctors, healthRecords, surgicalRecords,
           icon: LuClipboardEdit,
           onClick: (row) => toggleMedicationModal(row, true, false, row.id),
         },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFMedicationRecord(row),
+        },
     ];
 
     const healthRecordColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "name", label: "Illness" },
         { key: "description", label: "Illness Description" },
         {
@@ -90,7 +110,6 @@ const History = ({ medicines, patients, doctors, healthRecords, surgicalRecords,
         },
     ];
     const surgicalRecordColumn = [
-        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
         { key: "procedure", label: "Surgery" },
         { key: "description", label: "Procedure" },
         { key: "doctor_name", label: "Doctor" },
@@ -101,8 +120,7 @@ const History = ({ medicines, patients, doctors, healthRecords, surgicalRecords,
         },
     ];
     const medicationRecordColumn = [
-        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
-        { key: "medicine.medicine_name", label: "Medicine Name" },
+        { key: "medicine_name", label: "Medicine Name" },
         { key: "dosage", label: "Dosage" },
         { key: "reason", label: "Reason/For:" },
         {
@@ -112,7 +130,6 @@ const History = ({ medicines, patients, doctors, healthRecords, surgicalRecords,
         },
     ];
     const familyMedicalRecordColumn = [
-        { key: "id", label: "ID", render: (_, row, index) => index !== undefined ? index + 1 : "N/A" },
         { key: "disease", label: "Desease" },
         { key: "relationship_disease", label: "Relationship" },
         {
@@ -121,6 +138,23 @@ const History = ({ medicines, patients, doctors, healthRecords, surgicalRecords,
           render: (value) => format(new Date(value), "MMMM d, yyyy"),
         },
     ];
+
+    const handleViewPDFHealthRecord = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFSurgicalRecord = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFMedicalRecord = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFMedicationRecord = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
 
     return (
         <Suspense fallback={<div>Loading...</div>}>

@@ -78,7 +78,7 @@ const ImmunizationModal = ({
     if (data.pdf_file) {
       formData.append("pdf_file", data.pdf_file);
     }
-
+    
     try {
       await axios.post(url, formData, {
         headers: {

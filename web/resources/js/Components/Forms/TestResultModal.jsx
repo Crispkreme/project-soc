@@ -75,6 +75,7 @@ const TestResultModal = ({
     formData.append("patient_id", data.patient_id || "");
     formData.append("name", data.name || "");
     formData.append("result", data.result || "");
+
     if (data.pdf_file) {
       formData.append("pdf_file", data.pdf_file);
     }

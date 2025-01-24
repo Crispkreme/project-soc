@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/react';
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 
-const History = ({ userDetails }) => {
+const Record = ({ userDetails }) => {
 
   const calculateAge = (birthday) => {
     const today = new Date();
@@ -18,12 +18,12 @@ const History = ({ userDetails }) => {
     <Suspense fallback={<div>Loading...</div>}>
       <AdminLayout>
 
-        <Head title="Medical History" />
+        <Head title="Medical" />
 
         <div className='grid grid-cols-1 gap-6 mb-6'>
           <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
             <div className="flex justify-between mb-4 items-start">
-              <div className="font-medium">Manage History</div>
+              <div className="font-medium">Manage Accounts</div>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full min-w-[540px]" data-tab-for="order" data-page="active">
@@ -39,14 +39,13 @@ const History = ({ userDetails }) => {
                   </thead>
                   <tbody>
                   {userDetails.length > 0 ? userDetails.map((userDetail) => (
-      
                     <tr key={`${userDetail.id}-${userDetail.firstname}`}>
                       <td className="py-2 px-4 border-b border-b-gray-50">
                         <div className="flex items-center">
                           <img src="https://placehold.co/32x32" alt="" className="w-8 h-8 rounded object-cover block" />
                           <a 
-                            href={route('admin.medical.patient.history', { id: userDetail.id })} 
-                            className="text-gray-600medical/history text-sm font-medium hover:text-blue-500 ml-2 truncate"
+                            href={route('admin.medical.patient.record', { id: userDetail.id })} 
+                            className="text-gray-600 text-sm font-medium hover:text-blue-500 ml-2 truncate"
                           >
                             {userDetail.name}
                           </a>
@@ -84,4 +83,4 @@ const History = ({ userDetails }) => {
   )
 }
 
-export default History
+export default Record

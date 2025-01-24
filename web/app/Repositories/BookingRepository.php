@@ -141,6 +141,7 @@ class BookingRepository implements BookingContract
             ],
             [
                 'approve_by_id' => $data['approve_by_id'] ?? null,
+                'barangay_event_id' => $data['barangay_event_id'] ?? null,
                 'patient_id' => $data['patient_id'],
                 'title' => $data['title'],
                 'notes' => $data['notes'],
@@ -193,14 +194,41 @@ class BookingRepository implements BookingContract
         return $this->model->where('appointment_date', $date)
             ->where('appointment_start', $start)
             ->where('appointment_end', $end)
+            ->where('booking_status', 'Pending')
             ->count();
+    }
+
+    public function getExistingBooking($date, $start, $end)
+    {
+        return $this->model->where('appointment_date', $date)
+            ->where('appointment_start', $start)
+            ->where('appointment_end', $end)
+            ->first();
     }
 
     public function checkPatientExistingBooking($id, $appointment_start, $appointment_end)
     {
-        return $this->model->where('patient_id', $id)
-        ->where('appointment_start', $appointment_start)
-        ->where('appointment_end', $appointment_end)
-        ->count();
+        return $this->model
+            ->where('patient_id', $id)
+            ->whereNotIn('booking_status', ['cancel', 'failed'])
+            ->where(function ($query) use ($appointment_start, $appointment_end) {
+                $query->whereBetween('appointment_start', [$appointment_start, $appointment_end])
+                    ->orWhereBetween('appointment_end', [$appointment_start, $appointment_end])
+                    ->orWhere(function ($q) use ($appointment_start, $appointment_end) {
+                        $q->where('appointment_start', '<=', $appointment_start)
+                            ->where('appointment_end', '>=', $appointment_end);
+                    });
+            })
+            ->count();
+    }
+
+    public function getExistingBookingForPatient($patientId, $eventDate, $eventStart, $eventEnd)
+    {
+        return Booking::where('patient_id', $patientId)
+            ->where('appointment_date', $eventDate)
+            ->where('appointment_start', $eventStart)
+            ->where('appointment_end', $eventEnd)
+            ->where('booking_status', '!=', 'Canceled')
+            ->first();
     }
 }

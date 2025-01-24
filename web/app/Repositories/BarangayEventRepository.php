@@ -173,4 +173,24 @@ class BarangayEventRepository implements BarangayEventContract
 
         return $groupedEvents;
     }
+
+    public function getBarangayEventByTitle($eventName)
+    {
+        return $this->model
+            ->from('barangay_events AS be') 
+            ->leftJoin('user_details AS bhw', 'be.bhw_id', '=', 'bhw.id')
+            ->select(
+                'be.event_name',
+                'be.event_date',
+                'be.event_start',
+                'be.event_end',
+                'be.event_venue',
+                'be.created_at AS event_created_at',
+                DB::raw("CONCAT(bhw.firstname, ' ', bhw.middlename, ' ', bhw.lastname) AS bhw_name")
+            )
+            ->where('be.event_name', $eventName)
+            ->get();
+    }
+
+
 }

@@ -19,6 +19,7 @@ const FamilyMedicalRecordModal = ({
   isViewing = false,
   onClose,
 }) => {
+  
   const [errors, setErrors] = useState({});
   const [processing, setProcessing] = useState(false);
   const [selectedFamilyMedical, setSelectedFamilyMedical] = useState(null);
@@ -78,6 +79,7 @@ const FamilyMedicalRecordModal = ({
     formData.append("patient_id", data.patient_id || "");
     formData.append("disease", data.disease || "");
     formData.append("relationship_disease", data.relationship_disease || "");
+
     if (data.pdf_file) {
       formData.append("pdf_file", data.pdf_file);
     }
@@ -119,11 +121,7 @@ const FamilyMedicalRecordModal = ({
           }
         />
         <Title>
-          {isViewing
-            ? "View Family Medical Record"
-            : isEditing
-            ? "Edit Family Medical Record"
-            : "Add Family Medical Record"}
+          {isViewing ? "View Family Medical Record" : isEditing ? "Edit Family Medical Record" : "Add Family Medical Record"}
         </Title>
 
         {/* Disease Field */}

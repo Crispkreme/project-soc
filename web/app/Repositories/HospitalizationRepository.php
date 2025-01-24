@@ -26,42 +26,44 @@ class HospitalizationRepository implements HospitalizationContract
                 'doctor_id' => $data['doctor_id'],
                 'patient_id' => $data['patient_id'],
                 'diagnosis' => $data['diagnosis'],
+                'pdf_file' => $data['pdf_file'],
             ]
         );
     }
 
     public function getHospitalizationById($id)
-{
-    return $this->model->with([
-            'doctor.details',  // Eager load doctor's details
-            'patient.details',  // Eager load patient's details
-            'hospital', // Make sure the hospital relationship is eager-loaded
-        ])
-        ->select('id', 'hospital_id', 'doctor_id', 'patient_id', 'diagnosis')
-        ->where('patient_id', $id)
-        ->get()
-        ->map(function ($hospitalizations) {
-            return [
-                'id' => $hospitalizations->id,
-                'doctor_name' => optional($hospitalizations->doctor)->details
-                                ? optional($hospitalizations->doctor->details)->firstname . ' ' . 
-                                  optional($hospitalizations->doctor->details)->middlename . ' ' . 
-                                  optional($hospitalizations->doctor->details)->lastname
-                                : 'No doctor assigned',
-                'patient_name' => optional($hospitalizations->patient)->details
-                                 ? optional($hospitalizations->patient->details)->firstname . ' ' . 
-                                   optional($hospitalizations->patient->details)->middlename . ' ' . 
-                                   optional($hospitalizations->patient->details)->lastname
-                                 : 'No patient details',
-                'hospital_name' => optional($hospitalizations->hospital)->name,
-                'diagnosis' => $hospitalizations->diagnosis,
-                'created_at' => $hospitalizations->created_at,
-            ];
-        });
+    {
+        return $this->model
+            ->with([
+                'hospital:id,name',
+                'doctor.details:id,user_id,firstname,middlename,lastname',
+                'patient.details:id,user_id,firstname,middlename,lastname',
+            ])
+            ->where('patient_id', $id)
+            ->get()
+            ->map(function ($hospitalization) {
+                return [
+                    'id' => $hospitalization->id,
+                    'hospital_name' => $hospitalization->hospital->name ?? null,
+                    'doctor_name' => trim(
+                        ($hospitalization->doctor->details->firstname ?? '') . ' ' .
+                        ($hospitalization->doctor->details->middlename ?? '') . ' ' .
+                        ($hospitalization->doctor->details->lastname ?? '')
+                    ),
+                    'patient_name' => trim(
+                        ($hospitalization->patient->details->firstname ?? '') . ' ' .
+                        ($hospitalization->patient->details->middlename ?? '') . ' ' .
+                        ($hospitalization->patient->details->lastname ?? '')
+                    ),
+                    'diagnosis' => $hospitalization->diagnosis,
+                    'pdf_file' => $hospitalization->pdf_file,
+                    'created_at' => $hospitalization->created_at->format('F d, Y'),
+                ];
+            });
     }
 
     public function getAllHospitalization()
     {
         return $this->model->get();
-    }
+    }    
 }

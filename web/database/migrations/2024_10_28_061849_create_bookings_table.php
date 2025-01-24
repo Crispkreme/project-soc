@@ -21,6 +21,10 @@ return new class extends Migration
                   ->nullable()
                   ->constrained('user_details')
                   ->onDelete('cascade');
+            $table->foreignId('barangay_event_id')
+                  ->nullable()
+                  ->constrained('barangay_events')
+                  ->onDelete('cascade');
             $table->string('title');
             $table->text('notes')->nullable();
             $table->date('appointment_date')->nullable();

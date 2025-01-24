@@ -3,6 +3,7 @@ import { Head } from "@inertiajs/react";
 import { format } from "date-fns";
 import { LuClipboardEdit } from "react-icons/lu";
 import { HiOutlinePlusSm } from "react-icons/hi";
+import { FaRegFilePdf } from "react-icons/fa6";
 
 const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const Accordion = React.lazy(() => import("@/Components/Accordion"));
@@ -26,91 +27,127 @@ const PatientRecord = ({ hospitals, medicines, patients, doctors, medicalRecords
   const [selectedHospitalization, setSelectedHospitalization] = useState(null);
 
   const toggleTestResultModal = (testResult = null) => {
-    setSelectedTestResult(testResult);
-    setShowTestResultModal(prev => !prev);
-  };
-  const toggleMedicalRecordModal = (medicalRecord = null) => {
-    setSelectedMedicalRecord(medicalRecord);
-    setShowMedicalRecordModal(prev => !prev);
-  };
-  const toggleImmunizationModal = (immunization = null) => {
-    setSelectedImmunization(immunization);
-    setShowImmunizationModal(prev => !prev);
-  };
-  const toggleHospitalizationModal = (hospitalization = null) => {
-    setSelectedHospitalization(hospitalization);
-    setShowHospitalizationModal(prev => !prev);
-  };
+          setSelectedTestResult(testResult);
+          setShowTestResultModal(!!testResult || !showTestResultModal);
+    };
+    const toggleImmunizationModal = (immunization = null) => {
+        setSelectedImmunization(immunization);
+        setShowImmunizationModal(!!immunization || !showImmunizationModal);
+    };
+    const toggleMedicalRecordModal = (medicalRecord = null) => {
+        setSelectedMedicalRecord(medicalRecord);
+        setShowMedicalRecordModal((prev) => !prev);
+    };
+    const toggleHospitalizationModal = (hospitalization = null) => {
+        setSelectedHospitalization(hospitalization);
+        setShowHospitalizationModal((prev) => !prev);
+    };
 
-  const testResultColumn = [
-    { key: "name", label: "Test" },
-    { key: "result", label: "Result" },
-    {
-      key: "created_at",
-      label: "Date",
-      render: (value) => format(new Date(value), "MMMM d, yyyy"),
-    },
-  ];
-  const medicalRecordColumn = [
-    { key: "diagnosis", label: "Diagnosis" },
-    { key: "medicine.medicine_name", label: "Medication" },
-    {
-      key: "created_at",
-      label: "Date",
-      render: (value) => format(new Date(value), "MMMM d, yyyy"),
-    },
-  ];
-  const immunizationColumn = [
-    { key: "immunization", label: "Immunization" },
-    { key: "doctor_name", label: "Doctor" },
-    {
-      key: "created_at",
-      label: "Date",
-      render: (value) => format(new Date(value), "MMMM d, yyyy"),
-    },
-  ];
-  const hospitalizationColumn = [
-    { key: "diagnosis", label: "Diagnosis" },
-    { key: "hospital_name", label: "Hospital" },
-    { key: "doctor_name", label: "Doctor" },
-    {
-      key: "created_at",
-      label: "Date",
-      render: (value) => format(new Date(value), "MMMM d, yyyy"),
-    },
-  ];
+    const testResultColumn = [
+        { key: "name", label: "Test" },
+        { key: "result", label: "Result" },
+        {
+          key: "created_at",
+          label: "Date",
+          render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const immunizationColumn = [
+        { key: "immunization", label: "Immunization" },
+        { key: "doctor_name", label: "Doctor" },
+        {
+            key: "created_at",
+            label: "Date",
+            render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const medicalRecordColumn = [
+        { key: "diagnosis", label: "Diagnosis" },
+        { key: "medicine_name", label: "Medication" },
+        {
+            key: "created_at",
+            label: "Date",
+            render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
+    const hospitalizationColumn = [
+        { key: "diagnosis", label: "Diagnosis" },
+        { key: "hospital_name", label: "Hospital" },
+        { key: "doctor_name", label: "Doctor" },
+        {
+            key: "created_at",
+            label: "Date",
+            render: (value) => format(new Date(value), "MMMM d, yyyy"),
+        },
+    ];
 
-  const immunizationAction = [
-    {
-      label: "Edit",
-      icon: LuClipboardEdit,
-      onClick: (row) => toggleImmunizationModal(row, true, false, row.id),
-    },
-  ];
+    const immunizationAction = [
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) => toggleImmunizationModal(row, true, false, row.id),
+        },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFImmunization(row),
+        },
+    ];
+    const testResultAction = [
+        {
+          label: "Edit",
+          icon: LuClipboardEdit,
+          onClick: (row) => toggleTestResultModal(row),
+        },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFTestResult(row),
+        },
+    ];
+    const hospitalizationAction = [
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) =>
+                toggleHospitalizationModal(row, true, false, row.id),
+        },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFHospitalization(row),
+        },
+    ];
+    const medicalRecordAction = [
+        {
+            label: "Edit",
+            icon: LuClipboardEdit,
+            onClick: (row) =>
+                toggleMedicalRecordModal(row, true, false, row.id),
+        },
+        {
+            label: "View",
+            icon: FaRegFilePdf,
+            onClick: (row) => handleViewPDFMedicalRecord(row),
+        },
+    ];
 
-  const hospitalizationAction = [
-    {
-      label: "Edit",
-      icon: LuClipboardEdit,
-      onClick: (row) => toggleHospitalizationModal(row, true, false, row.id),
-    },
-  ];
-
-  const testResultAction = [
-    {
-      label: "Edit",
-      icon: LuClipboardEdit,
-      onClick: (row) => toggleTestResultModal(row, true, false, row.id),
-    },
-  ];
-
-  const medicalRecordAction = [
-    {
-      label: "Edit",
-      icon: LuClipboardEdit,
-      onClick: (row) => toggleMedicalRecordModal(row, true, false, row.id),
-    },
-  ];
+    const handleViewPDFImmunization = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFTestResult = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFHospitalization = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
+    const handleViewPDFMedicalRecord = (row) => {
+        console.log('Viewing PDF for:', row.pdf_file);
+        window.open(row.pdf_file, "_blank");
+    };
 
   return (
     <Suspense fallback={<div>Loading...</div>}>

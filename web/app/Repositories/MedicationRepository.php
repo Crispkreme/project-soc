@@ -36,13 +36,20 @@ class MedicationRepository implements MedicationContract
     public function getMedicationById($id)
     {
         return $this->model
-            ->with(['medicine'])
+            ->with(['medicine', 'patient.details'])
             ->where('medications.patient_id', '=', $id)
             ->get()
             ->map(function ($medication) {
+                $patientDetail = $medication->patient->details ?? null;
+                $patientName = $patientDetail 
+                    ? $patientDetail->firstname . ' ' .
+                    ($patientDetail->middlename ? substr($patientDetail->middlename, 0, 1) . '. ' : '') .
+                    $patientDetail->lastname
+                    : null;
+
                 return [
                     'id' => $medication->id,
-                    'patient_id' => $medication->patient_id,
+                    'patient_name' => $patientName,
                     'medicine_id' => $medication->medicine_id,
                     'medicine_name' => $medication->medicine->medicine_name ?? null,
                     'reason' => $medication->reason,

@@ -11,4 +11,5 @@ interface BarangayEventContract {
     public function getDoctorBarangayEvent($id, $data);
     public function getUpcomingBarangayEvent();
     public function getAllBarangayEventByMonth();
+    public function getBarangayEventByTitle($data);
 }

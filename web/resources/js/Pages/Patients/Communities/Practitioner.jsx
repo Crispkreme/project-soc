@@ -1,26 +1,23 @@
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 
 const Tabs = lazy(() => import("@/Components/Links/Tabs"));
 const UserDetail = lazy(() => import("@/Components/Cards/UserDetail"));
 const PatientLayout = lazy(() => import("@/Layouts/PatientLayout"));
 
-const Practitioner = ({ totalBhw, totalPatient, totalPractitioner, practitioners, bhws }) => {
+const Practitioner = ({ totalBhw, totalPatient, totalPractitioner, practitioners, bhws, patients }) => {
+  
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <PatientLayout>
         <Tabs tabTitles={[`Patient ${totalPatient}`, `Practitioner ${totalPractitioner}`, `Bhw ${totalBhw}`]}>
           <div>
-            <h2></h2>
-            <p></p>
-          </div>
-          <div>
-            <h2>List of Practitioner</h2>
-            {practitioners.length > 0 ? (
+            <h2>List of Patient</h2>
+            {patients.length > 0 ? (
               <div style={styles.cardContainer}>
-                {practitioners.map((practitioner) => (
+                {patients.map((patient) => (
                   <UserDetail
-                    key={practitioner.id}
-                    userDetail={practitioners}
+                    key={patient.id}
+                    userDetail={patient}
                   />
                 ))}
               </div>
@@ -29,13 +26,28 @@ const Practitioner = ({ totalBhw, totalPatient, totalPractitioner, practitioners
             )}
           </div>
           <div>
-            <h2>List of Bhw</h2>
+            <h2>List of Practitioner</h2>
+            {practitioners.length > 0 ? (
+              <div style={styles.cardContainer}>
+                {practitioners.map((practitioner) => (
+                  <UserDetail
+                    key={practitioner.id}
+                    userDetail={practitioner}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div>No Available Practitioner</div>
+            )}
+          </div>
+          <div>
+            <h2>List of Barangay Health Worker</h2>
             {bhws.length > 0 ? (
               <div style={styles.cardContainer}>
                 {bhws.map((bhw) => (
                   <UserDetail
                     key={bhw.id}
-                    userDetail={practitioners}
+                    userDetail={bhw}
                   />
                 ))}
               </div>

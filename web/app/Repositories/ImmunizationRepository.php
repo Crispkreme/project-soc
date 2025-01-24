@@ -33,8 +33,15 @@ class ImmunizationRepository implements ImmunizationContract
     public function getImmunizationById($id)
     {
         return $this->model
-            ->where('id', $id)
-            ->get();
+        ->where('patient_id', $id)
+        ->with('doctor.details')
+        ->get()
+        ->map(function ($item) {
+            $item->created_at = $item->created_at->format('F j, Y');
+            $doctor = $item->doctor->details;
+            $item->doctor_name = $doctor ? $doctor->firstname . ' ' . ($doctor->middlename ? $doctor->middlename . ' ' : '') . $doctor->lastname : 'N/A';
+            return $item;
+        });
     }
 
     public function getAllImmunization()

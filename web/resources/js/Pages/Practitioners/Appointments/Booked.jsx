@@ -9,8 +9,6 @@ const MedicalCertificateModal = React.lazy(() => import("@/Components/Forms/Medi
 
 const Booked = ({ bookings, doctors, patients, hospitals, medicines }) => {
 
-    console.log("bookings", bookings);
-
     const [filteredBookings, setFilteredBookings] = useState(bookings);
     const [searchQuery, setSearchQuery] = useState("");
     const [showReferralModal, setShowReferralModal] = useState(false);

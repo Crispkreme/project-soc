@@ -19,13 +19,6 @@ const ReferralModal = ({
   doctors,
   hospitals,
 }) => {
-  console.log("Modal State:", {
-    showModal,
-    selectedReferral,
-    patients,
-    doctors,
-    hospitals,
-  });
 
   const { data, setData, post, processing, errors, reset } = useForm({
     patient_id: "",

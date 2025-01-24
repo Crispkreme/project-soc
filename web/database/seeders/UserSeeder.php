@@ -39,6 +39,36 @@ class UserSeeder extends Seeder
                 'role'     => 'Patient', 
                 'username' => 'patient',
             ],
+            [
+                'email'    => 'patient1@patient1.com', 
+                'password' => Hash::make('patient1'),
+                'role'     => 'Patient', 
+                'username' => 'patient1',
+            ],
+            [
+                'email'    => 'patient2@patient2.com', 
+                'password' => Hash::make('patient2'),
+                'role'     => 'Patient', 
+                'username' => 'patient2',
+            ],
+            [
+                'email'    => 'patient3@patient3.com', 
+                'password' => Hash::make('patient3'),
+                'role'     => 'Patient', 
+                'username' => 'patient3',
+            ],
+            [
+                'email'    => 'patient4@patient4.com', 
+                'password' => Hash::make('patient4'),
+                'role'     => 'Patient', 
+                'username' => 'patient4',
+            ],
+            [
+                'email'    => 'patient5@patient5.com', 
+                'password' => Hash::make('patient5'),
+                'role'     => 'Patient', 
+                'username' => 'patient5',
+            ],
         ];
         
         DB::table('users')->insert($users);

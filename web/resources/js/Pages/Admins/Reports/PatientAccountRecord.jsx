@@ -5,7 +5,7 @@ const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const Table = React.lazy(() => import("@/Components/Table"));
 
 const PatientAccountRecord = ({ accounts }) => {
-  console.log("accounts", accounts);
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredAccounts, setFilteredAccounts] = useState(accounts);
 

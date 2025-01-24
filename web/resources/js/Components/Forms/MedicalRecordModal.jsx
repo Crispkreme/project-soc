@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useForm } from "@inertiajs/react";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 
 const Modal = React.lazy(() => import("@/Components/Modals/Modal"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
@@ -8,7 +8,7 @@ const InputError = React.lazy(() => import("@/Components/Inputs/InputError"));
 const InputLabel = React.lazy(() => import("@/Components/Inputs/InputLabel"));
 const PrimaryButton = React.lazy(() => import("@/Components/Buttons/PrimaryButton"));
 const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
-// const SelectInput = React.lazy(() => import("@/Components/Inputs/SelectInput"));
+const ComboBox = React.lazy(() => import("@/Components/Inputs/ComboBox"));
 
 const MedicalRecordModal = ({
   showModal,
@@ -20,65 +20,101 @@ const MedicalRecordModal = ({
   isViewing = false,
   onClose,
 }) => {
-  const { data, setData, post, processing, errors } = useForm({
+  const { data, setData, post, processing, errors, clearErrors } = useForm({
     patient_id: patient_id || "",
     medicine_id: "",
     diagnosis: "",
+    pdf_file: null,
   });
 
   useEffect(() => {
     if (showModal) {
-      if (selectedRecord) {
-        setData({
-          patient_id: selectedRecord.patient_id || patient_id || "",
-          medicine_id: selectedRecord.medicine_id || "",
-          diagnosis: selectedRecord.diagnosis || "",
-        });
-      } else {
-        setData({
-          patient_id: patient_id || "",
-          medicine_id: "",
-          diagnosis: "",
-        });
-      }
+      const newData = {
+        patient_id: selectedRecord?.patient_id || patient_id || "",
+        medicine_id: selectedRecord?.medicine_id || "",
+        diagnosis: selectedRecord?.diagnosis || "",
+        pdf_file: null,
+      };
+  
+      setData((prevData) => {
+        const isEqual = JSON.stringify(prevData) === JSON.stringify(newData);
+        return isEqual ? prevData : newData;
+      });
+    } else {
+      clearErrors();
+      setData({
+        patient_id: patient_id || "",
+        medicine_id: "",
+        diagnosis: "",
+        pdf_file: null,
+      });
     }
-  }, [showModal, selectedRecord, patient_id]);
+  }, [showModal]);
+  
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setData("pdf_file", file);
+  };
 
   const handleClose = () => {
     toggleMedicalRecordModal(false);
     if (onClose) onClose();
   };
 
-  const submit = (e) => {
-    e.preventDefault();
+  const handleChange = (field) => (e) => {
+    setData(field, e.target.value);
+  };
 
+  const submit = async (e) => {
+    e.preventDefault();
+    const isUpdating = isEditing && selectedRecord;
     const url = route(
-      isEditing ? "medical.record.update" : "medical.record.create",
-      isEditing ? selectedRecord.id : null
+      isUpdating ? "medical.record.update" : "medical.record.create",
+      isUpdating ? selectedRecord.id : null
     );
 
-    post(url, {
-      onSuccess: (response) => {
-        toggleMedicalRecordModal(false);
-        toast.success("Medical Record added successfully!");
-      },
-      onError: (errors) => {
-        toggleMedicalRecordModal(false);
-        toast.error("An error occurred during medical creation.");
-      },
-    });
+    const formData = new FormData();
+    formData.append("patient_id", data.patient_id);
+    formData.append("medicine_id", data.medicine_id);
+    formData.append("diagnosis", data.diagnosis);
+
+    if (data.pdf_file) {
+      formData.append("pdf_file", data.pdf_file);
+    }
+
+    try {
+      await axios.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success(
+        isUpdating
+          ? "Medical Record updated successfully!"
+          : "Medical Record added successfully!"
+      );
+      toggleMedicalRecordModal(false);
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+      } else {
+        toast.error("An error occurred while processing the request.");
+      }
+    }
   };
 
   return (
     <Modal show={showModal} onClose={handleClose}>
-      <form onSubmit={submit} className="p-6">
-        {/* Hidden Patient ID */}
+      <form onSubmit={submit} className="p-6" encType="multipart/form-data">
         <input
           type="hidden"
           value={data.patient_id}
           name="patient_id"
-          onChange={(e) => setData("patient_id", e.target.value)}
+          onChange={handleChange("patient_id")}
         />
+
         <Title>
           {isViewing
             ? "View Medical Record"
@@ -87,12 +123,11 @@ const MedicalRecordModal = ({
             : "Add Medical Record"}
         </Title>
 
-        {/* Diagnosis Field */}
         <div className="mt-4">
           <InputLabel value="Diagnosis" />
           <TextInput
             value={data.diagnosis}
-            onChange={(e) => setData("diagnosis", e.target.value)}
+            onChange={handleChange("diagnosis")}
             type="text"
             className="w-full border p-2 rounded"
             disabled={isViewing}
@@ -101,26 +136,33 @@ const MedicalRecordModal = ({
           {errors.diagnosis && <InputError message={errors.diagnosis} />}
         </div>
 
-        {/* Medicine Field */}
         <div className="mt-4">
           <InputLabel value="Medicine" />
-          {/* <SelectInput
+          <ComboBox
+            items={medicines}
             value={data.medicine_id}
-            onChange={(e) => setData("medicine_id", e.target.value)}
+            onChange={(selected) => setData("medicine_id", selected?.id || "")}
+            placeholder="Select a medicine"
+            displayKey="medicine_name"
+            ariaLabel="Select medicine"
             disabled={isViewing}
-            className="w-full border p-2 rounded"
-          >
-            <option value="">Select Medicine</option>
-            {medicines.map((medicine) => (
-              <option key={medicine.id} value={medicine.id}>
-                {medicine.name}
-              </option>
-            ))}
-          </SelectInput> */}
+          />
           {errors.medicine_id && <InputError message={errors.medicine_id} />}
         </div>
 
-        {/* Submit Button */}
+        <div className="mt-4">
+          <InputLabel value="Upload PDF File (optional)" />
+          <input
+            type="file"
+            name="pdf_file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            className="w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+            disabled={isViewing}
+          />
+          {errors.pdf_file && <InputError message={errors.pdf_file} />}
+        </div>
+
         <div className="mt-4">
           {!isViewing && (
             <PrimaryButton type="submit" disabled={processing}>

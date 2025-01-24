@@ -63,12 +63,15 @@ const PrescriptionModal = ({ showModal, toggleReferralModal, selectedReferral })
 
   const submit = (e) => {
     e.preventDefault();
-
+  
+    console.log("Data being submitted:", data);
+  
     const url = selectedReferral
       ? route("prescription.update", { id: selectedReferral.id })
       : route("prescription.create");
-
+  
     post(url, {
+      preserveScroll: true,
       onSuccess: () => {
         setData({
           doctor_id: "",
@@ -77,35 +80,38 @@ const PrescriptionModal = ({ showModal, toggleReferralModal, selectedReferral })
           instruction: "",
           diagnosis: "",
         });
-
-        toggleModal(false); // Close the modal
+  
+        toggleModal(false);
         toast.success("Prescription added successfully!");
       },
       onError: () => {
         toast.error("An error occurred during prescription creation.");
       },
     });
-  };
+  };  
 
   const handleQuantityChange = (index, value) => {
     const selectedMedicine = medicines.find(
-      (med) => med.id === data.medicines[index].medicine_id
+      (med) => med.medicine_id === data.medicines[index].medicine_id
     );
-
+  
+    // Check stock availability
     if (selectedMedicine && value > selectedMedicine.in_stock) {
       toast.error(`Not enough stock! Available stock: ${selectedMedicine.in_stock}`);
       return;
     }
-
-    handleMedicineChange(index, 'quantity', value);
-    handleMedicineChange(index, 'medicine_id', value);
+  
+    // Update only the quantity
+    handleMedicineChange(index, "quantity", value);
   };
+  
+  
 
   return (
     <Modal show={showModal} onClose={() => toggleModal(false)}>
       <form onSubmit={submit} className="p-6">
         <Title>Create Prescription</Title>
-
+        
         <div className="mt-4">
           <InputLabel value="Patient" />
           <TextInput
@@ -122,6 +128,12 @@ const PrescriptionModal = ({ showModal, toggleReferralModal, selectedReferral })
           {data.medicines.map((medicine, index) => {
             const selectedMedicine = medicines.find((med) => med.id === medicine.medicine_id);
             const inStock = selectedMedicine ? selectedMedicine.in_stock : 0;
+            console.log("Updated medicines:", data.medicines);
+            <input
+              type="hidden"
+              name={`medicines[${index}][medicine_id]`}
+              value={medicine.medicine_id || ""}
+            />
 
             return (
               <div className="flex items-center gap-4 mb-4" key={index}>
@@ -133,9 +145,10 @@ const PrescriptionModal = ({ showModal, toggleReferralModal, selectedReferral })
                   />
                   <ComboBox
                     items={medicines}
-                    value={medicines.find((med) => med.id === medicine.medicine_id)}
+                    value={medicines.find((med) => med.medicine_id === medicine.medicine_id)}
                     onChange={(selected) => {
-                      handleMedicineChange(index, "medicine_id", selected ? selected.id : "");
+                      console.log("Selected medicine:", selected);
+                      handleMedicineChange(index, "medicine_id", selected ? selected.medicine_id : "");
                     }}
                     placeholder="Select Medicine"
                     displayKey="medicine_name"

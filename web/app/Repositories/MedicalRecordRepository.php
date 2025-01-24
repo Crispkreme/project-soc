@@ -32,13 +32,19 @@ class MedicalRecordRepository implements MedicalRecordContract
 
     public function getMedicalRecordById($id)
     {
-
-        return $this->model->with([
-            'medicine',
-        ])
-        ->select('id', 'patient_id', 'medicine_id', 'diagnosis', 'created_at')
-        ->where('patient_id', $id)
-        ->get();
+        return $this->model->with('medicine:id,medicine_name')
+            ->where('patient_id', $id)
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'id' => $record->id,
+                    'patient_id' => $record->patient_id,
+                    'medicine_name' => $record->medicine->medicine_name ?? null,
+                    'diagnosis' => $record->diagnosis,
+                    'pdf_file' => $record->pdf_file,
+                    'created_at' => $record->created_at ? $record->created_at->format('F j, Y') : null,
+                ];
+            });
     }
 
     public function getAllMedicalRecord()

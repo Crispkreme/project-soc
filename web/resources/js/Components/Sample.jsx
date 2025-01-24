@@ -5,7 +5,6 @@ import { LuClipboardEdit } from 'react-icons/lu';
 const Table = React.lazy(() => import("@/Components/Table"));
 
 const healthRecordColumn = [
-  { key: "id", label: "ID", render: (_, __, index) => index + 1 },
   { key: "name", label: "Illness" },
   { key: "description", label: "Illness Description" },
   {
@@ -24,7 +23,6 @@ const healthRecordAction = [
 ];
 
 const surgicalRecordColumn = [
-  { key: "id", label: "ID", render: (_, __, index) => index + 1 },
   { key: "procedure", label: "Surgery" },
   { key: "description", label: "Procedure" },
   { key: "doctor_name", label: "Doctor" },
@@ -44,7 +42,6 @@ const surgicalRecordAction = [
 ];
 
 const medicationRecordColumn = [
-  { key: "id", label: "ID", render: (_, __, index) => index + 1 },
   { key: "medicine.medicine_name", label: "Medicine Name" },
   { key: "dosage", label: "Dosage" },
   { key: "reason", label: "Reason/For:" },
@@ -64,7 +61,6 @@ const medicationRecordAction = [
 ];
 
 const familyMedicalRecordColumn = [
-  { key: "id", label: "ID", render: (_, __, index) => index + 1 },
   { key: "disease", label: "Disease" },
   { key: "relationship_disease", label: "Relationship" },
   {

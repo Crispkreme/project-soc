@@ -314,6 +314,7 @@ class AppointmentController extends Controller
     {
         $user = Auth::user();
 
+        // Ensure the user is authenticated
         if (!$user) {
             return redirect()->route('login');
         }
@@ -321,12 +322,15 @@ class AppointmentController extends Controller
         try {
             DB::beginTransaction();
 
+            // Retrieve the patient ID using the booking ID
             $patientId = $this->bookingContract->getPatientIdByBookingId($id);
             
+            // Check if the patient ID exists for the booking
             if (!$patientId) {
                 throw new Exception('Patient ID not found for the booking.');
             }
 
+            // Validate the incoming request data
             $validatedData = $request->validate([
                 'medicines' => 'required|array|min:1',
                 'medicines.*.medicine_id' => 'required|integer|exists:medicines,id',
@@ -335,80 +339,99 @@ class AppointmentController extends Controller
                 'instruction' => 'nullable|string|max:255',
                 'reason' => 'nullable|string|max:255',
                 'dosage' => 'nullable|string|max:255',
-            ]); 
-            
-            foreach ($validatedData['medicines'] as $medicine) {
+            ]);
 
+            // Process each medicine in the prescription
+            foreach ($validatedData['medicines'] as $medicine) {
+                // Retrieve the medicine record from the ledger
                 $medicineRecord = $this->ledgerContract->getLedgerByMedicineId($medicine['medicine_id']);
                 
                 if (!$medicineRecord) {
                     throw new Exception('Medicine not found.');
                 }
 
+                // Check if the requested quantity is available in stock
                 if ($medicine['quantity'] > $medicineRecord->in_stock) {
                     throw new Exception("Not enough stock for the medicine: {$medicineRecord->name}. Available stock: {$medicineRecord->in_stock}. Requested quantity: {$medicine['quantity']}");
                 }
 
+                // Prepare the data for creating or updating the prescription
                 $prescriptionData = [
                     'patient_id' => $patientId,
                     'doctor_id' => $user->id,
                     'medicine_id' => $medicine['medicine_id'],
                     'quantity' => $medicine['quantity'],
-                    'diagnosis' => $validatedData['diagnosis'],
-                    'instruction' => $validatedData['instruction'],
+                    'diagnosis' => $validatedData['diagnosis'] ?? null,
+                    'instruction' => $validatedData['instruction'] ?? null,
                 ];
 
+                // Create or update the prescription
                 $this->prescriptionContract->updateOrCreatePrescription($prescriptionData);
 
+                // Prepare the data for analytics tracking
                 $analyticsData = [
                     'illness' => $validatedData['diagnosis'] ?? null,
                     'medicine_id' => $medicine['medicine_id'],
                     'quantity' => $medicine['quantity'],
                 ];
+
+                // Update or create analytics data
                 $this->dataAnalyticContract->updateOrCreateDataAnalytic($analyticsData);
 
+                // Prepare the data for medication tracking
                 $medicationData = [
                     'patient_id' => $patientId,
                     'medicine_id' => $medicine['medicine_id'],
-                    'quantity' => $medicine['quantity'] ?? 0,
+                    'quantity' => $medicine['quantity'],
                     'reason' => $validatedData['reason'] ?? null,
                     'dosage' => $validatedData['dosage'] ?? null,
                     'medication_status' => 'Approve',
                 ];
+
+                // Create or update the medication record
                 $this->medicationContract->createOrUpdateMedication($medicationData);
 
+                // Update the ledger to reflect the medicine quantity change
                 $this->ledgerContract->updateLedgerQuantity($medicine['medicine_id'], $medicine['quantity']);
             }
 
-            // Update booking and appointment status
+            // Update the booking status to "Success"
             $this->bookingContract->updateBookingstatus('Success', $id, $user->id);
+
+            // Update the appointment status to "Success"
             $this->appointmentContract->updateAppointmentStatusById('Success', $id);
 
-            // Log the prescription creation
+            // Log the prescription creation action
             $logData = [
                 'doctor_id' => $user->id,
                 'patient_id' => $patientId,
                 'message' => 'has created a prescription',
                 'log_status' => 'Success',
             ];
+
+            // Create or update the log
             $this->logContract->updateOrCreateLog($logData);
 
+            // Commit the transaction
             DB::commit();
 
+            // Return success response
             return redirect()->back()->with('success', 'Prescription saved successfully!');
             
         } catch (Exception $e) {
+            // Log the error
             Log::error('Error during updateOrCreatePrescription', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
+            // Rollback the transaction in case of an error
             DB::rollback();
 
+            // Return error response
             return redirect()->back()->with('error', 'An error occurred, please try again.');
         }
     }
-
 
     public function getAllAppointment()
     {
@@ -421,6 +444,7 @@ class AppointmentController extends Controller
         $routeName = Route::currentRouteName();
         $accountType = match ($routeName) {
             'practitioner.appointments' => 'Practitioner',
+            'admin.appointment.books' => 'Administration',
             default => 'login',
         };
 
@@ -430,15 +454,17 @@ class AppointmentController extends Controller
 
         $viewPath = match ($accountType) {
             'Practitioner' => 'Practitioners/Bookings/Booking',
+            'Administration' => 'Admins/Bookings/Booking',
             default => 'login'
-        }; 
+        };
 
-        $appointments = $this->appointmentContract->appointments();  
-        
+        $appointments = $this->appointmentContract->appointments();
+  
         return Inertia::render($viewPath, [
             'appointments' => $appointments,
         ]);
     }
+
 
     // for mobile
     private function formatEventTime($startTime, $endTime)

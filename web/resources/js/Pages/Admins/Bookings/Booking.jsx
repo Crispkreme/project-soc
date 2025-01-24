@@ -2,11 +2,11 @@ import React, { useState, Suspense } from 'react';
 import { Head } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
 
-const PatientLayout = React.lazy(() => import("@/Layouts/PatientLayout"));
+const AdminLayout = React.lazy(() => import("@/Layouts/AdminLayout"));
 const ConfirmDeleteModal = React.lazy(() => import("@/Components/Modals/ConfirmDeleteModal"));
 
 const Booking = ({ appointments }) => {
-    
+
     const [showModal, setShowModal] = useState(false);
     const [selectedMedicine, setSelectedMedicine] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -67,21 +67,23 @@ const Booking = ({ appointments }) => {
     };
 
     const formatTime = (timeString) => {
+        if (!timeString) return 'N/A';
         const [hours, minutes] = timeString.split(':');
         const hour = parseInt(hours, 10);
         const period = hour >= 12 ? 'PM' : 'AM';
         const formattedHour = hour % 12 || 12;
         return `${formattedHour}:${minutes} ${period}`;
     };
+    
 
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <PatientLayout>
+            <AdminLayout>
                 <Head title="Manage Appointments" />
 
                 <div className="bg-white border border-gray-100 shadow-md shadow-black/5 p-6 rounded-md">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-medium">Manage Appointments</h2>
+                        <h2 className="font-medium">List Appointments</h2>
                     </div>
 
                     <div className="pb-4">
@@ -101,15 +103,12 @@ const Booking = ({ appointments }) => {
                         <table className="w-full text-sm text-left text-gray-500">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3">Doctor Name</th>
-                                    <th className="px-6 py-3">Patient Name</th>
-                                    <th className="px-6 py-3">Bhw Name</th>
-                                    <th className="px-6 py-3">Title</th>
+                                    <th className="px-6 py-3">Doctor</th>
+                                    <th className="px-6 py-3">Bhw</th>
+                                    <th className="px-6 py-3">Event</th>
                                     <th className="px-6 py-3">Appointment Date</th>
-                                    <th className="px-6 py-3">Start Time</th>
-                                    <th className="px-6 py-3">End Time</th>
+                                    <th className="px-6 py-3">Appointment Time</th>
                                     <th className="px-6 py-3">No. Appointment</th>
-                                    <th className="px-6 py-3">Status</th>
                                     <th className="px-6 py-3">Created At</th>
                                 </tr>
                             </thead>
@@ -118,15 +117,12 @@ const Booking = ({ appointments }) => {
                                     filteredMedicines.map((appointment, index) => (
                                         <tr key={index} className="bg-white border-b hover:bg-gray-50">
                                             <td className="px-6 py-4">{appointment.doctor_name}</td>
-                                            <td className="px-6 py-4">{appointment.patient_name}</td>
                                             <td className="px-6 py-4">{appointment.bhw_name}</td>
                                             <td className="px-6 py-4">{appointment.title}</td>
                                             <td className="px-6 py-4">{formatDate(appointment.appointment_date)}</td>
-                                            <td className="px-6 py-4">{formatTime(appointment.appointment_start)}</td>
-                                            <td className="px-6 py-4">{formatTime(appointment.appointment_end)}</td>
+                                            <td className="px-6 py-4">{formatTime(appointment.appointment_start)} - {formatTime(appointment.appointment_end)}</td>
                                             <td className="px-6 py-4">{appointment.slot}</td>
-                                            <td className="px-6 py-4">{appointment.appointment_status}</td>
-                                            <td className="px-6 py-4">{formatDate(appointment.created_at)}</td>
+                                            <td className="px-6 py-4">{appointment.format_created_at}</td>
                                         </tr>
                                     ))
                                 ) : (
@@ -148,7 +144,7 @@ const Booking = ({ appointments }) => {
                     title="Confirm Deletion"
                     message={`Are you sure you want to delete "${medicineToDelete?.medicine_name}"?`}
                 />
-            </PatientLayout>
+            </AdminLayout>
         </Suspense>
     );
 };

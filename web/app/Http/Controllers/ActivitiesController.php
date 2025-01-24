@@ -94,7 +94,7 @@ class ActivitiesController extends Controller
                     'event_end' => 'required|date_format:H:i|after:event_start',
                     'event_venue' => 'required|string|max:255',
                 ]);   
-
+                
                 if($user->role === 'Practitioner') {
                     $existingEvent = $this->barangayEventContract->getDoctorBarangayEvent($user->id, $data['event_date']);
                 } else {
@@ -116,7 +116,14 @@ class ActivitiesController extends Controller
                         
                         Session::flash('success', 'New Edited Event successfully saved!');
                     } else {
-                        $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+
+                        if($user->role === 'Practitioner') {
+                            $data['doctor_id'] = $user->id; 
+                            $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+                        } else {
+                            $this->barangayEventContract->updateOrCreateBarangayEvent($data);
+                        }
+                        
                         Session::flash('success', 'New Event successfully saved!');
                     }
                 }

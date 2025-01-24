@@ -7,6 +7,7 @@ interface BookingContract {
     public function getAllBooking();
     public function getCurrentBooking();
     public function getPatientBooking($id);
+    public function getExistingBooking($date, $start, $end);
     public function createOrUpdateBooking($data);
     public function getBookingById($id);
     public function cancelBooking($id, $approverId, $reason);

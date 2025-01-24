@@ -15,8 +15,8 @@ const TextInput = React.lazy(() => import("@/Components/Inputs/TextInput"));
 const Textarea = React.lazy(() => import("@/Components/Inputs/Textarea"));
 const Title = React.lazy(() => import("@/Components/Headers/Title"));
 
-const Appointment = ({ bookings = [], doctors, bhws }) => {
-  
+const Appointment = ({ bookings = [] }) => {
+
   const bookingSchedule = bookings.map((event) => {
     const parsedDate = new Date(event.event_date);
     const isoDate = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}`;
@@ -27,6 +27,8 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
       start: `${isoDate}T${event.event_start}`,
       end: `${isoDate}T${event.event_end}`,
       extendedProps: {
+        eventId: event.id,
+        doctor_id: event.doctor_id,
         doctor_name: event.doctor_name,
         bhw_name: event.bhw_name,
         venue: event.event_venue,
@@ -68,7 +70,6 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
       return slotStart >= startHour && slotEnd <= endHour;
     });
   };
-
   const handleEventClick = (clickInfo) => {
     const event = clickInfo.event;
     const { extendedProps } = event;
@@ -80,7 +81,8 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
 
     setData({
       ...data,
-      event_id: event.id,
+      event_id: extendedProps.eventId,
+      doctor_id: extendedProps.doctor_id,
       event_name: event.title,
       event_venue: extendedProps.venue,
       event_date: event.start.toISOString().split('T')[0],
@@ -95,11 +97,11 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
 
     setFilteredTimeSchedule(filteredSlots);
   };
-
   const [filteredTimeSchedule, setFilteredTimeSchedule] = React.useState(timeSchedule);
-  console.log(filteredTimeSchedule);
   const handleBookAppointment = (e) => {
+
     e.preventDefault();
+
     post(route('patient.create.booking'), {
       onSuccess: (response) => {
         const flash = response.props?.flash;
@@ -118,7 +120,6 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
       },
     });
   };
-
   const renderEvent = (eventInfo) => {
     const { status, isPast } = eventInfo.event.extendedProps;
 
@@ -134,7 +135,18 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
       </span>
     );
   };
-
+  const handleTimeSlotChange = (selected) => {
+    if (selected) {
+      const [start, end] = selected.value.split(" - ");
+      setData({
+        ...data,
+        event_start: `${start}:00`,
+        event_end: `${end}:00`,
+      });
+    }
+  };
+  
+  
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <PatientLayout>
@@ -165,6 +177,18 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
 
           <div className="col-span-12 lg:col-span-5 flex flex-col gap-4 p-4">
             <form onSubmit={handleBookAppointment}>
+              <input
+                type="hidden"
+                value={data.doctor_id}
+                name="doctor_id"
+                onChange={(e) => setData("doctor_id", e.target.value)}
+              />
+              <input
+                type="hidden"
+                value={data.event_id}
+                name="event_id"
+                onChange={(e) => setData("event_id", e.target.value)}
+              />
               <div className="p-8">
                 <div>
                   <label>Event Name:</label>
@@ -199,16 +223,13 @@ const Appointment = ({ bookings = [], doctors, bhws }) => {
                 <div className="mt-2">
                   <InputLabel value="Time Slot" />
                   <ComboBox
-                    items={filteredTimeSchedule}
-                    value={filteredTimeSchedule.find(
-                      (time) => time.value === `${data.event_start} - ${data.event_end}`
+                    items={timeSchedule}
+                    value={timeSchedule.find(
+                      (time) =>
+                        time.value === `${data.event_start.slice(0, 5)} - ${data.event_end.slice(0, 5)}`
                     )}
-                    onChange={(selected) => {
-                      const [start, end] = selected ? selected.value.split(' - ') : [];
-                      setData("event_start", start);
-                      setData("event_end", end);
-                    }}
-                    placeholder="Select Start Time"
+                    onChange={handleTimeSlotChange}
+                    placeholder="Select Time Slot"
                     displayKey="label"
                   />
                   <InputError message={errors.event_start} />

@@ -9,7 +9,6 @@ const Referral = ({ prescriptions }) => {
     const [filteredPrescriptions, setFilteredPrescriptions] = useState(prescriptions);
 
     const prescriptionColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "patient_name", label: "Patient Name" },
         { key: "doctor_name", label: "Doctor Name" },
         { key: "instructions", label: "Instruction" },

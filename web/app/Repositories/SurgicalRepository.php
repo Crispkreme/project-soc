@@ -68,7 +68,29 @@ class SurgicalRepository implements SurgicalContract
     public function getSurgicalById($id)
     {
         return $this->model
-            ->where('id', $id)
-            ->get();
+            ->where('patient_id', $id)
+            ->with([
+                'doctor.details:id,user_id,firstname,middlename,lastname',
+            ])
+            ->get()
+            ->map(function ($record) {
+                return [
+                    'id' => $record->id,
+                    'patient_id' => $record->patient_id,
+                    'doctor_name' => $record->doctor && $record->doctor->details
+                        ? trim(
+                            "{$record->doctor->details->firstname} " .
+                            "{$record->doctor->details->middlename} " .
+                            "{$record->doctor->details->lastname}"
+                        )
+                        : null,
+                    'procedure' => $record->procedure,
+                    'description' => $record->description,
+                    'pdf_file' => $record->pdf_file,
+                    'created_at' => $record->created_at,
+                    'updated_at' => $record->updated_at,
+                ];
+            });
     }
+
 }

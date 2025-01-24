@@ -10,4 +10,5 @@ interface AppointmentContract {
     public function getAllAppointmentByMonth();
     public function updateAppointmentStatusById($status, $id);
     public function checkBookingSlot($id);
+    public function getAppointmentById($id);
 }

@@ -26,7 +26,6 @@ const Activity = ({ barangayEvents, doctors, bhws }) => {
 
     // Define table columns
     const barangayEventColumn = [
-        { key: "id", label: "ID", render: (_, __, index) => index + 1 },
         { key: "doctor_name", label: "Doctor Name" },
         { key: "bhw_name", label: "In Charge" },
         { key: "event_name", label: "Event" },
