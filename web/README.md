@@ -35,8 +35,8 @@ Command:
 ### 2. Copy the .env file
 Command:  
 ```sh
-cp .env.example .env
-php artisan key:generate
+    cp .env.example .env
+    php artisan key:generate
 ```
 
 ### 3. Update the .env file
