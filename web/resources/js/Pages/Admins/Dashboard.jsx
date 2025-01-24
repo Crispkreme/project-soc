@@ -21,7 +21,6 @@ const CancelAppointmentModal = React.lazy(() => import("@/Components/Forms/Cance
 const Table = React.lazy(() => import("@/Components/Table"));
 
 export default function Dashboard({ appointments, message, dataAnalytic }) {
-
     const [filteredAppointments, setFilteredAppointments] = useState(appointments);
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState("");
@@ -30,12 +29,14 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
 
+    // Show toast message if provided
     useEffect(() => {
         if (message) {
             toast.success(message);
         }
     }, [message]);
 
+    // Fetch barangay events
     useEffect(() => {
         const fetchUpcomingBarangayEvents = async () => {
             try {
@@ -47,10 +48,10 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                 setLoading(false);
             }
         };
-
         fetchUpcomingBarangayEvents();
     }, []);
 
+    // Modal handlers
     const toggleModal = (appointment = null, type = "") => {
         setSelectedAppointment(appointment);
         setModalType(type);
@@ -63,6 +64,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
         setSelectedAppointment(null);
     };
 
+    // Handle search functionality
     const handleSearch = (e) => {
         const query = e.target.value.toLowerCase();
         setSearchQuery(query);
@@ -76,6 +78,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
         setFilteredAppointments(filtered);
     };
 
+    // Generate random colors for the chart
     const getRandomColor = () => {
         const letters = "0123456789ABCDEF";
         let color = "#";
@@ -85,51 +88,46 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
         return color;
     };
 
-    const processDataAnalytics = (data) => {
-        if (!Array.isArray(data) || data.length === 0) {
-            console.warn("No valid data provided.");
+    // Process analytics data
+    const processDataAnalytics = (monthlyData) => {
+        if (!Array.isArray(monthlyData) || monthlyData.length === 0) {
+            console.warn("No valid data provided for analytics.");
             return {
-                illnesses: {
-                    labels: ["No data available"],
-                    data: [0],
-                },
-                medicines: {
-                    labels: ["No data available"],
-                    data: [0],
-                },
+                illnesses: { labels: ["No data available"], data: [0] },
+                medicines: { labels: ["No data available"], data: [0] },
             };
         }
-    
+
         const illnessesCount = {};
         const medicinesCount = {};
-    
-        data.forEach((record) => {
-            illnessesCount[record.illness] = (illnessesCount[record.illness] || 0) + 1;
-            medicinesCount[record.medicine] = (medicinesCount[record.medicine] || 0) + record.total_quantity;
+
+        monthlyData.forEach((record) => {
+            if (record.illness) {
+                illnessesCount[record.illness] = (illnessesCount[record.illness] || 0) + 1;
+            }
+            if (record.medicine) {
+                medicinesCount[record.medicine] =
+                    (medicinesCount[record.medicine] || 0) + record.total_quantity;
+            }
         });
-    
-        const sortedIllnesses = Object.entries(illnessesCount)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 3);
-    
-        const sortedMedicines = Object.entries(medicinesCount)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 3);
-    
+
         return {
             illnesses: {
-                labels: sortedIllnesses.map((item) => item[0]),
-                data: sortedIllnesses.map((item) => item[1]),
+                labels: Object.keys(illnessesCount),
+                data: Object.values(illnessesCount),
             },
             medicines: {
-                labels: sortedMedicines.map((item) => item[0]),
-                data: sortedMedicines.map((item) => item[1]),
+                labels: Object.keys(medicinesCount),
+                data: Object.values(medicinesCount),
             },
         };
-    };    
+    };
 
-    const { illnesses, medicines } = processDataAnalytics(dataAnalytic["December 2024"]);
+    // Get data for "January 2025" or provide fallback
+    const monthData = dataAnalytic["January 2025"] || [];
+    const { illnesses, medicines } = processDataAnalytics(monthData);
 
+    // Chart data for illnesses
     const illnessDataForChart = {
         labels: illnesses.labels,
         datasets: [
@@ -142,6 +140,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
         ],
     };
 
+    // Chart data for medicines
     const medicineDataForChart = {
         labels: medicines.labels,
         datasets: [
@@ -154,6 +153,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
         ],
     };
 
+    // Appointment table columns
     const appointmentColumns = [
         { key: "approver_name", label: "Doctor" },
         { key: "patient_name", label: "Patient" },
@@ -175,6 +175,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
             <AdminLayout>
                 <Head title="Dashboard" />
 
+                {/* Barangay Events Section */}
                 <div className="w-full md:w-[50%] mt-6 container mx-auto bg-white rounded-lg border border-gray-200 p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300">
                     {!barangayEvents ? (
                         <p>No upcoming events found.</p>
@@ -189,6 +190,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                     )}
                 </div>
 
+                {/* Charts Section */}
                 <div className="container mx-auto flex flex-col md:flex-row justify-around items-start mt-6 space-y-4 md:space-y-0 md:space-x-4">
                     <div className="chart-card bg-gray-50 rounded-lg p-6 text-center shadow-lg w-full md:w-1/2">
                         <Bar data={illnessDataForChart} />
@@ -198,6 +200,7 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                     </div>
                 </div>
 
+                {/* Appointments Section */}
                 <div className="grid grid-cols-1 gap-6 mb-6 mt-4">
                     <div className="bg-white border border-gray-100 shadow-md p-6 rounded-md">
                         <div className="flex justify-between mb-4 items-start">
@@ -211,53 +214,51 @@ export default function Dashboard({ appointments, message, dataAnalytic }) {
                             />
                         </div>
                         <div className="overflow-x-auto">
-
                             <Table
                                 columns={appointmentColumns}
-                                data={filteredAppointments
-                                    .filter((appointment) => appointment.booking_status !== "Approve")
-                                    .map((appointment) => ({
-                                        approver_name: appointment.doctor_name,
-                                        patient_name: appointment.patient_name,
-                                        title: appointment.title,
-                                        appointment_date: appointment.appointment_date,
-                                        appointment_time: `${appointment.appointment_start} - ${appointment.appointment_end}`,
-                                        reason: appointment.reason,
-                                        booking_status: appointment.booking_status,
-                                        updated_at: appointment.updated_at,
-                                        actions: [
+                                data={filteredAppointments.map((appointment) => ({
+                                    approver_name: appointment.doctor_name,
+                                    patient_name: appointment.patient_name,
+                                    title: appointment.title,
+                                    appointment_date: appointment.appointment_date,
+                                    appointment_time: `${appointment.appointment_start} - ${appointment.appointment_end}`,
+                                    reason: appointment.reason,
+                                    booking_status: appointment.booking_status,
+                                    updated_at: appointment.updated_at,
+                                    actions: [
+                                        <StatusButton
+                                            key="approve"
+                                            status={appointment.booking_status}
+                                            onClick={() => toggleModal(appointment, "approve")}
+                                        />,
+                                        appointment.booking_status === "Pending" && (
                                             <StatusButton
-                                                key="approve"
-                                                status={appointment.booking_status}
-                                                onClick={() => toggleModal(appointment, "approve")}
-                                            />,
-                                            appointment.booking_status === "Pending" && (
-                                                <StatusButton
-                                                    key="cancel"
-                                                    status="Failed"
-                                                    onClick={() => toggleModal(appointment, "cancel")}
-                                                />
-                                            ),
-                                        ].filter(Boolean),
-                                    }))}
+                                                key="cancel"
+                                                status="Failed"
+                                                onClick={() => toggleModal(appointment, "cancel")}
+                                            />
+                                        ),
+                                    ].filter(Boolean),
+                                }))}
                                 noDataMessage="No Appointments Available."
                             />
                         </div>
                     </div>
                 </div>
 
+                {/* Modals */}
                 {showModal && modalType === "approve" && selectedAppointment && (
                     <ApproveModal
-                    showModal={showModal}
-                    toggleModal={closeModal}
-                    selectedAppointment={selectedAppointment}
+                        showModal={showModal}
+                        toggleModal={closeModal}
+                        selectedAppointment={selectedAppointment}
                     />
                 )}
                 {showModal && modalType === "cancel" && selectedAppointment && (
                     <CancelAppointmentModal
-                    showModal={showModal}
-                    toggleModal={closeModal}
-                    selectedAppointment={selectedAppointment}
+                        showModal={showModal}
+                        toggleModal={closeModal}
+                        selectedAppointment={selectedAppointment}
                     />
                 )}
             </AdminLayout>
